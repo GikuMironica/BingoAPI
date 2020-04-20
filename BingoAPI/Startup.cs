@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BingoAPI.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,13 +29,8 @@ namespace BingoAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-
-            services.AddSwaggerGen(x =>
-            {
-                // register Swagger document generator, defining >1 Swagger documents
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Bingo REST API", Version = "v1" });
-            });
+            // extension method
+            services.InstallServicesInAssembly(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
