@@ -11,6 +11,7 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap4")]
 [assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("a06b5412-04cc-4d2e-9e0a-57a89fecd4d5")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("BingoAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
