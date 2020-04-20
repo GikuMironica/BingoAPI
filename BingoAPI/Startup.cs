@@ -33,7 +33,7 @@ namespace BingoAPI
             services.AddSwaggerGen(x =>
             {
                 // register Swagger document generator, defining >1 Swagger documents
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "REST", Version = "v1" });
+                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Bingo REST API", Version = "v1" });
             });
         }
 
