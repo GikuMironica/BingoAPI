@@ -1,4 +1,5 @@
-﻿using BingoAPI.Models;
+﻿using BingoAPI.Domain;
+using BingoAPI.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,8 +11,8 @@ using System.Threading.Tasks;
 namespace BingoAPI.Data
 
 {
-    public class DataContext : IdentityDbContext<AppUser>
-    {
+    public class DataContext : IdentityDbContext
+    {              
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
@@ -22,5 +23,7 @@ namespace BingoAPI.Data
         {
             base.OnModelCreating(builder);
         }
+
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

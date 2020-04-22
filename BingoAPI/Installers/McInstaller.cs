@@ -29,7 +29,19 @@ namespace BingoAPI.Installers
             configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(jwtSettings);
             services.AddScoped<IIdentityService, IdentityService>();
-                      
+
+            var tokenValidationParameter = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                RequireExpirationTime = false,
+                ValidateLifetime = true
+            };
+
+            services.AddSingleton(tokenValidationParameter);
+
             // Add Bearer authentication method
             services.AddAuthentication(x =>
             {
@@ -40,14 +52,7 @@ namespace BingoAPI.Installers
             .AddJwtBearer(x =>
             {
                 x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    RequireExpirationTime =  false,
-                    ValidateLifetime = true
-                };
+                x.TokenValidationParameters = tokenValidationParameter;
             });
 
             services.AddSwaggerGen(x =>

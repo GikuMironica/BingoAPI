@@ -1,5 +1,5 @@
-﻿using Bingo.Contracts.Requests;
-using Bingo.Contracts.Responses;
+﻿using Bingo.Contracts.V1.Responses;
+using Bingo.Contracts.V1.Requests;
 using Bingo.Contracts.V1;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -46,7 +46,8 @@ namespace BingoAPI.Controllers
 
             return Ok(new AuthSuccessResponse
             {
-                Token = authResponse.Token
+                Token = authResponse.Token,
+                RefreshToken = authResponse.RefreshToken
             });
         }
 
@@ -56,7 +57,7 @@ namespace BingoAPI.Controllers
         /// <param name="request">Request containing user email and password</param>
         /// <returns>Authentication result containing the jwt token and http response code</returns>
         [HttpPost(ApiRoutes.Identity.Login)]
-        public async Task<IActionResult> LoginAsync ([FromBody] UserLoginRequest request)
+        public async Task<IActionResult> LoginAsync([FromBody] UserLoginRequest request)
         {
             var authResponse = await _identityService.LoginAsync(request.Email, request.Password);
             if (!authResponse.Success)
@@ -68,8 +69,38 @@ namespace BingoAPI.Controllers
             }
             return Ok(new AuthSuccessResponse
             {
-                Token = authResponse.Token
+                Token = authResponse.Token,
+                RefreshToken = authResponse.RefreshToken
             });
         }
+
+
+        /// <summary>
+        /// Generates a new JWT, Refresh token combination and stores it 
+        /// in the system databse
+        /// </summary>
+        /// <param name="request">Contains the JWT and the refresh token</param>
+        /// <returns>New JWT, Refresh token combination</returns>
+        [HttpPost(ApiRoutes.Identity.Refresh)]
+        public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenRequest request)
+        {
+            var authResponse = await _identityService.RefreshTokenAsync(request.Token, request.RefreshToken);
+
+            if (!authResponse.Success)
+            {
+                return BadRequest(new AuthFailedResponse
+                {
+                    Errors = authResponse.Errors
+                });
+            }
+
+            return Ok(new AuthSuccessResponse
+            {
+                Token = authResponse.Token,
+                RefreshToken = authResponse.RefreshToken
+            });
+       
+        }
+                
     }
 }

@@ -11,8 +11,8 @@ namespace BingoAPI.Domain
 
         public bool Success { get; set; }
 
-        public string ErrorMessage { get; set; }
-
         public IEnumerable<string> Errors { get; set; }
+
+        public string RefreshToken { get; set; }
     }
 }

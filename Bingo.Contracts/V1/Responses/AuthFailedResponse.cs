@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bingo.Contracts.Responses
+namespace Bingo.Contracts.V1.Responses
 {
     public class AuthFailedResponse
     {
