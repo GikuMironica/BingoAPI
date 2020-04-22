@@ -60,7 +60,45 @@ namespace BingoAPI.Services
                     Errors = result.Errors.Select(x => x.Description)
                 };
             }
+            return GenerateAuthenticationResultForUser(newUser);            
+        }
 
+        /// <summary>
+        /// This method Logs in existing user in the system
+        /// </summary>
+        /// <param name="email">User email</param>
+        /// <param name="requestPassword">User password</param>
+        /// <returns>Return AuthenticationResult</returns>
+        public async Task<AuthenticationResult> LoginAsync(string email, string requestPassword)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            if(user == null)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "User does not exist" }
+                };
+            }
+
+            var userHasValidPassword = await userManager.CheckPasswordAsync(user, requestPassword);
+            if (!userHasValidPassword)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "Username / Password combination is wrong" }
+                };
+            }
+            return GenerateAuthenticationResultForUser(user);
+        }
+
+        /// <summary>
+        /// Generates jwt token for <paramref name="newUser"/> 
+        /// </summary>
+        /// <param name="newUser">An identity user</param>
+        /// <returns></returns>
+        private AuthenticationResult GenerateAuthenticationResultForUser(AppUser newUser)
+        {
             // token generations
             var tokenHandler = new JwtSecurityTokenHandler();
 

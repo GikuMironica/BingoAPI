@@ -12,18 +12,30 @@ namespace BingoAPI.Controllers
 {
     public class IdentityController : Controller
     {
-        private readonly IIdentityService identityService;
+        private readonly IIdentityService _identityService;
         public IdentityController(IIdentityService identityService)
         {
-            this.identityService = identityService;
+            this._identityService = identityService;
         }
 
+        /// <summary>
+        /// Registers user in the system
+        /// </summary>
+        /// <param name="request">Request object containing user email , password</param>
+        /// <returns>Authentication result containing the jwt token and http response code</returns>
         [HttpPost(ApiRoutes.Identity.Register)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
-            // register the incoming user data with identity service
-            var authResponse = await identityService.RegisterAsync(request.Email, request.Password);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new AuthFailedResponse
+                {
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
 
+            // register the incoming user data with identity service
+            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);
             if (!authResponse.Success)
             {
                 return BadRequest(new AuthFailedResponse
@@ -32,6 +44,28 @@ namespace BingoAPI.Controllers
                 });
             }
 
+            return Ok(new AuthSuccessResponse
+            {
+                Token = authResponse.Token
+            });
+        }
+
+        /// <summary>
+        /// Logs in the user in the system
+        /// </summary>
+        /// <param name="request">Request containing user email and password</param>
+        /// <returns>Authentication result containing the jwt token and http response code</returns>
+        [HttpPost(ApiRoutes.Identity.Login)]
+        public async Task<IActionResult> LoginAsync ([FromBody] UserLoginRequest request)
+        {
+            var authResponse = await _identityService.LoginAsync(request.Email, request.Password);
+            if (!authResponse.Success)
+            {
+                return BadRequest(new AuthFailedResponse
+                {
+                    Errors = authResponse.Errors
+                });
+            }
             return Ok(new AuthSuccessResponse
             {
                 Token = authResponse.Token

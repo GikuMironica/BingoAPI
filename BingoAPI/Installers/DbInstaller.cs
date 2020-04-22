@@ -24,7 +24,6 @@ namespace BingoAPI.Installers
             {
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 2;
-                options.Tokens.EmailConfirmationTokenProvider = "CustomEmailConfirmation";
                 options.SignIn.RequireConfirmedEmail = false;
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
