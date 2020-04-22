@@ -19,8 +19,18 @@ namespace BingoAPI.Installers
             services.AddDbContext<DataContext>(options =>
                 options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddDefaultIdentity<AppUser>()
-                .AddEntityFrameworkStores<DataContext>();
+            // configure custom Identity User
+            services.AddIdentity<AppUser, IdentityRole>(options =>
+            {
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 2;
+                options.Tokens.EmailConfirmationTokenProvider = "CustomEmailConfirmation";
+                options.SignIn.RequireConfirmedEmail = false;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+            }).AddEntityFrameworkStores<DataContext>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders();
         }
     }
 }

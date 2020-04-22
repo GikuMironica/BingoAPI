@@ -24,6 +24,7 @@
     ".NETCoreApp,Version=v3.0": {
       "BingoAPI/1.0.0": {
         "dependencies": {
+          "Bingo.Contracts": "1.0.0",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "3.0.0",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "3.0.0",
           "Microsoft.AspNetCore.Identity.UI": "3.0.0",
@@ -740,6 +741,14 @@
       },
       "System.Security.Cryptography.Cng/4.5.0": {},
       "System.Threading.Tasks.Extensions/4.5.2": {},
+      "Bingo.Contracts/1.0.0": {
+        "runtime": {
+          "Bingo.Contracts.dll": {}
+        },
+        "compile": {
+          "Bingo.Contracts.dll": {}
+        }
+      },
       "Microsoft.AspNetCore.Antiforgery/3.0.0.0": {
         "compile": {
           "Microsoft.AspNetCore.Antiforgery.dll": {}
@@ -2775,6 +2784,11 @@
       "sha512": "sha512-BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w==",
       "path": "system.threading.tasks.extensions/4.5.2",
       "hashPath": "system.threading.tasks.extensions.4.5.2.nupkg.sha512"
+    },
+    "Bingo.Contracts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "Microsoft.AspNetCore.Antiforgery/3.0.0.0": {
       "type": "referenceassembly",

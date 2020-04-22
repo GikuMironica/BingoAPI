@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BingoAPI.Data;
+using BingoAPI.Models;
 using BingoAPI.Options;
+using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +28,8 @@ namespace BingoAPI.Installers
             // Bind the properties of an JwtSettings instance with those from appropriate configuration file
             configuration.Bind(nameof(jwtSettings), jwtSettings);
             services.AddSingleton(jwtSettings);
-
+            services.AddScoped<IIdentityService, IdentityService>();
+                      
             // Add Bearer authentication method
             services.AddAuthentication(x =>
             {

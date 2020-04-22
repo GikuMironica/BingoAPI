@@ -594,6 +594,16 @@
         "runtime": {
           "lib/netcoreapp2.1/_._": {}
         }
+      },
+      "Bingo.Contracts/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.0",
+        "compile": {
+          "bin/placeholder/Bingo.Contracts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Bingo.Contracts.dll": {}
+        }
       }
     }
   },
@@ -1672,10 +1682,16 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "Bingo.Contracts/1.0.0": {
+      "type": "project",
+      "path": "../Bingo.Contracts/Bingo.Contracts.csproj",
+      "msbuildProject": "../Bingo.Contracts/Bingo.Contracts.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.0": [
+      "Bingo.Contracts >= 1.0.0",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 3.0.0",
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 3.0.0",
       "Microsoft.AspNetCore.Identity.UI >= 3.0.0",
@@ -1715,7 +1731,11 @@
       },
       "frameworks": {
         "netcoreapp3.0": {
-          "projectReferences": {}
+          "projectReferences": {
+            "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj": {
+              "projectPath": "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
