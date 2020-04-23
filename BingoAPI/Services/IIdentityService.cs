@@ -13,5 +13,7 @@ namespace BingoAPI.Services
         Task<AuthenticationResult> LoginAsync(string email, string requestPassword);
 
         Task<AuthenticationResult> RefreshTokenAsync(string token, string requestToken);
+
+        Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken);
     }
 }

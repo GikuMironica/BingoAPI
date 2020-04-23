@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BingoAPI", "BingoAPI\BingoAPI.csproj", "{C99D5B4E-4CC3-4444-BB3A-96195E488C96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bingo.Contracts", "Bingo.Contracts\Bingo.Contracts.csproj", "{BA970713-37FE-4645-9446-BEF45896C3E8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bingo.Contracts", "Bingo.Contracts\Bingo.Contracts.csproj", "{BA970713-37FE-4645-9446-BEF45896C3E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bingo.TestWebClient", "Bingo.TestWebClient\Bingo.TestWebClient.csproj", "{5B82EB65-5F3A-4C96-8181-05EED515BAFB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{BA970713-37FE-4645-9446-BEF45896C3E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA970713-37FE-4645-9446-BEF45896C3E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA970713-37FE-4645-9446-BEF45896C3E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B82EB65-5F3A-4C96-8181-05EED515BAFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B82EB65-5F3A-4C96-8181-05EED515BAFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B82EB65-5F3A-4C96-8181-05EED515BAFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B82EB65-5F3A-4C96-8181-05EED515BAFB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

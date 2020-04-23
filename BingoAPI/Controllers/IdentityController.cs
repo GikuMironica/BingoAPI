@@ -78,6 +78,27 @@ namespace BingoAPI.Controllers
         }
 
 
+        [HttpPost(ApiRoutes.Identity.FacebookAuth)]
+        public async Task<IActionResult> LoginAsync([FromBody] UserFacebookAuthRequest request)
+        {
+            // authenticate the access token
+            var authResponse = await _identityService.LoginWithFacebookAsync(request.AccessToken);
+
+            if (!authResponse.Success)
+            {
+                return BadRequest(new AuthFailedResponse
+                {
+                    Errors = authResponse.Errors
+                });
+            }
+            return Ok(new AuthSuccessResponse
+            {
+                Token = authResponse.Token,
+                RefreshToken = authResponse.RefreshToken
+            });
+        }
+
+
         /// <summary>
         /// Generates a new JWT, Refresh token combination and stores it 
         /// in the system databse

@@ -21,16 +21,19 @@ namespace BingoAPI.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
+        private readonly IFacebookAuthService facebookAuthService;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
                                TokenValidationParameters tokenValidationParameters,
-                               DataContext dataContext)
+                               DataContext dataContext,
+                               IFacebookAuthService facebookAuthService)
         {
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
             this._dataContext = dataContext;
+            this.facebookAuthService = facebookAuthService;
         }
 
 
@@ -246,6 +249,45 @@ namespace BingoAPI.Services
             };
         }
 
-        
+        public async Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken)
+        {
+            var validatedTokenResult = await facebookAuthService.ValidateAccessTokenAsync(accessToken);
+
+            if (!validatedTokenResult.Data.IsValid)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "Invalid Facebook token" }
+                };
+            }
+            var userInfo = await facebookAuthService.GetUserInfoAsync(accessToken);
+            var user = await _userManager.FindByEmailAsync(userInfo.Email);
+
+            // if email not in the system register user with his FB email
+            if(user == null)
+            {
+                var appUser = new AppUser
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Email = userInfo.Email,
+                    UserName = userInfo.Email
+                };
+                // no password
+                var createdResult = await _userManager.CreateAsync(appUser);
+                if (!createdResult.Succeeded)
+                {
+                    return new AuthenticationResult
+                    {
+                        Errors = new[] { "Somethign went wrong" }
+                    };
+                }
+
+                return await GenerateAuthenticationResultForUserAsync(appUser);
+            }
+
+            // if user already registered with this email, generate jwt for him
+            return await GenerateAuthenticationResultForUserAsync(user);
+        }
+            
     }
 }
