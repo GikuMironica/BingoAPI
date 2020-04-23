@@ -4,14 +4,14 @@
     "D:\\Bingo\\BingoAPI\\BingoAPI.csproj": {}
   },
   "projects": {
-    "D:\\Bingo\\BingoAPI\\BingoAPI.csproj": {
+    "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Bingo\\BingoAPI\\BingoAPI.csproj",
-        "projectName": "BingoAPI",
-        "projectPath": "D:\\Bingo\\BingoAPI\\BingoAPI.csproj",
+        "projectUniqueName": "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj",
+        "projectName": "Bingo.Contracts",
+        "projectPath": "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj",
         "packagesPath": "C:\\Users\\gicum\\.nuget\\packages\\",
-        "outputPath": "D:\\Bingo\\BingoAPI\\obj\\",
+        "outputPath": "D:\\Bingo\\Bingo.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -40,6 +40,105 @@
       },
       "frameworks": {
         "netcoreapp3.0": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\Bingo\\BingoAPI\\BingoAPI.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\Bingo\\BingoAPI\\BingoAPI.csproj",
+        "projectName": "BingoAPI",
+        "projectPath": "D:\\Bingo\\BingoAPI\\BingoAPI.csproj",
+        "packagesPath": "C:\\Users\\gicum\\.nuget\\packages\\",
+        "outputPath": "D:\\Bingo\\BingoAPI\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\gicum\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.0": {
+            "projectReferences": {
+              "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj": {
+                "projectPath": "D:\\Bingo\\Bingo.Contracts\\Bingo.Contracts.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.0": {
+          "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.AspNetCore.Identity.UI": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[5.3.2, )"
+            },
+            "Swashbuckle.AspNetCore.Filters": {
+              "target": "Package",
+              "version": "[5.1.1, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerUI": {
+              "target": "Package",
+              "version": "[5.3.2, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

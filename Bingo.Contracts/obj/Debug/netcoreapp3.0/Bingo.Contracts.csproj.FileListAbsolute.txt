@@ -1,0 +1,7 @@
+D:\Bingo\Bingo.Contracts\bin\Debug\netcoreapp3.0\Bingo.Contracts.deps.json
+D:\Bingo\Bingo.Contracts\bin\Debug\netcoreapp3.0\Bingo.Contracts.dll
+D:\Bingo\Bingo.Contracts\bin\Debug\netcoreapp3.0\Bingo.Contracts.pdb
+D:\Bingo\Bingo.Contracts\obj\Debug\netcoreapp3.0\Bingo.Contracts.AssemblyInfoInputs.cache
+D:\Bingo\Bingo.Contracts\obj\Debug\netcoreapp3.0\Bingo.Contracts.AssemblyInfo.cs
+D:\Bingo\Bingo.Contracts\obj\Debug\netcoreapp3.0\Bingo.Contracts.dll
+D:\Bingo\Bingo.Contracts\obj\Debug\netcoreapp3.0\Bingo.Contracts.pdb
