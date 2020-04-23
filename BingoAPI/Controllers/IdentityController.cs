@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
 {
+    [Produces("application/json")]
     public class IdentityController : Controller
     {
         private readonly IIdentityService _identityService;
@@ -22,7 +23,8 @@ namespace BingoAPI.Controllers
         /// Registers user in the system
         /// </summary>
         /// <param name="request">Request object containing user email , password</param>
-        /// <returns>Authentication result containing the jwt token and http response code</returns>
+        /// <response code="200">Authentication result containing the jwt token and http response code</response>
+        /// <response code="400">List of errors</response>
         [HttpPost(ApiRoutes.Identity.Register)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
@@ -55,7 +57,8 @@ namespace BingoAPI.Controllers
         /// Logs in the user in the system
         /// </summary>
         /// <param name="request">Request containing user email and password</param>
-        /// <returns>Authentication result containing the jwt token and http response code</returns>
+        /// <response code="200">Authentication result containing the jwt token and http response code</response>
+        /// <response code="400">List of errors</response>
         [HttpPost(ApiRoutes.Identity.Login)]
         public async Task<IActionResult> LoginAsync([FromBody] UserLoginRequest request)
         {
@@ -80,7 +83,8 @@ namespace BingoAPI.Controllers
         /// in the system databse
         /// </summary>
         /// <param name="request">Contains the JWT and the refresh token</param>
-        /// <returns>New JWT, Refresh token combination</returns>
+        /// <response code="200">New JWT, Refresh token combination</response>
+        /// <response code="400">List of errors</response>
         [HttpPost(ApiRoutes.Identity.Refresh)]
         public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenRequest request)
         {
