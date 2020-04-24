@@ -20,7 +20,9 @@ namespace BingoAPI.Installers
     {
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddControllers();
+            //services.AddControllers();
+             services.AddMvc(options => { options.EnableEndpointRouting = false; })
+                    .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
 
             // Setting JWT
             var jwtSettings = new JwtSettings();
@@ -54,7 +56,8 @@ namespace BingoAPI.Installers
                 x.SaveToken = true;
                 x.TokenValidationParameters = tokenValidationParameter;
             });
-                        
+
+            services.AddAuthorization();
         }
     }
 }

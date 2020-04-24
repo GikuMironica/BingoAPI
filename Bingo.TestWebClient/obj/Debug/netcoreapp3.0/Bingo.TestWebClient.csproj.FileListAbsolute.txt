@@ -9,7 +9,6 @@ D:\Bingo\Bingo.TestWebClient\bin\Debug\netcoreapp3.0\Bingo.TestWebClient.dll
 D:\Bingo\Bingo.TestWebClient\bin\Debug\netcoreapp3.0\Bingo.TestWebClient.pdb
 D:\Bingo\Bingo.TestWebClient\bin\Debug\netcoreapp3.0\Bingo.TestWebClient.Views.dll
 D:\Bingo\Bingo.TestWebClient\bin\Debug\netcoreapp3.0\Bingo.TestWebClient.Views.pdb
-D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.csprojAssemblyReference.cache
 D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\staticwebassets\Bingo.TestWebClient.StaticWebAssets.Manifest.cache
 D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\staticwebassets\Bingo.TestWebClient.StaticWebAssets.xml
 D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.MvcApplicationPartsAssemblyInfo.cache
@@ -33,3 +32,4 @@ D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.Views.p
 D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.dll
 D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.pdb
 D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.csproj.CopyComplete
+D:\Bingo\Bingo.TestWebClient\obj\Debug\netcoreapp3.0\Bingo.TestWebClient.csprojAssemblyReference.cache

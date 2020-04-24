@@ -19,6 +19,7 @@ namespace BingoAPI.Services
     {
         private readonly JwtSettings _jwtSettings;
         private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService facebookAuthService;
@@ -27,13 +28,15 @@ namespace BingoAPI.Services
                                JwtSettings jwtSettings,
                                TokenValidationParameters tokenValidationParameters,
                                DataContext dataContext,
-                               IFacebookAuthService facebookAuthService)
+                               IFacebookAuthService facebookAuthService,
+                               RoleManager<IdentityRole> roleManager)
         {
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
             this._dataContext = dataContext;
             this.facebookAuthService = facebookAuthService;
+            this._roleManager = roleManager;
         }
 
 
@@ -71,6 +74,10 @@ namespace BingoAPI.Services
                     Errors = result.Errors.Select(x => x.Description)
                 };
             }
+
+            // when registering user, assign him user role, also need to be added in the JWT!!!
+            await _userManager.AddToRoleAsync(newUser, "User");
+
             return await GenerateAuthenticationResultForUserAsync(newUser);            
         }
 
@@ -214,19 +221,47 @@ namespace BingoAPI.Services
             // Secret is mapped with the one from appsettings.json, binded in startup.class, then jwtSettings added as singleton
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
+            var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim("id", user.Id)
-                }),
-                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
+                };
+
+            // load all Identity Related claims, roles for this user
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            claims.AddRange(userClaims);
+
+            foreach (var userRole in userRoles)
+            {
+                // add these roles as claims
+                claims.Add(new Claim(ClaimTypes.Role, userRole));
+
+                // if there are any claims associated with this role, get em
+                var role = await _roleManager.FindByNameAsync(userRole);
+                if (role == null) continue;
+
+                var roleClaims = await _roleManager.GetClaimsAsync(role);
+                foreach (var roleClaim in roleClaims)
+                {
+                    // add the claims of this role to the claims list if they are not there yet
+                    if (claims.Contains(roleClaim))
+                        continue;
+                    claims.Add(roleClaim);
+                }
+            }
+
+            // add this claims in the payload of the token
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),                
+                Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),                
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
-
+       
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             var refreshToken = new RefreshToken
