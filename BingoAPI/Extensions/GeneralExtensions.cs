@@ -19,5 +19,6 @@ namespace BingoAPI.Extensions
             }
             return httpContext.User.Claims.Single(x => x.Type == "id").Value;
         }
+               
     }
 }

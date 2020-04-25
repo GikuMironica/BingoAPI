@@ -316,6 +316,8 @@ namespace BingoAPI.Services
                         Errors = new[] { "Somethign went wrong" }
                     };
                 }
+                // when registering user, assign him user role, also need to be added in the JWT!!!
+                await _userManager.AddToRoleAsync(appUser, "User");
 
                 return await GenerateAuthenticationResultForUserAsync(appUser);
             }

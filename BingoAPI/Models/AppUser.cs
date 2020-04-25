@@ -13,5 +13,7 @@ namespace BingoAPI.Models
         public string LastName { get; set; }
 
         public string ProfilePicture { get; set; }
+
+        public string Description { get; set; }
     }
 }

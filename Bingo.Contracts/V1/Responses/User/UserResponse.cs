@@ -15,5 +15,7 @@ namespace Bingo.Contracts.V1.Responses.User
         public string PhoneNumber { get; set; }
 
         public string Email { get; set; }
+
+        public string Description { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Bingo.Contracts.V1.Responses.User;
+using Bingo.Contracts.V1.Requests.User;
 using BingoAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -8,13 +8,11 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.MappingProfiles
 {
-    public class DomainToResponseProfile : Profile
+    public class RequestToDomainProfile : Profile
     {
-        public DomainToResponseProfile()
+        public RequestToDomainProfile()
         {
-            CreateMap<AppUser, UserResponse>();
-            
+            CreateMap<UpdateUserRequest, AppUser>();
         }
-        
     }
 }

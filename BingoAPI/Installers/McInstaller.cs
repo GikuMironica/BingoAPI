@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BingoAPI.Data;
+using BingoAPI.Filters;
 using BingoAPI.Models;
 using BingoAPI.Options;
 using BingoAPI.Services;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +23,12 @@ namespace BingoAPI.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             //services.AddControllers();
-             services.AddMvc(options => { options.EnableEndpointRouting = false; })
+             services.AddMvc(options => 
+                    {  
+                        options.EnableEndpointRouting = false;
+                        options.Filters.Add<ValidationFilter>();
+                    })
+                    .AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>())
                     .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
 
             // Setting JWT
