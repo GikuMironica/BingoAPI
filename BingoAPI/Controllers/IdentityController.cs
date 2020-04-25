@@ -1,5 +1,5 @@
-﻿using Bingo.Contracts.V1.Responses;
-using Bingo.Contracts.V1.Requests;
+﻿using Bingo.Contracts.V1.Responses.Identity;
+using Bingo.Contracts.V1.Requests.Identity;
 using Bingo.Contracts.V1;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -60,7 +60,7 @@ namespace BingoAPI.Controllers
         /// <response code="200">Authentication result containing the jwt token and http response code</response>
         /// <response code="400">List of errors</response>
         [HttpPost(ApiRoutes.Identity.Login)]
-        public async Task<IActionResult> LoginAsync([FromBody] UserLoginRequest request)
+        public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
             var authResponse = await _identityService.LoginAsync(request.Email, request.Password);
             if (!authResponse.Success)
@@ -79,7 +79,7 @@ namespace BingoAPI.Controllers
 
 
         [HttpPost(ApiRoutes.Identity.FacebookAuth)]
-        public async Task<IActionResult> LoginAsync([FromBody] UserFacebookAuthRequest request)
+        public async Task<IActionResult> Login([FromBody] UserFacebookAuthRequest request)
         {
             // authenticate the access token
             var authResponse = await _identityService.LoginWithFacebookAsync(request.AccessToken);
@@ -107,7 +107,7 @@ namespace BingoAPI.Controllers
         /// <response code="200">New JWT, Refresh token combination</response>
         /// <response code="400">List of errors</response>
         [HttpPost(ApiRoutes.Identity.Refresh)]
-        public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenRequest request)
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
             var authResponse = await _identityService.RefreshTokenAsync(request.Token, request.RefreshToken);
 

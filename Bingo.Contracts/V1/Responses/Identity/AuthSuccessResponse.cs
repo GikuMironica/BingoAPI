@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bingo.Contracts.V1.Requests
+namespace Bingo.Contracts.V1.Responses.Identity
 {
-    public class RefreshTokenRequest
+    public class AuthSuccessResponse
     {
         public string Token { get; set; }
 

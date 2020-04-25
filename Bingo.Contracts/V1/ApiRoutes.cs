@@ -32,7 +32,6 @@ namespace Bingo.Contracts.V1
 
             public const string Get = Base + "/users{userId}";
 
-            public const string Create = Base + "/users";
         }
     }
 }

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace Bingo.Contracts.V1.Responses
 {
-    public class AuthFailedResponse
+    public class ErrorResponse
     {
-        public IEnumerable<string> Errors { get; set; }
+        public List<ErrorModel> Errors { get; set; } = new List<ErrorModel>();
     }
 }
