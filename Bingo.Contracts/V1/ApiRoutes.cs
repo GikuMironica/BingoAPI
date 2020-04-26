@@ -21,5 +21,17 @@ namespace Bingo.Contracts.V1
 
             public const string FacebookAuth = Base + "/identity/auth/fb";
         }
+
+        public static class Users
+        {
+            public const string GetAll = Base + "/users";
+
+            public const string Update = Base + "/users{userId}";
+
+            public const string Delete = Base + "/users{userId}";
+
+            public const string Get = Base + "/users{userId}";
+
+        }
     }
 }
