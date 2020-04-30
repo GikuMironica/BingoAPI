@@ -7,16 +7,22 @@ namespace Bingo.Contracts.V1.Requests.User
 {
     public class UpdateUserRequest
     {
-        public string FirstName { get; set; }
+        #nullable enable
+        public string? FirstName { get; set; }
 
-        public string LastName { get; set; }
+        #nullable enable
+        public string? LastName { get; set; }
 
-        public string ProfilePicture { get; set; }
+        #nullable enable
+        public string? ProfilePicture { get; set; }
 
-        public string PhoneNumber { get; set; }
+        #nullable enable
+        public string? PhoneNumber { get; set; }
 
-        public string Email { get; set; }
+        #nullable enable
+        public string? Email { get; set; }
 
-        public string Description { get; set; }
+        #nullable enable
+        public string? Description { get; set; }
     }
 }
