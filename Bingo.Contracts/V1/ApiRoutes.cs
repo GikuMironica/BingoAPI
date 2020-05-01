@@ -19,6 +19,8 @@ namespace Bingo.Contracts.V1
 
             public const string Refresh = Base + "/identity/refresh";
 
+            public const string ConfirmEmail = Base + "/identity/confirmemail";
+
             public const string FacebookAuth = Base + "/identity/auth/fb";
         }
 

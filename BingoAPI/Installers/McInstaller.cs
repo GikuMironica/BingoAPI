@@ -25,7 +25,7 @@ namespace BingoAPI.Installers
             //services.AddControllers();
              services.AddMvc(options => 
                     {  
-                        options.EnableEndpointRouting = false;
+                        options.EnableEndpointRouting = true;
                         options.Filters.Add<ValidationFilter>();
                     })
                     .AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>())

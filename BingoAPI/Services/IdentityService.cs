@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using BingoAPI.Data;
 using BingoAPI.Domain;
@@ -26,7 +27,8 @@ namespace BingoAPI.Services
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService facebookAuthService;
         private readonly IUrlHelper _urlHelper;
-        private readonly HttpRequest _httpRequest;
+        private readonly IHttpContextAccessor _httpRequest;
+        private readonly IEmailService _emailService;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -35,8 +37,10 @@ namespace BingoAPI.Services
                                IFacebookAuthService facebookAuthService,
                                RoleManager<IdentityRole> roleManager,
                                IUrlHelper urlHelper,
-                               HttpRequest httpRequest)
+                               IHttpContextAccessor httpRequest,
+                               IEmailService emailService)
         {
+            this._emailService = emailService;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
@@ -90,13 +94,16 @@ namespace BingoAPI.Services
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
             // generate url
-            var confirmationLink = _urlHelper.Action("ConfirmEmail", "IdentityController",
-                    new { userId = newUser.Id, token = token }, _httpRequest.Scheme);
+            var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
+                    new { userId = newUser.Id, token = token }, _httpRequest.HttpContext.Request.Scheme);
 
             // send it per email
-
-
-            return new AuthenticationResult { Success = true };            
+            var mailresult = 
+                await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
+            if (mailresult)
+                return new AuthenticationResult { Success = true };
+            else
+                return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
         }
 
 
@@ -336,6 +343,8 @@ namespace BingoAPI.Services
                 }
                 // when registering user, assign him user role, also need to be added in the JWT!!!
                 await _userManager.AddToRoleAsync(appUser, "User");
+                appUser.EmailConfirmed = true;
+                await _userManager.UpdateAsync(appUser);
 
                 return await GenerateAuthenticationResultForUserAsync(appUser);
             }
