@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
+using BingoAPI.Models;
 
 namespace BingoAPI.Controllers
 {
@@ -14,9 +16,13 @@ namespace BingoAPI.Controllers
     public class IdentityController : Controller
     {
         private readonly IIdentityService _identityService;
-        public IdentityController(IIdentityService identityService)
+        private readonly UserManager<AppUser> _userManager;
+
+        public IdentityController(IIdentityService identityService,
+                                  UserManager<AppUser> userManager)
         {
             this._identityService = identityService;
+            this._userManager = userManager;
         }
 
         /// <summary>
@@ -37,7 +43,8 @@ namespace BingoAPI.Controllers
             }
 
             // register the incoming user data with identity service
-            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);
+            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);          
+
             if (!authResponse.Success)
             {
                 return BadRequest(new AuthFailedResponse
@@ -46,11 +53,8 @@ namespace BingoAPI.Controllers
                 });
             }
 
-            return Ok(new AuthSuccessResponse
-            {
-                Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
-            });
+            // confirm registration
+            return Ok();
         }
 
         /// <summary>
@@ -125,6 +129,32 @@ namespace BingoAPI.Controllers
                 RefreshToken = authResponse.RefreshToken
             });
        
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+            {
+                return null;
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+            {
+                // notify user about successfull email confirmation
+            }
+
+            return null;
         }
                 
     }

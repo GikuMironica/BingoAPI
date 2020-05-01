@@ -65,6 +65,7 @@ namespace BingoAPI.Installers
             });
 
             services.AddAuthorization();
+                        
         }
     }
 }

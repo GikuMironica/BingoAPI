@@ -9,7 +9,9 @@ using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using BingoAPI.Options;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -23,13 +25,17 @@ namespace BingoAPI.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService facebookAuthService;
+        private readonly IUrlHelper _urlHelper;
+        private readonly HttpRequest _httpRequest;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
                                TokenValidationParameters tokenValidationParameters,
                                DataContext dataContext,
                                IFacebookAuthService facebookAuthService,
-                               RoleManager<IdentityRole> roleManager)
+                               RoleManager<IdentityRole> roleManager,
+                               IUrlHelper urlHelper,
+                               HttpRequest httpRequest)
         {
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
@@ -37,6 +43,8 @@ namespace BingoAPI.Services
             this._dataContext = dataContext;
             this.facebookAuthService = facebookAuthService;
             this._roleManager = roleManager;
+            this._urlHelper = urlHelper;
+            this._httpRequest = httpRequest;
         }
 
 
@@ -78,7 +86,17 @@ namespace BingoAPI.Services
             // when registering user, assign him user role, also need to be added in the JWT!!!
             await _userManager.AddToRoleAsync(newUser, "User");
 
-            return await GenerateAuthenticationResultForUserAsync(newUser);            
+            // force user to confirm email, generate token
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+
+            // generate url
+            var confirmationLink = _urlHelper.Action("ConfirmEmail", "IdentityController",
+                    new { userId = newUser.Id, token = token }, _httpRequest.Scheme);
+
+            // send it per email
+
+
+            return new AuthenticationResult { Success = true };            
         }
 
 

@@ -22,9 +22,9 @@ namespace BingoAPI.Installers
             // configure custom Identity User
             services.AddDefaultIdentity<AppUser>(options =>
             {
-                options.Password.RequiredLength = 6;
+                options.Password.RequiredLength = 8;
                 options.Password.RequiredUniqueChars = 2;
-                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedEmail = true;
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             }).AddRoles<IdentityRole>()
