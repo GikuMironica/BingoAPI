@@ -4,12 +4,16 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using BingoAPI.Options;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -23,20 +27,29 @@ namespace BingoAPI.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService facebookAuthService;
+        private readonly IUrlHelper _urlHelper;
+        private readonly IHttpContextAccessor _httpRequest;
+        private readonly IEmailService _emailService;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
                                TokenValidationParameters tokenValidationParameters,
                                DataContext dataContext,
                                IFacebookAuthService facebookAuthService,
-                               RoleManager<IdentityRole> roleManager)
+                               RoleManager<IdentityRole> roleManager,
+                               IUrlHelper urlHelper,
+                               IHttpContextAccessor httpRequest,
+                               IEmailService emailService)
         {
+            this._emailService = emailService;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
             this._dataContext = dataContext;
             this.facebookAuthService = facebookAuthService;
             this._roleManager = roleManager;
+            this._urlHelper = urlHelper;
+            this._httpRequest = httpRequest;
         }
 
 
@@ -78,7 +91,20 @@ namespace BingoAPI.Services
             // when registering user, assign him user role, also need to be added in the JWT!!!
             await _userManager.AddToRoleAsync(newUser, "User");
 
-            return await GenerateAuthenticationResultForUserAsync(newUser);            
+            // force user to confirm email, generate token
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+
+            // generate url
+            var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
+                    new { userId = newUser.Id, token = token }, _httpRequest.HttpContext.Request.Scheme);
+
+            // send it per email
+            var mailresult = 
+                await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
+            if (mailresult)
+                return new AuthenticationResult { Success = true };
+            else
+                return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
         }
 
 
@@ -318,6 +344,8 @@ namespace BingoAPI.Services
                 }
                 // when registering user, assign him user role, also need to be added in the JWT!!!
                 await _userManager.AddToRoleAsync(appUser, "User");
+                appUser.EmailConfirmed = true;
+                await _userManager.UpdateAsync(appUser);
 
                 return await GenerateAuthenticationResultForUserAsync(appUser);
             }
@@ -325,6 +353,41 @@ namespace BingoAPI.Services
             // if user already registered with this email, generate jwt for him
             return await GenerateAuthenticationResultForUserAsync(user);
         }
-            
+
+        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser)
+        {
+            // generate the reset password token
+            var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+
+            // Build the password reset link
+            var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
+                    new { email = appUser.Email, token = token }, _httpRequest.HttpContext.Request.Scheme);
+
+            // Send link over email
+            var result = await _emailService.SendEmail(appUser.Email, "BingoApp", "Click the link below in order to reset your password\n " +
+                "A new temporary password will be sent back to this email in a couple of minutes\n" + passwordResetLink);
+
+            if (result)
+                return new AuthenticationResult { Success = true };
+            else
+                return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email" } };
+        }
+
+        public async Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request)
+        {
+            var result = await _userManager.ChangePasswordAsync(appUser, request.OldPass, request.NewPasword);
+
+            // if new password does not meet requirements or current password not correct
+            if (!result.Succeeded)
+            {
+                return new AuthenticationResult
+                {
+                    Success = false,
+                    Errors = result.Errors.Select(x => x.Description).ToList()
+                };
+            }
+
+            return new AuthenticationResult { Success = true };
+        }
     }
 }
