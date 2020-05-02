@@ -93,6 +93,7 @@ namespace BingoAPI.Controllers
             }
 
             _mapper.Map<UpdateUserRequest, AppUser>(request, user);
+              
             var result = await _userManager.UpdateAsync(user);
 
             if (result.Succeeded) 

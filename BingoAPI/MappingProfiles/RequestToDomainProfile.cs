@@ -12,7 +12,8 @@ namespace BingoAPI.MappingProfiles
     {
         public RequestToDomainProfile()
         {
-            CreateMap<UpdateUserRequest, AppUser>();
+            CreateMap<UpdateUserRequest, AppUser>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

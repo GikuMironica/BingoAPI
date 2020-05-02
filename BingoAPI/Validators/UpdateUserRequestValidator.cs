@@ -15,9 +15,10 @@ namespace BingoAPI.Validators
     {
         public UpdateUserRequestValidator()
         {
-            RuleFor(x => x.Email)
+           /* RuleFor(x => x.Email)
                 .NotEmpty()
-                .EmailAddress();
+                .EmailAddress();*/
+            
         }
         
     }
