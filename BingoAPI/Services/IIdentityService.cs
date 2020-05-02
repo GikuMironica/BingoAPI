@@ -1,4 +1,6 @@
-﻿using BingoAPI.Domain;
+﻿using Bingo.Contracts.V1.Requests.Identity;
+using BingoAPI.Domain;
+using BingoAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,10 @@ namespace BingoAPI.Services
         Task<AuthenticationResult> RegisterAsync(string email, string password);
 
         Task<AuthenticationResult> LoginAsync(string email, string requestPassword);
+
+        Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser);
+
+        Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request);
 
         Task<AuthenticationResult> RefreshTokenAsync(string token, string requestToken);
 

@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
@@ -352,6 +353,41 @@ namespace BingoAPI.Services
             // if user already registered with this email, generate jwt for him
             return await GenerateAuthenticationResultForUserAsync(user);
         }
-            
+
+        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser)
+        {
+            // generate the reset password token
+            var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+
+            // Build the password reset link
+            var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
+                    new { email = appUser.Email, token = token }, _httpRequest.HttpContext.Request.Scheme);
+
+            // Send link over email
+            var result = await _emailService.SendEmail(appUser.Email, "BingoApp", "Click the link below in order to reset your password\n " +
+                "A new temporary password will be sent back to this email in a couple of minutes\n" + passwordResetLink);
+
+            if (result)
+                return new AuthenticationResult { Success = true };
+            else
+                return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email" } };
+        }
+
+        public async Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request)
+        {
+            var result = await _userManager.ChangePasswordAsync(appUser, request.OldPass, request.NewPasword);
+
+            // if new password does not meet requirements or current password not correct
+            if (!result.Succeeded)
+            {
+                return new AuthenticationResult
+                {
+                    Success = false,
+                    Errors = result.Errors.Select(x => x.Description).ToList()
+                };
+            }
+
+            return new AuthenticationResult { Success = true };
+        }
     }
 }

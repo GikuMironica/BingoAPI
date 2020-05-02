@@ -192,6 +192,105 @@ namespace BingoAPI.Controllers
 
             return Ok();
         }
-                
+
+
+        /// <summary>
+        /// This endpoint send instructions to reset the password to the provided email address
+        /// </summary>
+        /// <param name="request">Contains the emailof the account</param>
+        /// <response code="200">The instructions have been successfully sent if the user is registered in the system</response>
+        /// <response code="400">The provided email is not valid</response>
+        [ProducesResponseType(typeof(Response<string>), 200)]
+        [ProducesResponseType(typeof(SingleError), 400)]
+        [HttpPost(ApiRoutes.Identity.ForgotPassword)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            // Filter middleware validates incoming model, if hits the line below, modelstate valid
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)) )
+            {
+                // hide if user doen't not exist or not confirmed to avoid account enumeration
+                return Ok(new Response<string> { Data = "If you are registered in our system, we have sent an email with the instructions to reset your password" });
+            }
+
+            // if user valid, generate token, send per email
+            var authResponse = await _identityService.RequestNewPasswordAsync(user);
+
+            if (!authResponse.Success)
+            {
+                return BadRequest(new SingleError
+                {
+                    Message = authResponse.Errors.FirstOrDefault()
+                });
+            }
+
+            return Ok(new Response<string>
+            {
+                Data = "If you are registered in our system, we have sent an email with the instructions to reset your password"
+            });
+
+        }       
+
+
+        /// <summary>
+        /// When the user clicks the link in the email, new temporary password is set and send back to user's email
+        /// </summary>
+        /// <param name="request">Contains the email and the token</param>
+        /// <response code="200"></response>
+        [HttpGet(ApiRoutes.Identity.ResetPassword)]
+        public async Task<IActionResult> ResetPassword([FromHeader] ResetPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.email);
+            
+            if (user != null)
+            {
+                var upperchar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                var pass = Guid.NewGuid().ToString() + new string(
+                    Enumerable.Repeat(upperchar, 1)
+                    .Select(s => s[new Random().Next(s.Length)])
+                    .ToArray());
+
+                var passResult = await _userManager.ResetPasswordAsync(user, request.token, pass);
+
+                if (passResult.Succeeded)
+                {
+                    var result = await _emailService.SendEmail(user.Email, "BingoApp", "Use this temporal password to login in to your account\n"+pass);
+                }                               
+            }
+
+            return Ok();
+        }
+
+
+        /// <summary>
+        /// This end point changes the user's password
+        /// </summary>
+        /// <param name="request">Contains the old and the new password</param>
+        /// <response code="200">Success confirmation</response>
+        /// <response code="400">Provided password might not meet the security requirements</response>
+        /// <response code="403">Email / Old password combination doesn't match</response>
+        [ProducesResponseType(typeof(Response<string>), 200)]
+        [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(typeof(AuthFailedResponse), 400)]
+        [HttpPost(ApiRoutes.Identity.ChangePassword)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            if (user == null)
+            {
+                return Unauthorized(new SingleError { Message = "User Email / Old Password do not match" });
+            }
+
+            var authResponse = await _identityService.ChangePasswordAsync(user, request);
+
+            if (!authResponse.Success)
+            {
+                return new BadRequestObjectResult(new AuthFailedResponse { Errors = authResponse.Errors } );
+            }
+
+            return Ok(new Response<string> { Data = "Password successfully update" });
+        }
     }
 }
