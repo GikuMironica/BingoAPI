@@ -153,7 +153,7 @@ namespace BingoAPI.Services
             var expiryDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(expiryDateUnix).ToLocalTime();
 
             // if not expired, throw error 
-            if (expiryDateTimeUtc < DateTime.UtcNow)
+            if (expiryDateTimeUtc > DateTime.Now)
             {
                 return new AuthenticationResult { Errors = new[] { "This token hasn't expired yet" } };
             }
