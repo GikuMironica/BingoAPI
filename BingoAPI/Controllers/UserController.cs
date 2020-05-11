@@ -3,6 +3,7 @@ using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.User;
+using BingoAPI.Cache;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -37,6 +38,7 @@ namespace BingoAPI.Controllers
         /// <returns></returns>
         [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpGet(ApiRoutes.Users.GetAll)]
+        [Cached(600)]
         public async Task<IActionResult> GetAll()
         {
             return Ok(new Response<List<UserResponse>>(_mapper.Map<List<UserResponse>>(_userManager.Users)));
@@ -52,6 +54,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<UserResponse>),200)]
         [AllowAnonymous]
         [HttpGet(ApiRoutes.Users.Get)]
+        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {            
             var user = await _userManager.FindByIdAsync(userId);

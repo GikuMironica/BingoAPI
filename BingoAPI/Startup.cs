@@ -6,6 +6,7 @@ using AutoMapper;
 using BingoAPI.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -74,6 +75,11 @@ namespace BingoAPI
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+           //  app.Run(async (context) =>
+           //  {
+           //     await context.Response.WriteAsync(Configuration["Con:Conect"]);
+           //  });
         }
     }
 }
