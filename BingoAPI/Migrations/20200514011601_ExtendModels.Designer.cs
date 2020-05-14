@@ -3,14 +3,16 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200514011601_ExtendModels")]
+    partial class ExtendModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,21 +109,6 @@ namespace BingoAPI.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("BingoAPI.Models.PostTags", b =>
-                {
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PostId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("PostTags");
-                });
-
             modelBuilder.Entity("BingoAPI.Models.RefreshToken", b =>
                 {
                     b.Property<string>("Token")
@@ -151,23 +138,6 @@ namespace BingoAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Tag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<int>("Counter")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TagName")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -384,33 +354,6 @@ namespace BingoAPI.Migrations
                     b.HasDiscriminator().HasValue("bar_type");
                 });
 
-            modelBuilder.Entity("BingoAPI.Models.BicycleMeet", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("bicyclemeet_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.BikerMeet", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("bikermeet_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.CarMeet", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("carmeet_type");
-                });
-
             modelBuilder.Entity("BingoAPI.Models.Club", b =>
                 {
                     b.HasBaseType("BingoAPI.Models.Event");
@@ -422,15 +365,6 @@ namespace BingoAPI.Migrations
                     b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("club_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.FlashMob", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("flashmob_type");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.HouseParty", b =>
@@ -446,33 +380,6 @@ namespace BingoAPI.Migrations
                     b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("house_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Marathon", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("marathon_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Other", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("other_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.StreetParty", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("streetparty_type");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.AppUser", b =>
@@ -511,21 +418,6 @@ namespace BingoAPI.Migrations
                     b.HasOne("BingoAPI.Models.AppUser", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.PostTags", b =>
-                {
-                    b.HasOne("BingoAPI.Models.Post", "Post")
-                        .WithMany("Tags")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BingoAPI.Models.Tag", "Tag")
-                        .WithMany("Posts")
-                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
