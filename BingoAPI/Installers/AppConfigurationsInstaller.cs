@@ -1,4 +1,5 @@
-﻿using BingoAPI.Options;
+﻿using BingoAPI.Domain;
+using BingoAPI.Options;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +31,7 @@ namespace BingoAPI.Installers
                 return factory.GetUrlHelper(actionContext);
             });
 
-
+            services.Configure<EventTypes>(options => configuration.GetSection("Types").Bind(options));
 
         }
     }

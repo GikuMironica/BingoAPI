@@ -21,6 +21,11 @@ namespace BingoAPI
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
          WebHost.CreateDefaultBuilder(args)
+             //attach additional JSON files
+             .ConfigureAppConfiguration((hostingContext, config) =>
+             {
+                 config.AddJsonFile("wwwroot\\Configurations\\partyTypes.json", optional: false, reloadOnChange: false);
+             })
              .UseStartup<Startup>();
     }
 }
