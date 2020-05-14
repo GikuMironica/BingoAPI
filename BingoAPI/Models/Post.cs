@@ -36,6 +36,6 @@ namespace BingoAPI.Models
         public IEnumerable<string>? Pictures { get; set; }
 
         #nullable enable
-        public virtual IEnumerable<PostTags>? Tags { get; set; }
+        public virtual List<PostTags>? Tags { get; set; }
     }
 }

@@ -18,8 +18,7 @@ namespace BingoAPI.Models
         #nullable enable
         public string? Requirements { get; set; }
 
-        [Required]
-        public Post Post { get; set; }
+        public Post? Post { get; set; }
 
     }
 }
