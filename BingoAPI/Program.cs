@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore;
@@ -24,7 +25,7 @@ namespace BingoAPI
              //attach additional JSON files
              .ConfigureAppConfiguration((hostingContext, config) =>
              {
-                 config.AddJsonFile("wwwroot\\Configurations\\partyTypes.json", optional: false, reloadOnChange: false);
+                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot\\Configurations\\EventTypes.json"), optional: false, reloadOnChange: false);
              })
              .UseStartup<Startup>();
     }

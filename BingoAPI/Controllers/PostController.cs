@@ -1,8 +1,10 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
+using BingoAPI.Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +12,16 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin, Admin ,User")]
-    [Produces("application/json")]
+//    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin, Admin ,User")]
+//    [Produces("application/json")]
     public class PostController : Controller
     {
+        private readonly EventTypes eventTypes;
+
+        public PostController(IOptions<EventTypes> eventTypes)
+        {
+            this.eventTypes = eventTypes.Value;
+        }
 
         [HttpGet(ApiRoutes.Posts.Get)]
         public async Task<IActionResult> Get([FromRoute] int postId)

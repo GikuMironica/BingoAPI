@@ -34,11 +34,13 @@ namespace BingoAPI
             // extension method
             services.InstallServicesInAssembly(Configuration);
             services.AddAutoMapper(typeof(Startup));
+            services.AddOptions();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+           
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -67,6 +69,7 @@ namespace BingoAPI
             {
                 options.SwaggerEndpoint(swaggerOptions.UiEndpoint, swaggerOptions.Description);
             });
+
 
 
             app.UseEndpoints(endpoints =>

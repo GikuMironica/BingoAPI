@@ -31,8 +31,7 @@ namespace BingoAPI.Installers
                 return factory.GetUrlHelper(actionContext);
             });
 
-            services.Configure<EventTypes>(options => configuration.GetSection("Types").Bind(options));
-
+            services.Configure<EventTypes>(configuration.GetSection("Types"));
         }
     }
 }
