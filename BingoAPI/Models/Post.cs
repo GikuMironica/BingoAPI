@@ -14,9 +14,9 @@ namespace BingoAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public DateTime PostTime { get; set; }
+        public long PostTime { get; set; }
 
-        public DateTime EventTime { get; set; }
+        public long EventTime { get; set; }
 
         [Required]
         public Location Location { get; set; }
@@ -38,4 +38,5 @@ namespace BingoAPI.Models
         #nullable enable
         public virtual List<PostTags>? Tags { get; set; }
     }
+    
 }

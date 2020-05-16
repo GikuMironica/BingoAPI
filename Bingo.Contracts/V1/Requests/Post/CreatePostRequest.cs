@@ -7,15 +7,16 @@ namespace Bingo.Contracts.V1.Requests.Post
 {
     public class CreatePostRequest
     {
-        public DateTime PostTime { get; set; }
 
-        public DateTime EventTime { get; set; }
+        public long EventTime { get; set; }
+
+        public long PostTime { get; set; }
 
         public UserCompleteLocation UserLocation { get; set; }
 
         public List<IFormFile>? Pictures { get; set; }
 
-        public Event Event { get; set; }
+        public ContainedEvent Event { get; set; }
 
         #nullable enable
         public virtual List<string>? Tags { get; set; }
@@ -31,7 +32,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         public string? Country { get; set; }
     }
 
-    public class Event
+    public class ContainedEvent
     {
         public string Description { get; set; }
         #nullable enable

@@ -66,6 +66,7 @@ namespace BingoAPI.Models.SqlRepository
                 {
                     existingTag.Counter++;
                     await _context.SaveChangesAsync();
+                    return;
                 }
 
                 // if not exists, add the tag

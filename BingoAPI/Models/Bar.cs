@@ -9,6 +9,6 @@ namespace BingoAPI.Models
     [Table("Events")]
     public class Bar : Event
     {
-        public double EntracePrice { get; set; }
+        public double? EntracePrice { get; set; }
     }
 }

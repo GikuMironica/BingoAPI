@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.User;
 using BingoAPI.Models;
 using System;
@@ -14,6 +15,8 @@ namespace BingoAPI.MappingProfiles
         {
             CreateMap<UpdateUserRequest, AppUser>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                                
         }
     }
-}
+
+   }

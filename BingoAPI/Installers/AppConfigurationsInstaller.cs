@@ -1,4 +1,5 @@
-﻿using BingoAPI.Domain;
+﻿using BingoAPI.CustomMapper;
+using BingoAPI.Domain;
 using BingoAPI.Options;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Http;
@@ -31,6 +32,7 @@ namespace BingoAPI.Installers
                 return factory.GetUrlHelper(actionContext);
             });
 
+            services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
             services.Configure<EventTypes>(configuration.GetSection("Types"));
         }
     }
