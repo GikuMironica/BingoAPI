@@ -13,6 +13,6 @@ namespace BingoAPI.Domain
 
         public string ErrorMessage { get; set; }
 
-        public List<Image> ProcessedPictures { get; set; }
+        public List<string> ProcessedPictures { get; set; }
     }
 }

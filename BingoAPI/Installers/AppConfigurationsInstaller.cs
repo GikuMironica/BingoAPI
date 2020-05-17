@@ -35,6 +35,8 @@ namespace BingoAPI.Installers
             services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
             services.Configure<EventTypes>(configuration.GetSection("Types"));
             services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
+            services.Configure<AwsBucketSettings>(configuration.GetSection("AWS-ImageBucket"));
+            services.AddSingleton<IAwsImageUploader, AwsImageUploader>();
         }
     }
 }

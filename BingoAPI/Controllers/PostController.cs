@@ -8,14 +8,18 @@ using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
+using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,9 +35,12 @@ namespace BingoAPI.Controllers
         private readonly UserManager<AppUser> userManager;
         private readonly IPostsRepository postRepository;
         private readonly IImageToWebpProcessor imageToWebpProcessor;
+        private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly IAwsImageUploader awsImageUploader;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor)
+                              ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor
+                              ,IWebHostEnvironment webHostEnvironment, IAwsImageUploader awsImageUploader)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -41,6 +48,8 @@ namespace BingoAPI.Controllers
             this.userManager = userManager;
             this.postRepository = postRepository;
             this.imageToWebpProcessor = imageToWebpProcessor;
+            this.webHostEnvironment = webHostEnvironment;
+            this.awsImageUploader = awsImageUploader;
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
@@ -51,7 +60,7 @@ namespace BingoAPI.Controllers
 
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll([FromBody] GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll([FromRoute] GetAllRequest getAllRequest)
         {
             return Ok();
         }
@@ -77,6 +86,7 @@ namespace BingoAPI.Controllers
                 if (imageProcessingResult.Result)
                 {
                     // upload images to cdn, assign image links to post.Pics
+                    var uploadResult = awsImageUploader.UploadFileAsync(imageProcessingResult);
 
                 }
                 else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
