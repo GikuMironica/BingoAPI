@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace BingoAPI.CustomMapper
 {
     public class CreatePostRequestMapper : ICreatePostRequestMapper
-    {      
+    {
         public Post MapRequestToDomain(CreatePostRequest postRequest, AppUser user)
         {
             var containedEvent = DiscriminateEvent(postRequest.Event);
@@ -18,7 +18,6 @@ namespace BingoAPI.CustomMapper
                 Event = containedEvent,
                 EventTime = postRequest.EventTime,
                 PostTime = postRequest.PostTime,
-                Tags = postRequest.Tags.Select(x => new PostTags { Tag = new Tag { TagName =x }}).ToList(),
                 User = user,
                 Location = new Location
                 {
@@ -28,9 +27,19 @@ namespace BingoAPI.CustomMapper
                     City = postRequest.UserLocation.City,
                     Country = postRequest.UserLocation.Country,
                     Region = postRequest.UserLocation.County
-                }                
+                }
             };
 
+            post.Tags = new List<PostTags>();
+            if (postRequest.Tags != null) { 
+                foreach (var tag in postRequest.Tags)
+                {
+                    if (tag != null)
+                    {
+                      post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag } });
+                    }
+                }
+            }
             return post;
         }
 

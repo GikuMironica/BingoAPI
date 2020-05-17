@@ -34,6 +34,7 @@ namespace BingoAPI.Installers
 
             services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
             services.Configure<EventTypes>(configuration.GetSection("Types"));
+            services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
         }
     }
 }

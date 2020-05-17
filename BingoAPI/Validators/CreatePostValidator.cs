@@ -12,13 +12,13 @@ namespace BingoAPI.Validators
         public CreatePostValidator()
         {
             RuleFor(x => x.EventTime)
-                .NotEmpty();
+                .NotNull();
 
             RuleFor(x => x.UserLocation.Latitude)
-                .NotEmpty();
+                .NotNull();
 
             RuleFor(x => x.UserLocation.Longitude)
-                .NotEmpty();
+                .NotNull();
 
             RuleFor(x => x.Event.Description)
                 .NotEmpty()
@@ -28,12 +28,14 @@ namespace BingoAPI.Validators
             RuleFor(x => x.Event.Requirements)
                 .MaximumLength(500);
 
-            RuleFor(x => x.Event.EventType)
+           RuleFor(x => x.Event.EventType)
                 .NotNull()
                 .LessThanOrEqualTo(10)
                 .GreaterThanOrEqualTo(1);
 
             RuleFor(x => x.Tags.All(x => x.Length < 20));
+
+            
         }
     }
 }

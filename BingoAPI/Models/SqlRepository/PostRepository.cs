@@ -22,7 +22,7 @@ namespace BingoAPI.Models.SqlRepository
             await AddNewTags(entity);
             await _context.AddAsync(entity);
             var result = await _context.SaveChangesAsync();
-            return result > 0;
+                return result > 0;
         }
 
         public Task Delete(int Id)
@@ -55,6 +55,8 @@ namespace BingoAPI.Models.SqlRepository
         public async Task AddNewTags(Post post)
         {
             // store tags name in lower case
+            if ((post.Tags == null) || (post.Tags.Count==0))
+                return;
             post.Tags?.ForEach(pt => pt.Tag.TagName = pt.Tag.TagName.ToLower());
 
             foreach( var tag in post.Tags)
@@ -66,11 +68,9 @@ namespace BingoAPI.Models.SqlRepository
                 {
                     existingTag.Counter++;
                     await _context.SaveChangesAsync();
-                    return;
                 }
-
-                // if not exists, add the tag
-                await _context.Tags.AddAsync(new Tag { Counter = 1, TagName = tag.Tag.TagName, Posts = post.Tags });
+                  // else
+                  //await _context.Tags.AddAsync(new Tag { Counter = 1, TagName = tag.Tag.TagName, Posts = post.Tags });
             }
         }
     }

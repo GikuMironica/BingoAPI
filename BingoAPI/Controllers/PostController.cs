@@ -1,13 +1,16 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Responses;
 using BingoAPI.CustomMapper;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
+using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -27,15 +30,17 @@ namespace BingoAPI.Controllers
         private readonly ICreatePostRequestMapper createPostRequestMapper;
         private readonly UserManager<AppUser> userManager;
         private readonly IPostsRepository postRepository;
+        private readonly IImageToWebpProcessor imageToWebpProcessor;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              ,UserManager<AppUser> userManager, IPostsRepository postRepository)
+                              ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
             this.createPostRequestMapper = createPostRequestMapper;
             this.userManager = userManager;
             this.postRepository = postRepository;
+            this.imageToWebpProcessor = imageToWebpProcessor;
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
@@ -53,10 +58,33 @@ namespace BingoAPI.Controllers
 
 
         [HttpPost(ApiRoutes.Posts.Create)]
-        public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest)
+        public async Task<IActionResult> Create( CreatePostRequest postRequest)
         {
+            //List<IFormFile> pictures = null;
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
+
+            // Temporary solution - get all non null images from request obj, save in list
+            ImageProcessingResult imageProcessingResult = null;
+            List<IFormFile> pictures = new List<IFormFile>();
+            pictures.AddAllIfNotNull(
+                new List<IFormFile> { postRequest.Picture1, postRequest.Picture2, postRequest.Picture4, postRequest.Picture4, postRequest.Picture5 });
+
+            if ((pictures.Count>0))
+            {
+                imageProcessingResult = imageToWebpProcessor.ConvertFiles(pictures);
+
+                // add images
+                if (imageProcessingResult.Result)
+                {
+                    // upload images to cdn, assign image links to post.Pics
+
+                }
+                else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
+            }
+           
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
+                       
+
             var result = await postRepository.Add(post);
             if (result)
                 return Ok(post);

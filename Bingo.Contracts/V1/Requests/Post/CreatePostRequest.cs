@@ -14,12 +14,22 @@ namespace Bingo.Contracts.V1.Requests.Post
 
         public UserCompleteLocation UserLocation { get; set; }
 
-        public List<IFormFile>? Pictures { get; set; }
+        public IFormFile? Picture1 { get; set; }
+
+        public IFormFile? Picture2 { get; set; }
+
+        public IFormFile? Picture3 { get; set; }
+
+        public IFormFile? Picture4 { get; set; }
+
+        public IFormFile? Picture5 { get; set; }
+
+        //public List<IFormFile>? Pictures { get; set; }
 
         public ContainedEvent Event { get; set; }
 
         #nullable enable
-        public virtual List<string>? Tags { get; set; }
+        public List<String>? Tags { get; set; }
     }
 
     public class UserCompleteLocation
