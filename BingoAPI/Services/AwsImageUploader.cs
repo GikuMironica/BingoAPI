@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
+using System.Drawing;
 
 namespace BingoAPI.Services
 {
@@ -29,26 +30,38 @@ namespace BingoAPI.Services
             s3Client = new AmazonS3Client(this.awsBucketSettings.aws_access_key_id, this.awsBucketSettings.aws_secret_access_key, bucketRegion);
         }
 
-        public async Task<bool> UploadFileAsync(ImageProcessingResult imageProcessingResult)
+        public async Task<ImageUploadResult> UploadFileAsync(ImageProcessingResult imageProcessingResult)
         {
-
-            foreach (var imagePath in imageProcessingResult.ProcessedPictures)
+            ImageUploadResult imageUploadResult = new ImageUploadResult { ImageNames = new List<string>(), Result = true };
+            try
             {
-                    string filepath = Path.Combine(webHostEnvironment.WebRootPath, "EventPics", imagePath);
-                    var uploadRequest = new TransferUtilityUploadRequest
-                    {
-                        FilePath = filepath,
-                        Key = "./assets/images/" + imagePath,
-                        BucketName = bucketName,
-                        CannedACL = S3CannedACL.PublicRead
-                    };
+                foreach (var image in imageProcessingResult.ProcessedPictures)
+                {
+                
+                string guid = Guid.NewGuid().ToString();
+                string keyName = $"assets/images/{guid}.webp";
+                image.Position = 0;
+                byte[] memString = image.GetBuffer();
+                                   
 
-                    var fileTransferUtility = new TransferUtility(s3Client);
-                    await fileTransferUtility.UploadAsync(uploadRequest);
-                                        
+                        var request = new Amazon.S3.Model.PutObjectRequest
+                        
+                        {
+                            BucketName = bucketName,
+                            Key = keyName,
+                            InputStream = image,
+                            ContentType = "image/webp",
+                            CannedACL = S3CannedACL.PublicRead
+                        };
+                        var rez = await s3Client.PutObjectAsync(request);
+                                  
+                }
             }
-
-            return true;
+            catch (Exception e)
+            {
+                imageUploadResult.Result = false;
+            }
+            return imageUploadResult;
         }
     }
 }

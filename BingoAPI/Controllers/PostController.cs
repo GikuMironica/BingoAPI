@@ -86,7 +86,7 @@ namespace BingoAPI.Controllers
                 if (imageProcessingResult.Result)
                 {
                     // upload images to cdn, assign image links to post.Pics
-                    var uploadResult = awsImageUploader.UploadFileAsync(imageProcessingResult);
+                    var uploadResult = await awsImageUploader.UploadFileAsync(imageProcessingResult);
 
                 }
                 else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
