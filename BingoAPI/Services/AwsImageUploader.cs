@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
 using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
+using System.Drawing;
 
 namespace BingoAPI.Services
 {
@@ -29,26 +30,33 @@ namespace BingoAPI.Services
             s3Client = new AmazonS3Client(this.awsBucketSettings.aws_access_key_id, this.awsBucketSettings.aws_secret_access_key, bucketRegion);
         }
 
-        public async Task<bool> UploadFileAsync(ImageProcessingResult imageProcessingResult)
+        public async Task<ImageUploadResult> UploadFileAsync(ImageProcessingResult imageProcessingResult)
         {
-
-            foreach (var imagePath in imageProcessingResult.ProcessedPictures)
+            ImageUploadResult imageUploadResult = new ImageUploadResult { ImageNames = new List<string>(), Result = true };
+            foreach (var image in imageProcessingResult.ProcessedPictures)
             {
-                    string filepath = Path.Combine(webHostEnvironment.WebRootPath, "EventPics", imagePath);
-                    var uploadRequest = new TransferUtilityUploadRequest
-                    {
-                        FilePath = filepath,
-                        Key = "./assets/images/" + imagePath,
-                        BucketName = bucketName,
-                        CannedACL = S3CannedACL.PublicRead
-                    };
+                string guid = Guid.NewGuid().ToString();
+                using (var client = new AmazonS3Client(awsBucketSettings.aws_access_key_id, awsBucketSettings.aws_secret_access_key, RegionEndpoint.EUCentral1))
+                {
+                
+                        var uploadRequest = new TransferUtilityUploadRequest
+                        {
+                            InputStream = image,
+                            Key = "./assets/images/" + guid + ".webp",
+                            BucketName = "bingo-bucket32",
+                            CannedACL = S3CannedACL.PublicRead
+                        };
 
-                    var fileTransferUtility = new TransferUtility(s3Client);
-                    await fileTransferUtility.UploadAsync(uploadRequest);
-                                        
+                        var fileTransferUtility = new TransferUtility(client);
+                        imageUploadResult.ImageNames.Add(guid);
+                        await fileTransferUtility.UploadAsync(uploadRequest);                        
+                    
+                }
+
+
             }
 
-            return true;
+            return imageUploadResult;
         }
     }
 }

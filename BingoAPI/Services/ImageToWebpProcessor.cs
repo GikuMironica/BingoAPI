@@ -23,7 +23,7 @@ namespace BingoAPI.Services
 
         public ImageProcessingResult ConvertFiles(List<IFormFile> images)
         {
-            ImageProcessingResult resultList = new ImageProcessingResult { ProcessedPictures = new List<string>(), Result = true };
+            ImageProcessingResult resultList = new ImageProcessingResult { ProcessedPictures = new List<MemoryStream>(), Result = true };
             
             foreach (var image in images)
             {
@@ -35,26 +35,18 @@ namespace BingoAPI.Services
                     resultList.ErrorMessage = "Image format not accepted. Accepted formats: jpeg / jpg / png";
                     return resultList;
                 }
-
-                string imagesPath = Path.Combine(webHostEnvironment.WebRootPath, "EventPics");
-                string webPFileName = Guid.NewGuid().ToString() + ".webp";
-                string webPImagePath = Path.Combine(imagesPath, webPFileName);
-
-                //save names
-                resultList.ProcessedPictures.Add(webPFileName);
-
+                                         
                 // convert pic in Main Memory
-                using (var webPFileStream = new FileStream(webPImagePath, FileMode.Create))
+                MemoryStream memoryStream = new MemoryStream();
+                using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
                 {
-                    using (ImageFactory imageFactory = new ImageFactory(preserveExifData: false))
-                    {
-                        imageFactory.Load(image.OpenReadStream())
-                        .Format(new WebPFormat())
-                        .Quality(100)
-                        .Save(webPFileStream);
-                    }
+                    imageFactory.Load(image.OpenReadStream())
+                    .Format(new WebPFormat())
+                    .Quality(100)
+                    .Save(memoryStream);
                 }
 
+                resultList.ProcessedPictures.Add(memoryStream);
             }
             return resultList;
         }

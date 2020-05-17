@@ -8,6 +8,6 @@ namespace BingoAPI.Services
 {
     public interface IAwsImageUploader
     {
-        public Task<bool> UploadFileAsync(ImageProcessingResult imageProcessingResult);
+        public Task<ImageUploadResult> UploadFileAsync(ImageProcessingResult imageProcessingResult);
     }
 }
