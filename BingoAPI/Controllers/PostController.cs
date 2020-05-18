@@ -2,6 +2,7 @@
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Responses;
+using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.CustomMapper;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
@@ -11,10 +12,12 @@ using BingoAPI.Services;
 using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -37,10 +40,13 @@ namespace BingoAPI.Controllers
         private readonly IImageToWebpProcessor imageToWebpProcessor;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IAwsImageUploader awsImageUploader;
+        private readonly ILogger<PostController> logger;
+        private readonly IUriService uriService;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor
-                              ,IWebHostEnvironment webHostEnvironment, IAwsImageUploader awsImageUploader)
+                              ,IWebHostEnvironment webHostEnvironment, IAwsImageUploader awsImageUploader, ILogger<PostController> logger
+                              ,IUriService uriService)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -50,6 +56,8 @@ namespace BingoAPI.Controllers
             this.imageToWebpProcessor = imageToWebpProcessor;
             this.webHostEnvironment = webHostEnvironment;
             this.awsImageUploader = awsImageUploader;
+            this.logger = logger;
+            this.uriService = uriService;
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
@@ -69,8 +77,12 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Posts.Create)]
         public async Task<IActionResult> Create( CreatePostRequest postRequest)
         {
-            //List<IFormFile> pictures = null;
+            
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
+
+            // Map request to domain
+            var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
+
 
             // Temporary solution - get all non null images from request obj, save in list
             ImageProcessingResult imageProcessingResult = null;
@@ -87,20 +99,24 @@ namespace BingoAPI.Controllers
                 {
                     // upload images to cdn, assign image links to post.Pics
                     var uploadResult = await awsImageUploader.UploadFileAsync(imageProcessingResult);
+                    if (!uploadResult.Result)
+                    {
+                        return BadRequest(new SingleError { Message = "The provided images couldn't be stored. Try to upload other pictures." });
+                    }
+                    ((List<string>?)(post.Pictures)).AddAllIfNotNull(uploadResult.ImageNames);
 
                 }
                 else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
-            }
-           
-            var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
-                       
+            }            
 
             var result = await postRepository.Add(post);
-            if (result)
-                return Ok(post);
-            else
+
+            if (!result)
                 return BadRequest();
 
+            var locationUri = uriService.GetPostUri(post.Id.ToString());
+
+            return Created(locationUri, new Response<CreatePostResponse>(mapper.Map<CreatePostResponse>(post)));
         } 
 
 

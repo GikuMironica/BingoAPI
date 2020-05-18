@@ -37,6 +37,7 @@ namespace BingoAPI.Models
 
         #nullable enable
         public virtual List<PostTags>? Tags { get; set; }
+
     }
     
 }

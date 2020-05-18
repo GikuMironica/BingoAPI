@@ -22,7 +22,6 @@ namespace BingoAPI.Services
         private readonly IWebHostEnvironment webHostEnvironment;
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
         private static IAmazonS3 s3Client;
-        private static readonly string bucketName = "bingo-bucket32";
         public AwsImageUploader(IOptions<AwsBucketSettings> awsBucketSettings, IWebHostEnvironment webHostEnvironment)
         {
             this.awsBucketSettings = awsBucketSettings.Value;
@@ -38,27 +37,26 @@ namespace BingoAPI.Services
                 foreach (var image in imageProcessingResult.ProcessedPictures)
                 {
                 
-                string guid = Guid.NewGuid().ToString();
-                string keyName = $"assets/images/{guid}.webp";
-                image.Position = 0;
-                byte[] memString = image.GetBuffer();
-                                   
+                    string guid = Guid.NewGuid().ToString();
+                    string keyName = $"assets/images/{guid}.webp";
+                    image.Position = 0;
+                    byte[] memString = image.GetBuffer();                                   
 
-                        var request = new Amazon.S3.Model.PutObjectRequest
-                        
+                        var request = new Amazon.S3.Model.PutObjectRequest                        
                         {
-                            BucketName = bucketName,
+                            BucketName = awsBucketSettings.bucketName,
                             Key = keyName,
                             InputStream = image,
-                            ContentType = "image/webp",
+                            ContentType = awsBucketSettings.contentFormat,
                             CannedACL = S3CannedACL.PublicRead
                         };
                         var rez = await s3Client.PutObjectAsync(request);
-                                  
+                        imageUploadResult.ImageNames.Add(guid);
                 }
             }
             catch (Exception e)
             {
+                imageUploadResult.ErrrorMessage = e.Message;
                 imageUploadResult.Result = false;
             }
             return imageUploadResult;

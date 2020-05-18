@@ -58,7 +58,7 @@ namespace BingoAPI.Controllers
                     Errors = authResponse.Errors
                 });
             }
-
+            
             // confirm registration
             return Ok();
         }

@@ -59,16 +59,19 @@ namespace BingoAPI.Models.SqlRepository
                 return;
             post.Tags?.ForEach(pt => pt.Tag.TagName = pt.Tag.TagName.ToLower());
 
-            foreach( var tag in post.Tags)
+            for(var i =0; i<post.Tags.Count; i++)
             {
+                var tag = post.Tags[i];
                 var existingTag = await _context.Tags.SingleOrDefaultAsync(x => x.TagName == tag.Tag.TagName);
 
                 // if tag exists, increment counter
                 if (existingTag != null)
                 {
                     existingTag.Counter++;
-                    await _context.SaveChangesAsync();
+                    tag.Tag = existingTag;
+                    continue;
                 }
+
                   // else
                   //await _context.Tags.AddAsync(new Tag { Counter = 1, TagName = tag.Tag.TagName, Posts = post.Tags });
             }

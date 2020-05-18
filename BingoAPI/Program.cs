@@ -10,11 +10,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using NLog.Fluent;
+using NLog.Web;
 
 namespace BingoAPI
 {
     public class Program
     {
+        private static object hostingContext;
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();
@@ -27,6 +31,14 @@ namespace BingoAPI
              {
                  config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot\\Configurations\\EventTypes.json"), optional: false, reloadOnChange: false);
              })
+            .ConfigureLogging((hostingContext, logging) =>
+            {
+                logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                logging.AddConsole();
+                logging.AddDebug();
+                logging.AddEventSourceLogger();
+                logging.AddNLog();
+            })
              .UseStartup<Startup>();
     }
 }

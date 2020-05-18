@@ -9,6 +9,7 @@ namespace BingoAPI.Domain
     {
         public bool Result { get; set; }
 
+        public string ErrrorMessage { get; set; }
         public List<string> ImageNames { get; set; }
     }
 }
