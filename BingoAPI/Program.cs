@@ -18,7 +18,7 @@ namespace BingoAPI
 {
     public class Program
     {
-        private static object hostingContext;
+        
         public static void Main(string[] args)
         {
             CreateWebHostBuilder(args).Build().Run();

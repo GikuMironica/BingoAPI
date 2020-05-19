@@ -52,7 +52,6 @@ namespace BingoAPI.Controllers
         /// <response code="200">Returns the updated user </response>
         /// <response code="404">user not found </response>
         [ProducesResponseType(typeof(Response<UserResponse>),200)]
-        [AllowAnonymous]
         [HttpGet(ApiRoutes.Users.Get)]
         [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] string userId)

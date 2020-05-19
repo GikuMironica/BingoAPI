@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -60,13 +61,38 @@ namespace BingoAPI.Controllers
             this.uriService = uriService;
         }
 
+        /// <summary>
+        /// This endpoint returns relevant data about a post
+        /// it includes the owner id, the location, pictures, tags
+        /// </summary>
+        /// <param name="postId">The post Id</param>
+        /// <response code="200">The post was found and returned</response>
         [HttpGet(ApiRoutes.Posts.Get)]
+        [ProducesResponseType(typeof(Response<PostResponse>), 200)]
         public async Task<IActionResult> Get([FromRoute] int postId)
         {
-            return Ok();
+            var post = await postRepository.GetByIdAsync(postId);
+            if (post == null)
+                return NotFound();
+
+            var response = new Response<PostResponse>(mapper.Map<PostResponse>(post));
+
+            string eventType = post.Event.GetType().Name.ToString();
+            response.Data.Event.EventType = eventTypes.Types
+                .Where(y => y.Type == eventType)
+                .Select(x => x.Id)
+                .FirstOrDefault();
+            
+            return Ok(response);
         }
 
 
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="getAllRequest"></param>
+        /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll([FromRoute] GetAllRequest getAllRequest)
         {
@@ -74,7 +100,16 @@ namespace BingoAPI.Controllers
         }
 
 
+
+        /// <summary>
+        /// This endpoint is used for creating posts
+        /// A post includes location, event, pictures, tags.
+        /// </summary>
+        /// <param name="postRequest">request object</param>
+        /// <response code="201">Post successfuly created</response>
+        /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
+        [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
         public async Task<IActionResult> Create( CreatePostRequest postRequest)
         {
             
@@ -109,7 +144,7 @@ namespace BingoAPI.Controllers
                 else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
             }            
 
-            var result = await postRepository.Add(post);
+            var result = await postRepository.AddAsync(post);
 
             if (!result)
                 return BadRequest();
@@ -120,13 +155,25 @@ namespace BingoAPI.Controllers
         } 
 
 
+
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <param name="postRequest"></param>
+        /// <returns></returns>
         [HttpPut(ApiRoutes.Posts.Update)]
-        public async Task<IActionResult> Update([FromRoute] int postId, [FromBody] UpdatePostRequest postRequest)
+        public async Task<IActionResult> Update([FromRoute] int postId, [FromForm] UpdatePostRequest postRequest)
         {
             return Ok();
         }
 
 
+        /// <summary>
+        /// TODO
+        /// </summary>
+        /// <param name="postId"></param>
+        /// <returns></returns>
         [HttpDelete(ApiRoutes.Posts.Delete)]
         public async Task<IActionResult> Delete([FromRoute] int postId )
         {

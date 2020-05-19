@@ -17,30 +17,35 @@ namespace BingoAPI.Models.SqlRepository
             _context = context;
         }
 
-        public async Task<bool> Add(Post entity)
+        public async Task<bool> AddAsync(Post entity)
         {
-            await AddNewTags(entity);
+            await AddNewTagsAsync(entity);
             await _context.AddAsync(entity);
             var result = await _context.SaveChangesAsync();
                 return result > 0;
         }
 
-        public Task Delete(int Id)
+        public Task DeleteAsync(int Id)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<Post>> GetAll()
+        public Task<IEnumerable<Post>> GetAllAsync()
         {
             throw new NotImplementedException();
         }
 
-        public Task<Post> GetById(int id)
+        public async Task<Post> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _context.Posts
+                .Include(tag => tag.Location)
+                .Include(tag => tag.Event)
+                .Include(tag => tag.Tags)
+                    .ThenInclude(pt => pt.Tag)
+                .SingleOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task Update(Post entity)
+        public Task UpdateAsync(Post entity)
         {
             throw new NotImplementedException();
         }
@@ -52,7 +57,7 @@ namespace BingoAPI.Models.SqlRepository
         /// </summary>
         /// <param name="post">The post which references the tag</param>
         /// <returns></returns>
-        public async Task AddNewTags(Post post)
+        public async Task AddNewTagsAsync(Post post)
         {
             // store tags name in lower case
             if ((post.Tags == null) || (post.Tags.Count==0))

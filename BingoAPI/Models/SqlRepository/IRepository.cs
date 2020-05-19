@@ -7,12 +7,12 @@ namespace BingoAPI.Models.SqlRepository
 {
     public interface IRepository<T>
     {
-        public Task<bool> Add(T entity);
-        public Task Delete(int Id);
-        public Task<IEnumerable<T>> GetAll();
+        public Task<bool> AddAsync(T entity);
+        public Task DeleteAsync(int Id);
+        public Task<IEnumerable<T>> GetAllAsync();
 
-        public Task Update(T entity);
+        public Task UpdateAsync(T entity);
 
-        public abstract Task<T> GetById(int id);
+        public abstract Task<T> GetByIdAsync(int id);
     }
 }
