@@ -120,6 +120,12 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Delete([FromRoute] string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             var deleted = await _userManager.DeleteAsync(user);
             if (deleted.Succeeded)
             {

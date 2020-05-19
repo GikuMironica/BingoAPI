@@ -170,14 +170,31 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// TODO
+        /// This endpoint is used for deleting posts.
+        /// A post can only be deleted by it's owner or by Admin / SuperAdmin
+        /// It will delete all related data, like Event, EventLocation but will leave the created tags.
         /// </summary>
-        /// <param name="postId"></param>
-        /// <returns></returns>
+        /// <param name="postId">The post id</param>
+        /// <response code="204">Post was successfuly deleted</response>
+        /// <response code="403">You do not own this post / You are not an Administrator</response>
+        /// <response code="404">Post was not found</response>
         [HttpDelete(ApiRoutes.Posts.Delete)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         public async Task<IActionResult> Delete([FromRoute] int postId )
         {
-            return Ok();
+            var userOwnsPost = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
+
+            if (!userOwnsPost)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
+            }
+
+            var deleted = await postRepository.DeleteAsync(postId);
+
+            if (deleted)
+                return NoContent();
+
+            return NotFound();
         }
 
     }

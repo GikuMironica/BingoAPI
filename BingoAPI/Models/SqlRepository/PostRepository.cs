@@ -1,4 +1,5 @@
 ﻿using BingoAPI.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,12 @@ namespace BingoAPI.Models.SqlRepository
     public class PostRepository : IPostsRepository
     {
         protected readonly DataContext _context;
+        private readonly UserManager<AppUser> userManager;
 
-        // datacontext will be injected by DI
-        public PostRepository(DataContext context)
+        public PostRepository(DataContext context, UserManager<AppUser> userManager)
         {
             _context = context;
+            this.userManager = userManager;
         }
 
         public async Task<bool> AddAsync(Post entity)
@@ -25,9 +27,16 @@ namespace BingoAPI.Models.SqlRepository
                 return result > 0;
         }
 
-        public Task DeleteAsync(int Id)
+        public async Task<bool> DeleteAsync(int Id)
         {
-            throw new NotImplementedException();
+            var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == Id);
+
+            if (post == null)
+                return false;
+
+            _context.Remove(post);
+            
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public Task<IEnumerable<Post>> GetAllAsync()
@@ -81,5 +90,30 @@ namespace BingoAPI.Models.SqlRepository
                   //await _context.Tags.AddAsync(new Tag { Counter = 1, TagName = tag.Tag.TagName, Posts = post.Tags });
             }
         }
+
+        public async Task<bool> IsPostOwnerOrAdminAsync(int postId, string userId)
+        {
+            var post = await _context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
+
+            if (post == null)
+            {
+                return true;
+            }
+            var user = await userManager.FindByIdAsync(userId);
+
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            var isAdmin = false;
+
+            foreach(var role in userRoles)
+            {
+                if (role == "Admin" || role == "SuperAdmin")
+                    isAdmin = true;
+            }
+
+
+            return post.UserId == userId || isAdmin;
+        }
+
     }
 }

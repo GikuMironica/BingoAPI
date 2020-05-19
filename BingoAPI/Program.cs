@@ -29,7 +29,7 @@ namespace BingoAPI
              //attach additional JSON files
              .ConfigureAppConfiguration((hostingContext, config) =>
              {
-                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot\\Configurations\\EventTypes.json"), optional: false, reloadOnChange: false);
+                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot","Configurations","EventTypes.json"), optional: false, reloadOnChange: false);
              })
             .ConfigureLogging((hostingContext, logging) =>
             {
