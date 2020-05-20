@@ -69,18 +69,18 @@ namespace BingoAPI.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             // One - One relationship between Post <-> Event
-            modelBuilder.Entity<Post>()
-                .HasOne(p => p.Event)
-                .WithOne(e => e.Post)
-                .HasForeignKey<Event>(p => p.Id)
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.Post)
+                .WithOne(p => p.Event)
+                .HasForeignKey<Post>(p => p.EventId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
             // One - One relationship between Post <-> Location
-            modelBuilder.Entity<Post>()
-                .HasOne(p => p.Location)
-                .WithOne(l => l.Post)
-                .HasForeignKey<Location>(p => p.Id)
+            modelBuilder.Entity<Location>()
+                .HasOne(l => l.Post)
+                .WithOne(p => p.Location)
+                .HasForeignKey<Post>(p => p.LocationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 

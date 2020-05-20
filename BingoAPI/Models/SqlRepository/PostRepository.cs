@@ -22,6 +22,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<bool> AddAsync(Post entity)
         {
             await AddNewTagsAsync(entity);
+            _context.Attach(entity.Event);
             await _context.AddAsync(entity);
             var result = await _context.SaveChangesAsync();
                 return result > 0;
@@ -54,9 +55,11 @@ namespace BingoAPI.Models.SqlRepository
                 .SingleOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task UpdateAsync(Post entity)
+        public async Task<bool> UpdateAsync(Post entity)
         {
-            throw new NotImplementedException();
+            _context.Posts.Update(entity);
+            var updated = await _context.SaveChangesAsync();
+            return updated > 0; 
         }
 
         /// <summary>
@@ -115,5 +118,14 @@ namespace BingoAPI.Models.SqlRepository
             return post.UserId == userId || isAdmin;
         }
 
+        public async Task<Post> GetPostByIdAsync(int postId)
+        {
+            return await _context.Posts
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Tags)
+                    .ThenInclude(pt => pt.Tag)
+                .SingleOrDefaultAsync(x => x.Id == postId);
+        }
     }
 }

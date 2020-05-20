@@ -40,14 +40,15 @@ namespace BingoAPI.Controllers
         private readonly IPostsRepository postRepository;
         private readonly IImageToWebpProcessor imageToWebpProcessor;
         private readonly IWebHostEnvironment webHostEnvironment;
-        private readonly IAwsImageUploader awsImageUploader;
+        private readonly IAwsBucketManager awsBucketManager;
         private readonly ILogger<PostController> logger;
         private readonly IUriService uriService;
+        private readonly IUpdatePostToDomain updatePostToDomain;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor
-                              ,IWebHostEnvironment webHostEnvironment, IAwsImageUploader awsImageUploader, ILogger<PostController> logger
-                              ,IUriService uriService)
+                              ,IWebHostEnvironment webHostEnvironment, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
+                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -56,9 +57,10 @@ namespace BingoAPI.Controllers
             this.postRepository = postRepository;
             this.imageToWebpProcessor = imageToWebpProcessor;
             this.webHostEnvironment = webHostEnvironment;
-            this.awsImageUploader = awsImageUploader;
+            this.awsBucketManager = awsBucketManager;
             this.logger = logger;
             this.uriService = uriService;
+            this.updatePostToDomain = updatePostToDomain;
         }
 
         /// <summary>
@@ -133,7 +135,7 @@ namespace BingoAPI.Controllers
                 if (imageProcessingResult.Result)
                 {
                     // upload images to cdn, assign image links to post.Pics
-                    var uploadResult = await awsImageUploader.UploadFileAsync(imageProcessingResult);
+                    var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
                     if (!uploadResult.Result)
                     {
                         return BadRequest(new SingleError { Message = "The provided images couldn't be stored. Try to upload other pictures." });
@@ -165,7 +167,75 @@ namespace BingoAPI.Controllers
         [HttpPut(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update([FromRoute] int postId, [FromForm] UpdatePostRequest postRequest)
         {
-            return Ok();
+            var userisOwnerOrAdmin = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
+
+            if (!userisOwnerOrAdmin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
+            }
+
+            var post = await postRepository.GetPostByIdAsync(postId);
+
+            if (post == null)
+                return NotFound();
+
+            // map request object to existing post
+            Post mappedPost = updatePostToDomain.Map(postRequest, post);
+
+            // Get the Guid of the deleted pictures
+            List<string> deletedImages = post.Pictures.Except(postRequest.RemainingImagesGuids).ToList();
+
+            // delete from the S3 bucket the delete pictures
+            if (deletedImages.Count > 0)
+            {
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages);
+                if (!deletedPicturesResult.Result)
+                {
+                    // log the Delete Exceptions list
+                }
+
+                // remove the deleted Guids from post
+                var actualPictures = new List<string>(mappedPost.Pictures);
+                 ((List<string>?)(mappedPost.Pictures)).RemoveAll(x => actualPictures.Contains(x));
+            }                
+
+            // process the new images if there are any
+            ImageProcessingResult imageProcessingResult = null;
+            List<IFormFile> pictures = new List<IFormFile>();
+            pictures.AddAllIfNotNull(
+                new List<IFormFile> { postRequest.Picture1, postRequest.Picture2, postRequest.Picture4, postRequest.Picture4, postRequest.Picture5 });
+
+            if ((pictures.Count > 0))
+            {
+                mappedPost.Pictures = new List<string>();
+                imageProcessingResult = imageToWebpProcessor.ConvertFiles(pictures);
+
+                // add images
+                if (imageProcessingResult.Result)
+                {
+                    // upload images to cdn, assign image links to post.Pics
+                    var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
+                    if (!uploadResult.Result)
+                    {
+                        return BadRequest(new SingleError { Message = "The provided images couldn't be stored. Try to upload other pictures." });
+                    }
+                    ((List<string>?)(mappedPost.Pictures)).AddAllIfNotNull(uploadResult.ImageNames);
+
+                }
+                else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
+            }
+
+
+            // update in the system the modified post
+            var updated = await postRepository.UpdateAsync(mappedPost);
+
+            // map to a response object if updated
+            if (updated)
+            {
+                return Ok(new Response<PostResponse>(mapper.Map<PostResponse>(mappedPost)));
+            }
+
+            return BadRequest();
         }
 
 

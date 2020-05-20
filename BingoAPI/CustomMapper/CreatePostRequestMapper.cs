@@ -29,6 +29,7 @@ namespace BingoAPI.CustomMapper
                     Region = postRequest.UserLocation.County
                 }
             };
+            post.Event.Post = post;
             post.Pictures = new List<string>();
             post.Tags = new List<PostTags>();
             if (postRequest.Tags != null) { 

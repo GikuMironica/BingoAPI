@@ -22,7 +22,6 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="8.6.0" />
     <PackageReference Include="ImageProcessor" Version="2.9.0" />
     <PackageReference Include="ImageProcessor.Plugins.WebP" Version="1.3.0" />
-    <PackageReference Include="Imazen.WebP" Version="10.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />

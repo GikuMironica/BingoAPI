@@ -13,16 +13,17 @@ using Microsoft.Extensions.Options;
 using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
 using System.Drawing;
+using Amazon.S3.Model;
 
 namespace BingoAPI.Services
 {
-    public class AwsImageUploader : IAwsImageUploader
+    public class AwsBucketManager : IAwsBucketManager
     {
         private readonly AwsBucketSettings awsBucketSettings;
         private readonly IWebHostEnvironment webHostEnvironment;
         private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
         private static IAmazonS3 s3Client;
-        public AwsImageUploader(IOptions<AwsBucketSettings> awsBucketSettings, IWebHostEnvironment webHostEnvironment)
+        public AwsBucketManager(IOptions<AwsBucketSettings> awsBucketSettings, IWebHostEnvironment webHostEnvironment)
         {
             this.awsBucketSettings = awsBucketSettings.Value;
             this.webHostEnvironment = webHostEnvironment;
@@ -60,6 +61,32 @@ namespace BingoAPI.Services
                 imageUploadResult.Result = false;
             }
             return imageUploadResult;
+        }
+
+        public async Task<ImageDeleteResult> DeleteFileAsync(List<string>? imagesGuids)
+        {
+            List<KeyVersion> keyverison = new List<KeyVersion>();
+            foreach(var imageGuid in imagesGuids)
+            {
+                keyverison.Add(new KeyVersion { Key = imageGuid, VersionId = null });
+            }
+
+            var deleteObjectsRequest = new DeleteObjectsRequest
+            {
+                BucketName = awsBucketSettings.bucketName,
+                Objects = keyverison
+            };
+
+            try
+            {
+                DeleteObjectsResponse response = await s3Client.DeleteObjectsAsync(deleteObjectsRequest);
+                bool cnt = response.DeletedObjects.Count == imagesGuids.Count;
+                return new ImageDeleteResult { Result = cnt };
+            }
+            catch (DeleteObjectsException e)
+            {
+                return new ImageDeleteResult { Result = false, ErrorMessages = e.Response.DeleteErrors };
+            }
         }
     }
 }

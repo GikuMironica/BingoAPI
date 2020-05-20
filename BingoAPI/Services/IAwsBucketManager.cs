@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Services
 {
-    public interface IAwsImageUploader
+    public interface IAwsBucketManager
     {
         public Task<ImageUploadResult> UploadFileAsync(ImageProcessingResult imageProcessingResult);
+
+        public Task<ImageDeleteResult> DeleteFileAsync(List<string>? imagesGuids);
     }
 }

@@ -11,7 +11,7 @@ namespace BingoAPI.Models.SqlRepository
         public Task<bool> DeleteAsync(int Id);
         public Task<IEnumerable<T>> GetAllAsync();
 
-        public Task UpdateAsync(T entity);
+        public Task<bool> UpdateAsync(T entity);
 
         public abstract Task<T> GetByIdAsync(int id);
     }

@@ -32,11 +32,17 @@ namespace BingoAPI.Installers
                 return factory.GetUrlHelper(actionContext);
             });
 
+            // custom mapper services
             services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
+            services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
+
+            // options
             services.Configure<EventTypes>(configuration.GetSection("Types"));
-            services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
             services.Configure<AwsBucketSettings>(configuration.GetSection("AWS-ImageBucket"));
-            services.AddSingleton<IAwsImageUploader, AwsImageUploader>();
+
+            // services
+            services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
+            services.AddSingleton<IAwsBucketManager, AwsBucketManager>();
         }
     }
 }

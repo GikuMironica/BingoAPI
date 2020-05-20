@@ -34,8 +34,8 @@ namespace Bingo.Contracts.V1.Requests.Post
 
     public class UserCompleteLocation
     {
-        public double? Longitude { get; set; }
-        public double? Latitude { get; set; }
+        public double Longitude { get; set; }
+        public double Latitude { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
         public string? County { get; set; }
