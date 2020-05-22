@@ -12,7 +12,7 @@ namespace BingoAPI.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                        .Annotation("MySql:ValueGenerationStrategy", .IdentityColumn),
                     TagName = table.Column<string>(nullable: false),
                     Counter = table.Column<int>(nullable: false)
                 },
