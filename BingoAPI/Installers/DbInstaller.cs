@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Pomelo.EntityFrameworkCore.MySql;
 
 namespace BingoAPI.Installers
 {
@@ -18,7 +17,8 @@ namespace BingoAPI.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<DataContext>(options =>
-                options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
+                //options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("PostgreConnection")));
 
             // configure custom Identity User
             services.AddDefaultIdentity<AppUser>(options =>
