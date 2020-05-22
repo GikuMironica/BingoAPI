@@ -18,6 +18,10 @@ namespace BingoAPI.Models
 
         public Int64 EventTime { get; set; }
 
+        public Int64? EndTime { get; set; }
+
+        public int ActiveFlag { get; set; }
+
         [Required]
         public Location Location { get; set; }
 

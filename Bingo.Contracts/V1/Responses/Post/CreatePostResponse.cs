@@ -12,6 +12,8 @@ namespace Bingo.Contracts.V1.Responses.Post
 
         public long EventTime { get; set; }
 
+        public long? EndTime { get; set; }
+
         public string UserId { get; set; }
 
         public IEnumerable<string>? Pictures { get; set; }

@@ -11,7 +11,8 @@ namespace Bingo.Contracts.V1.Responses.Post
         public Int64 PostTime { get; set; }
 
         public Int64 EventTime { get; set; }
-        public Location Location { get; set; }
+
+        public UpdatedLocation Location { get; set; }
 
         public string UserId { get; set; }
 

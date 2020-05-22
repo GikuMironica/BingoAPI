@@ -10,7 +10,9 @@ namespace Bingo.Contracts.V1.Requests.Post
         #nullable enable
         public Int64? EventTime { get; set; }
 
-        #nullable enable
+        public long? EndTime { get; set; }
+
+#nullable enable
         public UpdatedCompleteLocation? UserLocation { get; set; }
 
         public IFormFile? Picture1 { get; set; }

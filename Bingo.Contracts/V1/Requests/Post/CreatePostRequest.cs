@@ -12,6 +12,8 @@ namespace Bingo.Contracts.V1.Requests.Post
 
         public long PostTime { get; set; }
 
+        public long? EndTime { get; set; }
+
         public UserCompleteLocation UserLocation { get; set; }
 
         public IFormFile? Picture1 { get; set; }

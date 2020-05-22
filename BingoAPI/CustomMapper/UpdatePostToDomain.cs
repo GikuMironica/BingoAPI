@@ -26,7 +26,7 @@ namespace BingoAPI.CustomMapper
             {
                 post.EventTime = updatePostRequest.EventTime.Value;
             }
-            if (updatePostRequest.Event.Slots.HasValue)
+            if (updatePostRequest.Event !=null && updatePostRequest.Event.Slots.HasValue)
             {
                 if (post.Event.GetType().ToString().Contains("HouseParty"))
                 {
@@ -43,7 +43,7 @@ namespace BingoAPI.CustomMapper
                 {
                     if (tag != null && tag.Length > 0)
                     {
-                        post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag } });
+                        post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag, Counter = 1 } });
                     }
                 }
             }

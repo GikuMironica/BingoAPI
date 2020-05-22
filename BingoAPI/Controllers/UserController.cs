@@ -109,14 +109,13 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// Only administration can completely delete users. The users can only disable their accounts 
+        /// This endpoint allows users to delete their account 
         /// </summary>
         /// <param name="userId">The user id to be deleted</param>
         /// <response code="204">User successfuly deleted</response>
         /// <response code="403">Not enough priviledges</response>
         /// <response code="406">Unable to update user due to system requirements of the application user</response>
         [HttpDelete(ApiRoutes.Users.Delete)]
-        [Authorize(Roles = "SuperAdmin, Admin")]
         public async Task<IActionResult> Delete([FromRoute] string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

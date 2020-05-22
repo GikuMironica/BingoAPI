@@ -119,7 +119,7 @@ namespace BingoAPI.Controllers
 
             // Map request to domain
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
-
+            post.ActiveFlag = 1;
 
             // Temporary solution - get all non null images from request obj, save in list
             ImageProcessingResult imageProcessingResult = null;
