@@ -8,7 +8,6 @@ namespace BingoAPI.Models
 {
     [Table("Events")]
     public class Club : Event
-    {
-        public double? EntracePrice { get; set; }
+    {        
     }
 }

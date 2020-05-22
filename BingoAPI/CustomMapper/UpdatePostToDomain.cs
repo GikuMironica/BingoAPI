@@ -22,8 +22,20 @@ namespace BingoAPI.CustomMapper
             // map all properties except the tags
             mapper.Map<UpdatePostRequest, Post>(updatePostRequest, post);
 
+            if(updatePostRequest.EventTime != null)
+            {
+                post.EventTime = updatePostRequest.EventTime.Value;
+            }
+            if (updatePostRequest.Event.Slots.HasValue)
+            {
+                if (post.Event.GetType().ToString().Contains("HouseParty"))
+                {
+                    ((HouseParty)(post.Event)).Slots = updatePostRequest.Event.Slots.Value;
+                }                    
+            }
+
             // if updateRequest has tags, delete all tags  from post and assign to it the tags from request object
-            if (updatePostRequest.TagNames != null || updatePostRequest.TagNames.Count > 0)
+            if (updatePostRequest.TagNames != null)
             {
                 post.Tags = new List<PostTags>();
 

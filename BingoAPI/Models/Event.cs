@@ -14,11 +14,15 @@ namespace BingoAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
+        public double? EntrancePrice { get; set; }
+
         public string Description{ get; set; }
         #nullable enable
         public string? Requirements { get; set; }
 
         public Post? Post { get; set; }
+
+        public int PostId { get; set; }
 
     }
 }

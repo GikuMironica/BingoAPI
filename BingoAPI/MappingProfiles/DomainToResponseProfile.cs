@@ -33,11 +33,17 @@ namespace BingoAPI.MappingProfiles
                 .ForPath(dest => dest.Event.Requirements, opt => opt.MapFrom(src => src.Event.Requirements))
                 .ForPath(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(x => x.Tag.TagName)));
 
+            CreateMap<Models.Location, UpdatedLocation>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.Id))
+                .ForMember(dest => dest.Latitude, opt => opt.MapFrom(s => s.Latitude))
+                .ForMember(dest => dest.Logitude, opt => opt.MapFrom(s => s.Logitude));
 
+            CreateMap<Models.Event, Bingo.Contracts.V1.Responses.Post.UpdatedEvent>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(s => s.Id));
 
-
-
-
+            CreateMap<Post, UpdatePostResponse>()
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(s => s.Location))
+                .ForMember(dest => dest.Event, opt => opt.MapFrom(s => s.Event));
 
         }
         

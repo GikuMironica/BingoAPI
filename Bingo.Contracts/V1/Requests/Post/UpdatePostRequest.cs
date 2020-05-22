@@ -8,10 +8,7 @@ namespace Bingo.Contracts.V1.Requests.Post
     public class UpdatePostRequest
     {
         #nullable enable
-        public long? EventTime { get; set; }
-
-        #nullable enable
-        public long? PostTime { get; set; }
+        public Int64? EventTime { get; set; }
 
         #nullable enable
         public UpdatedCompleteLocation? UserLocation { get; set; }
@@ -28,8 +25,8 @@ namespace Bingo.Contracts.V1.Requests.Post
 
         public UpdatedEvent? Event { get; set; }
 
-        public List<string>? RemainingImagesGuids { get; set; }
-#nullable enable
+        public List<String>? RemainingImagesGuids { get; set; }
+        #nullable enable
         public List<String>? TagNames { get; set; }
     }
 
@@ -39,7 +36,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         public double? Latitude { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
-        public string? County { get; set; }
+        public string? Region { get; set; }
         public string? Country { get; set; }
     }
     public class UpdatedEvent

@@ -19,6 +19,8 @@ namespace BingoAPI.MappingProfiles
             
             // Map child of UpdatePostRequest to Location
             CreateMap<UpdatedCompleteLocation, Location>()
+                .ForMember(x => x.Latitude, opt => opt.Condition(s => s.Latitude.HasValue))
+                .ForMember(x => x.Logitude, opt => opt.Condition(s => s.Longitude.HasValue))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             // Map child of UpdatePostRequest to Event
@@ -26,13 +28,16 @@ namespace BingoAPI.MappingProfiles
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             // Map the whole UpdatePostRequest with Post including the child objects mapping profiles
-            CreateMap<UpdatePostRequest, Post>()
+            CreateMap<UpdatePostRequest, Post>()               
                 .ForMember(p => p.Location,
                            opt => opt.MapFrom(s => s.UserLocation))
                 .ForMember(p => p.Event,
-                           opt => opt.MapFrom(s => s.Event))
+                           opt => opt.MapFrom(s => s.Event))       
+                .ForMember(x => x.EventTime, opt => opt.Ignore())
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-                
+            // .ForMember(x => x.EventTime, opt => opt.Condition(s => s.EventTime.HasValue && s.EventTime != 0 && s.EventTime != null))
+
+
         }
     }
 

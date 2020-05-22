@@ -18,10 +18,38 @@ namespace BingoAPI
 {
     public class Program
     {
-        
-        public static void Main(string[] args)
+
+        public static async Task Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            var host = CreateWebHostBuilder(args).Build();
+
+            using (var serviceScope = host.Services.CreateScope())
+            {
+                var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                // create Admin role if doesnt exist, create
+                if (!await roleManager.RoleExistsAsync("Admin"))
+                {
+                    var adminRole = new IdentityRole("Admin");
+                    await roleManager.CreateAsync(adminRole);
+                }
+
+                // create User role if doesnt exist, create
+                if (!await roleManager.RoleExistsAsync("User"))
+                {
+                    var posterRole = new IdentityRole("User");
+                    await roleManager.CreateAsync(posterRole);
+                }
+
+                // create SuperAdmin role if doesnt exist, create
+                if (!await roleManager.RoleExistsAsync("SuperAdmin"))
+                {
+                    var posterRole = new IdentityRole("SuperAdmin");
+                    await roleManager.CreateAsync(posterRole);
+                }
+            }
+
+            await host.RunAsync();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

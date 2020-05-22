@@ -72,7 +72,7 @@ namespace BingoAPI.Data
             modelBuilder.Entity<Event>()
                 .HasOne(e => e.Post)
                 .WithOne(p => p.Event)
-                .HasForeignKey<Post>(p => p.EventId)
+                .HasForeignKey<Event>(p => p.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
@@ -80,14 +80,14 @@ namespace BingoAPI.Data
             modelBuilder.Entity<Location>()
                 .HasOne(l => l.Post)
                 .WithOne(p => p.Location)
-                .HasForeignKey<Post>(p => p.LocationId)
+                .HasForeignKey<Location>(p => p.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 
             modelBuilder.Entity<Post>().Property(p => p.Pictures)
                 .HasConversion(
                 v => string.Join(',', v),
-                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
 
             // One - Many relationship Post <-> Tag
             modelBuilder.Entity<PostTags>()

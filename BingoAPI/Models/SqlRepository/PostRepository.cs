@@ -57,6 +57,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> UpdateAsync(Post entity)
         {
+            await AddNewTagsAsync(entity);
             _context.Posts.Update(entity);
             var updated = await _context.SaveChangesAsync();
             return updated > 0; 

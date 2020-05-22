@@ -26,7 +26,7 @@ namespace BingoAPI.CustomMapper
                     Address = postRequest.UserLocation.Address,
                     City = postRequest.UserLocation.City,
                     Country = postRequest.UserLocation.Country,
-                    Region = postRequest.UserLocation.County
+                    Region = postRequest.UserLocation.Region
                 }
             };
             post.Event.Post = post;
@@ -63,7 +63,7 @@ namespace BingoAPI.CustomMapper
                     {
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
-                        EntracePrice = containedEvent.EntrancePrice ?? 0                        
+                        EntrancePrice = containedEvent.EntrancePrice ?? 0                        
                     };
                     break;
                 case 3:
@@ -71,7 +71,7 @@ namespace BingoAPI.CustomMapper
                     {
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
-                        EntracePrice = containedEvent.EntrancePrice ?? 0
+                        EntrancePrice = containedEvent.EntrancePrice ?? 0
                     };
                     break;
                 case 4:

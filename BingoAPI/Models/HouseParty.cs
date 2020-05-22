@@ -11,6 +11,5 @@ namespace BingoAPI.Models
     {
         public int? Slots { get; set; }
 
-        public double? EntrancePrice { get; set; }
     }
 }

@@ -68,7 +68,8 @@ namespace BingoAPI.Services
             List<KeyVersion> keyverison = new List<KeyVersion>();
             foreach(var imageGuid in imagesGuids)
             {
-                keyverison.Add(new KeyVersion { Key = imageGuid, VersionId = null });
+                string keyName = $"assets/images/{imageGuid}.webp";
+                keyverison.Add(new KeyVersion { Key = keyName, VersionId = null });
             }
 
             var deleteObjectsRequest = new DeleteObjectsRequest

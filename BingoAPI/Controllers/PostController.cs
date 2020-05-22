@@ -140,7 +140,7 @@ namespace BingoAPI.Controllers
                     {
                         return BadRequest(new SingleError { Message = "The provided images couldn't be stored. Try to upload other pictures." });
                     }
-                    ((List<string>?)(post.Pictures)).AddAllIfNotNull(uploadResult.ImageNames);
+                    post.Pictures.AddAllIfNotNull(uploadResult.ImageNames);
 
                 }
                 else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
@@ -154,18 +154,19 @@ namespace BingoAPI.Controllers
             var locationUri = uriService.GetPostUri(post.Id.ToString());
 
             return Created(locationUri, new Response<CreatePostResponse>(mapper.Map<CreatePostResponse>(post)));
-        } 
+        }
 
 
 
         /// <summary>
-        /// TODO
+        /// This endpoint is used to update a post with it's related data which are all optional
+        /// Event Location, The contained Event, The Post itself, Tags and Pictures can be updated here
         /// </summary>
-        /// <param name="postId"></param>
-        /// <param name="postRequest"></param>
-        /// <returns></returns>
+        /// <param name="postId">The post id</param>
+        /// <param name="postRequest">The request object, all attributes are optional</param>
+        /// <response code="200"></response>
         [HttpPut(ApiRoutes.Posts.Update)]
-        public async Task<IActionResult> Update([FromRoute] int postId, [FromForm] UpdatePostRequest postRequest)
+        public async Task<IActionResult> Update([FromRoute] int postId, UpdatePostRequest postRequest)
         {
             var userisOwnerOrAdmin = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
 
@@ -183,6 +184,8 @@ namespace BingoAPI.Controllers
             Post mappedPost = updatePostToDomain.Map(postRequest, post);
 
             // Get the Guid of the deleted pictures
+            if (postRequest.RemainingImagesGuids == null)
+                postRequest.RemainingImagesGuids = new List<string>();
             List<string> deletedImages = post.Pictures.Except(postRequest.RemainingImagesGuids).ToList();
 
             // delete from the S3 bucket the delete pictures
@@ -194,9 +197,8 @@ namespace BingoAPI.Controllers
                     // log the Delete Exceptions list
                 }
 
-                // remove the deleted Guids from post
-                var actualPictures = new List<string>(mappedPost.Pictures);
-                 ((List<string>?)(mappedPost.Pictures)).RemoveAll(x => actualPictures.Contains(x));
+                // remove the deleted Guids from post                            
+                mappedPost.Pictures = postRequest.RemainingImagesGuids;
             }                
 
             // process the new images if there are any
@@ -219,7 +221,7 @@ namespace BingoAPI.Controllers
                     {
                         return BadRequest(new SingleError { Message = "The provided images couldn't be stored. Try to upload other pictures." });
                     }
-                    ((List<string>?)(mappedPost.Pictures)).AddAllIfNotNull(uploadResult.ImageNames);
+                    mappedPost.Pictures.AddAllIfNotNull(uploadResult.ImageNames);
 
                 }
                 else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
@@ -232,7 +234,8 @@ namespace BingoAPI.Controllers
             // map to a response object if updated
             if (updated)
             {
-                return Ok(new Response<PostResponse>(mapper.Map<PostResponse>(mappedPost)));
+                var locationUri = uriService.GetPostUri(post.Id.ToString());
+                return Ok(locationUri/*new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
             }
 
             return BadRequest();
@@ -257,6 +260,20 @@ namespace BingoAPI.Controllers
             if (!userOwnsPost)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
+            }
+
+
+            var post = await postRepository.GetPostByIdAsync(postId);
+            List<string> deletedImagesList = post.Pictures;
+
+            // delete from the S3 bucket the delete pictures
+            if (deletedImagesList.Count > 0)
+            {
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList);
+                if (!deletedPicturesResult.Result)
+                {
+                    // log the Delete Exceptions list
+                }
             }
 
             var deleted = await postRepository.DeleteAsync(postId);

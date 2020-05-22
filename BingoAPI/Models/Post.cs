@@ -14,14 +14,12 @@ namespace BingoAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public long PostTime { get; set; }
+        public Int64 PostTime { get; set; }
 
-        public long EventTime { get; set; }
+        public Int64 EventTime { get; set; }
 
         [Required]
         public Location Location { get; set; }
-
-        public int LocationId { get; set; }
 
         [Required]
         public AppUser User { get; set; }
@@ -30,10 +28,8 @@ namespace BingoAPI.Models
         
         public Event Event { get; set; }
 
-        public int EventId { get; set; }
-
         #nullable enable
-        public IEnumerable<string>? Pictures { get; set; }
+        public List<string>? Pictures { get; set; }
 
         #nullable enable
         public virtual List<PostTags>? Tags { get; set; }

@@ -32,5 +32,7 @@ namespace BingoAPI.Models
         public string? Country { get; set; }
 
         public Post Post { get; set; }
+
+        public int PostId { get; set; }
     }
 }

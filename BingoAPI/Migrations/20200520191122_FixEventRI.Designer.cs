@@ -3,14 +3,16 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200520191122_FixEventRI")]
+    partial class FixEventRI
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,9 +27,6 @@ namespace BingoAPI.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<double?>("EntrancePrice")
-                        .HasColumnType("double");
 
                     b.Property<int>("PostId")
                         .HasColumnType("int");
@@ -380,6 +379,9 @@ namespace BingoAPI.Migrations
                 {
                     b.HasBaseType("BingoAPI.Models.Event");
 
+                    b.Property<double?>("EntracePrice")
+                        .HasColumnType("double");
+
                     b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("bar_type");
@@ -416,6 +418,10 @@ namespace BingoAPI.Migrations
                 {
                     b.HasBaseType("BingoAPI.Models.Event");
 
+                    b.Property<double?>("EntracePrice")
+                        .HasColumnName("Club_EntracePrice")
+                        .HasColumnType("double");
+
                     b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("club_type");
@@ -433,6 +439,9 @@ namespace BingoAPI.Migrations
             modelBuilder.Entity("BingoAPI.Models.HouseParty", b =>
                 {
                     b.HasBaseType("BingoAPI.Models.Event");
+
+                    b.Property<double?>("EntrancePrice")
+                        .HasColumnType("double");
 
                     b.Property<int?>("Slots")
                         .HasColumnType("int");
