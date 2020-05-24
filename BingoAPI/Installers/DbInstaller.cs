@@ -18,7 +18,8 @@ namespace BingoAPI.Installers
         {
             services.AddDbContext<DataContext>(options =>
                 //options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
-                options.UseNpgsql(configuration.GetConnectionString("PostgreConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("PostgreConnection"), x => x.UseNetTopologySuite())
+                ); 
 
             // configure custom Identity User
             services.AddDefaultIdentity<AppUser>(options =>
@@ -26,7 +27,7 @@ namespace BingoAPI.Installers
                 options.Password.RequiredLength = 8;
                 options.Password.RequiredUniqueChars = 2;
                 options.SignIn.RequireConfirmedEmail = true;
-                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.MaxFailedAccessAttempts = 10;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             }).AddRoles<IdentityRole>()
               .AddEntityFrameworkStores<DataContext>()
