@@ -40,11 +40,12 @@ namespace BingoAPI.Controllers
         private readonly ILogger<PostController> logger;
         private readonly IUriService uriService;
         private readonly IUpdatePostToDomain updatePostToDomain;
+        private readonly IImageLoader imageLoader;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor
                               ,IWebHostEnvironment webHostEnvironment, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
-                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain)
+                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -57,6 +58,7 @@ namespace BingoAPI.Controllers
             this.logger = logger;
             this.uriService = uriService;
             this.updatePostToDomain = updatePostToDomain;
+            this.imageLoader = imageLoader;
         }
 
         /// <summary>
@@ -157,14 +159,14 @@ namespace BingoAPI.Controllers
             post.ActiveFlag = 1;
 
             // Temporary solution - get all non null images from request obj, save in list
-            ImageProcessingResult imageProcessingResult = null;
             List<IFormFile> pictures = new List<IFormFile>();
             pictures.AddAllIfNotNull(
-                new List<IFormFile> { postRequest.Picture1, postRequest.Picture2, postRequest.Picture3});
+                new List<IFormFile> { postRequest.Picture1, postRequest.Picture2, postRequest.Picture3
+                });
 
             if ((pictures.Count>0))
             {
-                imageProcessingResult = imageToWebpProcessor.ConvertFiles(pictures);
+                ImageProcessingResult imageProcessingResult = imageLoader.LoadFiles(pictures);
 
                 // add images
                 if (imageProcessingResult.Result)
