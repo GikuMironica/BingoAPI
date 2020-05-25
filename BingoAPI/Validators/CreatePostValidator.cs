@@ -1,5 +1,6 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
 using FluentValidation;
+using FluentValidation.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,31 +12,47 @@ namespace BingoAPI.Validators
     {
         public CreatePostValidator()
         {
-            RuleFor(x => x.EventTime)
-                .NotNull();
+/*            this.CascadeMode = CascadeMode.StopOnFirstFailure;
 
-            RuleFor(x => x.UserLocation.Latitude)
-                .NotNull();
+                      
+            RuleFor(x => x.EventTime)
+                 .NotEqual(0);
+
+            RuleFor(x => x.PostTime)
+                 .NotEqual(0)
+                 .WithMessage("Event should have a post time");
+
+            RuleFor(x => x.UserLocation)
+                 .NotNull();
 
             RuleFor(x => x.UserLocation.Longitude)
-                .NotNull();
+                .NotNull()
+                .NotEqual(0);
+
+            RuleFor(x => x.UserLocation.Latitude)
+                .NotNull()
+                .NotEqual(0);
+
+            RuleFor(x => x.Event)
+                 .NotNull();
 
             RuleFor(x => x.Event.Description)
-                .NotEmpty()
+                .NotNull()
                 .MinimumLength(10)
-                .MaximumLength(5000);
+                .MinimumLength(3000);
 
             RuleFor(x => x.Event.Requirements)
-                .MaximumLength(500);
-
-           RuleFor(x => x.Event.EventType)
                 .NotNull()
-                .LessThanOrEqualTo(10)
-                .GreaterThanOrEqualTo(1);
+                .MinimumLength(500);
 
-            RuleFor(x => x.Tags.All(x => x.Length < 20));
+            RuleFor(x => x.Event.EventType)
+                 .NotNull()
+                 .LessThanOrEqualTo(10)
+                 .GreaterThanOrEqualTo(1);
 
-            
+            RuleFor(x => x.Tags.All(x => x.Length < 20));*/
+                                    
         }
+                
     }
 }

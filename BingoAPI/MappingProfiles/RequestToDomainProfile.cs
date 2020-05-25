@@ -2,6 +2,7 @@
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.User;
 using BingoAPI.Models;
+using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,13 @@ namespace BingoAPI.MappingProfiles
             CreateMap<UpdateUserRequest, AppUser>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
-            
+
             // Map child of UpdatePostRequest to Location
-            CreateMap<UpdatedCompleteLocation, Location>()
-                .ForMember(x => x.Latitude, opt => opt.Condition(s => s.Latitude.HasValue))
-                .ForMember(x => x.Logitude, opt => opt.Condition(s => s.Longitude.HasValue))
+            CreateMap<UpdatedCompleteLocation, EventLocation>()
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => new Point(src.Longitude.Value, src.Latitude.Value)))
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                
+                
 
             // Map child of UpdatePostRequest to Event
             CreateMap<UpdatedEvent, Event>()

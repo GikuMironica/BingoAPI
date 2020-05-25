@@ -9,7 +9,6 @@ using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
-using ImageProcessor.Plugins.WebP.Imaging.Formats;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
@@ -19,12 +18,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
+using NetTopologySuite.Geometries;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -80,10 +76,18 @@ namespace BingoAPI.Controllers
             var response = new Response<PostResponse>(mapper.Map<PostResponse>(post));
 
             string eventType = post.Event.GetType().Name.ToString();
-            response.Data.Event.EventType = eventTypes.Types
+            
+            var eventTypeNumber = eventTypes.Types
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
+
+            response.Data.Event.EventType = eventTypeNumber;
+            // return slots if house party
+            if (eventTypeNumber == 1)
+            {
+                response.Data.Event.Slots = ((HouseParty)(post.Event)).Slots;
+            }
             
             return Ok(response);
         }
@@ -91,14 +95,45 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// TODO
+        /// This endpoint returns all active events base on users location.
+        /// By default it returns the events within 30km range
         /// </summary>
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll([FromRoute] GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
         {
-            return Ok();
+            Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
+            var posts = postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
+
+            if (posts == null || posts.Count() == 0)
+            {
+                return Ok(new Response<string> { Data = "No events in your area" });
+            }
+
+            var resultList = new List<Posts>();
+            
+            foreach(var post in posts)
+            {
+                string eventType = post.Event.GetType().Name.ToString();
+
+                var eventTypeNumber = eventTypes.Types
+                .Where(y => y.Type == eventType)
+                .Select(x => x.Id)
+                .FirstOrDefault();
+
+                var dist = post.Location.Location.Distance(userLocation);
+
+                resultList.Add(new Posts 
+                { 
+                    PostId = post.Id, Address = post.Location.Address, 
+                    Description = post.Event.Description, Thumbnail = post.Pictures.FirstOrDefault(),
+                    PostType = eventTypeNumber
+                    
+                });
+            }
+
+            return Ok(new Response<List<Posts>>{ Data = resultList });
         }
 
 

@@ -17,6 +17,10 @@
     <Compile Remove="Migrations\20200522095023_ExtendModel23.Designer.cs" />
     <Compile Remove="Migrations\20200524080100_CreateSpacialTable.cs" />
     <Compile Remove="Migrations\20200524080100_CreateSpacialTable.Designer.cs" />
+    <Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.cs" />
+    <Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.Designer.cs" />
+    <Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.cs" />
+    <Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

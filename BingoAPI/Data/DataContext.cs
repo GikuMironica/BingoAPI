@@ -36,7 +36,6 @@ namespace BingoAPI.Data
         public DbSet<Other> Others { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTags> PostTags { get; set; }
-
         public DbSet<EventLocation> EventLocations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -84,7 +83,7 @@ namespace BingoAPI.Data
             modelBuilder.Entity<EventLocation>()
                 .HasOne(l => l.Post)
                 .WithOne(p => p.Location)
-                .HasForeignKey<Location>(p => p.PostId)
+                .HasForeignKey<EventLocation>(p => p.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 

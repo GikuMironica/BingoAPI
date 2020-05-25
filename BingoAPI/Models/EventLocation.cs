@@ -26,9 +26,7 @@ namespace BingoAPI.Models
 
         public string? Country { get; set; }
 
-        public string? CountryCode { get; set; }
-
-        [Column(TypeName = "geometry (point)")]
+        [Column(TypeName = "geography (point)")]
         public Point Location { get; set; }
 
         public Post Post { get; set; }

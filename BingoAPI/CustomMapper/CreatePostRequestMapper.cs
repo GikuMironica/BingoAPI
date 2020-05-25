@@ -18,6 +18,7 @@ namespace BingoAPI.CustomMapper
             {
                 Event = containedEvent,
                 EventTime = postRequest.EventTime,
+                EndTime = postRequest.EndTime,
                 PostTime = postRequest.PostTime,
                 User = user,
                 Location = new EventLocation
@@ -26,7 +27,8 @@ namespace BingoAPI.CustomMapper
                     Address = postRequest.UserLocation.Address,
                     City = postRequest.UserLocation.City,
                     Country = postRequest.UserLocation.Country,
-                    Region = postRequest.UserLocation.Region
+                    Region = postRequest.UserLocation.Region,
+                    EntityName = postRequest.UserLocation.EntityName
                 }
             };
             post.Event.Post = post;
