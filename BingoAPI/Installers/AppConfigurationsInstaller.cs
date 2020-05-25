@@ -42,6 +42,7 @@ namespace BingoAPI.Installers
 
             // services
             services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
+            services.AddSingleton<IImageLoader, ImageLoader>();
             services.AddSingleton<IAwsBucketManager, AwsBucketManager>();
         }
     }
