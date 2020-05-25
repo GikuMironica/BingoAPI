@@ -17,8 +17,6 @@ namespace BingoAPI.Models
         [Required]
         public string TagName { get; set; }
 
-        public int Counter { get; set; }
-
         public virtual IEnumerable<PostTags>? Posts { get; set; }
     }
 }
