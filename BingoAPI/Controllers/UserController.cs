@@ -6,6 +6,7 @@ using Bingo.Contracts.V1.Responses.User;
 using BingoAPI.Cache;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
+using BingoAPI.Models.SqlRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,7 @@ namespace BingoAPI.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
+
         public UserController(UserManager<AppUser> userManager,
                               IMapper mapper)
         {
@@ -55,11 +57,29 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Users.Get)]
         [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] string userId)
-        {            
+        {
+            var requesterId = HttpContext.GetUserId();
+
             var user = await _userManager.FindByIdAsync(userId);
+
             if (user == null)
                 return NotFound();
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var isOwnerOrAdmin = requesterId == userId;
+
+            foreach (var role in userRoles)
+            {
+                if (role == "Admin" || role == "SuperAdmin")
+                    isOwnerOrAdmin = true;
+            }
+
+            if (!isOwnerOrAdmin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this Account / You are not an Administrator" });
+            }
+                        
             // domain to response contract mapping
             return Ok(new Response<UserResponse>(_mapper.Map<UserResponse>(user)));
         }

@@ -36,10 +36,13 @@ namespace BingoAPI.Data
         public DbSet<Other> Others { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTags> PostTags { get; set; }
+        public DbSet<EventLocation> EventLocations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            // - -
+            modelBuilder.HasPostgresExtension("postgis");
 
             // configure primary key of PostTags
             modelBuilder.Entity<PostTags>()
@@ -77,10 +80,10 @@ namespace BingoAPI.Data
 
 
             // One - One relationship between Post <-> Location
-            modelBuilder.Entity<Location>()
+            modelBuilder.Entity<EventLocation>()
                 .HasOne(l => l.Post)
                 .WithOne(p => p.Location)
-                .HasForeignKey<Location>(p => p.PostId)
+                .HasForeignKey<EventLocation>(p => p.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
 

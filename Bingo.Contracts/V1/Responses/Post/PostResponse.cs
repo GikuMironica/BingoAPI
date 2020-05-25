@@ -11,6 +11,11 @@ namespace Bingo.Contracts.V1.Responses.Post
         public Int64 PostTime { get; set; }
 
         public Int64 EventTime { get; set; }
+
+        public Int64? EndTime { get; set; }
+
+        public int ActiveFlag { get; set; }
+
         public Location Location { get; set; }
 
         public string UserId { get; set; }
@@ -47,6 +52,7 @@ namespace Bingo.Contracts.V1.Responses.Post
 #nullable enable
         public double? Latitude { get; set; }
 
+        public string? EntityName { get; set; }
 #nullable enable
         public string? Address { get; set; }
 

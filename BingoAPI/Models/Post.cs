@@ -23,7 +23,7 @@ namespace BingoAPI.Models
         public int ActiveFlag { get; set; }
 
         [Required]
-        public Location Location { get; set; }
+        public EventLocation Location { get; set; }
 
         [Required]
         public AppUser User { get; set; }

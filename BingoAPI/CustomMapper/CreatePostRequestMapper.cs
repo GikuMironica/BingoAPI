@@ -1,6 +1,7 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
 using BingoAPI.Models;
 using Microsoft.AspNetCore.Http;
+using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +18,17 @@ namespace BingoAPI.CustomMapper
             {
                 Event = containedEvent,
                 EventTime = postRequest.EventTime,
+                EndTime = postRequest.EndTime,
                 PostTime = postRequest.PostTime,
                 User = user,
-                Location = new Location
+                Location = new EventLocation
                 {
-                    Latitude = postRequest.UserLocation.Latitude,
-                    Logitude = postRequest.UserLocation.Longitude,
+                    Location = new Point(postRequest.UserLocation.Longitude, postRequest.UserLocation.Latitude),
                     Address = postRequest.UserLocation.Address,
                     City = postRequest.UserLocation.City,
                     Country = postRequest.UserLocation.Country,
-                    Region = postRequest.UserLocation.Region
+                    Region = postRequest.UserLocation.Region,
+                    EntityName = postRequest.UserLocation.EntityName
                 }
             };
             post.Event.Post = post;

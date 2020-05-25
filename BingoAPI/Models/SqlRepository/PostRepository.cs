@@ -1,6 +1,8 @@
-﻿using BingoAPI.Data;
+﻿using Bingo.Contracts.V1.Requests.Post;
+using BingoAPI.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,9 +42,19 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.SaveChangesAsync() > 0;
         }
 
-        public Task<IEnumerable<Post>> GetAllAsync()
+        public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Posts.AsNoTracking().ToListAsync();
+        }
+
+        public IEnumerable<Post> GetAllAsync(Point location, int radius)
+        {
+            location.SRID = 4326;
+            return  _context.Posts
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Where(p => p.ActiveFlag == 1 &&
+                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking();
         }
 
         public async Task<Post> GetByIdAsync(int id)

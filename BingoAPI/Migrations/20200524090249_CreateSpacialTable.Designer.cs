@@ -3,6 +3,7 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200524090249_CreateSpacialTable")]
+    partial class CreateSpacialTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,6 +63,41 @@ namespace BingoAPI.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Contry")
+                        .HasColumnType("text");
+
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("text");
+
+                    b.Property<string>("EntityName")
+                        .HasColumnType("text");
+
+                    b.Property<Point>("Location")
+                        .HasColumnType("geometry (point)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Region")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("EventLocation");
+                });
+
+            modelBuilder.Entity("BingoAPI.Models.Location", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
@@ -70,11 +107,11 @@ namespace BingoAPI.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("text");
 
-                    b.Property<string>("EntityName")
-                        .HasColumnType("text");
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
 
-                    b.Property<Point>("Location")
-                        .HasColumnType("geography (point)");
+                    b.Property<double?>("Logitude")
+                        .HasColumnType("double precision");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -87,7 +124,7 @@ namespace BingoAPI.Migrations
                     b.HasIndex("PostId")
                         .IsUnique();
 
-                    b.ToTable("EventLocation");
+                    b.ToTable("EventsLocations");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Post", b =>
@@ -516,8 +553,17 @@ namespace BingoAPI.Migrations
             modelBuilder.Entity("BingoAPI.Models.EventLocation", b =>
                 {
                     b.HasOne("BingoAPI.Models.Post", "Post")
+                        .WithMany()
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BingoAPI.Models.Location", b =>
+                {
+                    b.HasOne("BingoAPI.Models.Post", "Post")
                         .WithOne("Location")
-                        .HasForeignKey("BingoAPI.Models.EventLocation", "PostId")
+                        .HasForeignKey("BingoAPI.Models.Location", "PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -67,6 +67,11 @@ namespace BingoAPI
                 logging.AddEventSourceLogger();
                 logging.AddNLog();
             })
-             .UseStartup<Startup>();
+
+            .UseStartup<Startup>()
+            .UseKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 50000000;
+            });
     }
 }
