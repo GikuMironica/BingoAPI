@@ -43,7 +43,7 @@ namespace BingoAPI.CustomMapper
                 {
                     if (tag != null && tag.Length > 0)
                     {
-                        post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag, Counter = 1 } });
+                        post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag } });
                     }
                 }
             }

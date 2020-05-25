@@ -124,7 +124,6 @@ namespace BingoAPI.Models.SqlRepository
                 // if tag exists, increment counter
                 if (existingTag != null)
                 {
-                    existingTag.Counter++;
                     tag.Tag = existingTag;
                     continue;
                 }
