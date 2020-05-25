@@ -247,7 +247,7 @@ namespace BingoAPI.Controllers
             if ((pictures.Count > 0))
             {
                 mappedPost.Pictures = new List<string>();
-                imageProcessingResult = imageToWebpProcessor.ConvertFiles(pictures);
+                imageProcessingResult = imageLoader.LoadFiles(pictures);
 
                 // add images
                 if (imageProcessingResult.Result)

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,11 +24,35 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> AddAsync(Post entity)
         {
-            await AddNewTagsAsync(entity);
-            _context.Attach(entity.Event);
-            await _context.AddAsync(entity);
-            var result = await _context.SaveChangesAsync();
-                return result > 0;
+            var result = 0;
+            bool tryAgain = true;
+            while (tryAgain)
+            {
+                try
+                {
+                    await AddNewTagsAsync(entity);
+                    _context.Attach(entity.Event);
+                    await _context.AddAsync(entity);
+                    await _context.Database.BeginTransactionAsync();
+                    result = await _context.SaveChangesAsync();
+                    _context.Database.CommitTransaction();
+                    tryAgain = false;
+                }
+                catch (Exception e)
+                {
+                    // if server tried to create a dublicate tag.
+                    var isUniqueConstraintViolated = HandleInsertTagException(e);
+
+                    // other exception which has to be logged
+                    if (!isUniqueConstraintViolated)
+                    {
+                        tryAgain = false;
+
+                    }
+                }
+            }
+            return result > 0;
+
         }
 
         public async Task<bool> DeleteAsync(int Id)
@@ -71,7 +96,9 @@ namespace BingoAPI.Models.SqlRepository
         {
             await AddNewTagsAsync(entity);
             _context.Posts.Update(entity);
-            var updated = await _context.SaveChangesAsync();
+            await _context.Database.BeginTransactionAsync();
+                var updated = await _context.SaveChangesAsync();
+            _context.Database.CommitTransaction();
             return updated > 0; 
         }
 
@@ -139,6 +166,30 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .SingleOrDefaultAsync(x => x.Id == postId);
+        }
+
+        private bool HandleInsertTagException(Exception exception)
+        {
+            var isUniqueConstraintFaulty = false;
+            if (exception is DbUpdateException dbUpdateEx)
+            {
+                if (dbUpdateEx.InnerException != null
+                        && dbUpdateEx.InnerException.InnerException != null)
+                {
+                    if (dbUpdateEx.InnerException.InnerException is SqlException sqlException)
+                    {
+                        switch (sqlException.Number)
+                        {
+                            case 2627:  isUniqueConstraintFaulty = true; break;
+                            case 547:   break;
+                            case 2601:  break;
+                            default: break;
+                               
+                        }
+                    }                   
+                }
+            }
+            return isUniqueConstraintFaulty;
         }
     }
 }
