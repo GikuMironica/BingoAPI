@@ -10,6 +10,7 @@ using BingoAPI.Options;
 using BingoAPI.Services;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ namespace BingoAPI.Installers
 {
     public class McInstaller : IInstaller
     {
+        
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             //services.AddControllers();
@@ -28,8 +30,12 @@ namespace BingoAPI.Installers
                         options.EnableEndpointRouting = true;
                         options.Filters.Add<ValidationFilter>();
                     })
-                    .AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>())
-                    .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
+                    .AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>()
+                                          .ConfigureClientsideValidation(enabled: false))
+                    .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0)
+                    .AddNewtonsoftJson(options =>
+                                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+             ); 
 
             // Setting JWT
             var jwtSettings = new JwtSettings();
@@ -65,7 +71,16 @@ namespace BingoAPI.Installers
             });
 
             services.AddAuthorization();
-                        
+
+            services.AddSingleton<IUriService>(provider =>
+            {
+                var accessor = provider.GetRequiredService<IHttpContextAccessor>();
+                var request = accessor.HttpContext.Request;
+                var absoluteUri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent(), "/");
+                return new UriService(absoluteUri);
+            });
+
+            
         }
     }
 }

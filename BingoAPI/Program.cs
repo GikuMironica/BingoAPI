@@ -1,53 +1,77 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
+using NLog.Fluent;
+using NLog.Web;
 
 namespace BingoAPI
 {
     public class Program
     {
+
         public static async Task Main(string[] args)
-        {          
-            var host = CreateHostBuilder(args).Build();
+        {
+            var host = CreateWebHostBuilder(args).Build();
 
             using (var serviceScope = host.Services.CreateScope())
             {
                 var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-                // create Admin, User, Super Admin role if doesnt exist, create
-                if (!await roleManager.RoleExistsAsync("User"))
-                {
-                     var userRole = new IdentityRole("User");
-                     await roleManager.CreateAsync(userRole);
-                }
+                // create Admin role if doesnt exist, create
                 if (!await roleManager.RoleExistsAsync("Admin"))
                 {
                     var adminRole = new IdentityRole("Admin");
                     await roleManager.CreateAsync(adminRole);
                 }
-                if (!await roleManager.RoleExistsAsync("SuperAdmin"))
+
+                // create User role if doesnt exist, create
+                if (!await roleManager.RoleExistsAsync("User"))
                 {
-                    var superadminRole = new IdentityRole("SuperAdmin");
-                    await roleManager.CreateAsync(superadminRole);
+                    var posterRole = new IdentityRole("User");
+                    await roleManager.CreateAsync(posterRole);
                 }
 
+                // create SuperAdmin role if doesnt exist, create
+                if (!await roleManager.RoleExistsAsync("SuperAdmin"))
+                {
+                    var posterRole = new IdentityRole("SuperAdmin");
+                    await roleManager.CreateAsync(posterRole);
+                }
             }
+
             await host.RunAsync();
-           
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+         WebHost.CreateDefaultBuilder(args)
+             //attach additional JSON files
+             .ConfigureAppConfiguration((hostingContext, config) =>
+             {
+                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot","Configurations","EventTypes.json"), optional: false, reloadOnChange: false);
+             })
+            .ConfigureLogging((hostingContext, logging) =>
+            {
+                logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                logging.AddConsole();
+                logging.AddDebug();
+                logging.AddEventSourceLogger();
+                logging.AddNLog();
+            })
+
+            .UseStartup<Startup>()
+            .UseKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = 50000000;
+            });
     }
 }

@@ -33,15 +33,7 @@ namespace BingoAPI.Services
             mailMessage.Body = message;
             mailMessage.Subject = subject;
 
-            try
-            {
-                await client.SendMailAsync(mailMessage);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-                return false;
-            }
+            await client.SendMailAsync(mailMessage);
 
             return true;
         }

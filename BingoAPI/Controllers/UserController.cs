@@ -3,8 +3,10 @@ using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.User;
+using BingoAPI.Cache;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
+using BingoAPI.Models.SqlRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +26,7 @@ namespace BingoAPI.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
+
         public UserController(UserManager<AppUser> userManager,
                               IMapper mapper)
         {
@@ -37,6 +40,7 @@ namespace BingoAPI.Controllers
         /// <returns></returns>
         [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpGet(ApiRoutes.Users.GetAll)]
+        [Cached(600)]
         public async Task<IActionResult> GetAll()
         {
             return Ok(new Response<List<UserResponse>>(_mapper.Map<List<UserResponse>>(_userManager.Users)));
@@ -50,14 +54,32 @@ namespace BingoAPI.Controllers
         /// <response code="200">Returns the updated user </response>
         /// <response code="404">user not found </response>
         [ProducesResponseType(typeof(Response<UserResponse>),200)]
-        [AllowAnonymous]
         [HttpGet(ApiRoutes.Users.Get)]
+        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] string userId)
-        {            
+        {
+            var requesterId = HttpContext.GetUserId();
+
             var user = await _userManager.FindByIdAsync(userId);
+
             if (user == null)
                 return NotFound();
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            var isOwnerOrAdmin = requesterId == userId;
+
+            foreach (var role in userRoles)
+            {
+                if (role == "Admin" || role == "SuperAdmin")
+                    isOwnerOrAdmin = true;
+            }
+
+            if (!isOwnerOrAdmin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this Account / You are not an Administrator" });
+            }
+                        
             // domain to response contract mapping
             return Ok(new Response<UserResponse>(_mapper.Map<UserResponse>(user)));
         }
@@ -107,17 +129,22 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// Only administration can completely delete users. The users can only disable their accounts 
+        /// This endpoint allows users to delete their account 
         /// </summary>
         /// <param name="userId">The user id to be deleted</param>
         /// <response code="204">User successfuly deleted</response>
         /// <response code="403">Not enough priviledges</response>
         /// <response code="406">Unable to update user due to system requirements of the application user</response>
         [HttpDelete(ApiRoutes.Users.Delete)]
-        [Authorize(Roles = "SuperAdmin, Admin")]
         public async Task<IActionResult> Delete([FromRoute] string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
             var deleted = await _userManager.DeleteAsync(user);
             if (deleted.Succeeded)
             {

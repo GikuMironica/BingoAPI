@@ -1,4 +1,6 @@
-﻿using BingoAPI.Options;
+﻿using BingoAPI.CustomMapper;
+using BingoAPI.Domain;
+using BingoAPI.Options;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +32,17 @@ namespace BingoAPI.Installers
                 return factory.GetUrlHelper(actionContext);
             });
 
+            // custom mapper services
+            services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
+            services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
 
+            // options
+            services.Configure<EventTypes>(configuration.GetSection("Types"));
+            services.Configure<AwsBucketSettings>(configuration.GetSection("AWS-ImageBucket"));
 
+            // services
+            services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
+            services.AddSingleton<IAwsBucketManager, AwsBucketManager>();
         }
     }
 }

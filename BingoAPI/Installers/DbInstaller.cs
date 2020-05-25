@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using BingoAPI.Data;
 using BingoAPI.Models;
+using BingoAPI.Models.SqlRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Pomelo.EntityFrameworkCore.MySql;
 
 namespace BingoAPI.Installers
 {
@@ -17,7 +17,9 @@ namespace BingoAPI.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<DataContext>(options =>
-                options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
+                //options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("PostgreConnection"), x => x.UseNetTopologySuite())
+                ); 
 
             // configure custom Identity User
             services.AddDefaultIdentity<AppUser>(options =>
@@ -25,12 +27,14 @@ namespace BingoAPI.Installers
                 options.Password.RequiredLength = 8;
                 options.Password.RequiredUniqueChars = 2;
                 options.SignIn.RequireConfirmedEmail = true;
-                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.MaxFailedAccessAttempts = 10;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             }).AddRoles<IdentityRole>()
               .AddEntityFrameworkStores<DataContext>()
               .AddDefaultUI()
               .AddDefaultTokenProviders();
+
+            services.AddScoped<IPostsRepository, PostRepository>();
         }
     }
 }

@@ -1,0 +1,144 @@
+﻿using Bingo.Contracts.V1.Requests.Post;
+using BingoAPI.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace BingoAPI.Models.SqlRepository
+{
+    public class PostRepository : IPostsRepository
+    {
+        protected readonly DataContext _context;
+        private readonly UserManager<AppUser> userManager;
+
+        public PostRepository(DataContext context, UserManager<AppUser> userManager)
+        {
+            _context = context;
+            this.userManager = userManager;
+        }
+
+        public async Task<bool> AddAsync(Post entity)
+        {
+            await AddNewTagsAsync(entity);
+            _context.Attach(entity.Event);
+            await _context.AddAsync(entity);
+            var result = await _context.SaveChangesAsync();
+                return result > 0;
+        }
+
+        public async Task<bool> DeleteAsync(int Id)
+        {
+            var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == Id);
+
+            if (post == null)
+                return false;
+
+            _context.Remove(post);
+            
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<IEnumerable<Post>> GetAllAsync()
+        {
+            return await _context.Posts.AsNoTracking().ToListAsync();
+        }
+
+        public IEnumerable<Post> GetAllAsync(Point location, int radius)
+        {
+            location.SRID = 4326;
+            return  _context.Posts
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Where(p => p.ActiveFlag == 1 &&
+                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking();
+        }
+
+        public async Task<Post> GetByIdAsync(int id)
+        {
+            return await _context.Posts
+                .Include(tag => tag.Location)
+                .Include(tag => tag.Event)
+                .Include(tag => tag.Tags)
+                    .ThenInclude(pt => pt.Tag)
+                .SingleOrDefaultAsync(x => x.Id == id);
+        }
+
+        public async Task<bool> UpdateAsync(Post entity)
+        {
+            await AddNewTagsAsync(entity);
+            _context.Posts.Update(entity);
+            var updated = await _context.SaveChangesAsync();
+            return updated > 0; 
+        }
+
+        /// <summary>
+        /// This method checks if tag already exit or not,
+        /// if exists increment counter
+        /// if not, add it, initialize counter
+        /// </summary>
+        /// <param name="post">The post which references the tag</param>
+        /// <returns></returns>
+        public async Task AddNewTagsAsync(Post post)
+        {
+            // store tags name in lower case
+            if ((post.Tags == null) || (post.Tags.Count==0))
+                return;
+            post.Tags?.ForEach(pt => pt.Tag.TagName = pt.Tag.TagName.ToLower());
+
+            for(var i =0; i<post.Tags.Count; i++)
+            {
+                var tag = post.Tags[i];
+                var existingTag = await _context.Tags.SingleOrDefaultAsync(x => x.TagName == tag.Tag.TagName);
+
+                // if tag exists, increment counter
+                if (existingTag != null)
+                {
+                    existingTag.Counter++;
+                    tag.Tag = existingTag;
+                    continue;
+                }
+
+                  // else
+                  //await _context.Tags.AddAsync(new Tag { Counter = 1, TagName = tag.Tag.TagName, Posts = post.Tags });
+            }
+        }
+
+        public async Task<bool> IsPostOwnerOrAdminAsync(int postId, string userId)
+        {
+            var post = await _context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
+
+            if (post == null)
+            {
+                return true;
+            }
+            var user = await userManager.FindByIdAsync(userId);
+
+            var userRoles = await userManager.GetRolesAsync(user);
+
+            var isAdmin = false;
+
+            foreach(var role in userRoles)
+            {
+                if (role == "Admin" || role == "SuperAdmin")
+                    isAdmin = true;
+            }
+
+
+            return post.UserId == userId || isAdmin;
+        }
+
+        public async Task<Post> GetPostByIdAsync(int postId)
+        {
+            return await _context.Posts
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Tags)
+                    .ThenInclude(pt => pt.Tag)
+                .SingleOrDefaultAsync(x => x.Id == postId);
+        }
+    }
+}

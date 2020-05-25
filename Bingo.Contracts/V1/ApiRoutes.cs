@@ -34,12 +34,25 @@ namespace Bingo.Contracts.V1
         {
             public const string GetAll = Base + "/users";
 
-            public const string Update = Base + "/users{userId}";
+            public const string Update = Base + "/users/{userId}";
 
-            public const string Delete = Base + "/users{userId}";
+            public const string Delete = Base + "/users/{userId}";
 
-            public const string Get = Base + "/users{userId}";
+            public const string Get = Base + "/users/{userId}";
 
+        }
+
+        public static class Posts
+        {
+            public const string GetAll = Base + "/posts";
+
+            public const string Get = Base + "/posts/{postId}";
+
+            public const string Create = Base + "/posts";
+
+            public const string Update = Base + "/posts/{postId}";
+
+            public const string Delete = Base + "/posts/{postId}";
         }
     }
 }
