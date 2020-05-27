@@ -59,14 +59,11 @@ namespace BingoAPI
              {
                  config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Configurations", "EventTypes.json"), optional: false, reloadOnChange: false);
              })
-            .ConfigureLogging((hostingContext, logging) =>
+            .ConfigureLogging(logging =>
             {
-                logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                logging.AddConsole();
-                logging.AddDebug();
-                logging.AddEventSourceLogger();
-                logging.AddNLog();
+                logging.ClearProviders();
             })
+            .UseNLog()
             .UseStartup<Startup>();
     }
 }
