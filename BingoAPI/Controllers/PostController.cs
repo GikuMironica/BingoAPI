@@ -90,7 +90,9 @@ namespace BingoAPI.Controllers
             {
                 response.Data.Event.Slots = ((HouseParty)(post.Event)).Slots;
             }
-            
+
+            logger.LogError("This is the first logged error");
+
             return Ok(response);
         }
 
