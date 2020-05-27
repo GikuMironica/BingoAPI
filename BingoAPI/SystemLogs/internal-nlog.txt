@@ -1,0 +1,136 @@
+2020-05-26 21:34:53.8872 Info Message Template Auto Format enabled
+2020-05-26 21:34:53.8986 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 21:34:53.9368 Info Adding target FileTarget(Name=allfile)
+2020-05-26 21:34:53.9368 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 21:34:53.9703 Info Found 45 configuration items
+2020-05-26 21:34:53.9810 Info Configuration initialized.
+2020-05-26 21:34:53.9810 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 21:44:04.4463 Info Message Template Auto Format enabled
+2020-05-26 21:44:04.4463 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 21:44:04.4969 Info Adding target FileTarget(Name=allfile)
+2020-05-26 21:44:04.4969 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 21:44:04.5220 Info Found 45 configuration items
+2020-05-26 21:44:04.5220 Info Configuration initialized.
+2020-05-26 21:44:04.5220 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 21:48:48.1800 Info Message Template Auto Format enabled
+2020-05-26 21:48:48.1800 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 21:48:48.2295 Info Adding target FileTarget(Name=allfile)
+2020-05-26 21:48:48.2295 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 21:48:48.2559 Info Found 45 configuration items
+2020-05-26 21:48:48.2559 Info Configuration initialized.
+2020-05-26 21:48:48.2559 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 21:57:58.8548 Info Message Template Auto Format enabled
+2020-05-26 21:57:58.8674 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 21:57:58.9288 Info Adding target FileTarget(Name=allfile)
+2020-05-26 21:57:58.9288 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 21:57:59.0509 Error Exception when parsing D:\Bingo\BingoAPI\bin\Debug\netcoreapp3.1\NLog.config.  Exception: System.ArgumentException: Unknown log level: Warning
+   at NLog.LogLevel.FromString(String levelName)
+   at NLog.Config.LoggingConfigurationParser.LogLevelFromString(String text)
+   at NLog.Config.LoggingConfigurationParser.EnableLevelsForRule(LoggingRule rule, String enableLevels, String minLevel, String maxLevel)
+   at NLog.Config.LoggingConfigurationParser.ParseRuleElement(ILoggingConfigurationElement loggerElement)
+   at NLog.Config.LoggingConfigurationParser.ParseRulesElement(ILoggingConfigurationElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.LoggingConfigurationParser.LoadConfig(ILoggingConfigurationElement nlogConfig, String basePath)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(ILoggingConfigurationElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.ParseTopLevel(NLogXmlElement content, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+2020-05-26 21:57:59.0542 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Exception when parsing D:\Bingo\BingoAPI\bin\Debug\netcoreapp3.1\NLog.config. 
+ ---> System.ArgumentException: Unknown log level: Warning
+   at NLog.LogLevel.FromString(String levelName)
+   at NLog.Config.LoggingConfigurationParser.LogLevelFromString(String text)
+   at NLog.Config.LoggingConfigurationParser.EnableLevelsForRule(LoggingRule rule, String enableLevels, String minLevel, String maxLevel)
+   at NLog.Config.LoggingConfigurationParser.ParseRuleElement(ILoggingConfigurationElement loggerElement)
+   at NLog.Config.LoggingConfigurationParser.ParseRulesElement(ILoggingConfigurationElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.LoggingConfigurationParser.LoadConfig(ILoggingConfigurationElement nlogConfig, String basePath)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(ILoggingConfigurationElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.ParseTopLevel(NLogXmlElement content, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+   --- End of inner exception stack trace ---
+2020-05-26 21:57:59.0933 Info Found 42 configuration items
+2020-05-26 21:57:59.1045 Info Configuration initialized.
+2020-05-26 21:57:59.1045 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 21:58:56.4572 Info Message Template Auto Format enabled
+2020-05-26 21:58:56.4804 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 21:58:56.5256 Info Adding target FileTarget(Name=allfile)
+2020-05-26 21:58:56.5256 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 21:58:56.6614 Error Exception when parsing D:\Bingo\BingoAPI\bin\Debug\netcoreapp3.1\NLog.config.  Exception: System.ArgumentException: Unknown log level: Warning
+   at NLog.LogLevel.FromString(String levelName)
+   at NLog.Config.LoggingConfigurationParser.LogLevelFromString(String text)
+   at NLog.Config.LoggingConfigurationParser.EnableLevelsForRule(LoggingRule rule, String enableLevels, String minLevel, String maxLevel)
+   at NLog.Config.LoggingConfigurationParser.ParseRuleElement(ILoggingConfigurationElement loggerElement)
+   at NLog.Config.LoggingConfigurationParser.ParseRulesElement(ILoggingConfigurationElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.LoggingConfigurationParser.LoadConfig(ILoggingConfigurationElement nlogConfig, String basePath)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(ILoggingConfigurationElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.ParseTopLevel(NLogXmlElement content, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+2020-05-26 21:58:56.6639 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Exception when parsing D:\Bingo\BingoAPI\bin\Debug\netcoreapp3.1\NLog.config. 
+ ---> System.ArgumentException: Unknown log level: Warning
+   at NLog.LogLevel.FromString(String levelName)
+   at NLog.Config.LoggingConfigurationParser.LogLevelFromString(String text)
+   at NLog.Config.LoggingConfigurationParser.EnableLevelsForRule(LoggingRule rule, String enableLevels, String minLevel, String maxLevel)
+   at NLog.Config.LoggingConfigurationParser.ParseRuleElement(ILoggingConfigurationElement loggerElement)
+   at NLog.Config.LoggingConfigurationParser.ParseRulesElement(ILoggingConfigurationElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.LoggingConfigurationParser.LoadConfig(ILoggingConfigurationElement nlogConfig, String basePath)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(ILoggingConfigurationElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.ParseTopLevel(NLogXmlElement content, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+   --- End of inner exception stack trace ---
+2020-05-26 21:58:56.6787 Info Found 42 configuration items
+2020-05-26 21:58:56.6787 Info Configuration initialized.
+2020-05-26 21:58:56.6787 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 22:02:31.9754 Info Message Template Auto Format enabled
+2020-05-26 22:02:31.9754 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 22:02:32.0261 Info Adding target FileTarget(Name=allfile)
+2020-05-26 22:02:32.0261 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 22:02:32.0511 Error Exception when parsing D:\Bingo\BingoAPI\bin\Debug\netcoreapp3.1\NLog.config.  Exception: System.ArgumentException: Unknown log level: Warning
+   at NLog.LogLevel.FromString(String levelName)
+   at NLog.Config.LoggingConfigurationParser.LogLevelFromString(String text)
+   at NLog.Config.LoggingConfigurationParser.EnableLevelsForRule(LoggingRule rule, String enableLevels, String minLevel, String maxLevel)
+   at NLog.Config.LoggingConfigurationParser.ParseRuleElement(ILoggingConfigurationElement loggerElement)
+   at NLog.Config.LoggingConfigurationParser.ParseRulesElement(ILoggingConfigurationElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.LoggingConfigurationParser.LoadConfig(ILoggingConfigurationElement nlogConfig, String basePath)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(ILoggingConfigurationElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.ParseTopLevel(NLogXmlElement content, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+2020-05-26 22:02:32.0535 Warn Error has been raised. Exception: NLog.NLogConfigurationException: Exception when parsing D:\Bingo\BingoAPI\bin\Debug\netcoreapp3.1\NLog.config. 
+ ---> System.ArgumentException: Unknown log level: Warning
+   at NLog.LogLevel.FromString(String levelName)
+   at NLog.Config.LoggingConfigurationParser.LogLevelFromString(String text)
+   at NLog.Config.LoggingConfigurationParser.EnableLevelsForRule(LoggingRule rule, String enableLevels, String minLevel, String maxLevel)
+   at NLog.Config.LoggingConfigurationParser.ParseRuleElement(ILoggingConfigurationElement loggerElement)
+   at NLog.Config.LoggingConfigurationParser.ParseRulesElement(ILoggingConfigurationElement rulesElement, IList`1 rulesCollection)
+   at NLog.Config.LoggingConfigurationParser.LoadConfig(ILoggingConfigurationElement nlogConfig, String basePath)
+   at NLog.Config.XmlLoggingConfiguration.ParseNLogElement(ILoggingConfigurationElement nlogElement, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.ParseTopLevel(NLogXmlElement content, String filePath, Boolean autoReloadDefault)
+   at NLog.Config.XmlLoggingConfiguration.Initialize(XmlReader reader, String fileName, Boolean ignoreErrors)
+   --- End of inner exception stack trace ---
+2020-05-26 22:02:32.0535 Info Found 42 configuration items
+2020-05-26 22:02:32.0768 Info Configuration initialized.
+2020-05-26 22:02:32.0768 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 22:05:41.2282 Info Message Template Auto Format enabled
+2020-05-26 22:05:41.2282 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 22:05:41.2783 Info Adding target FileTarget(Name=allfile)
+2020-05-26 22:05:41.2783 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 22:05:41.3030 Info Found 43 configuration items
+2020-05-26 22:05:41.3030 Info Configuration initialized.
+2020-05-26 22:05:41.3030 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 22:10:40.1962 Info Message Template Auto Format enabled
+2020-05-26 22:10:40.1962 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 22:10:40.2477 Info Adding target FileTarget(Name=allfile)
+2020-05-26 22:10:40.2477 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 22:10:40.2772 Info Found 45 configuration items
+2020-05-26 22:10:40.2884 Info Configuration initialized.
+2020-05-26 22:10:40.2884 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 22:19:57.9057 Info Message Template Auto Format enabled
+2020-05-26 22:19:57.9155 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 22:19:57.9568 Info Adding target FileTarget(Name=allfile)
+2020-05-26 22:19:57.9600 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 22:19:57.9863 Info Found 44 configuration items
+2020-05-26 22:19:57.9973 Info Configuration initialized.
+2020-05-26 22:19:57.9973 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
+2020-05-26 22:34:19.1612 Info Message Template Auto Format enabled
+2020-05-26 22:34:19.1707 Info Loading assembly: NLog.Web.AspNetCore
+2020-05-26 22:34:19.2097 Info Adding target FileTarget(Name=allfile)
+2020-05-26 22:34:19.2097 Info Adding target FileTarget(Name=ownFile-web)
+2020-05-26 22:34:19.2346 Info Found 45 configuration items
+2020-05-26 22:34:19.2438 Info Configuration initialized.
+2020-05-26 22:34:19.2438 Info NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c. File version: 4.6.8.10751. Product version: 4.6.8.
