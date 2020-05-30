@@ -35,9 +35,14 @@ namespace BingoAPI.Models
         #nullable enable
         public List<string>? Pictures { get; set; }
 
-        #nullable enable
+        // todo
+        public int Repeatable { get; set; }
+
+#nullable enable
         public virtual List<PostTags>? Tags { get; set; }
 
+        //todo
+        public List<Participation> Participators { get; set; }
     }
     
 }

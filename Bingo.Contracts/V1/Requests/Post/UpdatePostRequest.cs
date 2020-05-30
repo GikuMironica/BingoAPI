@@ -45,6 +45,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         public string? Requirements { get; set; }
         public int? Slots { get; set; }
         public double? EntrancePrice { get; set; }
+        public string? Title { get; set; }
     }
 
 }

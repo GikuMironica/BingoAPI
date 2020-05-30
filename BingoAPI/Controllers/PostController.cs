@@ -11,15 +11,12 @@ using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,8 +32,6 @@ namespace BingoAPI.Controllers
         private readonly ICreatePostRequestMapper createPostRequestMapper;
         private readonly UserManager<AppUser> userManager;
         private readonly IPostsRepository postRepository;
-        private readonly IImageToWebpProcessor imageToWebpProcessor;
-        private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IAwsBucketManager awsBucketManager;
         private readonly ILogger<PostController> logger;
         private readonly IUriService uriService;
@@ -44,8 +39,7 @@ namespace BingoAPI.Controllers
         private readonly IImageLoader imageLoader;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              ,UserManager<AppUser> userManager, IPostsRepository postRepository, IImageToWebpProcessor imageToWebpProcessor
-                              ,IWebHostEnvironment webHostEnvironment, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
+                              ,UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
                               ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader)
         {
             this.eventTypes = eventTypes.Value;
@@ -53,8 +47,6 @@ namespace BingoAPI.Controllers
             this.createPostRequestMapper = createPostRequestMapper;
             this.userManager = userManager;
             this.postRepository = postRepository;
-            this.imageToWebpProcessor = imageToWebpProcessor;
-            this.webHostEnvironment = webHostEnvironment;
             this.awsBucketManager = awsBucketManager;
             this.logger = logger;
             this.uriService = uriService;
@@ -133,8 +125,8 @@ namespace BingoAPI.Controllers
                 { 
                     PostId = post.Id, Address = post.Location.Address, 
                     Description = post.Event.Description, Thumbnail = post.Pictures.FirstOrDefault(),
-                    PostType = eventTypeNumber
-                    
+                    PostType = eventTypeNumber, Title = post.Event.Title, 
+                    Logitude = post.Location.Location.X, Latitude = post.Location.Location.Y                    
                 });
             }
 
@@ -153,8 +145,7 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Posts.Create)]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
         public async Task<IActionResult> Create( CreatePostRequest postRequest)
-        {
-            
+        {            
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
@@ -205,7 +196,6 @@ namespace BingoAPI.Controllers
                 var locationUri = uriService.GetPostUri(post.Id.ToString());
                 return Ok(locationUri/*new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
             }
-
             return BadRequest();
         }
 
@@ -230,7 +220,6 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-
             var post = await postRepository.GetPostByIdAsync(postId);
             List<string> deletedImagesList = post.Pictures;
 
@@ -245,7 +234,6 @@ namespace BingoAPI.Controllers
             }
 
             var deleted = await postRepository.DeleteAsync(postId);
-
             if (deleted)
                 return NoContent();
 

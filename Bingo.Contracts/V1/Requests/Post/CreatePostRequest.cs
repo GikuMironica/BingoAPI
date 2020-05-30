@@ -58,6 +58,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         [MaxLength(500)]
         public string? Requirements { get; set; }
         public int? Slots { get; set; }
+        public string Title { get; set; }
         public double? EntrancePrice { get; set; }
         [Required]
         public int EventType { get; set; }

@@ -37,6 +37,7 @@ namespace BingoAPI.Data
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTags> PostTags { get; set; }
         public DbSet<EventLocation> EventLocations { get; set; }
+        public DbSet<Participation> Participations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -92,7 +93,7 @@ namespace BingoAPI.Data
                 v => string.Join(',', v),
                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
 
-            // One - Many relationship Post <-> Tag
+            // Many - Many relationship Post <-> Tag
             modelBuilder.Entity<PostTags>()
                 .HasOne(pt => pt.Tag)
                 .WithMany(t => t.Posts)
@@ -103,6 +104,21 @@ namespace BingoAPI.Data
                 .HasOne(pt => pt.Post)
                 .WithMany(p => p.Tags)
                 .HasForeignKey(pt => pt.PostId);
+
+
+            // Many - Many between Post - Users 
+            modelBuilder.Entity<Participation>()
+                .HasOne(p => p.Post)
+                .WithMany(p => p.Participators)
+                .HasForeignKey(p => p.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Participation>()
+                .HasOne(p => p.User)
+                .WithMany(au => au.AttendedEvents)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
 
         

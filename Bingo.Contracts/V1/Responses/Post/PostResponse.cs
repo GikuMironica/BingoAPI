@@ -36,6 +36,8 @@ namespace Bingo.Contracts.V1.Responses.Post
 
         public int? Slots { get; set; }
 
+        public string? Title { get; set; }
+
         public double? EntrancePrice { get; set; }
 #nullable enable
         public string? Requirements { get; set; }
@@ -48,20 +50,16 @@ namespace Bingo.Contracts.V1.Responses.Post
         public int Id { get; set; }
 #nullable enable
         public double? Logitude { get; set; }
-
 #nullable enable
         public double? Latitude { get; set; }
 
         public string? EntityName { get; set; }
 #nullable enable
         public string? Address { get; set; }
-
 #nullable enable
         public string? City { get; set; }
-
 #nullable enable
         public string? Region { get; set; }
-
 #nullable enable
         public string? Country { get; set; }
     }

@@ -11,6 +11,10 @@ namespace Bingo.Contracts.V1.Responses.Post
         public string Thumbnail { get; set; }
         public string Description { get; set; }
         public string Address { get; set; }
+        public string Title { get; set; }
+        public double HostRating { get; set; }
+        public double Latitude { get; set; }
+        public double Logitude { get; set; }
 
     }
 }
