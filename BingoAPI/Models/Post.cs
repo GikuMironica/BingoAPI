@@ -43,6 +43,12 @@ namespace BingoAPI.Models
 
         //todo
         public List<Participation> Participators { get; set; }
+
+        //todo
+        public List<Announcement> Announcements { get; set; }
+
+        //todo
+        public List<Report> Reports { get; set; }
     }
     
 }

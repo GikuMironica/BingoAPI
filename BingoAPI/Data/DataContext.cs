@@ -49,6 +49,10 @@ namespace BingoAPI.Data
             modelBuilder.Entity<PostTags>()
                 .HasKey(x => new { x.PostId, x.TagId });
 
+            // configure primary key of Particiapants
+            modelBuilder.Entity<Participation>()
+                .HasKey(x => new {x.UserId, x.PostId });
+
             // Define the TPH using Fluent.API
             modelBuilder.Entity<Event>()
                 .ToTable("Events")
@@ -119,6 +123,22 @@ namespace BingoAPI.Data
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // One - Many between Post - Announcements
+            modelBuilder.Entity<Announcement>()
+                .HasOne(a => a.Post)
+                .WithMany(p => p.Announcements)
+                .HasForeignKey(a => a.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Many - One between Post - Reports
+            modelBuilder.Entity<Report>()
+                .HasOne(pr => pr.Post)
+                .WithMany(p => p.Reports)
+                .HasForeignKey(pr => pr.PostId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+
+            
         }
 
         
