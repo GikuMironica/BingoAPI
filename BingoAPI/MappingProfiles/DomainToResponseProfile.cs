@@ -34,6 +34,7 @@ namespace BingoAPI.MappingProfiles
                 .ForPath(dest => dest.Event.Id, opt => opt.MapFrom(src => src.Event.Id))
                 .ForPath(dest => dest.Event.Description, opt => opt.MapFrom(src => src.Event.Description))
                 .ForPath(dest => dest.Event.Requirements, opt => opt.MapFrom(src => src.Event.Requirements))
+                .ForPath(dest => dest.Event.Title, opt => opt.MapFrom(src => src.Event.Title))
                 .ForPath(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(x => x.Tag.TagName)))
                 .ForPath(dest => dest.Event.EntrancePrice, opt => opt.MapFrom(src => src.Event.EntrancePrice ?? 0));
                 

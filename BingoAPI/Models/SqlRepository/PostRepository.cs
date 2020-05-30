@@ -40,7 +40,7 @@ namespace BingoAPI.Models.SqlRepository
                 }
                 catch (Exception e)
                 {
-                    // if server tried to create a dublicate tag.
+                    // if server tried to create a dublicate tag. try again
                     var isUniqueConstraintViolated = HandleInsertTagException(e);
 
                     // other exception which has to be logged
