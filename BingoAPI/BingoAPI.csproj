@@ -21,6 +21,8 @@
     <Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.Designer.cs" />
     <Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.cs" />
     <Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.Designer.cs" />
+    <Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.cs" />
+    <Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

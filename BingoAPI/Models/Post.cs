@@ -36,7 +36,7 @@ namespace BingoAPI.Models
         public List<string>? Pictures { get; set; }
 
         // todo
-        public int Repeatable { get; set; }
+        public RepeatableProperty Repeatable { get; set; }
 
 #nullable enable
         public virtual List<PostTags>? Tags { get; set; }
@@ -49,6 +49,9 @@ namespace BingoAPI.Models
 
         //todo
         public List<Report> Reports { get; set; }
+
+        //todo
+        public DrinkVoucher Voucher { get; set; }
     }
     
 }
