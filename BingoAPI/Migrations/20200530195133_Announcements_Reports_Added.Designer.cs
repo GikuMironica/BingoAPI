@@ -3,6 +3,7 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200530195133_Announcements_Reports_Added")]
+    partial class Announcements_Reports_Added
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,31 +43,7 @@ namespace BingoAPI.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Announcements");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.DrinkVoucher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("Enabled")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("FreeDrinksNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId")
-                        .IsUnique();
-
-                    b.ToTable("DrinkVouchers");
+                    b.ToTable("Announcement");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Event", b =>
@@ -180,6 +158,9 @@ namespace BingoAPI.Migrations
                     b.Property<long>("PostTime")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("Repeatable")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -204,29 +185,6 @@ namespace BingoAPI.Migrations
                     b.HasIndex("TagId");
 
                     b.ToTable("PostTags");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Rating", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Feedback")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Rate")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Rating");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.RefreshToken", b =>
@@ -260,33 +218,6 @@ namespace BingoAPI.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("BingoAPI.Models.RepeatableProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("Enabled")
-                        .HasColumnType("integer");
-
-                    b.Property<long>("EndTime")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Frequency")
-                        .HasColumnType("bigint");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId")
-                        .IsUnique();
-
-                    b.ToTable("RepeatableProperties");
-                });
-
             modelBuilder.Entity("BingoAPI.Models.Report", b =>
                 {
                     b.Property<int>("Id")
@@ -313,7 +244,7 @@ namespace BingoAPI.Migrations
 
                     b.HasIndex("PostId");
 
-                    b.ToTable("Reports");
+                    b.ToTable("Report");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Tag", b =>
@@ -330,28 +261,6 @@ namespace BingoAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.UserVoucher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("DrinkVoucherId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DrinkVoucherId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserVouchers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -679,15 +588,6 @@ namespace BingoAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BingoAPI.Models.DrinkVoucher", b =>
-                {
-                    b.HasOne("BingoAPI.Models.Post", "Post")
-                        .WithOne("Voucher")
-                        .HasForeignKey("BingoAPI.Models.DrinkVoucher", "PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("BingoAPI.Models.Event", b =>
                 {
                     b.HasOne("BingoAPI.Models.Post", "Post")
@@ -745,28 +645,11 @@ namespace BingoAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BingoAPI.Models.Rating", b =>
-                {
-                    b.HasOne("BingoAPI.Models.AppUser", "User")
-                        .WithMany("Ratings")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("BingoAPI.Models.RefreshToken", b =>
                 {
                     b.HasOne("BingoAPI.Models.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.RepeatableProperty", b =>
-                {
-                    b.HasOne("BingoAPI.Models.Post", "Post")
-                        .WithOne("Repeatable")
-                        .HasForeignKey("BingoAPI.Models.RepeatableProperty", "PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Report", b =>
@@ -776,20 +659,6 @@ namespace BingoAPI.Migrations
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.UserVoucher", b =>
-                {
-                    b.HasOne("BingoAPI.Models.DrinkVoucher", "DrinkVoucher")
-                        .WithMany("UserVouchers")
-                        .HasForeignKey("DrinkVoucherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("BingoAPI.Models.AppUser", "User")
-                        .WithMany("Vouchers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -38,6 +38,13 @@ namespace BingoAPI.Data
         public DbSet<PostTags> PostTags { get; set; }
         public DbSet<EventLocation> EventLocations { get; set; }
         public DbSet<Participation> Participations { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<Rating> Rating { get; set; }
+        public DbSet<RepeatableProperty> RepeatableProperties { get; set; }
+        public DbSet<DrinkVoucher> DrinkVouchers { get; set; }
+        public DbSet<UserVoucher> UserVouchers { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -137,8 +144,40 @@ namespace BingoAPI.Data
                 .HasForeignKey(pr => pr.PostId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // Many - One between Ratings - User ( Host )
+            modelBuilder.Entity<Rating>()
+                .HasOne(r => r.User)
+                .WithMany(au => au.Ratings)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-            
+            // One - One between Post - Repeatable Property
+            modelBuilder.Entity<RepeatableProperty>()
+                .HasOne(r => r.Post)
+                .WithOne(p => p.Repeatable)
+                .HasForeignKey<RepeatableProperty>(r => r.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // One - One between post - Voucher
+            modelBuilder.Entity<DrinkVoucher>()
+                 .HasOne(dv => dv.Post)
+                 .WithOne(p => p.Voucher)
+                 .HasForeignKey<DrinkVoucher>(dv => dv.PostId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+            // One - Many between DrinkVoucher - Users
+            modelBuilder.Entity<UserVoucher>()
+                .HasOne(uv => uv.DrinkVoucher)
+                .WithMany(dv => dv.UserVouchers)
+                .HasForeignKey(uv => uv.DrinkVoucherId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<UserVoucher>()
+                .HasOne(uv => uv.User)
+                .WithMany(au => au.Vouchers)
+                .HasForeignKey(uv => uv.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
 
         
