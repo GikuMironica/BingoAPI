@@ -4,14 +4,18 @@ using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.User;
 using BingoAPI.Cache;
+using BingoAPI.Domain;
 using BingoAPI.Extensions;
+using BingoAPI.Helpers;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
+using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -26,12 +30,14 @@ namespace BingoAPI.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
+        private readonly IUriService uriService;
 
         public UserController(UserManager<AppUser> userManager,
-                              IMapper mapper)
+                              IMapper mapper, IUriService uriService)
         {
             _userManager = userManager;
             _mapper = mapper;
+            this.uriService = uriService;
         }
 
         /// <summary>
@@ -41,9 +47,15 @@ namespace BingoAPI.Controllers
         [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpGet(ApiRoutes.Users.GetAll)]
         [Cached(600)]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
         {
-            return Ok(new Response<List<UserResponse>>(_mapper.Map<List<UserResponse>>(_userManager.Users)));
+            var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
+            var users = await GetUsersAsync(paginationFilter);
+            var userResponse = _mapper.Map<List<UserResponse>>(users);
+
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, userResponse);
+
+            return Ok(paginationResponse);
         }
 
 
@@ -59,26 +71,24 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
             var requesterId = HttpContext.GetUserId();
+            var isOwnerOrAdmin = requesterId == userId;
+            if (!isOwnerOrAdmin)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this Account / You are not an Administrator" });
+            }
 
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
                 return NotFound();
 
-            var userRoles = await _userManager.GetRolesAsync(user);
-
-            var isOwnerOrAdmin = requesterId == userId;
+            var userRoles = await _userManager.GetRolesAsync(user);            
 
             foreach (var role in userRoles)
             {
                 if (role == "Admin" || role == "SuperAdmin")
                     isOwnerOrAdmin = true;
-            }
-
-            if (!isOwnerOrAdmin)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this Account / You are not an Administrator" });
-            }
+            }            
                         
             // domain to response contract mapping
             return Ok(new Response<UserResponse>(_mapper.Map<UserResponse>(user)));
@@ -153,6 +163,21 @@ namespace BingoAPI.Controllers
 
             return StatusCode(StatusCodes.Status406NotAcceptable, new SingleError { Message = "User can't be deleted due to some system constraints" });
         }
-        
+
+        public async Task<List<AppUser>> GetUsersAsync(PaginationFilter paginationFilter = null)
+        {
+
+            var queryable = _userManager.Users.AsQueryable();  
+
+            if(paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await queryable.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
+        }
+
     }
 }

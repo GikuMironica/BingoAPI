@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bingo.Contracts.V1.Requests.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,6 @@ namespace BingoAPI.Services
     {
 
         public Uri GetPostUri(string postId);
-        
+        public Uri GetAllUsersUri(PaginationQuery pagination);
     }
 }

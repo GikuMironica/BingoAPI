@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.User;
+using BingoAPI.Domain;
 using BingoAPI.Models;
 using NetTopologySuite.Geometries;
 using System;
@@ -17,6 +18,7 @@ namespace BingoAPI.MappingProfiles
             CreateMap<UpdateUserRequest, AppUser>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
+            CreateMap<PaginationQuery, PaginationFilter>();
 
             // Map child of UpdatePostRequest to Location
             CreateMap<UpdatedCompleteLocation, EventLocation>()

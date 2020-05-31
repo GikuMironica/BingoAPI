@@ -72,14 +72,14 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.Posts.AsNoTracking().ToListAsync();
         }
 
-        public IEnumerable<Post> GetAllAsync(Point location, int radius)
+        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius)
         {
             location.SRID = 4326;
-            return  _context.Posts
+            return await _context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking();
+                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking().ToListAsync();
         }
 
         public async Task<Post> GetByIdAsync(int id)

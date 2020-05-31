@@ -14,7 +14,7 @@ namespace BingoAPI.Models
         public int Id { get; set; }
         public int Enabled { get; set; }
         public Int64 EndTime { get; set; }
-        public long Frequency { get; set; }
+        public int Frequency { get; set; }
         public Post Post { get; set; }
         public int PostId { get; set; }
 

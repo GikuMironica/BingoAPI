@@ -21,6 +21,10 @@ namespace Bingo.Contracts.V1.Responses.Post
         public string UserId { get; set; }
 
         public Event Event { get; set; }
+        public int RepeatablePropertyDataId { get; set; }
+        public int VoucherDataId { get; set; }
+        public int AnnouncementsDataId { get; set; }
+        public int AttendanceDataId { get; set; }
 
         public IEnumerable<string>? Pictures { get; set; }
 

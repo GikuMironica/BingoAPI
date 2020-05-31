@@ -26,5 +26,12 @@ namespace BingoAPI.Models
 
         public int PostId { get; set; }
 
+        public virtual int GetSlotsIfAny()
+        {
+            return 0;
+        }
+
     }
+
+   
 }

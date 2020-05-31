@@ -3,6 +3,7 @@ using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Post;
+using BingoAPI.Cache;
 using BingoAPI.CustomMapper;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
@@ -37,10 +38,11 @@ namespace BingoAPI.Controllers
         private readonly IUriService uriService;
         private readonly IUpdatePostToDomain updatePostToDomain;
         private readonly IImageLoader imageLoader;
+        private readonly IDomainToResponseMapper domainToResponseMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
-                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader)
+                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -52,6 +54,7 @@ namespace BingoAPI.Controllers
             this.uriService = uriService;
             this.updatePostToDomain = updatePostToDomain;
             this.imageLoader = imageLoader;
+            this.domainToResponseMapper = domainToResponseMapper;
         }
 
         /// <summary>
@@ -62,6 +65,7 @@ namespace BingoAPI.Controllers
         /// <response code="200">The post was found and returned</response>
         [HttpGet(ApiRoutes.Posts.Get)]
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
+        [Cached(300)]
         public async Task<IActionResult> Get([FromRoute] int postId)
         {
             var post = await postRepository.GetByIdAsync(postId);
@@ -76,16 +80,8 @@ namespace BingoAPI.Controllers
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
-
-            response.Data.Event.EventType = eventTypeNumber;
-            // return slots if house party
-            if (eventTypeNumber == 1)
-            {
-                response.Data.Event.Slots = ((HouseParty)(post.Event)).Slots;
-            }
-
-            logger.LogError("This is the first logged error");
-
+           
+            response.Data.Event.Slots = post.Event.GetSlotsIfAny(); 
             return Ok(response);
         }
 
@@ -98,10 +94,11 @@ namespace BingoAPI.Controllers
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
+        [Cached(300)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
-            var posts = postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
+            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
 
             if (posts == null || posts.Count() == 0)
             {
@@ -112,22 +109,10 @@ namespace BingoAPI.Controllers
             
             foreach(var post in posts)
             {
-                string eventType = post.Event.GetType().Name.ToString();
-
-                var eventTypeNumber = eventTypes.Types
-                .Where(y => y.Type == eventType)
-                .Select(x => x.Id)
-                .FirstOrDefault();
-
-                var dist = post.Location.Location.Distance(userLocation);
-
-                resultList.Add(new Posts 
-                { 
-                    PostId = post.Id, Address = post.Location.Address, 
-                    Description = post.Event.Description, Thumbnail = post.Pictures.FirstOrDefault(),
-                    PostType = eventTypeNumber, Title = post.Event.Title, 
-                    Logitude = post.Location.Location.X, Latitude = post.Location.Location.Y                    
-                });
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.EntracePrice = await GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
             }
 
             return Ok(new Response<List<Posts>>{ Data = resultList });
@@ -150,7 +135,7 @@ namespace BingoAPI.Controllers
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 
-            var imagesProcessingResult = await processImagesAsync(postRequest.Picture1, postRequest.Picture2, postRequest.Picture3, post);
+            var imagesProcessingResult = await ProcessImagesAsync(postRequest.Picture1, postRequest.Picture2, postRequest.Picture3, post);
             if (!imagesProcessingResult.Result) { return BadRequest(new SingleError { Message = imagesProcessingResult.ErrorMessage }); }
 
             var result = await postRepository.AddAsync(post);
@@ -187,8 +172,8 @@ namespace BingoAPI.Controllers
             Post mappedPost = updatePostToDomain.Map(postRequest, post);
 
             // delete existing pictures -> rep\upload
-            await deletePicturesAsync(postRequest, mappedPost);
-            var imagesProcessingResult = await processImagesAsync(postRequest.Picture1, postRequest.Picture2, postRequest.Picture3, mappedPost);
+            await DeletePicturesAsync(postRequest, mappedPost);
+            var imagesProcessingResult = await ProcessImagesAsync(postRequest.Picture1, postRequest.Picture2, postRequest.Picture3, mappedPost);
 
             var updated = await postRepository.UpdateAsync(mappedPost);
             if (updated)
@@ -241,7 +226,7 @@ namespace BingoAPI.Controllers
         }
 
 
-        private async Task<ImageProcessingResult> processImagesAsync(IFormFile picture1, IFormFile picture2, IFormFile picture3, Post post)
+        private async Task<ImageProcessingResult> ProcessImagesAsync(IFormFile picture1, IFormFile picture2, IFormFile picture3, Post post)
         {
             List<IFormFile> pictures = new List<IFormFile>();
             pictures.AddAllIfNotNull(
@@ -266,7 +251,7 @@ namespace BingoAPI.Controllers
             return new ImageProcessingResult { Result = true };
         }
 
-        private async Task deletePicturesAsync(UpdatePostRequest postRequest, Post post)
+        private async Task DeletePicturesAsync(UpdatePostRequest postRequest, Post post)
         {
             if (postRequest.RemainingImagesGuids == null)
                 postRequest.RemainingImagesGuids = new List<string>();
@@ -282,6 +267,12 @@ namespace BingoAPI.Controllers
                 }
                 post.Pictures = postRequest.RemainingImagesGuids;
             }
+        }
+
+        private async Task<double> GetUserRating(string UserId)
+        {
+            var user = await userManager.FindByIdAsync(UserId);
+            return user.Ratings.Select(u => u.Rate).Average();
         }
 
             

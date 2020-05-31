@@ -16,6 +16,7 @@ namespace BingoAPI.MappingProfiles
         {
             CreateMap<AppUser, UserResponse>();
 
+
             // for create post
             CreateMap<Post, CreatePostResponse>()
                 .ForMember(dest => dest.Tags, opt =>
@@ -36,7 +37,11 @@ namespace BingoAPI.MappingProfiles
                 .ForPath(dest => dest.Event.Requirements, opt => opt.MapFrom(src => src.Event.Requirements))
                 .ForPath(dest => dest.Event.Title, opt => opt.MapFrom(src => src.Event.Title))
                 .ForPath(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(x => x.Tag.TagName)))
-                .ForPath(dest => dest.Event.EntrancePrice, opt => opt.MapFrom(src => src.Event.EntrancePrice ?? 0));
+                .ForPath(dest => dest.Event.EntrancePrice, opt => opt.MapFrom(src => src.Event.EntrancePrice ?? 0))
+                .ForMember(dest => dest.RepeatablePropertyDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.VoucherDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.AnnouncementsDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.AttendanceDataId, src => src.MapFrom(s => s.Id));
                 
 
             // For update post

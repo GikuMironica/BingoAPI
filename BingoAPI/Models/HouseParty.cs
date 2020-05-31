@@ -11,5 +11,9 @@ namespace BingoAPI.Models
     {
         public int? Slots { get; set; }
 
+        public override int GetSlotsIfAny()
+        {
+            return Slots.Value;
+        }
     }
 }
