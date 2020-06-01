@@ -58,8 +58,9 @@ namespace Bingo.Contracts.V1
         public static class AttendedEvents
         {
             public const string Attend = Base + "/attend/{postId}";
-            public const string UnAttend = Base + "/attend/{postId}";
-            public const string GetAllAttendedEvents = Base + "/attend";
+            public const string UnAttend = Base + "/unattend/{postId}";
+            public const string GetActiveAttendedPosts = Base + "/attendedactive";
+            public const string GetInActiveAttendedPosts = Base + "/attendedinactive";
         }
     }
 }

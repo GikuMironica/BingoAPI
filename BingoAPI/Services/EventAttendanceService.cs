@@ -28,6 +28,14 @@ namespace BingoAPI.Services
                 return false;
             }
 
+            var requested = await context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
+                .SingleOrDefaultAsync();
+
+            if(requested != null)
+            {
+                return false;
+            }
+
             string eventType = post.Event.GetType().Name.ToString();
             
             if (eventType == "HouseParty")
@@ -36,7 +44,7 @@ namespace BingoAPI.Services
             }
             else
             {
-
+                await context.Participations.AddAsync(new Participation { Accepted = 1, Post = post, User = user });
             }
 
             await context.Database.BeginTransactionAsync();
@@ -79,9 +87,18 @@ namespace BingoAPI.Services
                 .ToListAsync();
         }
 
-        public Task<bool> UnAttendEvent(AppUser user, int postId)
+        public async Task<bool> UnAttendEvent(AppUser user, int postId)
         {
-            throw new NotImplementedException();
+            var Attendance = await context.Participations
+                .Where(p => p.PostId == postId && p.UserId == user.Id)
+                .SingleOrDefaultAsync();
+
+            if (Attendance != null)
+            {
+                context.Participations.Remove(Attendance);
+                await context.SaveChangesAsync();
+            }
+            return true;
         }
     }
 }

@@ -39,7 +39,25 @@ namespace BingoAPI.Controllers
 
             if (!result)
             {
-                return BadRequest(new SingleError { Message = "Post does not exist / No slots available" });
+                return BadRequest(new SingleError { Message = "Post does not exist / No slots available / User already applied to this event" });
+            }
+            return Ok();
+        }
+
+
+
+        [HttpPost(ApiRoutes.AttendedEvents.UnAttend)]
+        public async Task<IActionResult> UnAttendEvent(int postId)
+        {
+            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await eventAttendanceService.UnAttendEvent(user, postId);
+
+            if (!result)
+            {
+                return BadRequest(new SingleError { Message = "Post does not exist / No slots available / User already applied to this event" });
             }
             return Ok();
         }
