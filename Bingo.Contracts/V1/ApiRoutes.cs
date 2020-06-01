@@ -54,5 +54,12 @@ namespace Bingo.Contracts.V1
 
             public const string Delete = Base + "/posts/{postId}";
         }
+
+        public static class AttendedEvents
+        {
+            public const string Attend = Base + "/attend/{postId}";
+            public const string UnAttend = Base + "/attend/{postId}";
+            public const string GetAllAttendedEvents = Base + "/attend";
+        }
     }
 }

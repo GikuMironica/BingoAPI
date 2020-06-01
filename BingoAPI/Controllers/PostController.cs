@@ -94,7 +94,6 @@ namespace BingoAPI.Controllers
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        [Cached(300)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
@@ -165,7 +164,7 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            var post = await postRepository.GetPostByIdAsync(postId);
+            var post = await postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
 
@@ -205,7 +204,7 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            var post = await postRepository.GetPostByIdAsync(postId);
+            var post = await postRepository.GetByIdAsync(postId);
             List<string> deletedImagesList = post.Pictures;
 
             // delete from the S3 bucket the delete pictures
