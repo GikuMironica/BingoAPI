@@ -60,7 +60,7 @@ namespace Bingo.Contracts.V1
             public const string Attend = Base + "/attend/{postId}";
             public const string UnAttend = Base + "/unattend/{postId}";
             public const string GetActiveAttendedPosts = Base + "/attendedactive";
-            public const string GetInActiveAttendedPosts = Base + "/attendedinactive";
+            public const string GetInactiveAttendedPosts = Base + "/attendedinactive";
         }
     }
 }

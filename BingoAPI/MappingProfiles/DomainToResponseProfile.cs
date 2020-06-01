@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.Post;
 using Bingo.Contracts.V1.Responses.User;
 using BingoAPI.Models;
@@ -57,7 +58,12 @@ namespace BingoAPI.MappingProfiles
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(s => s.Location))
                 .ForMember(dest => dest.Event, opt => opt.MapFrom(s => s.Event));
 
-                        
+            // Get All active attended events
+            CreateMap<Post, ActiveAttendedEvent>()
+                .ForMember(dest => dest.Thumbnail, opt => opt.MapFrom(src => src.Pictures.FirstOrDefault()))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Event.Title))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Event.EntrancePrice))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Location.Address));
         }
         
     }

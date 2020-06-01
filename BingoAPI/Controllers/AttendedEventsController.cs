@@ -1,5 +1,7 @@
-﻿using Bingo.Contracts.V1;
+﻿using AutoMapper;
+using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
+using Bingo.Contracts.V1.Responses.AttendedEvent;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Services;
@@ -21,11 +23,14 @@ namespace BingoAPI.Controllers
     {
         private readonly UserManager<AppUser> userManager;
         private readonly IEventAttendanceService eventAttendanceService;
+        private readonly IMapper mapper;
 
-        public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceService eventAttendanceService)
+        public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceService eventAttendanceService,
+                                        IMapper mapper)
         {
             this.userManager = userManager;
             this.eventAttendanceService = eventAttendanceService;
+            this.mapper = mapper;
         }
 
         [HttpPost(ApiRoutes.AttendedEvents.Attend)]
@@ -44,6 +49,42 @@ namespace BingoAPI.Controllers
             return Ok();
         }
 
+
+
+        [HttpGet(ApiRoutes.AttendedEvents.GetActiveAttendedPosts)]
+        public async Task<IActionResult> GetAllActiveAttendedEvents()
+        {
+            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await eventAttendanceService.GetActiveAttendedPostsByUserId(user.Id);
+            if(result == null)
+            {
+                return Ok("No events attended");
+            }
+
+            return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
+        }
+
+
+
+
+        [HttpGet(ApiRoutes.AttendedEvents.GetInactiveAttendedPosts)]
+        public async Task<IActionResult> GetAllOldAttendedEvents()
+        {
+            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await eventAttendanceService.GetOldAttendedPostsByUserId(user.Id);
+            if (result == null)
+            {
+                return Ok("No events attended");
+            }
+
+            return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
+        }
 
 
         [HttpPost(ApiRoutes.AttendedEvents.UnAttend)]

@@ -71,9 +71,11 @@ namespace BingoAPI.Services
         {
             return await context.Participations
                 .Where(p => p.UserId == userId)
+                .Include(p => p.Post)
+                    .ThenInclude(p => p.Event)
+                .Include(p => p.Post.Location)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 1)
-                .Include(p => p.Event)
+                .Where(p => p.ActiveFlag == 1)                
                 .ToListAsync();
         }
 
@@ -81,9 +83,11 @@ namespace BingoAPI.Services
         {
             return await context.Participations
                 .Where(p => p.UserId == userId)
+                .Include(p => p.Post)
+                    .ThenInclude(p => p.Event)
+                .Include(p => p.Post.Location)
                 .Select(p => p.Post)
                 .Where(p => p.ActiveFlag == 0)
-                .Include(p => p.Event)
                 .ToListAsync();
         }
 
