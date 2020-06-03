@@ -57,7 +57,9 @@ namespace BingoAPI.CustomMapper
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
                         Slots = containedEvent.Slots,
-                        EntrancePrice = containedEvent.EntrancePrice
+                        EntrancePrice = containedEvent.EntrancePrice,
+                        Title = containedEvent.Title
+                       
                     };
                     break;
                 case 2:
@@ -65,7 +67,8 @@ namespace BingoAPI.CustomMapper
                     {
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
-                        EntrancePrice = containedEvent.EntrancePrice ?? 0                        
+                        EntrancePrice = containedEvent.EntrancePrice ?? 0,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 3:
@@ -73,63 +76,73 @@ namespace BingoAPI.CustomMapper
                     {
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
-                        EntrancePrice = containedEvent.EntrancePrice ?? 0
+                        EntrancePrice = containedEvent.EntrancePrice ?? 0,
+                        Title = containedEvent.Title
+
                     };
                     break;
                 case 4:
                     generatedEvent = new BikerMeet
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 5:
                     generatedEvent = new BicycleMeet
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 6:
                     generatedEvent = new CarMeet
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 7:
                     generatedEvent = new StreetParty
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 8:
                     generatedEvent = new Marathon
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 9:
                     generatedEvent = new FlashMob
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 case 10:
                     generatedEvent = new Other
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                 default:
                     generatedEvent = new Other
                     {
                         Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements
+                        Requirements = containedEvent.Requirements,
+                        Title = containedEvent.Title
                     };
                     break;
                    

@@ -21,10 +21,6 @@ namespace Bingo.Contracts.V1.Requests.Post
 
         public IFormFile? Picture3 { get; set; }
 
-        public IFormFile? Picture4 { get; set; }
-
-        public IFormFile? Picture5 { get; set; }
-
         public UpdatedEvent? Event { get; set; }
 
         public List<String>? RemainingImagesGuids { get; set; }
@@ -49,6 +45,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         public string? Requirements { get; set; }
         public int? Slots { get; set; }
         public double? EntrancePrice { get; set; }
+        public string? Title { get; set; }
     }
 
 }

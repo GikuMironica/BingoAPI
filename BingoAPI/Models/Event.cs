@@ -16,6 +16,8 @@ namespace BingoAPI.Models
 
         public double? EntrancePrice { get; set; }
 
+        public string? Title { get; set; }
+
         public string Description{ get; set; }
         #nullable enable
         public string? Requirements { get; set; }
@@ -24,5 +26,12 @@ namespace BingoAPI.Models
 
         public int PostId { get; set; }
 
+        public virtual int GetSlotsIfAny()
+        {
+            return 0;
+        }
+
     }
+
+   
 }

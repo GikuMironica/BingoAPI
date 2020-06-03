@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Responses.AttendedEvent;
+using Bingo.Contracts.V1.Responses.EventAttendee;
 using Bingo.Contracts.V1.Responses.Post;
 using Bingo.Contracts.V1.Responses.User;
 using BingoAPI.Models;
@@ -15,6 +17,7 @@ namespace BingoAPI.MappingProfiles
         public DomainToResponseProfile()
         {
             CreateMap<AppUser, UserResponse>();
+
 
             // for create post
             CreateMap<Post, CreatePostResponse>()
@@ -34,8 +37,13 @@ namespace BingoAPI.MappingProfiles
                 .ForPath(dest => dest.Event.Id, opt => opt.MapFrom(src => src.Event.Id))
                 .ForPath(dest => dest.Event.Description, opt => opt.MapFrom(src => src.Event.Description))
                 .ForPath(dest => dest.Event.Requirements, opt => opt.MapFrom(src => src.Event.Requirements))
+                .ForPath(dest => dest.Event.Title, opt => opt.MapFrom(src => src.Event.Title))
                 .ForPath(dest => dest.Tags, opt => opt.MapFrom(src => src.Tags.Select(x => x.Tag.TagName)))
-                .ForPath(dest => dest.Event.EntrancePrice, opt => opt.MapFrom(src => src.Event.EntrancePrice ?? 0));
+                .ForPath(dest => dest.Event.EntrancePrice, opt => opt.MapFrom(src => src.Event.EntrancePrice ?? 0))
+                .ForMember(dest => dest.RepeatablePropertyDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.VoucherDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.AnnouncementsDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.AttendanceDataId, src => src.MapFrom(s => s.Id));
                 
 
             // For update post
@@ -51,7 +59,17 @@ namespace BingoAPI.MappingProfiles
                 .ForMember(dest => dest.Location, opt => opt.MapFrom(s => s.Location))
                 .ForMember(dest => dest.Event, opt => opt.MapFrom(s => s.Event));
 
-                        
+            // Get All active attended events
+            CreateMap<Post, ActiveAttendedEvent>()
+                .ForMember(dest => dest.Thumbnail, opt => opt.MapFrom(src => src.Pictures.FirstOrDefault()))
+                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Event.Title))
+                .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Event.EntrancePrice))
+                .ForMember(dest => dest.Address, opt => opt.MapFrom(src => src.Location.Address));
+
+            // Get atendees
+            CreateMap<AppUser, EventParticipant>()
+                .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => src.ProfilePicture));
+
         }
         
     }

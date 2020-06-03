@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BingoAPI.Data;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
+using BingoAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,8 @@ namespace BingoAPI.Installers
               .AddDefaultTokenProviders();
 
             services.AddScoped<IPostsRepository, PostRepository>();
+            services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
+            services.AddScoped<IEventParticipantsRepository, EventParticipantsRepository>();
         }
     }
 }
