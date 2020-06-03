@@ -8,14 +8,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BingoAPI.Services
+namespace BingoAPI.Models.SqlRepository
 {
-    public class EventAttendanceService : IEventAttendanceService
+    public class EventAttendanceRepository : IEventAttendanceRepository
     {
         private readonly IPostsRepository postsRepository;
         private readonly DataContext context;
 
-        public EventAttendanceService(IPostsRepository postsRepository, DataContext context)
+        public EventAttendanceRepository(IPostsRepository postsRepository, DataContext context)
         {
             this.postsRepository = postsRepository;
             this.context = context;
@@ -88,6 +88,7 @@ namespace BingoAPI.Services
                 .Include(p => p.Post.Location)
                 .Select(p => p.Post)
                 .Where(p => p.ActiveFlag == 0)
+                .Take(50)
                 .ToListAsync();
         }
 

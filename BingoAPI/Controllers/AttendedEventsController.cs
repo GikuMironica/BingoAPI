@@ -4,6 +4,7 @@ using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
+using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,8 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -22,10 +21,10 @@ namespace BingoAPI.Controllers
     public class AttendedEventsController : Controller
     {
         private readonly UserManager<AppUser> userManager;
-        private readonly IEventAttendanceService eventAttendanceService;
+        private readonly IEventAttendanceRepository eventAttendanceService;
         private readonly IMapper mapper;
 
-        public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceService eventAttendanceService,
+        public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceRepository eventAttendanceService,
                                         IMapper mapper)
         {
             this.userManager = userManager;

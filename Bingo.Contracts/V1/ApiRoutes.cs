@@ -62,5 +62,14 @@ namespace Bingo.Contracts.V1
             public const string GetActiveAttendedPosts = Base + "/attendedactive";
             public const string GetInactiveAttendedPosts = Base + "/attendedinactive";
         }
+
+        public static class EventAttendees
+        {
+            public const string Accept = Base + "/acceptattendee";
+            public const string Reject = Base + "/rejectattendee";
+            public const string FetchAll = Base + "/fetchallattendee";
+            public const string FetchAccepted = Base + "/fetchallaccepted";
+            public const string FetchPending = Base + "/fetchallpending";
+        }
     }
 }

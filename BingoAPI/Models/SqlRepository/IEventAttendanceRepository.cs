@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace BingoAPI.Services
+namespace BingoAPI.Models.SqlRepository
 {
-    public interface IEventAttendanceService
+    public interface IEventAttendanceRepository
     {
         public Task<bool> AttendEvent(AppUser user, int postId);
         public Task<bool> UnAttendEvent(AppUser user, int postId);

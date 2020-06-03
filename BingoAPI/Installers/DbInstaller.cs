@@ -36,7 +36,8 @@ namespace BingoAPI.Installers
               .AddDefaultTokenProviders();
 
             services.AddScoped<IPostsRepository, PostRepository>();
-            services.AddScoped<IEventAttendanceService, EventAttendanceService>();
+            services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
+            services.AddScoped<IEventParticipantsRepository, EventParticipantsRepository>();
         }
     }
 }
