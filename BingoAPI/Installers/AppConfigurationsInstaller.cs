@@ -35,6 +35,7 @@ namespace BingoAPI.Installers
             // custom mapper services
             services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
             services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
+            services.AddSingleton<IDomainToResponseMapper, DomainToResponseMapper>();
 
             // options
             services.Configure<EventTypes>(configuration.GetSection("Types"));

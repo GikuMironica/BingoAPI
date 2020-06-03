@@ -40,7 +40,7 @@ namespace BingoAPI.Models.SqlRepository
                 }
                 catch (Exception e)
                 {
-                    // if server tried to create a dublicate tag.
+                    // if server tried to create a dublicate tag. try again
                     var isUniqueConstraintViolated = HandleInsertTagException(e);
 
                     // other exception which has to be logged
@@ -72,25 +72,16 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.Posts.AsNoTracking().ToListAsync();
         }
 
-        public IEnumerable<Post> GetAllAsync(Point location, int radius)
+        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius)
         {
             location.SRID = 4326;
-            return  _context.Posts
+            return await _context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking();
+                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking().ToListAsync();
         }
 
-        public async Task<Post> GetByIdAsync(int id)
-        {
-            return await _context.Posts
-                .Include(tag => tag.Location)
-                .Include(tag => tag.Event)
-                .Include(tag => tag.Tags)
-                    .ThenInclude(pt => pt.Tag)
-                .SingleOrDefaultAsync(x => x.Id == id);
-        }
 
         public async Task<bool> UpdateAsync(Post entity)
         {
@@ -157,15 +148,19 @@ namespace BingoAPI.Models.SqlRepository
             return post.UserId == userId || isAdmin;
         }
 
-        public async Task<Post> GetPostByIdAsync(int postId)
+        public async Task<Post> GetByIdAsync(int postId)
         {
             return await _context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Tags)
                     .ThenInclude(pt => pt.Tag)
+                .Include(p => p.Participators)
+                .Include(p => p.Voucher)
+                .Include(p => p.Repeatable)
                 .SingleOrDefaultAsync(x => x.Id == postId);
         }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 
         private bool HandleInsertTagException(Exception exception)
         {
@@ -190,5 +185,14 @@ namespace BingoAPI.Models.SqlRepository
             }
             return isUniqueConstraintFaulty;
         }
+
+        public async Task<Post> GetPlainPost(int postId)
+        {
+            return await _context.Posts
+                .Include(p => p.Event)
+                .SingleOrDefaultAsync(x => x.Id == postId);
+        }
+
+        
     }
 }
