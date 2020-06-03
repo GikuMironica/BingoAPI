@@ -36,8 +36,15 @@ namespace BingoAPI.Controllers
             this.uriService = uriService;
         }
 
-        
+        /// <summary>
+        /// This endpoint accepts request of user to attend house party
+        /// </summary>
+        /// <param name="attendeeRequest">This object containts the post id and the requester id</param>
+        /// <response code="200">Accepted</response>
+        /// <response code="400">No slots available / user did not request to attent this party</response>
         [HttpPost(ApiRoutes.EventAttendees.Accept)]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         public async Task<IActionResult> AcceptAttendee([FromForm] AttendeeRequest attendeeRequest)
         {
             if (!await IsOwner(attendeeRequest.PostId))
@@ -57,6 +64,15 @@ namespace BingoAPI.Controllers
         }
 
 
+
+        /// <summary>
+        /// This endpoint rejects the request to join a house party / removes a user from participators list.
+        /// </summary>
+        /// <param name="attendeeRequest">This object containes the attendee Id, post id containing the event</param>
+        /// <response code="200">Rejected/Removed</response>
+        /// <response code="400">User is not in the participators list</response>
+        [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(200)]
         [HttpPost(ApiRoutes.EventAttendees.Reject)]
         public async Task<IActionResult> RejectAttendee([FromForm] AttendeeRequest attendeeRequest)
         {
@@ -69,14 +85,21 @@ namespace BingoAPI.Controllers
 
             if (!result)
             {
-                return BadRequest(new SingleError { Message = "No slots available / user didn't request to attend this party" });
+                return BadRequest(new SingleError { Message = " user didn't request to attend this party" });
             }
             return Ok();
         }
 
 
 
+        /// <summary>
+        /// This endpoint fetches data about all event attendees or pending requests to attend a party
+        /// </summary>
+        /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="postId">The post id containing the event</param>
+        /// <response code="200">Returns paginated result with the list of users</response>
         [HttpGet(ApiRoutes.EventAttendees.FetchAll)]
+        [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         public async Task<IActionResult> DisplayAll([FromQuery] PaginationQuery paginationQuery, int postId)
         {
             if (!await IsOwner(postId))
@@ -95,6 +118,13 @@ namespace BingoAPI.Controllers
 
 
 
+        /// <summary>
+        /// This endpoint fetches data about all event accepted attendees
+        /// </summary>
+        /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="postId">The post id containing the event</param>
+        /// <response code="200">Returns paginated result with the list of users</response>
+        [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
         public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery, int postId)
         {
@@ -112,6 +142,13 @@ namespace BingoAPI.Controllers
 
 
 
+        /// <summary>
+        /// This endpoint fetches data about all event pending request from attendees to attend an event
+        /// </summary>
+        /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="postId">The post id containing the event</param>
+        /// <response code="200">Returns paginated result with the list of users</response>
+        [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         [HttpGet(ApiRoutes.EventAttendees.FetchPending)]
         public async Task<IActionResult> FetchPending([FromQuery] PaginationQuery paginationQuery, int postId)
         {
