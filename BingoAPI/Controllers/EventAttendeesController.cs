@@ -95,16 +95,36 @@ namespace BingoAPI.Controllers
 
 
 
-        public async Task<IActionResult> FetchAccepted()
+        [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
+        public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery, int postId)
         {
-            return Ok();
+            if (!await IsOwner(postId))
+            {
+                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
+            }
+            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(postId, paginationFilter);
+
+            var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
+            return Ok(paginationResponse);
         }
 
 
 
-        public async Task<IActionResult> FetchPending()
+        [HttpGet(ApiRoutes.EventAttendees.FetchPending)]
+        public async Task<IActionResult> FetchPending([FromQuery] PaginationQuery paginationQuery, int postId)
         {
-            return Ok();
+            if (!await IsOwner(postId))
+            {
+                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
+            }
+            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var ParticipantsList = await eventParticipantsRepository.DisplayAllPending(postId, paginationFilter);
+
+            var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
+            return Ok(paginationResponse);
         }
 
         private async Task<bool> IsOwner(int postId)

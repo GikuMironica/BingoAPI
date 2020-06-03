@@ -77,14 +77,40 @@ namespace BingoAPI.Models.SqlRepository
                 .Take(paginationFilter.PageSize).ToListAsync();               
         }
 
-        public Task<List<AppUser>> DisplayAllAccepted(int postId)
+        public async Task<List<AppUser>> DisplayAllAccepted(int postId, PaginationFilter paginationFilter = null)
         {
-            throw new NotImplementedException();
+            if (paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await context.Participations
+                .Where(p => p.PostId == postId && p.Accepted == 1)
+                .Select(p => p.User)
+                .AsNoTracking()
+                .AsQueryable()
+                .Skip(skip)
+                .Take(paginationFilter.PageSize).ToListAsync();
         }
 
-        public Task<List<AppUser>> DisplayAllPending(int postId)
+        public async Task<List<AppUser>> DisplayAllPending(int postId, PaginationFilter paginationFilter = null)
         {
-            throw new NotImplementedException();
+            if (paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await context.Participations
+                .Where(p => p.PostId == postId && p.Accepted == 0)
+                .Select(p => p.User)
+                .AsNoTracking()
+                .AsQueryable()
+                .Skip(skip)
+                .Take(paginationFilter.PageSize).ToListAsync();
         }
 
         public async Task<bool> RejectAttendee(string userId, int postId)

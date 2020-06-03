@@ -11,8 +11,8 @@ namespace BingoAPI.Models.SqlRepository
         public Task<bool> AcceptAttendee(string userId, int postId);
         public Task<bool> RejectAttendee(string userId, int postId);
         public Task<List<AppUser>> DisplayAll(int postId, PaginationFilter paginationFilter = null);
-        public Task<List<AppUser>> DisplayAllAccepted(int postId);
-        public Task<List<AppUser>> DisplayAllPending(int postId);
+        public Task<List<AppUser>> DisplayAllAccepted(int postId, PaginationFilter paginationFilter = null);
+        public Task<List<AppUser>> DisplayAllPending(int postId, PaginationFilter paginationFilter = null);
         public Task<bool> IsPostOwnerAsync(int postId, string userId);
     }
 }
