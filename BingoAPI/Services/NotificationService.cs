@@ -68,32 +68,24 @@ namespace BingoAPI.Services
                 
         private async Task SendNotificationAsync(byte[] buffer)
         {
-            await Task.Run(() => SendMessage(buffer));
-        }
-
-
-        private string SendMessage(byte[] buffer)
-        {
             string responseContent = null;
             try
             {
-                var writer = request.GetRequestStream();
-                writer.Write(buffer, 0, buffer.Length);
+                var writer = await request.GetRequestStreamAsync();
+                await writer.WriteAsync(buffer, 0, buffer.Length);
+                writer.Close();
 
-                var response = request.GetResponse() as HttpWebResponse;
+                var response = await request.GetResponseAsync() as HttpWebResponse;
                 var reader = new StreamReader(response.GetResponseStream());
-                responseContent = reader.ReadToEnd();
-                return responseContent;       
+                responseContent = await reader.ReadToEndAsync();
             }
             catch (WebException ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                System.Diagnostics.Debug.WriteLine(new StreamReader(ex.Response.GetResponseStream()).ReadToEnd());
+                //System.Diagnostics.Debug.WriteLine(ex.Message);
+                //System.Diagnostics.Debug.WriteLine(new StreamReader(ex.Response.GetResponseStream()).ReadToEnd());
                 // logg
-                return null;
             }
         }
-
         
     }
 }
