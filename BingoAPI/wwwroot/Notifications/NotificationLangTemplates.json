@@ -1,0 +1,12 @@
+﻿{
+  "Message": {
+    "Heading": {
+      "en": "HopAut",
+      "ru": "HopAut"
+    },
+    "AttendEventRequestAccepted": {
+      "en": "Your request to attend \"{0}\" has been accepted!",
+      "ru": "Ваш запрос принять участие в \"{0}\" был принят"
+    }
+  }
+}

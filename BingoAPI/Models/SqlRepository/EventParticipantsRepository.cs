@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,7 +21,7 @@ namespace BingoAPI.Models.SqlRepository
             this.userManager = userManager;
         }
 
-        public async Task<bool> AcceptAttendee(string userId, int postId)
+        public async Task<ProcessAttendRequest> AcceptAttendee(string userId, int postId)
         {
             var participation = await context.Participations
                 .Where(p => p.PostId == postId && p.UserId == userId)
@@ -30,7 +31,7 @@ namespace BingoAPI.Models.SqlRepository
                 .SingleOrDefaultAsync();
 
             if (participation == null)
-                return false;
+                return new ProcessAttendRequest { Result = false};
             
             if(participation.Post.Event.GetSlotsIfAny() > 0)
             {
@@ -43,7 +44,7 @@ namespace BingoAPI.Models.SqlRepository
                 }
                 else
                 {
-                    return false;
+                    return new ProcessAttendRequest { Result = false};
                 }
             }
             else
@@ -53,10 +54,14 @@ namespace BingoAPI.Models.SqlRepository
 
             }
             await context.Database.BeginTransactionAsync();
-            var result = await context.SaveChangesAsync() > 0;
-            context.Database.CommitTransaction();
-            return result;
-
+            var ResultObject = new ProcessAttendRequest
+            {
+                Result = await context.SaveChangesAsync() > 0,
+                EventTitle = participation.Post.Event.Title
+            };
+            context.Database.CommitTransaction();            
+        
+            return ResultObject;
         }
 
         public async Task<List<AppUser>> DisplayAll(int postId, PaginationFilter paginationFilter = null)

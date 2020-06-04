@@ -27,13 +27,15 @@ namespace BingoAPI.Controllers
         private readonly IEventParticipantsRepository eventParticipantsRepository;
         private readonly IMapper mapper;
         private readonly IUriService uriService;
+        private readonly INotificationService notificationService;
 
         public EventAttendeesController(IEventParticipantsRepository eventParticipantsRepository, IMapper mapper,
-                                        IUriService uriService)
+                                        IUriService uriService, INotificationService notificationService)
         {
             this.eventParticipantsRepository = eventParticipantsRepository;
             this.mapper = mapper;
             this.uriService = uriService;
+            this.notificationService = notificationService;
         }
 
         /// <summary>
@@ -54,13 +56,15 @@ namespace BingoAPI.Controllers
 
             var result = await eventParticipantsRepository.AcceptAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
 
-            if (!result)
+            if (!result.Result)
             {
                 return BadRequest(new SingleError { Message = "No slots available / user didn't request to attend this party" });
             }
 
-            return Ok();
+            var userList = new List<string> { attendeeRequest.AttendeeId };
+            await notificationService.NotifyAttendEventRequestAcceptedAsync(userList, result.EventTitle);
 
+            return Ok();
         }
 
 
