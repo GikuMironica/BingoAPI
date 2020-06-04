@@ -39,10 +39,12 @@ namespace BingoAPI.Controllers
         private readonly IUpdatePostToDomain updatePostToDomain;
         private readonly IImageLoader imageLoader;
         private readonly IDomainToResponseMapper domainToResponseMapper;
+        private readonly INotificationService notificationService;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
-                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper)
+                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
+                              ,INotificationService notificationService)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -55,6 +57,7 @@ namespace BingoAPI.Controllers
             this.updatePostToDomain = updatePostToDomain;
             this.imageLoader = imageLoader;
             this.domainToResponseMapper = domainToResponseMapper;
+            this.notificationService = notificationService;
         }
 
         /// <summary>
@@ -80,7 +83,7 @@ namespace BingoAPI.Controllers
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
-           
+                       
             response.Data.Event.Slots = post.Event.GetSlotsIfAny(); 
             return Ok(response);
         }
