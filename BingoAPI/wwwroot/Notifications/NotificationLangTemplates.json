@@ -7,6 +7,10 @@
     "AttendEventRequestAccepted": {
       "en": "Your request to attend \"{0}\" has been accepted!",
       "ru": "Ваш запрос принять участие в \"{0}\" был принят"
+    },
+    "HousePartyAttendRequest": {
+      "en": "{0} requested to join one of your events",
+      "ru": "{0} запросил принять участие в одной из ваших мероприятий"
     }
   }
 }

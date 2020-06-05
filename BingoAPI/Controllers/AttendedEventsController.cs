@@ -54,9 +54,13 @@ namespace BingoAPI.Controllers
 
             var result = await eventAttendanceService.AttendEvent(user, postId);
 
-            if (!result)
+            if (!result.Result)
             {
                 return BadRequest(new SingleError { Message = "Post does not exist / No slots available / User already applied to this event" });
+            }
+            if (result.IsHouseParty)
+            {
+                await notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId } , user.FirstName + " " + user.LastName );
             }
 
             return Ok();

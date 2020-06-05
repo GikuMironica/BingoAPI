@@ -1,4 +1,5 @@
 ﻿using BingoAPI.Data;
+using BingoAPI.Domain;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using Microsoft.AspNetCore.Identity;
@@ -20,12 +21,12 @@ namespace BingoAPI.Models.SqlRepository
             this.postsRepository = postsRepository;
             this.context = context;
         }
-        public async Task<bool> AttendEvent(AppUser user, int postId)
+        public async Task<AttendedEventResult> AttendEvent(AppUser user, int postId)
         {
             var post = await postsRepository.GetByIdAsync(postId);
             if (post == null)
             {
-                return false;
+                return new AttendedEventResult { Result = false };
             }
 
             var requested = await context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
@@ -33,14 +34,24 @@ namespace BingoAPI.Models.SqlRepository
 
             if(requested != null)
             {
-                return false;
+                return new AttendedEventResult { Result = false }; 
             }
 
-            string eventType = post.Event.GetType().Name.ToString();
-            
+            var attendedEventResult = new AttendedEventResult();
+
+            string eventType = post.Event.GetType().Name.ToString();                        
             if (eventType == "HouseParty")
             {
-                AttendHouseParty(user, post);
+                var accepted = await AttendHousePartyAsync(user, post);
+                if (accepted)
+                {
+                    attendedEventResult.IsHouseParty = true;
+                    attendedEventResult.HostId = post.UserId;
+                }
+                else
+                {
+                    return attendedEventResult;
+                }                
             }
             else
             {
@@ -48,13 +59,13 @@ namespace BingoAPI.Models.SqlRepository
             }
 
             await context.Database.BeginTransactionAsync();
-            var result = await context.SaveChangesAsync();
+            attendedEventResult.Result = await context.SaveChangesAsync() > 0;
             context.Database.CommitTransaction();
 
-            return result > 0;
+            return attendedEventResult;
         }
 
-        private async void AttendHouseParty(AppUser user, Post post)
+        private async Task<bool> AttendHousePartyAsync(AppUser user, Post post)
         {
             if (post.Participators == null)
             {
@@ -64,7 +75,9 @@ namespace BingoAPI.Models.SqlRepository
             if (reserved < post.Event.GetSlotsIfAny())
             {
                 await context.Participations.AddAsync(new Participation { Accepted = 0, Post = post, User = user });
-            }                   
+                return true;
+            }
+            return false;
         }
 
         public async Task<List<Post>> GetActiveAttendedPostsByUserId(string userId)

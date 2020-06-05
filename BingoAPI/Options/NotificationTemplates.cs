@@ -14,6 +14,7 @@ namespace BingoAPI.Options
 
         public Heading Heading { get; set; }
         public AttendEventRequestAccepted AttendEventRequestAccepted { get; set; }
+        public HousePartyAttendRequest HousePartyAttendRequest { get; set; }
     }
 
     public class Heading
@@ -23,6 +24,12 @@ namespace BingoAPI.Options
     }
 
     public class AttendEventRequestAccepted
+    {
+        public string en { get; set; }
+        public string ru { get; set; }
+    }
+    
+    public class HousePartyAttendRequest
     {
         public string en { get; set; }
         public string ru { get; set; }

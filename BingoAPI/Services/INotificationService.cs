@@ -8,5 +8,6 @@ namespace BingoAPI.Services
     public interface INotificationService
     {
         public Task NotifyAttendEventRequestAcceptedAsync(List<string> usersId, string eventTitle);
+        public Task NotifyHostNewParticipationRequestAsync(List<string> usersId, string fullname);
     }
 }
