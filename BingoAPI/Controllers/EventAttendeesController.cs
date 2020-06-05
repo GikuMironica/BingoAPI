@@ -58,7 +58,7 @@ namespace BingoAPI.Controllers
 
             if (!result.Result)
             {
-                return BadRequest(new SingleError { Message = "No slots available / user didn't request to attend this party" });
+                return BadRequest(new SingleError { Message = "No slots available / user didn't request to attend this party / user already accepted" });
             }
 
             var userList = new List<string> { attendeeRequest.AttendeeId };

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,20 +16,19 @@ namespace BingoAPI.Services
     {
         private readonly IOptions<OneSignalNotificationSettigs> oneSignalSettings;
         private readonly IOptions<NotificationTemplates> notificationTemplates;
-        private readonly HttpWebRequest request;
+        private readonly HttpRequestMessage request;
+        private readonly HttpClient httpClient;
 
-        public NotificationService(IOptions<OneSignalNotificationSettigs> oneSignalSettings, IOptions<NotificationTemplates> notificationTemplates)
+        public NotificationService(IOptions<OneSignalNotificationSettigs> oneSignalSettings, IOptions<NotificationTemplates> notificationTemplates,
+                                   IHttpClientFactory clientFactory)
         {
             this.oneSignalSettings = oneSignalSettings;
             this.notificationTemplates = notificationTemplates;
 
             // request configuration
-            request = WebRequest.Create(oneSignalSettings.Value.EndPoint) as HttpWebRequest;
-            request.Headers.Add("authorization", oneSignalSettings.Value.Authorization);
-            request.KeepAlive = true;
-            request.Method = "POST";
-            request.ContentType = "application/json; charset=utf-8";
-                        
+            httpClient = clientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Add("authorization", oneSignalSettings.Value.Authorization);
+            request = new HttpRequestMessage(HttpMethod.Post, oneSignalSettings.Value.EndPoint);           
         }
 
 
@@ -60,30 +60,19 @@ namespace BingoAPI.Services
         private async Task SerializeNotificationAsync(Object obj)
         {            
             var param = JsonConvert.SerializeObject(obj);
-            byte[] byteArray = Encoding.UTF8.GetBytes(param);
-
-            await SendNotificationAsync(byteArray);                                                
+            var data = new StringContent(param, Encoding.UTF8, "application/json");
+            await SendNotificationAsync(data);                                                
         }
 
                 
-        private async Task SendNotificationAsync(byte[] buffer)
-        {
-            string responseContent = null;
-            try
-            {
-                var writer = await request.GetRequestStreamAsync();
-                await writer.WriteAsync(buffer, 0, buffer.Length);
-                writer.Close();
+        private async Task SendNotificationAsync(StringContent buffer)
+        {            
+            var response = await httpClient.PostAsync(request.RequestUri, buffer);
 
-                var response = await request.GetResponseAsync() as HttpWebResponse;
-                var reader = new StreamReader(response.GetResponseStream());
-                responseContent = await reader.ReadToEndAsync();
-            }
-            catch (WebException ex)
+            if (!response.IsSuccessStatusCode)
             {
-                //System.Diagnostics.Debug.WriteLine(ex.Message);
-                //System.Diagnostics.Debug.WriteLine(new StreamReader(ex.Response.GetResponseStream()).ReadToEnd());
-                // logg
+                // logg error
+
             }
         }
         

@@ -32,6 +32,10 @@ namespace BingoAPI.Models.SqlRepository
 
             if (participation == null)
                 return new ProcessAttendRequest { Result = false};
+            if(participation.Accepted == 1)
+            {
+                return new ProcessAttendRequest { Result = false };
+            }
             
             if(participation.Post.Event.GetSlotsIfAny() > 0)
             {
