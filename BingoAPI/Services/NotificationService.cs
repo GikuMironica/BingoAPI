@@ -79,6 +79,27 @@ namespace BingoAPI.Services
         }
 
 
+        public async Task NotifyParticipantsEventUpdatedAsync(List<string> usersId, string eventTitle)
+        {
+            var list = new List<string> { "d150bc2e-b5ac-4787-b4ed-20e421b24d9d" };
+            var obj = new
+            {
+                app_id = oneSignalSettings.Value.AppId,
+                contents = new
+                {
+                    en = string.Format(notificationTemplates.Value.EventUpdated.en, eventTitle),
+                    ru = string.Format(notificationTemplates.Value.EventUpdated.ru, eventTitle)
+                },
+                headings = new
+                {
+                    en = notificationTemplates.Value.Heading.en,
+                    ru = notificationTemplates.Value.Heading.ru
+                },
+                include_external_user_ids = /*usersId*/list
+            };
+            await SerializeNotificationAsync(obj);
+        }
+
 
         private async Task SerializeNotificationAsync(Object obj)
         {            

@@ -1,4 +1,5 @@
 ﻿using BingoAPI.CustomMapper;
+using BingoAPI.CustomValidation;
 using BingoAPI.Domain;
 using BingoAPI.Options;
 using BingoAPI.Services;
@@ -36,6 +37,9 @@ namespace BingoAPI.Installers
             services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
             services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
             services.AddSingleton<IDomainToResponseMapper, DomainToResponseMapper>();
+
+            // custom validation
+            services.AddSingleton<IUpdatedPostDetailsWatcher, UpdatedPostDetailsWatcher>();
 
             // options
             services.Configure<EventTypes>(configuration.GetSection("Types"));

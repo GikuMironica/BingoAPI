@@ -11,6 +11,10 @@
     "HousePartyAttendRequest": {
       "en": "{0} requested to join one of your events",
       "ru": "{0} запросил принять участие в одной из ваших мероприятий"
+    },
+    "EventUpdated": {
+      "en": "The event \"{0}\" got updated",
+      "ru": "Мероприятие \"{0}\" было обновлено"
     }
   }
 }

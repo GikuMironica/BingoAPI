@@ -26,6 +26,8 @@ namespace BingoAPI.Models.SqlRepository
         {
             var result = 0;
             bool tryAgain = true;
+            entity.Voucher = new DrinkVoucher();
+            entity.Repeatable = new RepeatableProperty();
             while (tryAgain)
             {
                 try
@@ -78,6 +80,8 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
+                .Include(p => p.Repeatable)
+                .Include(p => p.Voucher)
                 .Where(p => p.ActiveFlag == 1 &&
                        p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking().ToListAsync();
         }
@@ -193,6 +197,13 @@ namespace BingoAPI.Models.SqlRepository
                 .SingleOrDefaultAsync(x => x.Id == postId);
         }
 
-        
+        public async Task<List<string>> GetParticipantsIdAsync(int postId)
+        {
+            return await _context.Participations
+                .Where(p => p.PostId ==  postId && p.Accepted == 1)
+                .Select(p => p.UserId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }
