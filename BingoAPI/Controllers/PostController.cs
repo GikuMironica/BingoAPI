@@ -5,6 +5,7 @@ using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Cache;
 using BingoAPI.CustomMapper;
+using BingoAPI.CustomValidation;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
@@ -18,6 +19,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,10 +41,13 @@ namespace BingoAPI.Controllers
         private readonly IUpdatePostToDomain updatePostToDomain;
         private readonly IImageLoader imageLoader;
         private readonly IDomainToResponseMapper domainToResponseMapper;
+        private readonly INotificationService notificationService;
+        private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
-                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper)
+                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
+                              ,INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -55,6 +60,8 @@ namespace BingoAPI.Controllers
             this.updatePostToDomain = updatePostToDomain;
             this.imageLoader = imageLoader;
             this.domainToResponseMapper = domainToResponseMapper;
+            this.notificationService = notificationService;
+            this.postDetailsWatcher = postDetailsWatcher;
         }
 
         /// <summary>
@@ -80,7 +87,7 @@ namespace BingoAPI.Controllers
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
-           
+                       
             response.Data.Event.Slots = post.Event.GetSlotsIfAny(); 
             return Ok(response);
         }
@@ -110,7 +117,7 @@ namespace BingoAPI.Controllers
             {
                 var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.EntracePrice = await GetUserRating(post.UserId);
+                mappedPost.HostRating = await GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
 
@@ -128,7 +135,7 @@ namespace BingoAPI.Controllers
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
-        public async Task<IActionResult> Create( CreatePostRequest postRequest)
+        public async Task<IActionResult> Create(CreatePostRequest postRequest)
         {            
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
@@ -177,6 +184,13 @@ namespace BingoAPI.Controllers
             var updated = await postRepository.UpdateAsync(mappedPost);
             if (updated)
             {
+                // notify atendee if something important got updated
+                if (postDetailsWatcher.GetValidatedFields(postRequest))
+                {
+                    var participants = await postRepository.GetParticipantsIdAsync(post.Id);
+                    await notificationService.NotifyParticipantsEventUpdatedAsync(participants, post.Event.Title);
+                }                
+
                 var locationUri = uriService.GetPostUri(post.Id.ToString());
                 return Ok(locationUri/*new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
             }
@@ -216,6 +230,10 @@ namespace BingoAPI.Controllers
                     // log the Delete Exceptions list
                 }
             }
+
+            // notify users
+            var participants = await postRepository.GetParticipantsIdAsync(post.Id);
+            await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
 
             var deleted = await postRepository.DeleteAsync(postId);
             if (deleted)
@@ -271,7 +289,16 @@ namespace BingoAPI.Controllers
         private async Task<double> GetUserRating(string UserId)
         {
             var user = await userManager.FindByIdAsync(UserId);
-            return user.Ratings.Select(u => u.Rate).Average();
+            try
+            {
+                var rating = user.Ratings.Select(u => u.Rate).Average();
+                return rating;
+            }catch(NullReferenceException ne)
+            {
+                //user has not rating yet, display 0
+                return 0;
+            }
+            
         }
 
             

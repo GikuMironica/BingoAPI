@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -23,13 +24,15 @@ namespace BingoAPI.Controllers
         private readonly UserManager<AppUser> userManager;
         private readonly IEventAttendanceRepository eventAttendanceService;
         private readonly IMapper mapper;
+        private readonly INotificationService notificationService;
 
         public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceRepository eventAttendanceService,
-                                        IMapper mapper)
+                                        IMapper mapper, INotificationService notificationService)
         {
             this.userManager = userManager;
             this.eventAttendanceService = eventAttendanceService;
             this.mapper = mapper;
+            this.notificationService = notificationService;
         }
 
 
@@ -51,10 +54,15 @@ namespace BingoAPI.Controllers
 
             var result = await eventAttendanceService.AttendEvent(user, postId);
 
-            if (!result)
+            if (!result.Result)
             {
                 return BadRequest(new SingleError { Message = "Post does not exist / No slots available / User already applied to this event" });
             }
+            if (result.IsHouseParty)
+            {
+                await notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId } , user.FirstName + " " + user.LastName );
+            }
+
             return Ok();
         }
 

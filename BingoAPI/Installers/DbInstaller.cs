@@ -26,7 +26,8 @@ namespace BingoAPI.Installers
             services.AddDefaultIdentity<AppUser>(options =>
             {
                 options.Password.RequiredLength = 8;
-                options.Password.RequiredUniqueChars = 2;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = false;
                 options.SignIn.RequireConfirmedEmail = true;
                 options.Lockout.MaxFailedAccessAttempts = 10;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);

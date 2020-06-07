@@ -80,7 +80,8 @@ namespace BingoAPI.Installers
                 return new UriService(absoluteUri);
             });
 
-            
+            services.AddHttpClient();
+
         }
     }
 }
