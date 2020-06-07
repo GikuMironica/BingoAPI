@@ -1,4 +1,5 @@
-﻿using Bingo.Contracts.V1.Responses.Post;
+﻿
+using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using System;
@@ -14,7 +15,7 @@ namespace BingoAPI.CustomMapper
         {
             string eventType = post.Event.GetType().Name.ToString();
 
-            var eventTypeNumber = eventTypes.Types
+            var eventTypeNumber = eventTypes.Types 
             .Where(y => y.Type == eventType)
             .Select(x => x.Id)
             .FirstOrDefault();

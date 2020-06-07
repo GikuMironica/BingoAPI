@@ -8,7 +8,7 @@ namespace BingoAPI.Models.SqlRepository
 {
     public interface IEventParticipantsRepository
     {
-        public Task<bool> AcceptAttendee(string userId, int postId);
+        public Task<ProcessAttendRequest> AcceptAttendee(string userId, int postId);
         public Task<bool> RejectAttendee(string userId, int postId);
         public Task<List<AppUser>> DisplayAll(int postId, PaginationFilter paginationFilter = null);
         public Task<List<AppUser>> DisplayAllAccepted(int postId, PaginationFilter paginationFilter = null);

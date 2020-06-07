@@ -1,4 +1,5 @@
 ﻿using BingoAPI.CustomMapper;
+using BingoAPI.CustomValidation;
 using BingoAPI.Domain;
 using BingoAPI.Options;
 using BingoAPI.Services;
@@ -37,14 +38,20 @@ namespace BingoAPI.Installers
             services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
             services.AddSingleton<IDomainToResponseMapper, DomainToResponseMapper>();
 
+            // custom validation
+            services.AddSingleton<IUpdatedPostDetailsWatcher, UpdatedPostDetailsWatcher>();
+
             // options
             services.Configure<EventTypes>(configuration.GetSection("Types"));
             services.Configure<AwsBucketSettings>(configuration.GetSection("AWS-ImageBucket"));
+            services.Configure<OneSignalNotificationSettigs>(configuration.GetSection("OneSignalNotification"));
+            services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
 
             // services
             services.AddSingleton<IImageToWebpProcessor, ImageToWebpProcessor>();
             services.AddSingleton<IImageLoader, ImageLoader>();
             services.AddSingleton<IAwsBucketManager, AwsBucketManager>();
+            services.AddSingleton<INotificationService, NotificationService>();
         }
     }
 }

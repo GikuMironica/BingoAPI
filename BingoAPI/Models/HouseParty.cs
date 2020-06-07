@@ -13,7 +13,10 @@ namespace BingoAPI.Models
 
         public override int GetSlotsIfAny()
         {
-            return Slots.Value;
+            if (Slots.HasValue)
+                return Slots.Value;
+
+            return 0;
         }
     }
 }

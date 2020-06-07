@@ -1,0 +1,24 @@
+﻿{
+  "Message": {
+    "Heading": {
+      "en": "HopAut",
+      "ru": "HopAut"
+    },
+    "AttendEventRequestAccepted": {
+      "en": "Your request to attend \"{0}\" has been accepted!",
+      "ru": "Ваш запрос принять участие в \"{0}\" был принят"
+    },
+    "HousePartyAttendRequest": {
+      "en": "{0} requested to join one of your events",
+      "ru": "{0} запросил принять участие в одной из ваших мероприятий"
+    },
+    "EventUpdated": {
+      "en": "The event \"{0}\" got updated",
+      "ru": "Мероприятие \"{0}\" было обновлено"
+    },
+    "EventDeleted": {
+      "en": "The event \"{0}\" has been canceled!",
+      "ru": "Мероприятие \"{0}\" было отменено!"
+    }
+  }
+}

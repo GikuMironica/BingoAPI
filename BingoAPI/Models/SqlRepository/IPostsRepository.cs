@@ -13,6 +13,7 @@ namespace BingoAPI.Models.SqlRepository
         public Task<IEnumerable<Post>> GetAllAsync(Point location, int radius);
         public Task<Post> GetByIdAsync(int postId);
         public Task<Post> GetPlainPost(int postId);
-        
+        public Task<List<string>> GetParticipantsIdAsync(int postId);
+
     }
 }
