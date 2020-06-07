@@ -10,5 +10,6 @@ namespace BingoAPI.Services
         public Task NotifyAttendEventRequestAcceptedAsync(List<string> usersId, string eventTitle);
         public Task NotifyHostNewParticipationRequestAsync(List<string> usersId, string fullname);
         public Task NotifyParticipantsEventUpdatedAsync(List<string> usersId, string eventTitle);
+        public Task NotifyParticipantsEventDeletedAsync(List<string> usersId, string eventTitle);
     }
 }

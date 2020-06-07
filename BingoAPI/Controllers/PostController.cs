@@ -135,7 +135,7 @@ namespace BingoAPI.Controllers
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
-        public async Task<IActionResult> Create( CreatePostRequest postRequest)
+        public async Task<IActionResult> Create(CreatePostRequest postRequest)
         {            
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
@@ -230,6 +230,10 @@ namespace BingoAPI.Controllers
                     // log the Delete Exceptions list
                 }
             }
+
+            // notify users
+            var participants = await postRepository.GetParticipantsIdAsync(post.Id);
+            await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
 
             var deleted = await postRepository.DeleteAsync(postId);
             if (deleted)

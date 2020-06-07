@@ -15,6 +15,10 @@
     "EventUpdated": {
       "en": "The event \"{0}\" got updated",
       "ru": "Мероприятие \"{0}\" было обновлено"
+    },
+    "EventDeleted": {
+      "en": "The event \"{0}\" has been canceled!",
+      "ru": "Мероприятие \"{0}\" было отменено!"
     }
   }
 }
