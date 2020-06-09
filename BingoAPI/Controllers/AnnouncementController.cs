@@ -31,10 +31,12 @@ namespace BingoAPI.Controllers
         private readonly IMapper mapper;
         private readonly IUriService uriService;
         private readonly IEventParticipantsRepository participationRepository;
+        private readonly INotificationService notificationService;
 
         public AnnouncementController(UserManager<AppUser> userManager, IPostsRepository postsRepository,
                                       IAnnouncementRepository announcementRepository, IMapper mapper,
-                                      IUriService uriService, IEventParticipantsRepository participationRepository)
+                                      IUriService uriService, IEventParticipantsRepository participationRepository,
+                                      INotificationService notificationService)
         {
             this.userManager = userManager;
             this.postsRepository = postsRepository;
@@ -42,6 +44,7 @@ namespace BingoAPI.Controllers
             this.mapper = mapper;
             this.uriService = uriService;
             this.participationRepository = participationRepository;
+            this.notificationService = notificationService;
         }
 
 
@@ -94,6 +97,12 @@ namespace BingoAPI.Controllers
             {
                 return BadRequest(new SingleError { Message = "This announcement could not be persisted!" });
             }
+
+            // notify participants about new announcement
+            var participants = await postsRepository.GetParticipantsIdAsync(createAnnouncementRequest.PostId);
+            var post = await postsRepository.GetPlainPostAsync(createAnnouncementRequest.PostId);
+            await notificationService.NotifyParticipantsNewAnnouncementAsync(participants, post.Event.Title);
+
             var locationUri = uriService.GetPostUri(announcement.Id.ToString());
             return Created(locationUri, new Response<CreateAnnouncementResponse>(mapper.Map<CreateAnnouncementResponse>(announcement)));
         }

@@ -190,7 +190,7 @@ namespace BingoAPI.Models.SqlRepository
             return isUniqueConstraintFaulty;
         }
 
-        public async Task<Post> GetPlainPost(int postId)
+        public async Task<Post> GetPlainPostAsync(int postId)
         {
             return await _context.Posts
                 .Include(p => p.Event)
