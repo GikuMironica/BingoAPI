@@ -17,6 +17,7 @@ namespace BingoAPI.Options
         public HousePartyAttendRequest HousePartyAttendRequest { get; set; }
         public EventUpdated EventUpdated { get; set; }
         public EventDeleted EventDeleted { get; set; }
+        public NewAnnouncement NewAnnouncement { get; set; }
     }
 
     public abstract class Base
@@ -42,5 +43,10 @@ namespace BingoAPI.Options
 
     public class EventDeleted : Base
     {
+    }
+
+    public class NewAnnouncement : Base
+    {
+
     }
 }

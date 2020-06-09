@@ -293,7 +293,7 @@ namespace BingoAPI.Controllers
             {
                 var rating = user.Ratings.Select(u => u.Rate).Average();
                 return rating;
-            }catch(NullReferenceException ne)
+            }catch(ArgumentNullException ne)
             {
                 //user has not rating yet, display 0
                 return 0;

@@ -5,7 +5,7 @@
       "ru": "HopAut"
     },
     "AttendEventRequestAccepted": {
-      "en": "Your request to attend \"{0}\" has been accepted!",
+      "en": "Your request to attend \"{0}\" has been accepted",
       "ru": "Ваш запрос принять участие в \"{0}\" был принят"
     },
     "HousePartyAttendRequest": {
@@ -17,8 +17,12 @@
       "ru": "Мероприятие \"{0}\" было обновлено"
     },
     "EventDeleted": {
-      "en": "The event \"{0}\" has been canceled!",
-      "ru": "Мероприятие \"{0}\" было отменено!"
+      "en": "The event \"{0}\" has been canceled",
+      "ru": "Мероприятие \"{0}\" было отменено"
+    },
+    "NewAnnouncement": {
+      "en": "There is a new message from \"{0}\"",
+      "ru": "Новое сообшение от \"{0}\"" 
     }
   }
 }

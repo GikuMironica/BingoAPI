@@ -149,5 +149,18 @@ namespace BingoAPI.Models.SqlRepository
            
             return post.UserId == userId;
         }
+
+        public async Task<bool> IsParticipatorAsync(int postId, string userId)
+        {
+            var count = await context.Participations
+                .Where(p => p.PostId == postId && p.UserId == userId && p.Accepted == 1)
+                .AsNoTracking()
+                .CountAsync();
+
+            if (count > 0)
+                return true;
+
+            return false;
+        }
     }
 }
