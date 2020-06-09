@@ -80,8 +80,7 @@ namespace BingoAPI.Services
 
 
         public async Task NotifyParticipantsEventUpdatedAsync(List<string> usersId, string eventTitle)
-        {
-            var list = new List<string> { "d150bc2e-b5ac-4787-b4ed-20e421b24d9d" };
+        {           
             var obj = new
             {
                 app_id = oneSignalSettings.Value.AppId,
@@ -95,14 +94,13 @@ namespace BingoAPI.Services
                     en = notificationTemplates.Value.Heading.en,
                     ru = notificationTemplates.Value.Heading.ru
                 },
-                include_external_user_ids = /*usersId*/list
+                include_external_user_ids = usersId
             };
             await SerializeNotificationAsync(obj);
         }
 
         public async Task NotifyParticipantsEventDeletedAsync(List<string> usersId, string eventTitle)
-        {
-            var list = new List<string> { "d150bc2e-b5ac-4787-b4ed-20e421b24d9d" };
+        {            
             var obj = new
             {
                 app_id = oneSignalSettings.Value.AppId,
@@ -116,7 +114,27 @@ namespace BingoAPI.Services
                     en = notificationTemplates.Value.Heading.en,
                     ru = notificationTemplates.Value.Heading.ru
                 },
-                include_external_user_ids = /*usersId*/list
+                include_external_user_ids = usersId
+            };
+            await SerializeNotificationAsync(obj);
+        }
+
+        public async Task NotifyParticipantsNewAnnouncementAsync(List<string> usersId, string eventTitle)
+        {
+            var obj = new
+            {
+                app_id = oneSignalSettings.Value.AppId,
+                contents = new
+                {
+                    en = string.Format(notificationTemplates.Value.NewAnnouncement.en, eventTitle),
+                    ru = string.Format(notificationTemplates.Value.NewAnnouncement.ru, eventTitle)
+                },
+                headings = new
+                {
+                    en = notificationTemplates.Value.Heading.en,
+                    ru = notificationTemplates.Value.Heading.ru
+                },
+                include_external_user_ids = usersId
             };
             await SerializeNotificationAsync(obj);
         }
@@ -139,7 +157,6 @@ namespace BingoAPI.Services
 
             }
         }
-
-        
+                
     }
 }

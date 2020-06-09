@@ -71,5 +71,14 @@ namespace Bingo.Contracts.V1
             public const string FetchAccepted = Base + "/fetchallaccepted";
             public const string FetchPending = Base + "/fetchallpending";
         }
+
+        public static class Announcements
+        {
+            public const string GetAll = Base + "/announcements/postId/{postId}";
+            public const string Get = Base + "/announcements/{announcementId}";
+            public const string Create = Base + "/announcements";
+            public const string Update = Base + "/announcements/{announcementId}";
+            public const string Delete = Base + "/announcements/{announcementId}";
+        }
     }
 }

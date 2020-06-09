@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Responses.Announcement;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.EventAttendee;
 using Bingo.Contracts.V1.Responses.Post;
@@ -70,6 +71,9 @@ namespace BingoAPI.MappingProfiles
             CreateMap<AppUser, EventParticipant>()
                 .ForMember(dest => dest.Picture, opt => opt.MapFrom(src => src.ProfilePicture));
 
+            // Announcement model to response , viceversa
+            CreateMap<Announcement, CreateAnnouncementResponse>();
+            CreateMap<Announcement, GetAnnouncement>();
         }
         
     }

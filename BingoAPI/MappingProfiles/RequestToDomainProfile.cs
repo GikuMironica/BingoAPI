@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Bingo.Contracts.V1.Requests.Announcement;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.User;
 using BingoAPI.Domain;
@@ -42,6 +43,10 @@ namespace BingoAPI.MappingProfiles
             // .ForMember(x => x.EventTime, opt => opt.Condition(s => s.EventTime.HasValue && s.EventTime != 0 && s.EventTime != null))
 
 
+            // Map CreateAnnouncement request to Model, for update too
+            CreateMap<CreateAnnouncementRequest, Announcement>();
+            CreateMap<UpdateAnnouncementRequest, Announcement>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null)); 
         }
     }
 

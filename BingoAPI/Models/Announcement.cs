@@ -17,7 +17,7 @@ namespace BingoAPI.Models
 
         public Post Post { get; set; }
 
-        public string Message { get; set; }
+        public String Message { get; set; }
 
         public Int64 Timestamp { get; set; }
     }
