@@ -14,6 +14,7 @@ namespace BingoAPI.Models.SqlRepository
         public Task<Post> GetByIdAsync(int postId);
         public Task<Post> GetPlainPostAsync(int postId);
         public Task<List<string>> GetParticipantsIdAsync(int postId);
+        public Task<bool> IsHostIdPostOwner(string hostId, int postId);
 
     }
 }

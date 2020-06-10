@@ -118,5 +118,14 @@ namespace BingoAPI.Models.SqlRepository
             }
             return true;
         }
+
+        public async Task<bool> IsUserAttendingEvent(string userId, int postId)
+        {
+            var result = await context.Participations
+                    .Where(p => p.UserId == userId && p.PostId == postId && p.Accepted == 1)
+                    .CountAsync();
+
+            return result > 0;
+        }
     }
 }
