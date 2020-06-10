@@ -114,7 +114,8 @@ namespace BingoAPI.Controllers
                 return BadRequest(new SingleError { Message = "Rating could not be persisted" });
             }
 
-            var locationUri = uriService.GetPostUri(rating.Id.ToString());
+            // TODO UriRatings
+            var locationUri = uriService.GetRatingUri(rating.Id.ToString());
             return Created(locationUri, new Response<CreateRatingResponse>(mapper.Map<CreateRatingResponse>(rating)));
         }
 

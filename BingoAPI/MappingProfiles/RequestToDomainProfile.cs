@@ -2,6 +2,7 @@
 using Bingo.Contracts.V1.Requests.Announcement;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.Rating;
+using Bingo.Contracts.V1.Requests.Report;
 using Bingo.Contracts.V1.Requests.User;
 using BingoAPI.Domain;
 using BingoAPI.Models;
@@ -53,6 +54,9 @@ namespace BingoAPI.MappingProfiles
             // Map Ratings
             CreateMap<CreateRatingRequest, Rating>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Map Reports
+            CreateMap<CreateReportRequest, Report>();
         }
     }
 

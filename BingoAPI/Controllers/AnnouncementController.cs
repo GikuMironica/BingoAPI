@@ -101,7 +101,7 @@ namespace BingoAPI.Controllers
             var post = await postsRepository.GetPlainPostAsync(createAnnouncementRequest.PostId);
             await notificationService.NotifyParticipantsNewAnnouncementAsync(participants, post.Event.Title);
 
-            var locationUri = uriService.GetPostUri(announcement.Id.ToString());
+            var locationUri = uriService.GetAnnouncementUri(announcement.Id.ToString());
             return Created(locationUri, new Response<CreateAnnouncementResponse>(mapper.Map<CreateAnnouncementResponse>(announcement)));
         }
 

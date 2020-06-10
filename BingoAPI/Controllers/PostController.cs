@@ -91,6 +91,7 @@ namespace BingoAPI.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
+            response.Data.Event.EventType = eventTypeNumber;
             response.Data.HostRating = await ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny(); 
             return Ok(response);

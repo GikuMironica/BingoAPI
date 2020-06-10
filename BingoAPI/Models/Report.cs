@@ -19,7 +19,9 @@ namespace BingoAPI.Models
 
         public string Message { get; set; }
 
-        public string ReporterEmail { get; set; }
+        public string ReporterId { get; set; }
+
+        public AppUser Reporter { get; set; }
 
         public int PostId { get; set; }
 

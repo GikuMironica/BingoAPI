@@ -88,5 +88,13 @@ namespace Bingo.Contracts.V1
             public const string Create = Base + "/ratings";
             public const string Delete = Base + "/ratings/{ratingId}";
         }
+
+        public static class Reports
+        {
+            public const string GetAll = Base + "/reports/userId/{userId}";
+            public const string Get = Base + "/reports/{reportId}";
+            public const string Create = Base + "/reports";
+            public const string Delete = Base + "/reports/{reportId}";
+        }
     }
 }

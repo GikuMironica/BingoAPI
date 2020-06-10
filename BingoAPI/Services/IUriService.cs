@@ -10,6 +10,9 @@ namespace BingoAPI.Services
     {
 
         public Uri GetPostUri(string postId);
+        public Uri GetRatingUri(string ratingId);
+        public Uri GetReportUri(string reportId);
+        public Uri GetAnnouncementUri(string announcementId);
         public Uri GetAllUsersUri(PaginationQuery pagination);
     }
 }

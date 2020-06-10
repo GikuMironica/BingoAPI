@@ -5,6 +5,7 @@ using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.EventAttendee;
 using Bingo.Contracts.V1.Responses.Post;
 using Bingo.Contracts.V1.Responses.Rating;
+using Bingo.Contracts.V1.Responses.Report;
 using Bingo.Contracts.V1.Responses.User;
 using BingoAPI.Models;
 using System;
@@ -79,6 +80,10 @@ namespace BingoAPI.MappingProfiles
             // Map Ratings
             CreateMap<Rating, CreateRatingResponse>();
             CreateMap<Rating, GetRating>();
+
+            // Map Reports
+            CreateMap<Report, CreateReportResponse>();
+            CreateMap<Report, ReportResponse>();
         }
         
     }

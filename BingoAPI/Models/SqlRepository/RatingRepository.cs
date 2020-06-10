@@ -18,7 +18,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> AddAsync(Rating entity)
         {
-            await context.AddAsync(entity);
+            await context.Rating.AddAsync(entity);
             var result = await context.SaveChangesAsync();
             return result > 0;
         }
