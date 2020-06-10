@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin, Admin ,User")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin,User")]
     [Produces("application/json")]
     public class PostController : Controller
     {

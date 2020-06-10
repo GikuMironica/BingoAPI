@@ -205,5 +205,14 @@ namespace BingoAPI.Models.SqlRepository
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<bool> IsHostIdPostOwner(string hostId, int postId)
+        {
+            var result = await _context.Posts
+                .Where(p => p.Id == postId && p.UserId == hostId)
+                .CountAsync();
+
+            return result > 0;
+        }
     }
 }

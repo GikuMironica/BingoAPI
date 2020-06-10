@@ -19,6 +19,14 @@ namespace BingoAPI.Models
 
         public AppUser User { get; set; }
 
-        public string Feedback { get; set; }
+        public string RaterId { get; set; }
+
+        public AppUser Rater { get; set; }
+
+        public int PostId { get; set; }
+
+        public Post Post { get; set; }
+
+        public String Feedback { get; set; }
     }
 }
