@@ -10,5 +10,6 @@ namespace BingoAPI.Models.SqlRepository
         public Task<bool> HasAlreadyRatedAsync(string requesterId, string hostId, int postId);
         public Task<bool> IsRatingOwnerAsync(string requesterId, int ratingId);
         public Task<List<Rating>> GetAllAsync(string userId);
+        public Task<double> GetUserRating(string userId);
     }
 }

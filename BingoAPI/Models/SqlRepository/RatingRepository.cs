@@ -76,5 +76,21 @@ namespace BingoAPI.Models.SqlRepository
         {
             throw new NotImplementedException();
         }
+
+        public async Task<double> GetUserRating(string userId)
+        {
+            try
+            {
+                return await context.Rating
+                .Where(r => r.UserId == userId)
+                .Select(r => r.Rate)
+                .AverageAsync();
+            }catch(InvalidOperationException)
+            {
+                // user has no ratings yet
+                return 0;
+            }
+            
+        }
     }
 }
