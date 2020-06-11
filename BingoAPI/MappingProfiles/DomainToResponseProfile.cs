@@ -8,6 +8,7 @@ using Bingo.Contracts.V1.Responses.Profile;
 using Bingo.Contracts.V1.Responses.Rating;
 using Bingo.Contracts.V1.Responses.Report;
 using Bingo.Contracts.V1.Responses.User;
+using Bingo.Contracts.V1.Responses.UserReport;
 using BingoAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -88,6 +89,11 @@ namespace BingoAPI.MappingProfiles
 
             // Map Profile
             CreateMap<AppUser, ProfileResponse>();
+
+            // Map UserReports
+            CreateMap<UserReport, CreateUserReportResponse>();
+            CreateMap<UserReport, UserReportResponse>();
+
         }
         
     }

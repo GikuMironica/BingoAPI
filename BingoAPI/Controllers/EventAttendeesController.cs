@@ -28,14 +28,17 @@ namespace BingoAPI.Controllers
         private readonly IMapper mapper;
         private readonly IUriService uriService;
         private readonly INotificationService notificationService;
+        private readonly IPostsRepository postsRepository;
 
         public EventAttendeesController(IEventParticipantsRepository eventParticipantsRepository, IMapper mapper,
-                                        IUriService uriService, INotificationService notificationService)
+                                        IUriService uriService, INotificationService notificationService,
+                                        IPostsRepository postsRepository)
         {
             this.eventParticipantsRepository = eventParticipantsRepository;
             this.mapper = mapper;
             this.uriService = uriService;
             this.notificationService = notificationService;
+            this.postsRepository = postsRepository;
         }
 
         /// <summary>
@@ -132,7 +135,8 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
         public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery, int postId)
         {
-            if (!await IsOwner(postId))
+            var eType = await postsRepository.GetEventType(postId);
+            if (!await IsOwner(postId) && eType == 1)
             {
                 return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
@@ -156,6 +160,7 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.EventAttendees.FetchPending)]
         public async Task<IActionResult> FetchPending([FromQuery] PaginationQuery paginationQuery, int postId)
         {
+           
             if (!await IsOwner(postId))
             {
                 return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });

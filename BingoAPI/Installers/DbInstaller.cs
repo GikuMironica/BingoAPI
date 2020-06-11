@@ -43,6 +43,7 @@ namespace BingoAPI.Installers
             services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
             services.AddScoped<IRatingRepository, RatingRepository>();
             services.AddScoped<IReportsRepository, RepostsRepository>();
+            services.AddScoped<IUserReportRepository, UserReportRepository>();
         }
     }
 }

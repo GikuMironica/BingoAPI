@@ -1,7 +1,9 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
 using BingoAPI.Data;
+using BingoAPI.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
@@ -15,11 +17,14 @@ namespace BingoAPI.Models.SqlRepository
     {
         protected readonly DataContext _context;
         private readonly UserManager<AppUser> userManager;
+        private readonly EventTypes eventTypes;
 
-        public PostRepository(DataContext context, UserManager<AppUser> userManager)
+        public PostRepository(DataContext context, UserManager<AppUser> userManager,
+                              IOptions<EventTypes> eventTypes)
         {
             _context = context;
             this.userManager = userManager;
+            this.eventTypes = eventTypes.Value;
         }
 
         public async Task<bool> AddAsync(Post entity)
@@ -222,5 +227,19 @@ namespace BingoAPI.Models.SqlRepository
                 .Select(p => p.UserId)
                 .SingleOrDefaultAsync();
         }
+
+        public async Task<int> GetEventType(int postId)
+        {
+            var result = await _context.Events
+                .Where(e => e.PostId == postId)
+                .SingleOrDefaultAsync();
+
+            string eventType = result.GetType().Name.ToString();
+            return eventTypes.Types
+                .Where(y => y.Type == eventType)
+                .Select(x => x.Id)
+                .FirstOrDefault();
+        }
+               
     }
 }

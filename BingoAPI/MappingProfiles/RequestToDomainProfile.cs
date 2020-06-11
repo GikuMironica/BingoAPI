@@ -4,6 +4,7 @@ using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.Rating;
 using Bingo.Contracts.V1.Requests.Report;
 using Bingo.Contracts.V1.Requests.User;
+using Bingo.Contracts.V1.Requests.UserReport;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using NetTopologySuite.Geometries;
@@ -57,6 +58,10 @@ namespace BingoAPI.MappingProfiles
 
             // Map Reports
             CreateMap<CreateReportRequest, Report>();
+
+            // UserReports
+            CreateMap<ReportUserRequest, UserReport>()
+                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 
