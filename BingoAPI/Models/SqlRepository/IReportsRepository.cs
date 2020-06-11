@@ -9,5 +9,6 @@ namespace BingoAPI.Models.SqlRepository
     {
         public Task<bool> HasAlreadyReported(string reporterId, int postId);
         public Task<List<Report>> GetAllAsync(string userId);
+        public Task<bool> DeleteAllForUserAsync(string userId);
     }
 }

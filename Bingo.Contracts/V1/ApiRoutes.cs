@@ -95,6 +95,7 @@ namespace Bingo.Contracts.V1
             public const string Get = Base + "/reports/{reportId}";
             public const string Create = Base + "/reports";
             public const string Delete = Base + "/reports/{reportId}";
+            public const string DeleteAll = Base + "/reports/userId/{userId}";
         }
     }
 }

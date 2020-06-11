@@ -16,6 +16,8 @@ namespace Bingo.Contracts.V1.Responses.Report
 
         public string ReporterId { get; set; }
 
+        public string ReportedHostId { get; set; }
+
         public int PostId { get; set; }
     }
 }

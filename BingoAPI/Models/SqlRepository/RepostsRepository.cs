@@ -23,9 +23,27 @@ namespace BingoAPI.Models.SqlRepository
             return await context.SaveChangesAsync() > 0;
         }
 
-        public Task<bool> DeleteAsync(int Id)
+        public async Task<bool> DeleteAllForUserAsync(string userId)
         {
-            throw new NotImplementedException();
+            var report = await context.Reports
+                .Where(r => r.ReportedHostId == userId)
+                .ToListAsync();
+
+            if (report.Count == 0)
+                return false;
+
+            context.Reports.RemoveRange(report);
+            return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> DeleteAsync(int Id)
+        {
+            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == Id);
+            if (report == null)
+                return false;
+
+            context.Reports.Remove(report);
+            return await context.SaveChangesAsync() > 0;
         }
 
         public Task<IEnumerable<Report>> GetAllAsync()
@@ -36,7 +54,9 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<List<Report>> GetAllAsync(string userId)
         {
             return await context.Reports
-                .Where(r => r.UserId == userId);
+                .Where(r => r.ReportedHostId == userId)
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Report> GetByIdAsync(int id)

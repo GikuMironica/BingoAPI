@@ -23,6 +23,10 @@ namespace BingoAPI.Models
 
         public AppUser Reporter { get; set; }
 
+        public string ReportedHostId { get; set; }
+
+        public AppUser ReportedHost { get; set; }
+
         public int PostId { get; set; }
 
         public Post Post { get; set; }

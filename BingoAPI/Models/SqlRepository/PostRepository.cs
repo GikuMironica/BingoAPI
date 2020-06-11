@@ -214,5 +214,13 @@ namespace BingoAPI.Models.SqlRepository
 
             return result > 0;
         }
+
+        public async Task<string> GetHostId(int postId)
+        {
+            return await _context.Posts
+                .Where(p => p.Id == postId)
+                .Select(p => p.UserId)
+                .SingleOrDefaultAsync();
+        }
     }
 }

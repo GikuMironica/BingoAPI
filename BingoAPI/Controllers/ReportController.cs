@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -22,13 +24,15 @@ namespace BingoAPI.Controllers
         private readonly IUriService uriService;
         private readonly IReportsRepository reportsRepository;
         private readonly IMapper mapper;
+        private readonly IPostsRepository postRepository;
 
         public ReportController(IUriService uriService, IReportsRepository reportsRepository,
-                                IMapper mapper)
+                                IMapper mapper, IPostsRepository postRepository)
         {
             this.uriService = uriService;
             this.reportsRepository = reportsRepository;
             this.mapper = mapper;
+            this.postRepository = postRepository;
         }
 
         [Authorize(Roles ="SuperAdmin,Admin")]
@@ -47,10 +51,15 @@ namespace BingoAPI.Controllers
         
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpGet(ApiRoutes.Reports.GetAll)]
-        public async Task<IActionResult> GetReports(int userId)
+        public async Task<IActionResult> GetReports(string userId)
         {
-            
-            return Ok();
+            List<Report> reports = await reportsRepository.GetAllAsync(userId);
+            if(reports.Count == 0)
+            {
+                return Ok(new Response<String> { Data = "No Reports on this User" });
+            }
+
+            return Ok(new Response<List<ReportResponse>>(mapper.Map<List<ReportResponse>>(reports)));
         }
 
 
@@ -66,6 +75,7 @@ namespace BingoAPI.Controllers
 
             Report report = mapper.Map<Report>(reportRequest);
             report.ReporterId = reporterId;
+            report.ReportedHostId = await postRepository.GetHostId(reportRequest.PostId);
             var result = await reportsRepository.AddAsync(report);
             if (!result)
             {
@@ -76,12 +86,29 @@ namespace BingoAPI.Controllers
         }
 
 
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete(ApiRoutes.Reports.Delete)]
         public async Task<IActionResult> DeleteReport(int reportId)
         {
-
+            var result = await reportsRepository.DeleteAsync(reportId);
+            if (!result)
+            {
+                return BadRequest(new SingleError { Message = "Report could not be deleted / Did not exist" });
+            }
             return NoContent();
         }
 
+
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        [HttpDelete(ApiRoutes.Reports.DeleteAll)]
+        public async Task<IActionResult> DeleteAllReportForUser(string userId)
+        {
+            var result = await reportsRepository.DeleteAllForUserAsync(userId);
+            if (!result)
+            {
+                return BadRequest(new SingleError { Message = "Reports could not be deleted / No reports on this user" });
+            }
+            return NoContent();
+        }
     }
 }
