@@ -80,5 +80,35 @@ namespace Bingo.Contracts.V1
             public const string Update = Base + "/announcements/{announcementId}";
             public const string Delete = Base + "/announcements/{announcementId}";
         }
+
+        public static class Ratings
+        {
+            public const string GetAll = Base + "/ratings/userId/{userId}";
+            public const string Get = Base + "/ratings/{ratingId}";
+            public const string Create = Base + "/ratings";
+            public const string Delete = Base + "/ratings/{ratingId}";
+        }
+
+        public static class Reports
+        {
+            public const string GetAll = Base + "/reports/userId/{userId}";
+            public const string Get = Base + "/reports/{reportId}";
+            public const string Create = Base + "/reports";
+            public const string Delete = Base + "/reports/{reportId}";
+            public const string DeleteAll = Base + "/reports/userId/{userId}";
+        }
+
+        public static class UserReports
+        {
+            public const string GetAll = Base + "/userreports/userId/{userId}";
+            public const string Get = Base + "/userreports/{reportId}";
+            public const string Create = Base + "/userreports";
+            public const string Delete = Base + "/userreports/{reportId}";
+        }
+
+        public static class Profile
+        {
+            public const string Get = Base + "/profile/{userId}";
+        }
     }
 }

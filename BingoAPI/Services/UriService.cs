@@ -38,5 +38,25 @@ namespace BingoAPI.Services
 
             return new Uri(modifiedUri);
         }
+
+        public Uri GetRatingUri(string ratingId)
+        {
+            return new Uri(_baseUri + ApiRoutes.Ratings.Get.Replace("{ratingId}", ratingId));
+        }
+
+        public Uri GetReportUri(string reportId)
+        {
+            return new Uri(_baseUri + ApiRoutes.Reports.Get.Replace("{reportId}", reportId));
+        }
+
+        public Uri GetAnnouncementUri(string announcementId)
+        {
+            return new Uri(_baseUri + ApiRoutes.Announcements.Get.Replace("{announcementId}", announcementId));
+        }
+
+        public Uri GetUserReportUri(string reportId)
+        {
+            return new Uri(_baseUri + ApiRoutes.UserReports.Get.Replace("{reportId}", reportId));
+        }
     }
 }

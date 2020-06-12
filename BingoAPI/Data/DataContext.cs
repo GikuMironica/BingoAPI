@@ -39,6 +39,7 @@ namespace BingoAPI.Data
         public DbSet<EventLocation> EventLocations { get; set; }
         public DbSet<Participation> Participations { get; set; }
         public DbSet<Report> Reports { get; set; }
+        public DbSet<UserReport> UserReports { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<Rating> Rating { get; set; }
         public DbSet<RepeatableProperty> RepeatableProperties { get; set; }
@@ -178,6 +179,13 @@ namespace BingoAPI.Data
                 .HasForeignKey(uv => uv.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+
+            // One - Many between User -> UserReports
+            modelBuilder.Entity<UserReport>()
+                .HasOne(r => r.ReportedUser)
+                .WithMany(u => u.Reports)
+                .HasForeignKey(r => r.ReportedUserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         

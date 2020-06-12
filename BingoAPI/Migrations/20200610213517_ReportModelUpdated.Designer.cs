@@ -3,6 +3,7 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20200610213517_ReportModelUpdated")]
+    partial class ReportModelUpdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -313,9 +315,6 @@ namespace BingoAPI.Migrations
                     b.Property<string>("Reason")
                         .HasColumnType("text");
 
-                    b.Property<string>("ReportedHostId")
-                        .HasColumnType("text");
-
                     b.Property<string>("ReporterId")
                         .HasColumnType("text");
 
@@ -325,8 +324,6 @@ namespace BingoAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PostId");
-
-                    b.HasIndex("ReportedHostId");
 
                     b.HasIndex("ReporterId");
 
@@ -347,37 +344,6 @@ namespace BingoAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.UserReport", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReportedUserId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReporterId")
-                        .HasColumnType("text");
-
-                    b.Property<long>("Timestamp")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReportedUserId");
-
-                    b.HasIndex("ReporterId");
-
-                    b.ToTable("UserReports");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.UserVoucher", b =>
@@ -834,22 +800,6 @@ namespace BingoAPI.Migrations
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
-
-                    b.HasOne("BingoAPI.Models.AppUser", "ReportedHost")
-                        .WithMany()
-                        .HasForeignKey("ReportedHostId");
-
-                    b.HasOne("BingoAPI.Models.AppUser", "Reporter")
-                        .WithMany()
-                        .HasForeignKey("ReporterId");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.UserReport", b =>
-                {
-                    b.HasOne("BingoAPI.Models.AppUser", "ReportedUser")
-                        .WithMany("Reports")
-                        .HasForeignKey("ReportedUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("BingoAPI.Models.AppUser", "Reporter")
                         .WithMany()
