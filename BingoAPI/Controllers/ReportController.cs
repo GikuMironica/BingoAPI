@@ -35,6 +35,17 @@ namespace BingoAPI.Controllers
             this.postRepository = postRepository;
         }
 
+
+
+        /// <summary>
+        /// This endoint returns a user-post report by Id.
+        /// Can be viewed by administration only
+        /// </summary>
+        /// <param name="reportId">The report Id</param>
+        /// <response code="200">Success</response>
+        /// <response code="404">Report not found</response>
+        [ProducesResponseType(typeof(Response<ReportResponse>), 200)]
+        [ProducesResponseType(typeof(SingleError), 404)]
         [Authorize(Roles ="SuperAdmin,Admin")]
         [HttpGet(ApiRoutes.Reports.Get)]
         public async Task<IActionResult> GetReport(int reportId)
@@ -42,13 +53,23 @@ namespace BingoAPI.Controllers
             Report report = await reportsRepository.GetByIdAsync(reportId);
             if(report == null)
             {
-                return BadRequest(new SingleError { Message = "Report could not be found" });
+                return NotFound(new SingleError { Message = "Report could not be found" });
             }
 
             return Ok(new Response<ReportResponse>(mapper.Map<ReportResponse>(report)));
         }
 
-        
+
+
+        /// <summary>
+        /// This endoint returns all reports of an user-posts by his Id.
+        /// Can be viewed by event administration only
+        /// </summary>
+        /// <param name="userId">The user Id</param>
+        /// <response code="200">Success</response>
+        /// <response code="204">No reports on this user yet</response>
+        [ProducesResponseType(typeof(Response<List<ReportResponse>>), 200)]
+        [ProducesResponseType(204)]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpGet(ApiRoutes.Reports.GetAll)]
         public async Task<IActionResult> GetReports(string userId)
@@ -56,13 +77,26 @@ namespace BingoAPI.Controllers
             List<Report> reports = await reportsRepository.GetAllAsync(userId);
             if(reports.Count == 0)
             {
-                return Ok(new Response<String> { Data = "No Reports on this User" });
+                return NoContent();
             }
 
             return Ok(new Response<List<ReportResponse>>(mapper.Map<List<ReportResponse>>(reports)));
         }
 
 
+
+
+        /// <summary>
+        /// This endoint is used for reporting a user-post.
+        /// Everyone can report a users post
+        /// </summary>
+        /// <param name="reportRequest">The report data</param>
+        /// <response code="201">Success</response>
+        /// <response code="403">User already reported this event</response>
+        /// <response code="400">Report could not be submitted</response>
+        [ProducesResponseType(typeof(Response<CreateReportResponse>), 201)]
+        [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [HttpPost(ApiRoutes.Reports.Create)]
         public async Task<IActionResult> CreateReport([FromBody] CreateReportRequest reportRequest)
         {
@@ -86,6 +120,16 @@ namespace BingoAPI.Controllers
         }
 
 
+
+        /// <summary>
+        /// This endoint is used for deleting a report on a users post
+        /// Can be deleted only by admins
+        /// </summary>
+        /// <param name="reportId">The report Id</param>
+        /// <response code="204">Successfuly deleted</response>
+        /// <response code="400">Delete failed / Report did not exist</response>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete(ApiRoutes.Reports.Delete)]
         public async Task<IActionResult> DeleteReport(int reportId)
@@ -99,6 +143,16 @@ namespace BingoAPI.Controllers
         }
 
 
+
+        /// <summary>
+        /// This endoint is used for deleting all reports on a users post
+        /// Can be deleted only by admins
+        /// </summary>
+        /// <param name="userId">The user Id</param>
+        /// <response code="204">Successfuly deleted</response>
+        /// <response code="400">Delete failed / Reports did not exist</response>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete(ApiRoutes.Reports.DeleteAll)]
         public async Task<IActionResult> DeleteAllReportForUser(string userId)

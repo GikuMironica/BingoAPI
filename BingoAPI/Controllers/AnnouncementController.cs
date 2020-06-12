@@ -47,6 +47,16 @@ namespace BingoAPI.Controllers
 
 
 
+
+        /// <summary>
+        /// This endoint returns an announcement by Id.
+        /// Can be vieewed by event participator / admin / host
+        /// </summary>
+        /// <param name="announcementId">The announcement Id</param>
+        /// <response code="200">Success</response>
+        /// <response code="403">Requester is not participating in the event / not an admin or host either</response>
+        [ProducesResponseType(typeof(Response<GetAnnouncement>),200)]
+        [ProducesResponseType(typeof(SingleError),403)]
         [HttpGet(ApiRoutes.Announcements.Get)]
         public async Task<IActionResult> GetAnnouncement([FromRoute] int announcementId)
         {
@@ -63,6 +73,16 @@ namespace BingoAPI.Controllers
             return Ok(new Response<GetAnnouncement>(mapper.Map<GetAnnouncement>(announcement)));
         }
 
+
+        /// <summary>
+        /// This endoint returns all announcements related to a post
+        /// Can be vieewed by event participator / admin / host
+        /// </summary>
+        /// <param name="postId">The post Id</param>
+        /// <response code="200">Success</response>
+        /// <response code="403">Requester is not participating in the event / not an admin or host either</response>
+        [ProducesResponseType(typeof(Response<List<GetAnnouncement>>), 200)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         [HttpGet(ApiRoutes.Announcements.GetAll)]
         public async Task<IActionResult> GetAllAnnouncements([FromRoute] int postId)
         {
@@ -79,6 +99,17 @@ namespace BingoAPI.Controllers
             return Ok(new Response<List<GetAnnouncement>>(mapper.Map<List<GetAnnouncement>>(announcements)));
         }
 
+
+
+        /// <summary>
+        /// This endoint is used for creating an announcement
+        /// Can be created only by event host / admin
+        /// </summary>
+        /// <param name="createAnnouncementRequest">The announcement data</param>
+        /// <response code="201">Successfuly created</response>
+        /// <response code="400">Requester is not not an admin or host either</response>
+        [ProducesResponseType(typeof(Response<CreateAnnouncementResponse>), 201)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [HttpPost(ApiRoutes.Announcements.Create)]
         public async Task<IActionResult> CreateAnnouncement([FromForm] CreateAnnouncementRequest createAnnouncementRequest)
         {
@@ -105,6 +136,22 @@ namespace BingoAPI.Controllers
             return Created(locationUri, new Response<CreateAnnouncementResponse>(mapper.Map<CreateAnnouncementResponse>(announcement)));
         }
 
+
+
+        /// <summary>
+        /// This endoint is used for updating an announcement
+        /// Can be updated only by event host / admin
+        /// </summary>
+        /// <param name="announcementId">The announcement Id</param>
+        /// <param name="updateRequest">updated data</param>
+        /// <response code="200">Successfuly updated</response>
+        /// <response code="400">Update could not be persisted</response>
+        /// <response code="403">Requester is not the host / admin</response>
+        /// <response code="404">Announcements does not exist</response>
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(typeof(SingleError), 404)]
         [HttpPut(ApiRoutes.Announcements.Update)]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int announcementId, [FromBody] UpdateAnnouncementRequest updateRequest)
         {
@@ -112,7 +159,7 @@ namespace BingoAPI.Controllers
             var announcement = await announcementRepository.GetByIdAsync(announcementId);
             if (announcement == null)
             {
-                return BadRequest(new SingleError { Message = "Announcement does not exist" });
+                return NotFound(new SingleError { Message = "Announcement does not exist" });
             }
 
             var postId = announcement.PostId;
@@ -131,6 +178,21 @@ namespace BingoAPI.Controllers
             return Ok();
         }
 
+
+
+        /// <summary>
+        /// This endoint is used for creating an announcement
+        /// Can be created only by event host / admin
+        /// </summary>
+        /// <param name="announcementId">The announcement data</param>
+        /// <response code="204">Successfuly deleted</response>
+        /// <response code="400">Delete failed</response>
+        /// <response code="403">Requester is not the host / admin</response>
+        /// <response code="404">Announcements does not exist</response>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(typeof(SingleError), 404)]
         [HttpDelete(ApiRoutes.Announcements.Delete)]
         public async Task<IActionResult> DeleteAnnouncement([FromRoute] int announcementId)
         {
@@ -138,7 +200,7 @@ namespace BingoAPI.Controllers
             var announcement = await announcementRepository.GetByIdAsync(announcementId);
             if (announcement == null)
             {
-                return BadRequest(new SingleError { Message = "Announcement does not exist" });
+                return NotFound(new SingleError { Message = "Announcement does not exist" });
             }
 
             var postId = announcement.PostId;
