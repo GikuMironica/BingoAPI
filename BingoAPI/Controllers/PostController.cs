@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin, Admin ,User")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin,User")]
     [Produces("application/json")]
     public class PostController : Controller
     {
@@ -43,11 +43,13 @@ namespace BingoAPI.Controllers
         private readonly IDomainToResponseMapper domainToResponseMapper;
         private readonly INotificationService notificationService;
         private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
+        private readonly IRatingRepository ratingRepository;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               ,UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
                               ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
-                              ,INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher)
+                              ,INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
+                              ,IRatingRepository ratingRepository)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -62,6 +64,7 @@ namespace BingoAPI.Controllers
             this.domainToResponseMapper = domainToResponseMapper;
             this.notificationService = notificationService;
             this.postDetailsWatcher = postDetailsWatcher;
+            this.ratingRepository = ratingRepository;
         }
 
         /// <summary>
@@ -87,7 +90,9 @@ namespace BingoAPI.Controllers
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
-                       
+
+            response.Data.Event.EventType = eventTypeNumber;
+            response.Data.HostRating = await ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny(); 
             return Ok(response);
         }
@@ -117,7 +122,7 @@ namespace BingoAPI.Controllers
             {
                 var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.HostRating = await GetUserRating(post.UserId);
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
 
@@ -285,22 +290,6 @@ namespace BingoAPI.Controllers
                 post.Pictures = postRequest.RemainingImagesGuids;
             }
         }
-
-        private async Task<double> GetUserRating(string UserId)
-        {
-            var user = await userManager.FindByIdAsync(UserId);
-            try
-            {
-                var rating = user.Ratings.Select(u => u.Rate).Average();
-                return rating;
-            }catch(ArgumentNullException ne)
-            {
-                //user has not rating yet, display 0
-                return 0;
-            }
-            
-        }
-
             
     }
 }

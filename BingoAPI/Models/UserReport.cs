@@ -7,26 +7,24 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Models
 {
-    public class Rating
+    public class UserReport
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        public int Rate { get; set; }
+        public Int64 Timestamp { get; set; }
 
-        public string UserId { get; set; }
+        public string Reason { get; set; }
 
-        public AppUser User { get; set; }
+        public string Message { get; set; }
 
-        public string RaterId { get; set; }
+        public string ReporterId { get; set; }
 
-        public AppUser Rater { get; set; }
+        public AppUser Reporter { get; set; }
 
-        public int PostId { get; set; }
+        public string ReportedUserId { get; set; }
 
-        public Post Post { get; set; }
-
-        public String Feedback { get; set; }
+        public AppUser ReportedUser { get; set; }
     }
 }

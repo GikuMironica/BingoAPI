@@ -4,7 +4,11 @@ using Bingo.Contracts.V1.Responses.Announcement;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.EventAttendee;
 using Bingo.Contracts.V1.Responses.Post;
+using Bingo.Contracts.V1.Responses.Profile;
+using Bingo.Contracts.V1.Responses.Rating;
+using Bingo.Contracts.V1.Responses.Report;
 using Bingo.Contracts.V1.Responses.User;
+using Bingo.Contracts.V1.Responses.UserReport;
 using BingoAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -74,6 +78,22 @@ namespace BingoAPI.MappingProfiles
             // Announcement model to response , viceversa
             CreateMap<Announcement, CreateAnnouncementResponse>();
             CreateMap<Announcement, GetAnnouncement>();
+
+            // Map Ratings
+            CreateMap<Rating, CreateRatingResponse>();
+            CreateMap<Rating, GetRating>();
+
+            // Map Reports
+            CreateMap<Report, CreateReportResponse>();
+            CreateMap<Report, ReportResponse>();
+
+            // Map Profile
+            CreateMap<AppUser, ProfileResponse>();
+
+            // Map UserReports
+            CreateMap<UserReport, CreateUserReportResponse>();
+            CreateMap<UserReport, UserReportResponse>();
+
         }
         
     }
