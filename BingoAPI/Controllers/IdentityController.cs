@@ -12,6 +12,7 @@ using BingoAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Bingo.Contracts.V1.Responses;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace BingoAPI.Controllers
 {
@@ -93,6 +94,7 @@ namespace BingoAPI.Controllers
                     Errors = authResponse.Errors
                 });
             }
+
             return Ok(new AuthSuccessResponse
             {
                 Token = authResponse.Token,
@@ -121,7 +123,7 @@ namespace BingoAPI.Controllers
                     Errors = authResponse.Errors
                 });
             }
-
+                        
             return Ok(new AuthSuccessResponse
             {
                 Token = authResponse.Token,
@@ -192,6 +194,40 @@ namespace BingoAPI.Controllers
 
             return Ok();
         }
+
+
+        /// <summary>
+        /// This endpoint can be used by admins only to confirm users email
+        /// in case of system failure
+        /// </summary>
+        /// <param name="email">the users email</param>
+        /// <response code="200">Success</response>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
+        [HttpGet(ApiRoutes.Identity.AdminConfirmEmail)]
+        public async Task<IActionResult> ConfirmEmail(string email)
+        {
+            if (email == null)
+            {
+                return BadRequest();
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (!result.Succeeded)
+            {
+                return BadRequest(new SingleError { Message = "Email could not be confirmed" });
+            }
+            return Ok();
+        }
+
 
 
         /// <summary>

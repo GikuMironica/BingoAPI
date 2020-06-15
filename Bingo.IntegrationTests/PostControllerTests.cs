@@ -20,11 +20,10 @@ namespace Bingo.IntegrationTests
             await AuthenticateAsync();
 
             // Act
-            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("postId", "1"));
+            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", "1"));
 
             // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            (await response.Content.ReadFromJsonAsync<Post>()).Should().BeNull();
+            response.StatusCode.Should().Be(HttpStatusCode.NotFound);
         }
     }
 }
