@@ -77,7 +77,8 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
         [Cached(300)]
         public async Task<IActionResult> Get([FromRoute] int postId)
-        {
+        {            
+
             var post = await postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
@@ -142,7 +143,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {            
-            var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            var User = await userManager.FindByIdAsync(HttpContext.GetUserId());            
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 
