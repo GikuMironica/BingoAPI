@@ -88,7 +88,7 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Repeatable)
                 .Include(p => p.Voucher)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius)).AsNoTracking().ToListAsync();
+                       p.Location.Location.IsWithinDistance(location, radius * 1000)).AsNoTracking().ToListAsync();
         }
 
 
