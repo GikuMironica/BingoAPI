@@ -11,10 +11,6 @@ namespace Bingo.Contracts.V1.Requests.Post
         [Required]
         public long EventTime { get; set; }
 
-        [Required]
-        public long PostTime { get; set; }
-
-        [Required]
         public long? EndTime { get; set; }
 
         public UserCompleteLocation UserLocation { get; set; }

@@ -3,3 +3,5 @@ BingoAPI/bin
 BingoAPI/obj
 Bingo.Contracts/obj
 Bingo.Contracts/bin
+Bingo.IntegrationTests/obj/
+ Bingo.IntegrationTests/bin/
