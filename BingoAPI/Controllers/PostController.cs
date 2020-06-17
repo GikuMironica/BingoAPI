@@ -140,7 +140,7 @@ namespace BingoAPI.Controllers
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
-        public async Task<IActionResult> Create(CreatePostRequest postRequest)
+        public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {            
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);

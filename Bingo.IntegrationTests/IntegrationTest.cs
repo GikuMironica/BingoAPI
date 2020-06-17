@@ -1,6 +1,9 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Identity;
+using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Identity;
+using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI;
 using BingoAPI.Data;
 using BingoAPI.Models;
@@ -12,9 +15,11 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,7 +29,7 @@ namespace Bingo.IntegrationTests
     public class IntegrationTest
     {
         protected readonly HttpClient TestClient;
-        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiNTI0MTJhYWUtZmE0My00ZTJiLThmYWItMmEyODIwMGU5OGU1IiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkyMjU3NTcwLCJleHAiOjE1OTIyNzU1NzAsImlhdCI6MTU5MjI1NzU3MH0.1h5V0oqF_xBa0rILbCh_bjM3w9VTXrUqa94TCg36hwM";
+        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiYTAxZTQ1NzUtOGU3My00MzU2LWI2NzQtMDFkOTRiYjE0NmIzIiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkyMzQ3MzExLCJleHAiOjE1OTIzNjUzMTEsImlhdCI6MTU5MjM0NzMxMX0.FFDIiqkilfg9MJ81GtLV5GyHKwVkrjeBZJCz19wNVPs";
 
         public IntegrationTest()
         {
@@ -47,6 +52,8 @@ namespace Bingo.IntegrationTests
         {
             TestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", await GetJwtAsync());
         }
+
+                
 
         private async Task<string> GetJwtAsync()
         {
