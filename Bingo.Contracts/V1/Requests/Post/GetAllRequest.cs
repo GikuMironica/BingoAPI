@@ -18,5 +18,6 @@ namespace Bingo.Contracts.V1.Requests.Post
         [Required]
         public double Latitude { get; set; }
         public int? RadiusRange { get; set; }
+        public bool? HouseParty { get; set; } = true;
     }
 }

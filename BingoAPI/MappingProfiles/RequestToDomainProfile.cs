@@ -26,8 +26,8 @@ namespace BingoAPI.MappingProfiles
 
             // Map child of UpdatePostRequest to Location
             CreateMap<UpdatedCompleteLocation, EventLocation>()
-                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => new Point(src.Longitude.Value, src.Latitude.Value)))
-                .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+                .ForMember(dest => dest.Location, opt => opt.Condition((src, dest, srcMember) => srcMember != null))
+                .ForMember(dest => dest.Location, opt => opt.MapFrom(src => new Point(src.Longitude.Value, src.Latitude.Value)));
                 
                 
 
