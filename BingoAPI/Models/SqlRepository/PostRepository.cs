@@ -94,11 +94,33 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> UpdateAsync(Post entity)
         {
-            await AddNewTagsAsync(entity);
-            _context.Posts.Update(entity);
-            await _context.Database.BeginTransactionAsync();
-                var updated = await _context.SaveChangesAsync();
-            _context.Database.CommitTransaction();
+            int updated = 0;
+            bool tryAgain = true;
+            while (tryAgain)
+            {
+                try
+                {
+                    await AddNewTagsAsync(entity);
+                    _context.Posts.Update(entity);
+                    await _context.Database.BeginTransactionAsync();
+                    updated = await _context.SaveChangesAsync();
+                    _context.Database.CommitTransaction();
+                    tryAgain = false;
+                }
+                catch (Exception e)
+                {
+                    // if server tried to create a dublicate tag. try again
+                    var isUniqueConstraintViolated = HandleInsertTagException(e);
+
+                    // other exception which has to be logged
+                    if (!isUniqueConstraintViolated)
+                    {
+                        tryAgain = false;
+
+                    }
+                }
+            }
+           
             return updated > 0; 
         }
 
@@ -116,16 +138,15 @@ namespace BingoAPI.Models.SqlRepository
                 return;
             post.Tags?.ForEach(pt => pt.Tag.TagName = pt.Tag.TagName.ToLower());
 
-            for(var i =0; i<post.Tags.Count; i++)
+            for(var i=0; i<post.Tags.Count; i++)
             {
                 var tag = post.Tags[i];
                 var existingTag = await _context.Tags.SingleOrDefaultAsync(x => x.TagName == tag.Tag.TagName);
 
-                // if tag exists, increment counter
+                // if tag exists, link to it
                 if (existingTag != null)
                 {
                     tag.Tag = existingTag;
-                    continue;
                 }
 
                   // else
@@ -176,20 +197,26 @@ namespace BingoAPI.Models.SqlRepository
             var isUniqueConstraintFaulty = false;
             if (exception is DbUpdateException dbUpdateEx)
             {
-                if (dbUpdateEx.InnerException != null
-                        && dbUpdateEx.InnerException.InnerException != null)
+                if (dbUpdateEx.InnerException != null)
                 {
-                    if (dbUpdateEx.InnerException.InnerException is SqlException sqlException)
+                    if (dbUpdateEx.InnerException.Message != null)
                     {
-                        switch (sqlException.Number)
+                        if (dbUpdateEx.InnerException.Message.Contains("23505"))
                         {
-                            case 2627:  isUniqueConstraintFaulty = true; break;
-                            case 547:   break;
-                            case 2601:  break;
-                            default: break;
-                               
+                            // inserted twice same tag
+                            return false;
                         }
-                    }                   
+                        else
+                        {
+                            // Log smth else
+                            return false;
+                        }
+                        
+                    }
+                }
+                else
+                {
+                    // logg
                 }
             }
             return isUniqueConstraintFaulty;

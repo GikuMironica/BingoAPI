@@ -58,15 +58,18 @@ namespace Bingo.IntegrationTests.PostControllerTest
         protected async Task<bool> UpdatePostAsync(UpdatePostRequest updatePostRequest, int id)
         {
             string tag1 = null;
+            string tag2 = null;
             if (updatePostRequest.TagNames != null)
             {
                 tag1 = updatePostRequest.TagNames.FirstOrDefault();
+                if(updatePostRequest.TagNames.Count >1)
+                    tag2 = updatePostRequest.TagNames.LastOrDefault();
             }
 
             List<KeyValuePair<string, string>> postFieldsCollection = new List<KeyValuePair<string, string>>
-            {                              
-                
-                new KeyValuePair<string, string>("Tags", tag1)
+            {                                              
+                new KeyValuePair<string, string>("TagNames", tag1),
+                new KeyValuePair<string, string>("TagNames", tag2)
             };
 
             if (updatePostRequest.EventTime != null || updatePostRequest.EventTime != 0)

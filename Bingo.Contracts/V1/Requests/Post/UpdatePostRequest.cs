@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Bingo.Contracts.Attributes;
+using Bingo.Contracts.V1.Attributes;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,8 +11,9 @@ namespace Bingo.Contracts.V1.Requests.Post
     public class UpdatePostRequest
     {
         #nullable enable
+        [Required]
         public Int64? EventTime { get; set; }
-
+        [Required]
         public long? EndTime { get; set; }
 
         #nullable enable
@@ -33,8 +36,10 @@ namespace Bingo.Contracts.V1.Requests.Post
     public class UpdatedCompleteLocation
     {
         [Range(-180.000000000000000000000000,180.000000000000000000000000)]
+        [Required]
         public double? Longitude { get; set; }
         [Range(-90.0000000000000000000000000,90.0000000000000000000000000)]
+        [Required]
         public double? Latitude { get; set; }
         public string? Address { get; set; }
         public string? City { get; set; }
