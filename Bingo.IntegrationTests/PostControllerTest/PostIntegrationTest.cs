@@ -49,6 +49,10 @@ namespace Bingo.IntegrationTests.PostControllerTest
             };
 
             var response = await TestClient.PostAsync(ApiRoutes.Posts.Create, new FormUrlEncodedContent(postFieldsCollection));
+            if (response.StatusCode.ToString().Contains("InternalServerError"))
+            {
+                throw new NullReferenceException();
+            }
             if (!response.IsSuccessStatusCode)
                 return null;
 
@@ -103,6 +107,10 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // should call get all posts, exclude all except house parties.
             var response = await TestClient.PostAsync(ApiRoutes.Posts.Update.Replace("{postId}", id.ToString()), new FormUrlEncodedContent(postFieldsCollection));
+            if (response.StatusCode.ToString().Contains("InternalServerError"))
+            {
+                throw new NullReferenceException();
+            }
             return response.IsSuccessStatusCode;
         }
     }

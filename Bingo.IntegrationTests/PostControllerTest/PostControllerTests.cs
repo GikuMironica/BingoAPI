@@ -502,7 +502,13 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.Equal("None", post.Data.Event.Requirements);
             Assert.Equal("mars", post.Data.Location.Country);
         }
+
+
+     // GET POSTS TEST ------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        
+
     }
 
-    
+
 }
