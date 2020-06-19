@@ -67,7 +67,7 @@ namespace BingoAPI.Controllers
         }
 
 
-        [HttpGet("/swagger/{statuscode}")]
+        [HttpGet("/Error/{statuscode}")]
         public IActionResult HttpStatusCodeHandler(int statusCode)
         {
             var statusCodeResult =
@@ -83,7 +83,7 @@ namespace BingoAPI.Controllers
         }
 
         [HttpGet("/swaggerr/index.html")]
-        public IActionResult SIndex(int statusCode)
+        public IActionResult SIndex()
         {           
 
             return NotFound();

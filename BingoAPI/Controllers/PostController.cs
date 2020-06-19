@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -46,10 +47,10 @@ namespace BingoAPI.Controllers
         private readonly IRatingRepository ratingRepository;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              ,UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
-                              ,IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
-                              ,INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
-                              ,IRatingRepository ratingRepository)
+                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
+                              , IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
+                              , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
+                              , IRatingRepository ratingRepository)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -75,9 +76,8 @@ namespace BingoAPI.Controllers
         /// <response code="200">The post was found and returned</response>
         [HttpGet(ApiRoutes.Posts.Get)]
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
-        [Cached(300)]
         public async Task<IActionResult> Get([FromRoute] int postId)
-        {            
+        {
 
             var post = await postRepository.GetByIdAsync(postId);
             if (post == null)
@@ -86,7 +86,7 @@ namespace BingoAPI.Controllers
             var response = new Response<PostResponse>(mapper.Map<PostResponse>(post));
 
             string eventType = post.Event.GetType().Name.ToString();
-            
+
             var eventTypeNumber = eventTypes.Types
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
@@ -94,7 +94,7 @@ namespace BingoAPI.Controllers
 
             response.Data.Event.EventType = eventTypeNumber;
             response.Data.HostRating = await ratingRepository.GetUserRating(post.UserId);
-            response.Data.Event.Slots = post.Event.GetSlotsIfAny(); 
+            response.Data.Event.Slots = post.Event.GetSlotsIfAny();
             return Ok(response);
         }
 
@@ -107,7 +107,7 @@ namespace BingoAPI.Controllers
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll([FromBody] GetAllRequest getAllRequest)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
             var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
@@ -117,9 +117,14 @@ namespace BingoAPI.Controllers
                 return Ok(new Response<string> { Data = "No events in your area" });
             }
 
+           // if(getAllRequest.UserLocation.HouseParty == true)
+           // {
+
+           //  }
+
             var resultList = new List<Posts>();
-            
-            foreach(var post in posts)
+
+            foreach (var post in posts)
             {
                 var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
@@ -127,7 +132,7 @@ namespace BingoAPI.Controllers
                 resultList.Add(mappedPost);
             }
 
-            return Ok(new Response<List<Posts>>{ Data = resultList });
+            return Ok(new Response<List<Posts>> { Data = resultList });
         }
 
 
@@ -142,8 +147,8 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Posts.Create)]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
-        {            
-            var User = await userManager.FindByIdAsync(HttpContext.GetUserId());            
+        {
+            var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 
@@ -158,7 +163,7 @@ namespace BingoAPI.Controllers
             return Created(locationUri, new Response<CreatePostResponse>(mapper.Map<CreatePostResponse>(post)));
         }
 
-        
+
 
 
         /// <summary>
@@ -168,8 +173,8 @@ namespace BingoAPI.Controllers
         /// <param name="postId">The post id</param>
         /// <param name="postRequest">The request object, all attributes are optional</param>
         /// <response code="200"></response>
-        [HttpPut(ApiRoutes.Posts.Update)]
-        public async Task<IActionResult> Update([FromRoute] int postId, UpdatePostRequest postRequest)
+        [HttpPost(ApiRoutes.Posts.Update)]
+        public async Task<IActionResult> Update(int postId, [FromForm]UpdatePostRequest postRequest)
         {
             var userisOwnerOrAdmin = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
             if (!userisOwnerOrAdmin)
@@ -186,6 +191,10 @@ namespace BingoAPI.Controllers
             // delete existing pictures -> rep\upload
             await DeletePicturesAsync(postRequest, mappedPost);
             var imagesProcessingResult = await ProcessImagesAsync(postRequest.Picture1, postRequest.Picture2, postRequest.Picture3, mappedPost);
+            if (!imagesProcessingResult.Result)
+            {
+                return BadRequest(new SingleError { Message = imagesProcessingResult.ErrorMessage });
+            }
 
             var updated = await postRepository.UpdateAsync(mappedPost);
             if (updated)
@@ -197,8 +206,8 @@ namespace BingoAPI.Controllers
                     await notificationService.NotifyParticipantsEventUpdatedAsync(participants, post.Event.Title);
                 }                
 
-                var locationUri = uriService.GetPostUri(post.Id.ToString());
-                return Ok(locationUri/*new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
+                //var locationUri = uriService.GetPostUri(post.Id.ToString());
+                return Ok(/*locationUri new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
             }
             return BadRequest();
         }
@@ -256,6 +265,9 @@ namespace BingoAPI.Controllers
                 new List<IFormFile> { picture1, picture2, picture3
                 });
 
+            if (pictures.Count + post.Pictures.Count > 3)
+                return new ImageProcessingResult { Result = false, ErrorMessage = "Can't upload more than 3 pictures" };
+
             if ((pictures.Count > 0))
             {
                 ImageProcessingResult imageProcessingResult = imageLoader.LoadFiles(pictures);
@@ -290,6 +302,30 @@ namespace BingoAPI.Controllers
                 }
                 post.Pictures = postRequest.RemainingImagesGuids;
             }
+        }
+
+        private async Task<List<IFormFile>> DeserializeBase64Image(string? image1, string? image2, string? image3)
+        {
+            /*            List<byte[]> bytes = new List<byte[]>();
+                        if (image1 != null)
+                            bytes.Add(Convert.FromBase64String(image1));
+
+                        if (image2 != null)
+                            bytes.Add(Convert.FromBase64String(image2));
+
+                        if (image3 != null)
+                            bytes.Add(Convert.FromBase64String(image3));
+
+                        List<IFormFile> images = new List<IFormFile>();
+
+                        foreach(var byteArray in bytes)
+                        {
+                            MemoryStream ms = new MemoryStream(byteArray);
+                            images.Add(Image.FromStream(ms));
+                        }
+
+                        return image;*/
+            return null;
         }
             
     }
