@@ -5,6 +5,7 @@ using Bingo.Contracts.V1.Responses.Post;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
@@ -49,7 +50,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             };
 
             var response = await TestClient.PostAsync(ApiRoutes.Posts.Create, new FormUrlEncodedContent(postFieldsCollection));
-            if (response.StatusCode.ToString().Contains("InternalServerError"))
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
                 throw new NullReferenceException();
             }
@@ -107,7 +108,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // should call get all posts, exclude all except house parties.
             var response = await TestClient.PostAsync(ApiRoutes.Posts.Update.Replace("{postId}", id.ToString()), new FormUrlEncodedContent(postFieldsCollection));
-            if (response.StatusCode.ToString().Contains("InternalServerError"))
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
                 throw new NullReferenceException();
             }

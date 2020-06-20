@@ -234,6 +234,10 @@ namespace BingoAPI.Controllers
             }
 
             var post = await postRepository.GetByIdAsync(postId);
+            if (post == null)
+            {
+                 return NotFound();
+            }
             List<string> deletedImagesList = post.Pictures;
 
             // delete from the S3 bucket the delete pictures
@@ -254,7 +258,7 @@ namespace BingoAPI.Controllers
             if (deleted)
                 return NoContent();
 
-            return NotFound();
+            return BadRequest();
         }
 
 
@@ -304,29 +308,6 @@ namespace BingoAPI.Controllers
             }
         }
 
-        private async Task<List<IFormFile>> DeserializeBase64Image(string? image1, string? image2, string? image3)
-        {
-            /*            List<byte[]> bytes = new List<byte[]>();
-                        if (image1 != null)
-                            bytes.Add(Convert.FromBase64String(image1));
-
-                        if (image2 != null)
-                            bytes.Add(Convert.FromBase64String(image2));
-
-                        if (image3 != null)
-                            bytes.Add(Convert.FromBase64String(image3));
-
-                        List<IFormFile> images = new List<IFormFile>();
-
-                        foreach(var byteArray in bytes)
-                        {
-                            MemoryStream ms = new MemoryStream(byteArray);
-                            images.Add(Image.FromStream(ms));
-                        }
-
-                        return image;*/
-            return null;
-        }
-            
+                   
     }
 }
