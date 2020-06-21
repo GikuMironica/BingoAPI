@@ -11,10 +11,6 @@ namespace Bingo.Contracts.V1.Requests.Post
         [Required]
         public long EventTime { get; set; }
 
-        [Required]
-        public long PostTime { get; set; }
-
-        [Required]
         public long? EndTime { get; set; }
 
         public UserCompleteLocation UserLocation { get; set; }
@@ -31,7 +27,7 @@ namespace Bingo.Contracts.V1.Requests.Post
 
         [MaxLength(20)]
         #nullable enable
-        public List<String>? Tags { get; set; }
+        public List<string>? Tags { get; set; }
     }
 
     public class UserCompleteLocation
@@ -58,6 +54,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         [MaxLength(500)]
         public string? Requirements { get; set; }
         public int? Slots { get; set; }
+        [Required]
         public string Title { get; set; }
         public double? EntrancePrice { get; set; }
         [Required]

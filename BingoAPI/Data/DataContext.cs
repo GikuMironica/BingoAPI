@@ -76,6 +76,11 @@ namespace BingoAPI.Data
                 .HasValue<FlashMob>("flashmob_type")
                 .HasValue<Other>("other_type");
 
+            // indexes, constraints
+            modelBuilder.Entity<Tag>()
+                .HasIndex(t => t.TagName)
+                .IsUnique(true);
+
 
             // One - to Many relationship between AppUser <-> Post
             modelBuilder.Entity<AppUser>()

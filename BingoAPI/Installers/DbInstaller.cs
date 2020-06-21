@@ -30,6 +30,7 @@ namespace BingoAPI.Installers
                 options.Password.RequireDigit = false;
                 options.SignIn.RequireConfirmedEmail = true;
                 options.Lockout.MaxFailedAccessAttempts = 10;
+                options.User.RequireUniqueEmail = true;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             }).AddRoles<IdentityRole>()
               .AddEntityFrameworkStores<DataContext>()
