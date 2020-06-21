@@ -7,6 +7,7 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,26 +17,14 @@ using Xunit.Sdk;
 
 namespace Bingo.IntegrationTests.PostControllerTest
 {
-    
     [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
     public class PostControllerTests : PostIntegrationTest
     {
         private static int _housePartyId;
         private static int _streetPatyId;
+        private static string _deleted;
 
-        [Fact, Priority(-10)]
-        public async Task Get_PostWhen_Doesnt_Exist()
-        {
-            // Arrange
-            await AuthenticateAsync();
-
-            // Act
-            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", "dfsgge"));
-
-            // Assert
-            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        }
-
+       
         /* Create Test ----------------------------------------------------------------------------------------------------------------------------------------*/
 
         [Fact, Priority(-10)]
@@ -188,7 +177,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         }
 
 
-        [Fact, Priority(0)]
+        [Fact, Priority(1)]
         public async Task Create_StreetPartyPost_With_Valid_Data()
         {
             // Arrange
@@ -504,9 +493,100 @@ namespace Bingo.IntegrationTests.PostControllerTest
         }
 
 
-     // GET POSTS TEST ------------------------------------------------------------------------------------------------------------------------------------------------------------
+        // GET POSTS TEST ------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        
+        [Fact, Priority(20)]
+        public async Task Get_PostWhen_Doesnt_Exist()
+        {
+            // Arrange
+            await AuthenticateAsync();
+
+            // Act
+            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", "dfsgge"));
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        [Fact, Priority(20)]
+        public async Task Get_Post_WithHouseP_When_Exists()
+        {
+            // Arrange
+            await AuthenticateAsync();
+
+            // Act
+            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _housePartyId.ToString()));
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var post = await response.Content.ReadFromJsonAsync<Response<PostResponse>>();
+            var postData = post.Data;
+            Assert.NotNull(post);
+            Assert.Equal(1, postData.ActiveFlag);
+            Assert.NotEqual(0, postData.EndTime);
+            Assert.NotNull(postData.Event);
+            Assert.NotNull(postData.Location);
+
+        }
+
+
+        [Fact, Priority(20)]
+        public async Task Get_Post_WithStreetP_When_Exists()
+        {
+            // Arrange
+            await AuthenticateAsync();
+
+            // Act
+            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _housePartyId.ToString()));
+
+            // Assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+            var post = await response.Content.ReadFromJsonAsync<Response<PostResponse>>();
+            var postData = post.Data;
+            Assert.NotNull(post);
+            Assert.Equal(1, postData.ActiveFlag);
+            Assert.NotEqual(0, postData.EndTime);
+            Assert.NotNull(postData.Event);
+            Assert.NotNull(postData.Location);
+
+        }
+
+// DELETE POST TEST -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        [Fact, Priority(25)]
+        public async Task Delete_Post_When_Exist()
+        {
+            // Arrange
+            await AuthenticateAdminAsync();
+
+            // Act
+            _deleted = new Random().Next(_housePartyId, _streetPatyId+1).ToString();
+            var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Posts.Delete.Replace("{postId}", _deleted));
+            var getResponse = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _deleted));
+
+            // Assert
+            deleteResponse.StatusCode.Should().NotBe(HttpStatusCode.InternalServerError);
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        }
+
+        [Fact, Priority(26)]
+        public async Task Delete_Post_When_Doesnt_Exist()
+        {
+            // Arrange
+            await AuthenticateAdminAsync();
+
+            // Act
+            var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Posts.Delete.Replace("{postId}", _deleted));
+            var getResponse = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _deleted));
+
+            // Assert
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+
+        }
+
 
     }
 
