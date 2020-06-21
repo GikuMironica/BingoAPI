@@ -331,7 +331,10 @@ namespace BingoAPI.Services
                 {
                     Id = Guid.NewGuid().ToString(),
                     Email = userInfo.Email,
-                    UserName = userInfo.Email
+                    UserName = userInfo.Email,
+                    FirstName = userInfo.FirstName,
+                    LastName = userInfo.LastName,
+                    ProfilePicture = userInfo.Picture.Data.Url.ToString()                    
                 };
                 // no password
                 var createdResult = await _userManager.CreateAsync(appUser);

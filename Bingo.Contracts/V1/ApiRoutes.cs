@@ -11,6 +11,10 @@ namespace Bingo.Contracts.V1
         public const string Version = "v1";
         public const string Base = Root + "/" + Version;
 
+        public static class Error
+        {
+            public const string ErrorRoute = "/Error";
+        }
         public static class Identity
         {
             public const string Login = Base + "/identity/login";
@@ -20,6 +24,8 @@ namespace Bingo.Contracts.V1
             public const string Refresh = Base + "/identity/refresh";
 
             public const string ConfirmEmail = Base + "/identity/confirmemail";
+
+            public const string AdminConfirmEmail = Base + "/identity/confirmemail/{email}";
 
             public const string FacebookAuth = Base + "/identity/auth/fb";
 

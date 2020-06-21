@@ -10,10 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NLog.Extensions.Logging;
-using NLog.Fluent;
-using NLog.Web;
-
 namespace BingoAPI
 {
     public class Program
@@ -60,11 +56,13 @@ namespace BingoAPI
                  config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Configurations", "EventTypes.json"), optional: false, reloadOnChange: true);
                  config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Notifications", "NotificationLangTemplates.json"), optional: false, reloadOnChange: true);
              })
-            .ConfigureLogging(logging =>
+            .ConfigureLogging((context, logging) =>
             {
                 logging.ClearProviders();
+                logging.AddConfiguration(context.Configuration.GetSection("Logging"));
+                logging.AddDebug();
+                logging.AddConsole();  // eventSourec , eventlog , trace source, azureAppServiceFile, azureAppServiceBlob, Insight
             })
-            .UseNLog()
             .UseStartup<Startup>();
     }
 }
