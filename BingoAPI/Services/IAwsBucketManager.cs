@@ -10,6 +10,6 @@ namespace BingoAPI.Services
     {
         public Task<ImageUploadResult> UploadFileAsync(ImageProcessingResult imageProcessingResult);
 
-        public Task<ImageDeleteResult> DeleteFileAsync(List<string>? imagesGuids);
+        public Task<ImageDeleteResult> DeleteFileAsync(List<string>? imagesGuids,string path);
     }
 }

@@ -50,7 +50,7 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.EventAttendees.Accept)]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(SingleError), 400)]
-        public async Task<IActionResult> AcceptAttendee([FromForm] AttendeeRequest attendeeRequest)
+        public async Task<IActionResult> AcceptAttendee([FromBody] AttendeeRequest attendeeRequest)
         {
             if (!await IsOwner(attendeeRequest.PostId))
             {
@@ -81,7 +81,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError), 400)]
         [ProducesResponseType(200)]
         [HttpPost(ApiRoutes.EventAttendees.Reject)]
-        public async Task<IActionResult> RejectAttendee([FromForm] AttendeeRequest attendeeRequest)
+        public async Task<IActionResult> RejectAttendee([FromBody] AttendeeRequest attendeeRequest)
         {
             if (!await IsOwner(attendeeRequest.PostId))
             {

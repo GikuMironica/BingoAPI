@@ -243,7 +243,7 @@ namespace BingoAPI.Controllers
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList.Count > 0)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList);
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);
                 if (!deletedPicturesResult.Result)
                 {
                     // log the Delete Exceptions list
@@ -278,6 +278,7 @@ namespace BingoAPI.Controllers
 
                 if (imageProcessingResult.Result)
                 {
+                    imageProcessingResult.BucketPath = AwsAssetsPath.PostPictures;
                     var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
                     if (!uploadResult.Result)
                     {
@@ -298,7 +299,7 @@ namespace BingoAPI.Controllers
 
             if (deletedImages.Count > 0)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages);
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);
                 if (!deletedPicturesResult.Result)
                 {
                     // log the Delete Exceptions list

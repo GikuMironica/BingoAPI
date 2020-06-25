@@ -29,7 +29,7 @@ namespace Bingo.IntegrationTests
     public class IntegrationTest
     {
         protected readonly HttpClient TestClient;
-        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiYTVhNzc3M2YtNzIzNy00MGI4LWFlNzgtNTI5MzE2OWQ5NjA3IiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkyNjgzODc1LCJleHAiOjE1OTI3MDE4NzUsImlhdCI6MTU5MjY4Mzg3NX0.IP4Vw37jYGEDciyJxUmcxn-tLAhUl--WxGvoBz5mJrI";
+        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiNWY3YmQzNmQtNWZiOS00YTUzLWIyNGItMWVjODA0YzA4N2U4IiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkzMDM0MTU2LCJleHAiOjE1OTMwNzAxNTYsImlhdCI6MTU5MzAzNDE1Nn0.QiL4pBWkuVHxrkyk0zNzimgwvZkFsQUijCFVZPfM6Rk";
 
         public IntegrationTest()
         {
@@ -38,6 +38,7 @@ namespace Bingo.IntegrationTests
                 {
                     builder.ConfigureServices(services =>
                     {
+
                   //      services.RemoveAll(typeof(DataContext));
                   //      services.AddDbContext<DataContext>(options =>
                   //      {
@@ -48,18 +49,20 @@ namespace Bingo.IntegrationTests
             TestClient = appFactory.CreateClient();
         }
 
-        protected async Task AuthenticateAsync()
+        protected async Task<AuthenticationResult> AuthenticateAsync()
         {
-            TestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", await GetJwtAsync());
+            var authResult = await GetJwtAsync();
+            TestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authResult.JWT);
+            return authResult;
         }
 
-        protected async Task AuthenticateAdminAsync()
+        protected void AuthenticateAdmin()
         {
             TestClient.DefaultRequestHeaders.Authorization =
                new AuthenticationHeaderValue("bearer", _token);
         }       
 
-        private async Task<string> GetJwtAsync()
+        private async Task<AuthenticationResult> GetJwtAsync()
         {
             var uniqueName = Guid.NewGuid().ToString()+ "test@integration.com";
             var password = "SomePass123";
@@ -85,7 +88,12 @@ namespace Bingo.IntegrationTests
             var loginResponse = await TestClient.PostAsJsonAsync(ApiRoutes.Identity.Login, loginRequest);
 
             var registrationResponse = await loginResponse.Content.ReadFromJsonAsync<AuthSuccessResponse>();
-            return registrationResponse.Token;
+            var userId = await response.Content.ReadFromJsonAsync<Response<string>>();
+            return new AuthenticationResult
+            {
+                JWT = registrationResponse.Token,
+                UserId = userId.Data
+            };
         }
     }
 }

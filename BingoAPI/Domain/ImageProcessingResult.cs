@@ -15,5 +15,7 @@ namespace BingoAPI.Domain
         public string ErrorMessage { get; set; }
 
         public List<MemoryStream> ProcessedPictures { get; set; }
+
+        public string BucketPath { get; set; }
     }
 }

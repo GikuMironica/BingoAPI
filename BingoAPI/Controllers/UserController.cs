@@ -8,7 +8,6 @@ using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Helpers;
 using BingoAPI.Models;
-using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -20,6 +19,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -31,22 +31,26 @@ namespace BingoAPI.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IUriService uriService;
+        private readonly IAwsBucketManager awsBucketManager;
+        private readonly IImageLoader imageLoader;
 
         public UserController(UserManager<AppUser> userManager,
-                              IMapper mapper, IUriService uriService)
+                              IMapper mapper, IUriService uriService, IAwsBucketManager awsBucketManager,
+                              IImageLoader imageLoader)
         {
             _userManager = userManager;
             _mapper = mapper;
             this.uriService = uriService;
+            this.awsBucketManager = awsBucketManager;
+            this.imageLoader = imageLoader;
         }
 
         /// <summary>
-        /// Returns relevant data about all the users in the system -> to be paginated.
+        /// Returns relevant data about all the users in the system
         /// </summary>
         /// <returns></returns>
         [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpGet(ApiRoutes.Users.GetAll)]
-        [Cached(600)]
         public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
         {
             var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
@@ -67,7 +71,6 @@ namespace BingoAPI.Controllers
         /// <response code="404">user not found </response>
         [ProducesResponseType(typeof(Response<UserResponse>),200)]
         [HttpGet(ApiRoutes.Users.Get)]
-        [Cached(600)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
             var requesterId = HttpContext.GetUserId();
@@ -109,7 +112,8 @@ namespace BingoAPI.Controllers
         /// <response code="400">Unable to update user due to invalid attributes of the model</response>
         /// <response code="406">Unable to update user due to system requirements of the application user</response>
         [ProducesResponseType(typeof(Response<UserResponse>), 200)]
-        [ProducesResponseType(typeof(ErrorResponse), 400)]
+        [ProducesResponseType(406)]
+        [ProducesResponseType(404)]
         [ProducesResponseType(typeof(SingleError), 403)]
         [HttpPut(ApiRoutes.Users.Update)]
         public async Task<IActionResult> Update([FromRoute] string userId, [FromBody] UpdateUserRequest request)
@@ -136,6 +140,48 @@ namespace BingoAPI.Controllers
             }
 
             return StatusCode(406);
+        }
+
+
+
+        [HttpPut(ApiRoutes.Users.UpdateProfilePicture)]
+        public async Task<IActionResult> UpdatePicture([FromRoute] string userId, [FromForm] UpdateUserPictureRequest userPictureRequest)
+        {
+            // Compare the user id from the request & claim
+            var verificationResult = await IsProfileOwnerOrAdminAsync(HttpContext.GetUserId(), userId);
+            if (!verificationResult.Result)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" });
+            }
+
+            // delete existing pictures
+            await DeletePicturesAsync(verificationResult.User);     
+            
+            // load pictures in memory stream
+            ImageProcessingResult imageProcessingResult = imageLoader.LoadFiles(new List<IFormFile> { userPictureRequest.UpdatedPicture });
+
+            // upload to bucket
+            if (imageProcessingResult.Result)
+            {
+                imageProcessingResult.BucketPath = AwsAssetsPath.ProfilePictures;
+                var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
+                if (!uploadResult.Result)
+                {
+                    return BadRequest (new SingleError { Message = "The provided image couldn't be stored. Try to upload other picture." });
+                }
+                verificationResult.User.ProfilePicture = uploadResult.ImageNames.FirstOrDefault();
+            }
+            else { return BadRequest(new SingleError { Message = imageProcessingResult.ErrorMessage }); }
+
+
+            var result = await _userManager.UpdateAsync(verificationResult.User);
+
+            if (result.Succeeded)
+            {
+                return Ok(new Response<UserResponse>(_mapper.Map<UserResponse>(verificationResult.User)));
+            }
+
+            return BadRequest();
         }
 
 
@@ -179,6 +225,41 @@ namespace BingoAPI.Controllers
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
             return await queryable.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
+        }
+
+        public async Task<ProfileOwnershipState> IsProfileOwnerOrAdminAsync(string requesterId, string userId)
+        {
+            var isOwner = requesterId == userId;
+            var user = await _userManager.FindByIdAsync(userId);
+            if(user == null)
+            {
+                return new ProfileOwnershipState { Result = false };
+            }
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var isAdmin = false;
+
+            foreach (var role in userRoles)
+            {
+                if (role == "Admin" || role == "SuperAdmin")
+                    isAdmin = true;
+            }
+
+
+            return new ProfileOwnershipState { Result = isOwner || isAdmin, User = user };
+        }
+
+        private async Task DeletePicturesAsync(AppUser User)
+        {           
+
+            if (User.ProfilePicture != null)
+            {
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(new List<string> { User.ProfilePicture }, AwsAssetsPath.ProfilePictures);
+                if (!deletedPicturesResult.Result)
+                {
+                    // log the Delete Exceptions list
+
+                }
+            }
         }
 
     }

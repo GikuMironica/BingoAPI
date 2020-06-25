@@ -14,5 +14,7 @@ namespace BingoAPI.Domain
         public IEnumerable<string> Errors { get; set; }
 
         public string RefreshToken { get; set; }
+
+        public string UserId { get; set; }
     }
 }
