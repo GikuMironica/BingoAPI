@@ -133,6 +133,10 @@ namespace BingoAPI.Controllers
         [HttpDelete(ApiRoutes.UserReports.Delete)]
         public async Task<IActionResult> DeleteReport(int reportId)
         {
+            if(reportId == 0)
+            {
+                return BadRequest();
+            }
             var result = await userReportRepository.DeleteAsync(reportId);
             if (!result)
             {

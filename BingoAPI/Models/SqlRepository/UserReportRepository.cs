@@ -28,6 +28,8 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<bool> DeleteAsync(int Id)
         {
             var report = await GetByIdAsync(Id);
+            if (report == null)
+                return false;
             context.UserReports.Remove(report);
             return await context.SaveChangesAsync() > 0;
         }
