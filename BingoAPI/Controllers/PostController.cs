@@ -45,12 +45,13 @@ namespace BingoAPI.Controllers
         private readonly INotificationService notificationService;
         private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
         private readonly IRatingRepository ratingRepository;
+        private readonly IEventAttendanceRepository attendanceRepository;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
                               , IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
-                              , IRatingRepository ratingRepository)
+                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -66,6 +67,7 @@ namespace BingoAPI.Controllers
             this.notificationService = notificationService;
             this.postDetailsWatcher = postDetailsWatcher;
             this.ratingRepository = ratingRepository;
+            this.attendanceRepository = attendanceRepository;
         }
 
         /// <summary>
@@ -92,6 +94,8 @@ namespace BingoAPI.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
+            response.Data.IsAttending = await attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
+
             response.Data.Event.EventType = eventTypeNumber;
             response.Data.HostRating = await ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny();
@@ -107,7 +111,7 @@ namespace BingoAPI.Controllers
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll([FromBody] GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
             var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);

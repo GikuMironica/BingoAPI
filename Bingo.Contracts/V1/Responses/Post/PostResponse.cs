@@ -22,6 +22,8 @@ namespace Bingo.Contracts.V1.Responses.Post
 
         public double HostRating { get; set; }
 
+        public bool IsAttending { get; set; }
+
         public Event Event { get; set; }
         public int RepeatablePropertyDataId { get; set; }
         public int VoucherDataId { get; set; }
