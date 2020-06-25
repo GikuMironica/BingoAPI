@@ -49,6 +49,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> UpdateAsync(Announcement entity)
         {
+            entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             context.Announcements.Update(entity);
             return await context.SaveChangesAsync() > 0;
         }

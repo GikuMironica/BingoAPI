@@ -103,7 +103,113 @@ namespace Bingo.IntegrationTests.AnnouncementControllerTest
         [Fact, Priority(10)]
         public async Task B_Update_Announcement_WithValid_Data()
         {
+            // Arrange
+            AuthenticateAdmin();
+            var announcementData = new UpdateAnnouncementRequest
+            {
+                Message = "Updated announcement 🕎:-)(╯°□°）╯︵ ┻━┻⁽🕳👨‍⚖️🙋‍♂️🤾‍♂️💅"
+            };
+
+
+            // Act
+            var updateResponse = await TestClient.PutAsJsonAsync(ApiRoutes.Announcements.Update.Replace("{announcementId}", _announcementId), announcementData);
+            var getResponse = await TestClient.GetAsync(ApiRoutes.Announcements.Get.Replace("{announcementId}", _announcementId));
+            var data = await getResponse.Content.ReadFromJsonAsync<Response<GetAnnouncement>>();
+
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, updateResponse.StatusCode);
+            Assert.NotEqual(HttpStatusCode.InternalServerError, getResponse.StatusCode);
+            Assert.NotEqual(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+            Assert.True(updateResponse.IsSuccessStatusCode);
+
+            Assert.Equal("Updated announcement 🕎:-)(╯°□°）╯︵ ┻━┻⁽🕳👨‍⚖️🙋‍♂️🤾‍♂️💅", data.Data.Message);
+            Assert.NotEqual(0, data.Data.Timestamp);
 
         }
+
+
+        [Fact, Priority(15)]
+        public async Task C_Update_Announcement_With_Invalid_Valid_Data()
+        {
+            // Arrange
+            AuthenticateAdmin();
+            var announcementData = new UpdateAnnouncementRequest
+            {
+
+            };
+
+
+            // Act
+            var updateResponse = await TestClient.PutAsJsonAsync(ApiRoutes.Announcements.Update.Replace("{announcementId}", _announcementId), announcementData);
+            var getResponse = await TestClient.GetAsync(ApiRoutes.Announcements.Get.Replace("{announcementId}", _announcementId));
+            var data = await getResponse.Content.ReadFromJsonAsync<Response<GetAnnouncement>>();
+
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, updateResponse.StatusCode);
+            Assert.NotEqual(HttpStatusCode.InternalServerError, getResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, updateResponse.StatusCode);
+
+            Assert.Equal("Updated announcement 🕎:-)(╯°□°）╯︵ ┻━┻⁽🕳👨‍⚖️🙋‍♂️🤾‍♂️💅", data.Data.Message);
+            Assert.NotEqual(0, data.Data.Timestamp);
+
+        }
+
+
+        // DELETE ANNOUNCEMENT TEST ------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+        [Fact, Priority(20)]
+        public async Task E_Delete_By_Unauthorized_User_Announcement()
+        {
+            // Arrange
+            await AuthenticateAsync();
+
+            // Act
+            var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Announcements.Delete.Replace("{announcementId}", _announcementId));
+
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, deleteResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+        }
+
+
+        [Fact, Priority(25)]
+        public async Task F_Delete_Announcement()
+        {
+            // Arrange
+            AuthenticateAdmin();
+            
+            // Act
+            var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Announcements.Delete.Replace("{announcementId}", _announcementId));
+            var getResponse = await TestClient.GetAsync(ApiRoutes.Announcements.Get.Replace("{announcementId}", _announcementId));
+
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, deleteResponse.StatusCode);
+            Assert.NotEqual(HttpStatusCode.InternalServerError, getResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+
+        }
+
+
+        [Fact, Priority(30)]
+        public async Task G_Delete_Unexistend_Announcement()
+        {
+            // Arrange
+            AuthenticateAdmin();
+
+            // Act
+            var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Announcements.Delete.Replace("{announcementId}", "9999999"));
+
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, deleteResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
+
     }
 }

@@ -571,8 +571,8 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
         }
 
-        [Fact, Priority(26)]
-        public async Task Z_Delete_Post_When_Doesnt_Exist()
+        [Fact, Priority(50)]
+        public async Task ZZ_Delete_Post_When_Doesnt_Exist()
         {
             // Arrange
            AuthenticateAdmin();
