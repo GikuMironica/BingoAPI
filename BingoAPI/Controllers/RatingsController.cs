@@ -57,17 +57,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError),404)]
         [HttpGet(ApiRoutes.Ratings.Get)]
         public async Task<IActionResult> GetRating(int ratingId)
-        {
-            var requesterId = HttpContext.GetUserId();
-            var requester = await userManager.FindByIdAsync(requesterId);
-            var isRatingOwner = await ratingRepository.IsRatingOwnerAsync(requesterId, ratingId);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
-
-            if(!(isRatingOwner || isAdmin))
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Only user can view its own ratings or an admin" });
-            }
-
+        {           
             var rating = await ratingRepository.GetByIdAsync(ratingId);
             if (rating == null)
             {
@@ -92,16 +82,6 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Ratings.GetAll)]
         public async Task<IActionResult> GetRatings(string userId)
         {
-            var requesterId = HttpContext.GetUserId();
-            var requester = await userManager.FindByIdAsync(requesterId);
-            var isRatingOwner = requesterId == userId;
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
-
-            if (!(isRatingOwner || isAdmin))
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Only user can view its own ratings or an admin" });
-            }
-
             var result = await ratingRepository.GetAllAsync(userId);
             if(result.Count == 0)
             {
