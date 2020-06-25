@@ -154,9 +154,13 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" });
             }
 
-            await DeletePicturesAsync(verificationResult.User);            
+            // delete existing pictures
+            await DeletePicturesAsync(verificationResult.User);     
+            
+            // load pictures in memory stream
             ImageProcessingResult imageProcessingResult = imageLoader.LoadFiles(new List<IFormFile> { userPictureRequest.UpdatedPicture });
 
+            // upload to bucket
             if (imageProcessingResult.Result)
             {
                 imageProcessingResult.BucketPath = AwsAssetsPath.ProfilePictures;

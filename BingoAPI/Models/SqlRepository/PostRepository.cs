@@ -160,7 +160,7 @@ namespace BingoAPI.Models.SqlRepository
 
             if (post == null)
             {
-                return true;
+                return false;
             }
             var user = await userManager.FindByIdAsync(userId);
 

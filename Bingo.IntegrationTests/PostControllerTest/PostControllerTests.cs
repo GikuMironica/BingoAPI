@@ -572,7 +572,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         }
 
         [Fact, Priority(26)]
-        public async Task Delete_Post_When_Doesnt_Exist()
+        public async Task Z_Delete_Post_When_Doesnt_Exist()
         {
             // Arrange
            AuthenticateAdmin();
@@ -582,7 +582,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             var getResponse = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _deleted));
 
             // Assert
-            deleteResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            deleteResponse.StatusCode.Should().Be(HttpStatusCode.Forbidden);
             getResponse.StatusCode.Should().Be(HttpStatusCode.NotFound);
 
         }
