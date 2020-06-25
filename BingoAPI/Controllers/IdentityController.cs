@@ -36,7 +36,7 @@ namespace BingoAPI.Controllers
         /// Registers user in the system
         /// </summary>
         /// <param name="request">Request object containing user email , password</param>
-        /// <response code="200">If user registered, email confirmation link is sent to user over email, 200 ok returned</response>
+        /// <response code="200">If user registered, email confirmation link is sent to user over email, 200 ok returned with userId</response>
         /// <response code="400">List of errors</response>
         [HttpPost(ApiRoutes.Identity.Register)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
@@ -61,7 +61,7 @@ namespace BingoAPI.Controllers
             }
             
             // confirm registration
-            return Ok();
+            return Ok(new Response<string> { Data = authResponse.UserId });
         }
 
         /// <summary>

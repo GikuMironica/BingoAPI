@@ -233,7 +233,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Update_HouseParty_WithInvalidLocation()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
             var updatePost = new UpdatePostRequest
             {
                 EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 10,
@@ -282,7 +282,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Update_HouseParty_WithInvalidTime()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
             var updatePost = new UpdatePostRequest
             {   
                 EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 900,
@@ -330,7 +330,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Update_HouseParty_WithInvalidEventData()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
             var updatePost = new UpdatePostRequest
             {
                 
@@ -360,7 +360,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Update_StreetParty_WithInvalidEventData()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
             var updatePost = new UpdatePostRequest
             {
                 EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -407,7 +407,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Update_HouseParty_WithValidData()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
             var updatePost = new UpdatePostRequest
             {
                 EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -453,7 +453,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Update_StreetParty_WithValidData()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
             var updatePost = new UpdatePostRequest
             {
                 EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
@@ -557,7 +557,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Delete_Post_When_Exist()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+            AuthenticateAdmin();
 
             // Act
             _deleted = new Random().Next(_housePartyId, _streetPatyId+1).ToString();
@@ -575,7 +575,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Delete_Post_When_Doesnt_Exist()
         {
             // Arrange
-            await AuthenticateAdminAsync();
+           AuthenticateAdmin();
 
             // Act
             var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Posts.Delete.Replace("{postId}", _deleted));

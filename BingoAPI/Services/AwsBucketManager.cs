@@ -39,7 +39,8 @@ namespace BingoAPI.Services
                 {
                 
                     string guid = Guid.NewGuid().ToString();
-                    string keyName = $"assets/images/{guid}.webp";
+                    string path = imageProcessingResult.BucketPath;
+                    string keyName = $"assets/{path}/{guid}.webp";
                     image.Position = 0;
                     byte[] memString = image.GetBuffer();                                   
 
@@ -57,18 +58,19 @@ namespace BingoAPI.Services
             }
             catch (Exception e)
             {
+                // logg
                 imageUploadResult.ErrrorMessage = e.Message;
                 imageUploadResult.Result = false;
             }
             return imageUploadResult;
         }
 
-        public async Task<ImageDeleteResult> DeleteFileAsync(List<string>? imagesGuids)
+        public async Task<ImageDeleteResult> DeleteFileAsync(List<string>? imagesGuids, string path)
         {
             List<KeyVersion> keyverison = new List<KeyVersion>();
             foreach(var imageGuid in imagesGuids)
             {
-                string keyName = $"assets/images/{imageGuid}.webp";
+                string keyName = $"assets/{path}/{imageGuid}.webp";
                 keyverison.Add(new KeyVersion { Key = keyName, VersionId = null });
             }
 
@@ -86,6 +88,7 @@ namespace BingoAPI.Services
             }
             catch (DeleteObjectsException e)
             {
+                // logg
                 return new ImageDeleteResult { Result = false, ErrorMessages = e.Response.DeleteErrors };
             }
         }
