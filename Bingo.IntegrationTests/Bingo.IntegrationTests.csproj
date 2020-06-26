@@ -23,7 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="RatingsTest\" />
+    <Folder Include="AttendedEventsControllerTest\" />
+    <Folder Include="EventAttendeesControllerTest\" />
   </ItemGroup>
 
 </Project>
