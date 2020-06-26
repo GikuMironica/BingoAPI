@@ -22,4 +22,9 @@
     <ProjectReference Include="..\BingoAPI\BingoAPI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="AttendedEventsControllerTest\" />
+    <Folder Include="EventAttendeesControllerTest\" />
+  </ItemGroup>
+
 </Project>
