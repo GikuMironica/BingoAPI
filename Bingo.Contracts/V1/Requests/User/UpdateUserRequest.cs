@@ -14,13 +14,7 @@ namespace Bingo.Contracts.V1.Requests.User
         public string? LastName { get; set; }
 
         #nullable enable
-        public string? ProfilePicture { get; set; }
-
-        #nullable enable
         public string? PhoneNumber { get; set; }
-
-        #nullable enable
-        public string? Email { get; set; }
 
         #nullable enable
         public string? Description { get; set; }

@@ -160,7 +160,7 @@ namespace BingoAPI.Models.SqlRepository
 
             if (post == null)
             {
-                return true;
+                return false;
             }
             var user = await userManager.FindByIdAsync(userId);
 
@@ -267,6 +267,15 @@ namespace BingoAPI.Models.SqlRepository
                 .Select(x => x.Id)
                 .FirstOrDefault();
         }
-               
+
+        public async Task<int> GetAvailableSlotsAsync(int postId)
+        {
+            var result = await _context.Participations
+                .Where(p => p.PostId == postId && p.Accepted == 1)
+                .CountAsync();
+
+            var total = await GetPlainPostAsync(postId);
+            return total.Event.GetSlotsIfAny() - result;
+        }
     }
 }

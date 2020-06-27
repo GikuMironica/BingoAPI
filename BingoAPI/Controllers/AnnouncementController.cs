@@ -54,18 +54,25 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="announcementId">The announcement Id</param>
         /// <response code="200">Success</response>
+        /// <response code="400">Not Found</response>
         /// <response code="403">Requester is not participating in the event / not an admin or host either</response>
         [ProducesResponseType(typeof(Response<GetAnnouncement>),200)]
         [ProducesResponseType(typeof(SingleError),403)]
+        [ProducesResponseType(404)]
         [HttpGet(ApiRoutes.Announcements.Get)]
         public async Task<IActionResult> GetAnnouncement([FromRoute] int announcementId)
         {
             var announcement = await announcementRepository.GetByIdAsync(announcementId);
+            if(announcement == null)
+            {
+                return NotFound();
+            }
             var requester = await userManager.FindByIdAsync(HttpContext.GetUserId());
             var isParticipator = await participationRepository.IsParticipatorAsync(announcement.PostId, requester.Id);
             var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
+            var isOwner = await participationRepository.IsPostOwnerAsync(announcement.PostId, requester.Id);
 
-            if(!(isAdmin || isParticipator))
+            if(!(isAdmin || isParticipator || isOwner))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator" });
             }
@@ -92,7 +99,7 @@ namespace BingoAPI.Controllers
 
             if (!(isAdmin || isParticipator))
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator" });
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator / Not owner of post" });
             }
 
             var announcements = await announcementRepository.GetAllByPostIdAsync(postId);
@@ -107,17 +114,23 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="createAnnouncementRequest">The announcement data</param>
         /// <response code="201">Successfuly created</response>
-        /// <response code="400">Requester is not not an admin or host either</response>
+        /// <response code="400">Persistence error</response>
+        /// <response code="403">Requester is not not an admin or host either</response>
         [ProducesResponseType(typeof(Response<CreateAnnouncementResponse>), 201)]
         [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         [HttpPost(ApiRoutes.Announcements.Create)]
-        public async Task<IActionResult> CreateAnnouncement([FromForm] CreateAnnouncementRequest createAnnouncementRequest)
+        public async Task<IActionResult> CreateAnnouncement([FromBody] CreateAnnouncementRequest createAnnouncementRequest)
         {
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if(User == null)
+            {
+                return BadRequest();
+            }
             var isOwnerOrAdmin = await postsRepository.IsPostOwnerOrAdminAsync(createAnnouncementRequest.PostId, User.Id);
             if (!isOwnerOrAdmin)
             {
-                return BadRequest(new SingleError { Message = "You do not own this post / Not an admin" });
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
             var announcement = mapper.Map<CreateAnnouncementRequest, Announcement>(createAnnouncementRequest);

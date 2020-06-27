@@ -101,6 +101,14 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> CreateReport([FromBody] CreateReportRequest reportRequest)
         {
             var reporterId = HttpContext.GetUserId();
+
+            // if post exists
+            var post = await postRepository.GetPlainPostAsync(reportRequest.PostId);
+            if (post == null)
+            {
+                return BadRequest(new SingleError { Message = "Post does not exist" });
+            }
+
             var hasAlreadyReported = await reportsRepository.HasAlreadyReported(reporterId, reportRequest.PostId);
             if (hasAlreadyReported)
             {

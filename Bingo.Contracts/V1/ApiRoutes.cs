@@ -42,6 +42,8 @@ namespace Bingo.Contracts.V1
 
             public const string Update = Base + "/users/{userId}";
 
+            public const string UpdateProfilePicture = Base + "/users/updateprofilepic/{userId}";
+
             public const string Delete = Base + "/users/{userId}";
 
             public const string Get = Base + "/users/{userId}";

@@ -9,6 +9,7 @@ namespace BingoAPI.Models.SqlRepository
 {
     public interface IPostsRepository : IRepository<Post>
     {
+        public Task<int> GetAvailableSlotsAsync(int postId);
         public Task<bool> IsPostOwnerOrAdminAsync(int postId, string userId);
         public Task<IEnumerable<Post>> GetAllAsync(Point location, int radius);
         public Task<Post> GetByIdAsync(int postId);
