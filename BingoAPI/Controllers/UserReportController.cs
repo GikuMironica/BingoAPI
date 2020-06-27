@@ -10,6 +10,7 @@ using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -25,13 +26,15 @@ namespace BingoAPI.Controllers
         private readonly IUserReportRepository userReportRepository;
         private readonly IMapper mapper;
         private readonly IUriService uriService;
+        private readonly UserManager<AppUser> userManager;
 
         public UserReportController(IUserReportRepository userReportRepository, IMapper mapper,
-                                    IUriService uriService)
+                                    IUriService uriService, UserManager<AppUser> userManager)
         {
             this.userReportRepository = userReportRepository;
             this.mapper = mapper;
             this.uriService = uriService;
+            this.userManager = userManager;
         }
 
 
@@ -101,6 +104,12 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> CreateReport([FromBody] ReportUserRequest reportUser)
         {
             var reporterId = HttpContext.GetUserId();
+            var reported = await userManager.FindByIdAsync(reportUser.ReportedUserId);
+            if(reported == null)
+            {
+                return BadRequest(new SingleError { Message = "User does not exist" });
+            }
+
             if(!(await userReportRepository.CanReport(reporterId, reportUser.ReportedUserId)))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Reporter already reported this User, cooldown 1 week" });
@@ -133,6 +142,10 @@ namespace BingoAPI.Controllers
         [HttpDelete(ApiRoutes.UserReports.Delete)]
         public async Task<IActionResult> DeleteReport(int reportId)
         {
+            if(reportId == 0)
+            {
+                return BadRequest();
+            }
             var result = await userReportRepository.DeleteAsync(reportId);
             if (!result)
             {

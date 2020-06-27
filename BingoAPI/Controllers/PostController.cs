@@ -45,12 +45,13 @@ namespace BingoAPI.Controllers
         private readonly INotificationService notificationService;
         private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
         private readonly IRatingRepository ratingRepository;
+        private readonly IEventAttendanceRepository attendanceRepository;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
                               , IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
-                              , IRatingRepository ratingRepository)
+                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -66,6 +67,7 @@ namespace BingoAPI.Controllers
             this.notificationService = notificationService;
             this.postDetailsWatcher = postDetailsWatcher;
             this.ratingRepository = ratingRepository;
+            this.attendanceRepository = attendanceRepository;
         }
 
         /// <summary>
@@ -92,6 +94,13 @@ namespace BingoAPI.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
+            if(eventTypeNumber == 1)
+            {
+                response.Data.AvailableSlots = await postRepository.GetAvailableSlotsAsync(postId);
+            }
+
+            response.Data.IsAttending = await attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
+
             response.Data.Event.EventType = eventTypeNumber;
             response.Data.HostRating = await ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny();
@@ -107,7 +116,7 @@ namespace BingoAPI.Controllers
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll([FromBody] GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
             var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
@@ -243,7 +252,7 @@ namespace BingoAPI.Controllers
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList.Count > 0)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList);
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);
                 if (!deletedPicturesResult.Result)
                 {
                     // log the Delete Exceptions list
@@ -278,6 +287,7 @@ namespace BingoAPI.Controllers
 
                 if (imageProcessingResult.Result)
                 {
+                    imageProcessingResult.BucketPath = AwsAssetsPath.PostPictures;
                     var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
                     if (!uploadResult.Result)
                     {
@@ -298,7 +308,7 @@ namespace BingoAPI.Controllers
 
             if (deletedImages.Count > 0)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages);
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);
                 if (!deletedPicturesResult.Result)
                 {
                     // log the Delete Exceptions list
