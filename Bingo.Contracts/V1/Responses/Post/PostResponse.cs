@@ -24,6 +24,8 @@ namespace Bingo.Contracts.V1.Responses.Post
 
         public bool IsAttending { get; set; }
 
+        public int AvailableSlots { get; set; }
+
         public Event Event { get; set; }
         public int RepeatablePropertyDataId { get; set; }
         public int VoucherDataId { get; set; }

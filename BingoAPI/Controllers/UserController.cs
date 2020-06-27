@@ -119,9 +119,10 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Update([FromRoute] string userId, [FromBody] UpdateUserRequest request)
         {
             // Compare the user id from the request & claim
-            if (HttpContext.GetUserId() != userId)
+            var verificationResult = await IsProfileOwnerOrAdminAsync(HttpContext.GetUserId(), userId);
+            if (!verificationResult.Result)
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" } );
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" });
             }
 
             var user = await _userManager.FindByIdAsync(userId);
@@ -231,11 +232,12 @@ namespace BingoAPI.Controllers
         {
             var isOwner = requesterId == userId;
             var user = await _userManager.FindByIdAsync(userId);
+            var requester = await _userManager.FindByIdAsync(requesterId);
             if(user == null)
             {
                 return new ProfileOwnershipState { Result = false };
             }
-            var userRoles = await _userManager.GetRolesAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(requester);
             var isAdmin = false;
 
             foreach (var role in userRoles)

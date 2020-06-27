@@ -94,6 +94,11 @@ namespace BingoAPI.Controllers
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
+            if(eventTypeNumber == 1)
+            {
+                response.Data.AvailableSlots = await postRepository.GetAvailableSlotsAsync(postId);
+            }
+
             response.Data.IsAttending = await attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
 
             response.Data.Event.EventType = eventTypeNumber;

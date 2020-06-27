@@ -2,6 +2,7 @@
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.User;
+using Bingo.IntegrationTests.AnnouncementControllerTest;
 using BingoAPI.Models;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Bingo.IntegrationTests.UserControllerTest
 {
-    public class UserIntegrationTest : IntegrationTest
+    public class UserIntegrationTest : AnnouncementIntegrationTest
     {
         public async Task<UserResponse> UpdateUserAsync(UpdateUserRequest updateUser, string userId)
         {
