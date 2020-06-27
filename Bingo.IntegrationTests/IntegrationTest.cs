@@ -29,7 +29,7 @@ namespace Bingo.IntegrationTests
     public class IntegrationTest
     {
         protected readonly HttpClient TestClient;
-        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiYWMwM2M2MzMtYzY4Mi00MzNhLTk1OTktZjFkN2E1OTY3NTE4IiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkzMjA4MjQ2LCJleHAiOjE1OTMyMjYyNDYsImlhdCI6MTU5MzIwODI0Nn0.ToHjIOZ2rH1V6LxYvytoVW0oisquQbv1PY1anlb1l-s";
+        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiMTZiYzdhYWItZGI1MS00ZTQ3LWJmZTUtMTQwMjc3NDc3NDc4IiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkzMjU1OTUyLCJleHAiOjE1OTMyNzM5NTIsImlhdCI6MTU5MzI1NTk1Mn0.4a95Q47hV-PkfD2MBOCejS9_qsmgP2ZBS-uMV26Dt0o";
 
         public IntegrationTest()
         {
@@ -94,6 +94,11 @@ namespace Bingo.IntegrationTests
                 JWT = registrationResponse.Token,
                 UserId = userId.Data
             };
+        }
+
+        public void UpdateToken(string token)
+        {
+            TestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
         }
     }
 }

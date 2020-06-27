@@ -10,7 +10,7 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
 {
     public class AttendEventsIntegrationTest : AnnouncementIntegrationTest
     {
-        public async Task<CreatePostResponse> CreateSampleHousePartyAsync()
+        public async Task<CreatePostResponse> CreateSampleHousePartyAsync(int? slots)
         {
             var createdPost = new CreatePostRequest
             {
@@ -30,7 +30,8 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
                     Title = "Test Event for announcement",
                     Description = "Test post for announcement",
                     Requirements = "None",
-                    EventType = 1
+                    EventType = 1,
+                    Slots = slots
                 },
                 Tags = new List<string> { Guid.NewGuid().ToString(), "HouseParty" }
             };

@@ -29,7 +29,7 @@ namespace BingoAPI.Models.SqlRepository
                 return new AttendedEventResult { Result = false };
             }
 
-            var requested = await context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id && p.Post.ActiveFlag == 1)
+            var requested = await context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
                 .SingleOrDefaultAsync();
 
             if(requested != null)
