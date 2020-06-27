@@ -1,6 +1,10 @@
 ﻿using Bingo.Contracts.V1;
+using Bingo.Contracts.V1.Requests.Announcement;
+using Bingo.Contracts.V1.Requests.Report;
 using Bingo.Contracts.V1.Requests.User;
+using Bingo.Contracts.V1.Requests.UserReport;
 using Bingo.Contracts.V1.Responses;
+using Bingo.Contracts.V1.Responses.Post;
 using Bingo.Contracts.V1.Responses.User;
 using BingoAPI.Models;
 using FluentAssertions;
@@ -48,9 +52,31 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.Null(result.LastName);
         }
 
-
         [Fact, Priority(10)]
-        public async Task B_Delete_User_Bad_Id()
+        public async Task B_Update_User_With_InValid_Data()
+        {
+            // Arrange
+            AuthenticateAdmin();
+
+            // Act
+            var updateUser = new UpdateUserRequest
+            {
+               
+            };
+            var result = await UpdateUserAsync(updateUser, _updatedUser);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal("LolMaNiggaas", result.Description);
+            Assert.Equal("TestUser", result.FirstName);
+            Assert.NotEqual("Test", result.LastName);
+            Assert.Null(result.LastName);
+        }
+
+
+
+        [Fact, Priority(20)]
+        public async Task C_Delete_User_Bad_Id()
         {
             // Arrange
             AuthenticateAdmin();
@@ -65,6 +91,56 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.NotEqual(HttpStatusCode.InternalServerError, getResponse.StatusCode);
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+        }
+
+
+        [Fact, Priority(20)]
+        public async Task C_Delete_User_With_RelevantData()
+        {
+            // Arrange
+            var user = await AuthenticateAsync();
+            var post = await CreateSamplePostAsync();
+
+            // add announcement
+            var newAnnouncement = new CreateAnnouncementRequest
+            {
+                PostId = post.Id,
+                Message = "This is a sample Announcement 😋😎😎😶😴🤔😃🤗😢😍🍣🥗☪💫🔯🈚🆑🆎🆎㊗ for a sample post"
+            };
+
+            // report user post
+            var report = new CreateReportRequest
+            {
+                Message = "ShitboxHahaha",
+                Reason = "I dont like it",
+                PostId = post.Id
+            };
+
+            // report user
+            var reportUser = new ReportUserRequest
+            {
+                Message = "He is a nutbag",
+                Reason = "Spam",
+                ReportedUserId = user.UserId
+            };
+
+
+            // Act
+            var reportResponse = await TestClient.PostAsJsonAsync(ApiRoutes.UserReports.Create, reportUser);
+            var reportReq1 = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
+            var createAnnouncementResponse = await TestClient.PostAsJsonAsync(ApiRoutes.Announcements.Create, newAnnouncement);
+            var deleteResponse = await TestClient.DeleteAsync(ApiRoutes.Users.Delete.Replace("{userId}", user.UserId));
+            var getResponse = await TestClient.GetAsync(ApiRoutes.Users.Get.Replace("{userId}", user.UserId));
+
+
+            // Assert
+            Assert.NotEqual(HttpStatusCode.InternalServerError, deleteResponse.StatusCode);
+            Assert.NotEqual(HttpStatusCode.InternalServerError, getResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            reportResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+            reportReq1.StatusCode.Should().Be(HttpStatusCode.Created);
+            createAnnouncementResponse.StatusCode.Should().Be(HttpStatusCode.Created);
         }
     }
 }
