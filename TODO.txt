@@ -1,0 +1,4 @@
+1. Check email bridge
+2. Check environment
+3. Check connection strings
+4. Check registration email sending

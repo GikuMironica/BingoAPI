@@ -103,19 +103,18 @@ namespace BingoAPI.Controllers
         /// This endpoint fetches data about all event attendees or pending requests to attend a party
         /// </summary>
         /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
-        /// <param name="postId">The post id containing the event</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         [HttpGet(ApiRoutes.EventAttendees.FetchAll)]
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
-        public async Task<IActionResult> DisplayAll([FromQuery] PaginationQuery paginationQuery, int postId)
+        public async Task<IActionResult> DisplayAll([FromQuery] PaginationQuery paginationQuery)
         {
-            if (!await IsOwner(postId))
+            if (!await IsOwner(paginationQuery.Id))
             {
                 return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
 
-            var ParticipantsList = await eventParticipantsRepository.DisplayAll(postId, paginationFilter);
+            var ParticipantsList = await eventParticipantsRepository.DisplayAll(paginationQuery.Id, paginationFilter);
 
             // map to response
             var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
@@ -129,19 +128,18 @@ namespace BingoAPI.Controllers
         /// This endpoint fetches data about all event accepted attendees
         /// </summary>
         /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
-        /// <param name="postId">The post id containing the event</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
-        public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery, int postId)
+        public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery)
         {
-            var eType = await postsRepository.GetEventType(postId);
-            if (!await IsOwner(postId) && eType == 1)
+            var eType = await postsRepository.GetEventType(paginationQuery.Id);
+            if (!await IsOwner(paginationQuery.Id) && eType == 1)
             {
                 return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
-            var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(postId, paginationFilter);
+            var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(paginationQuery.Id, paginationFilter);
 
             var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
@@ -154,19 +152,17 @@ namespace BingoAPI.Controllers
         /// This endpoint fetches data about all event pending request from attendees to attend an event
         /// </summary>
         /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
-        /// <param name="postId">The post id containing the event</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         [HttpGet(ApiRoutes.EventAttendees.FetchPending)]
-        public async Task<IActionResult> FetchPending([FromQuery] PaginationQuery paginationQuery, int postId)
-        {
-           
-            if (!await IsOwner(postId))
+        public async Task<IActionResult> FetchPending([FromQuery] PaginationQuery paginationQuery)
+        {            
+            if (!await IsOwner(paginationQuery.Id))
             {
                 return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
-            var ParticipantsList = await eventParticipantsRepository.DisplayAllPending(postId, paginationFilter);
+            var ParticipantsList = await eventParticipantsRepository.DisplayAllPending(paginationQuery.Id, paginationFilter);
 
             var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 
 namespace Bingo.Contracts.V1.Requests.User
@@ -21,5 +22,8 @@ namespace Bingo.Contracts.V1.Requests.User
         public int PageNumber { get; set; }
 
         public int PageSize { get; set; }
+
+        [Required]
+        public int Id { get; set; }
     }
 }
