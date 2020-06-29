@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="EventAttendeesControllerTest\EventAttendeesControllerTest.cs~RF13efa34.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.5" />
@@ -20,10 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BingoAPI\BingoAPI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="EventAttendeesControllerTest\" />
   </ItemGroup>
 
 </Project>

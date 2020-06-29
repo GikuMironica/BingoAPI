@@ -164,6 +164,8 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
         }
 
 
+// UNATTEND EVENT TEST ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         [Fact, Priority(1)]
         public async Task Unattend_Event_After_Accepted()
         {
