@@ -206,6 +206,10 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
+         //   if(User.FirstName == null || User.LastName == null)
+         //   {
+         //       return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
+         //   }
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 
