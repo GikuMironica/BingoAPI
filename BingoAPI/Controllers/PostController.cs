@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Cache;
@@ -8,6 +9,7 @@ using BingoAPI.CustomMapper;
 using BingoAPI.CustomValidation;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
+using BingoAPI.Helpers;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
@@ -109,9 +111,60 @@ namespace BingoAPI.Controllers
 
 
 
+        [HttpGet(ApiRoutes.Posts.GetAllActive)]
+        public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
+        {
+            var userId = HttpContext.GetUserId();
+            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var posts = await postRepository.GetMyActive(userId, paginationFilter);
+
+            if (posts.Count() == 0)
+            {
+                return NoContent();
+            }
+
+            var resultList = new List<Posts>();
+            foreach (var post in posts)
+            {
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
+            }
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, resultList);
+            return Ok(paginationResponse);
+        }
+
+
+        [HttpGet(ApiRoutes.Posts.GetAllInactive)]
+        public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
+        {
+            var userId = HttpContext.GetUserId();
+            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var posts = await postRepository.GetMyInactive(userId, paginationFilter);
+
+            if (posts.Count() == 0)
+            {
+                return NoContent();
+            }
+
+            var resultList = new List<Posts>();
+            foreach (var post in posts)
+            {
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
+            }
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, resultList);
+            return Ok(paginationResponse);
+        }
+
+
+
         /// <summary>
         /// This endpoint returns all active events base on users location.
-        /// By default it returns the events within 30km range
+        /// By default it returns the events within 15km range
         /// </summary>
         /// <param name="getAllRequest"></param>
         /// <returns></returns>
@@ -119,17 +172,12 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
-            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
+            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 15);
 
             if (posts == null || posts.Count() == 0)
             {
                 return Ok(new Response<string> { Data = "No events in your area" });
             }
-
-           // if(getAllRequest.UserLocation.HouseParty == true)
-           // {
-
-           //  }
 
             var resultList = new List<Posts>();
 

@@ -1,4 +1,5 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
+using BingoAPI.Domain;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,8 @@ namespace BingoAPI.Models.SqlRepository
         public Task<bool> IsHostIdPostOwner(string hostId, int postId);
         public Task<string> GetHostId(int postId);
         public Task<int> GetEventType(int postId);
+        public Task<IEnumerable<Post>> GetMyActive(string userId, PaginationFilter paginationFilter);
+        public Task<IEnumerable<Post>> GetMyInactive(string userId, PaginationFilter paginationFilter);
 
     }
 }

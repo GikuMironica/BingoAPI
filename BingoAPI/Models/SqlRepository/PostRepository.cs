@@ -277,5 +277,47 @@ namespace BingoAPI.Models.SqlRepository
             var total = await GetPlainPostAsync(postId);
             return total.Event.GetSlotsIfAny() - result;
         }
+
+        public async Task<IEnumerable<Post>> GetMyActive(string userId, PaginationFilter paginationFilter)
+        {
+            if (paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await _context.Posts
+                .Where(p => p.UserId == userId && p.ActiveFlag == 1)
+                .OrderByDescending(p => p.EventTime)
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Voucher)
+                .Include(p => p.Repeatable)
+                .AsQueryable()
+                .Skip(skip)
+                .Take(paginationFilter.PageSize).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Post>> GetMyInactive(string userId, PaginationFilter paginationFilter)
+        {
+            if (paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await _context.Posts
+               .Where(p => p.UserId == userId && p.ActiveFlag == 0)
+               .OrderByDescending(p => p.EventTime)
+               .Include(p => p.Location)
+               .Include(p => p.Event)
+               .Include(p => p.Voucher)
+               .Include(p => p.Repeatable)
+               .AsQueryable()
+               .Skip(skip)
+               .Take(paginationFilter.PageSize).ToListAsync();
+        }
     }
 }

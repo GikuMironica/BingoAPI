@@ -19,6 +19,7 @@ namespace Bingo.Contracts.V1.Responses.Post
         public int VouchersEnabled { get; set; }
         public Int64 PostTime { get; set; }
         public Int64 StartTime { get; set; }
+        public Int64 EndTime { get; set; }
         public double EntracePrice { get; set; }
         public int Slots { get; set; }
 

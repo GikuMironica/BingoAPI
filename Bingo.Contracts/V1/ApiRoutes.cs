@@ -54,6 +54,10 @@ namespace Bingo.Contracts.V1
         {
             public const string GetAll = Base + "/posts";
 
+            public const string GetAllActive = Base + "/posts/myactive";
+
+            public const string GetAllInactive = Base + "/posts/myinactive";
+
             public const string Get = Base + "/posts/{postId}";
 
             public const string Create = Base + "/posts";

@@ -23,6 +23,7 @@ namespace BingoAPI.MappingProfiles
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<PaginationQuery, PaginationFilter>();
+            CreateMap<PostsPaginationQuery, PaginationFilter>();
 
             // Map child of UpdatePostRequest to Location
             CreateMap<UpdatedCompleteLocation, EventLocation>()

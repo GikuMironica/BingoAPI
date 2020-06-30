@@ -32,6 +32,7 @@ namespace BingoAPI.CustomMapper
                 EntracePrice = post.Event.EntrancePrice ?? 0,
                 Frequency = post.Repeatable.Frequency,
                 StartTime = post.EventTime,
+                EndTime = post.EndTime.GetValueOrDefault(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+21600),
                 PostTime = post.PostTime,
                 RepteatableEnabled = post.Repeatable.Enabled,
                 VouchersEnabled = post.Voucher.Enabled

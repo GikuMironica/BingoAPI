@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Bingo.Contracts.Attributes;
+using Bingo.Contracts.V1.Attributes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -17,6 +19,8 @@ namespace Bingo.Contracts.V1.Requests.Post
         public double Longitude { get; set; }
         [Required]
         public double Latitude { get; set; }
+        [MaxValue(15, ErrorMessage = "Maximum range is 15km")]
+        [MinValue(1, ErrorMessage = "Minimum range is 15km")]
         public int? RadiusRange { get; set; }
     }
 }
