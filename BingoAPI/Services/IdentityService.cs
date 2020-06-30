@@ -74,7 +74,8 @@ namespace BingoAPI.Services
             var newUser = new AppUser
             {
                 Email = email,
-                UserName = email
+                UserName = email,
+                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
 
             // register user in system
@@ -334,7 +335,8 @@ namespace BingoAPI.Services
                     UserName = userInfo.Email,
                     FirstName = userInfo.FirstName,
                     LastName = userInfo.LastName,
-                    ProfilePicture = userInfo.Picture.Data.Url.ToString()                    
+                    ProfilePicture = userInfo.Picture.Data.Url.ToString(),
+                    RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
                 // no password
                 var createdResult = await _userManager.CreateAsync(appUser);
