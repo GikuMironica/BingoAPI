@@ -79,18 +79,73 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.Posts.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius)
+        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, string Tag = "%", Int64 today = 0)
         {
+            
             location.SRID = 4326;
-            return await _context.Posts
+            List<Post> posts = null;
+
+            if (Tag.Equals("%"))
+            {
+                posts = await _context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Repeatable)
                 .Include(p => p.Voucher)
+                .Include(p => p.Tags)
+                .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius * 1000)).AsNoTracking().ToListAsync();
+                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                       p.EventTime > today)
+                .AsNoTracking().ToListAsync();
+            }
+            else
+            {
+                Tag = Tag.ToLower();
+                posts = await _context.Posts
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Repeatable)
+                .Include(p => p.Voucher)
+                .Include(p => p.Tags)
+                .ThenInclude(pt => pt.Tag)
+                .Where(p => p.ActiveFlag == 1 &&
+                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                       p.EventTime > today &&
+                       p.Tags.Count > 0 &&
+                       p.Tags.All(pt => pt.Tag.TagName.Contains(Tag)))
+                .AsNoTracking().ToListAsync();
+            }          
+           
+            return FilterByType(posts, postsFilter);
         }
 
+        private List<Post> FilterByType(List<Post> posts, GetPostsFilter postsFilter)
+        {
+            var filteredPosts = posts;
+            if(posts.Count() > 0)
+            {
+                if (postsFilter.HouseParty == false)
+                    filteredPosts.RemoveAll(p =>p.Event.GetType().Name.ToString() == "HouseParty");
+                if (postsFilter.Bar == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Bar");
+                if (postsFilter.Club == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Club");
+                if (postsFilter.CarMeet == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "CarMeet");
+                if (postsFilter.BikerMeet == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BikerMeet");
+                if (postsFilter.BicycleMeet == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BicycleMeet");
+                if (postsFilter.StreetParty == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "StreetParty");
+                if (postsFilter.Other == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Other");
+                if (postsFilter.Marathon == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Marathon");
+            }
+            return filteredPosts;
+        }
 
         public async Task<bool> UpdateAsync(Post entity)
         {
