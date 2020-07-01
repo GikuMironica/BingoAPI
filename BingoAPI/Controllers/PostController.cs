@@ -48,12 +48,13 @@ namespace BingoAPI.Controllers
         private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
         private readonly IRatingRepository ratingRepository;
         private readonly IEventAttendanceRepository attendanceRepository;
+        private readonly IRequestToDomainMapper requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
                               , IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
-                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository)
+                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -70,6 +71,7 @@ namespace BingoAPI.Controllers
             this.postDetailsWatcher = postDetailsWatcher;
             this.ratingRepository = ratingRepository;
             this.attendanceRepository = attendanceRepository;
+            this.requestToDomainMapper = requestToDomainMapper;
         }
 
         /// <summary>
@@ -166,14 +168,21 @@ namespace BingoAPI.Controllers
         /// This endpoint returns all active events base on users location.
         /// By default it returns the events within 15km range
         /// </summary>
-        /// <param name="getAllRequest"></param>
+        /// <param name="getAllRequest">Contains user location data, and search range</param>
+        /// <param name="filteredGetAll">Event types to be included in the search result, if all false, all will be included</param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
-            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 15);
+            var filter = requestToDomainMapper.MapPostFilterRequestToDomain(mapper, filteredGetAll);
+            Int64 Today = 0;
+            if (filteredGetAll.Today.GetValueOrDefault(false))
+            {
+                Today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
+            }
 
+            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, filteredGetAll.Tag ?? "%" , Today);
             if (posts == null || posts.Count() == 0)
             {
                 return Ok(new Response<string> { Data = "No events in your area" });

@@ -37,6 +37,7 @@ namespace BingoAPI.Installers
             services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
             services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
             services.AddSingleton<IDomainToResponseMapper, DomainToResponseMapper>();
+            services.AddSingleton<IRequestToDomainMapper, RequestToDomainMapper>();
 
             // custom validation
             services.AddSingleton<IUpdatedPostDetailsWatcher, UpdatedPostDetailsWatcher>();
