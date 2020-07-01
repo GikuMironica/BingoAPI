@@ -176,13 +176,13 @@ namespace BingoAPI.Controllers
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
             var filter = requestToDomainMapper.MapPostFilterRequestToDomain(mapper, filteredGetAll);
-            Int64 Today = 0;
+            Int64 Today = 15778476 + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             if (filteredGetAll.Today.GetValueOrDefault(false))
             {
                 Today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
             }
 
-            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, filteredGetAll.Tag ?? "%" , Today);
+            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, Today, filteredGetAll.Tag ?? "%");
             if (posts == null || posts.Count() == 0)
             {
                 return Ok(new Response<string> { Data = "No events in your area" });
@@ -330,6 +330,31 @@ namespace BingoAPI.Controllers
 
             return BadRequest();
         }
+
+
+        /// <summary>
+        /// This endpoint is used by admins to disable posts
+        /// </summary>
+        /// <param name="disableRequest">contains the post id</param>
+        /// <returns></returns>
+        [Authorize(Roles ="Admin,SuperAdmin")]
+        [HttpPut(ApiRoutes.Posts.DisablePost)]
+        public async Task<IActionResult> Disable([FromBody] DisablePostRequest disableRequest)
+        {
+            var post = await postRepository.GetPlainPostAsync(disableRequest.Id);
+            if(post == null)
+            {
+                return NotFound();
+            }
+
+            var result = await postRepository.DisablePost(post);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
 
 
         private async Task<ImageProcessingResult> ProcessImagesAsync(IFormFile picture1, IFormFile picture2, IFormFile picture3, Post post)

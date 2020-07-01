@@ -79,7 +79,7 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.Posts.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, string Tag = "%", Int64 today = 0)
+        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, Int64 today, string Tag = "%")
         {
             
             location.SRID = 4326;
@@ -96,7 +96,7 @@ namespace BingoAPI.Models.SqlRepository
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
                        p.Location.Location.IsWithinDistance(location, radius * 1000) &&
-                       p.EventTime > today)
+                       p.EndTime < today)
                 .AsNoTracking().ToListAsync();
             }
             else
@@ -111,9 +111,9 @@ namespace BingoAPI.Models.SqlRepository
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
                        p.Location.Location.IsWithinDistance(location, radius * 1000) &&
-                       p.EventTime > today &&
+                       p.EndTime < today &&
                        p.Tags.Count > 0 &&
-                       p.Tags.All(pt => pt.Tag.TagName.Contains(Tag)))
+                       p.Tags.Any(pt => pt.Tag.TagName.Contains(Tag)))
                 .AsNoTracking().ToListAsync();
             }          
            
@@ -373,6 +373,14 @@ namespace BingoAPI.Models.SqlRepository
                .AsQueryable()
                .Skip(skip)
                .Take(paginationFilter.PageSize).ToListAsync();
+        }
+
+        public async Task<bool> DisablePost(Post post)
+        {
+            post.ActiveFlag = 0;
+            _context.Posts.Update(post);
+            var updated = await _context.SaveChangesAsync();
+            return updated > 0;
         }
     }
 }
