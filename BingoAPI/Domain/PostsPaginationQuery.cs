@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Bingo.Contracts.V1.Requests.User
+namespace BingoAPI.Domain
 {
-    public class PaginationQuery
+    public class PostsPaginationQuery
     {
-
-        public PaginationQuery()
+        public PostsPaginationQuery()
         {
             PageNumber = 1;
             PageSize = 50;
         }
-        public PaginationQuery(int pageNumber, int pageSize)
+        public PostsPaginationQuery(int pageNumber, int pageSize)
         {
             PageNumber = pageNumber;
             if (pageSize <= 50)
@@ -24,8 +23,6 @@ namespace Bingo.Contracts.V1.Requests.User
         public int PageNumber { get; set; }
 
         public int PageSize { get; set; }
-
-        [Required]
-        public int Id { get; set; }
     }
 }
+

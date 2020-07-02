@@ -79,18 +79,73 @@ namespace BingoAPI.Models.SqlRepository
             return await _context.Posts.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius)
+        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, Int64 today, string Tag = "%")
         {
+            
             location.SRID = 4326;
-            return await _context.Posts
+            List<Post> posts = null;
+
+            if (Tag.Equals("%"))
+            {
+                posts = await _context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Repeatable)
                 .Include(p => p.Voucher)
+                .Include(p => p.Tags)
+                .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius * 1000)).AsNoTracking().ToListAsync();
+                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                       p.EndTime < today)
+                .AsNoTracking().ToListAsync();
+            }
+            else
+            {
+                Tag = Tag.ToLower();
+                posts = await _context.Posts
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Repeatable)
+                .Include(p => p.Voucher)
+                .Include(p => p.Tags)
+                .ThenInclude(pt => pt.Tag)
+                .Where(p => p.ActiveFlag == 1 &&
+                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                       p.EndTime < today &&
+                       p.Tags.Count > 0 &&
+                       p.Tags.Any(pt => pt.Tag.TagName.Contains(Tag)))
+                .AsNoTracking().ToListAsync();
+            }          
+           
+            return FilterByType(posts, postsFilter);
         }
 
+        private List<Post> FilterByType(List<Post> posts, GetPostsFilter postsFilter)
+        {
+            var filteredPosts = posts;
+            if(posts.Count() > 0)
+            {
+                if (postsFilter.HouseParty == false)
+                    filteredPosts.RemoveAll(p =>p.Event.GetType().Name.ToString() == "HouseParty");
+                if (postsFilter.Bar == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Bar");
+                if (postsFilter.Club == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Club");
+                if (postsFilter.CarMeet == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "CarMeet");
+                if (postsFilter.BikerMeet == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BikerMeet");
+                if (postsFilter.BicycleMeet == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BicycleMeet");
+                if (postsFilter.StreetParty == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "StreetParty");
+                if (postsFilter.Other == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Other");
+                if (postsFilter.Marathon == false)
+                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Marathon");
+            }
+            return filteredPosts;
+        }
 
         public async Task<bool> UpdateAsync(Post entity)
         {
@@ -276,6 +331,64 @@ namespace BingoAPI.Models.SqlRepository
 
             var total = await GetPlainPostAsync(postId);
             return total.Event.GetSlotsIfAny() - result;
+        }
+
+        public async Task<IEnumerable<Post>> GetMyActive(string userId, PaginationFilter paginationFilter)
+        {
+            if (paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await _context.Posts
+                .Where(p => p.UserId == userId && p.ActiveFlag == 1)
+                .OrderByDescending(p => p.EventTime)
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Voucher)
+                .Include(p => p.Repeatable)
+                .AsQueryable()
+                .Skip(skip)
+                .Take(paginationFilter.PageSize).ToListAsync();
+        }
+
+        public async Task<IEnumerable<Post>> GetMyInactive(string userId, PaginationFilter paginationFilter)
+        {
+            if (paginationFilter == null)
+            {
+                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
+            }
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+
+            return await _context.Posts
+               .Where(p => p.UserId == userId && p.ActiveFlag == 0)
+               .OrderByDescending(p => p.EventTime)
+               .Include(p => p.Location)
+               .Include(p => p.Event)
+               .Include(p => p.Voucher)
+               .Include(p => p.Repeatable)
+               .AsQueryable()
+               .Skip(skip)
+               .Take(paginationFilter.PageSize).ToListAsync();
+        }
+
+        public async Task<bool> DisablePost(Post post)
+        {
+            post.ActiveFlag = 0;
+            _context.Posts.Update(post);
+            var updated = await _context.SaveChangesAsync();
+            return updated > 0;
+        }
+
+        public async Task<int> GetActiveEventsNumbers(string userId)
+        {
+            return await _context.Posts
+                .Where(p => p.UserId == userId
+                         && p.ActiveFlag == 1)
+                .CountAsync();
         }
     }
 }

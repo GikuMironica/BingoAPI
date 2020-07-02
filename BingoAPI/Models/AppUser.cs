@@ -16,6 +16,8 @@ namespace BingoAPI.Models
 
         public string Description { get; set; }
 
+        public Int64 RegistrationTimeStamp { get; set; }
+
         public List<Post>? Posts { get; set; }
         
         public List<Participation> AttendedEvents { get; set; }

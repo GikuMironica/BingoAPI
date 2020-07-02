@@ -74,7 +74,8 @@ namespace BingoAPI.Services
             var newUser = new AppUser
             {
                 Email = email,
-                UserName = email
+                UserName = email,
+                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
 
             // register user in system
@@ -99,12 +100,12 @@ namespace BingoAPI.Services
                     new { userId = newUser.Id, token = token }, _httpRequest.HttpContext.Request.Scheme);
 
             // send it per email
-            // uncomment   var mailresult = 
-            // uncomment       await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
-            // uncomment   if (mailresult)
-            return new AuthenticationResult { Success = true, UserId = newUser.Id };
-            // uncomment   else
-            // uncomment       return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+            var mailresult = 
+                await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
+	    if (mailresult)
+                return new AuthenticationResult { Success = true, UserId = newUser.Id };
+            else
+                return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
         }
 
 
@@ -334,7 +335,8 @@ namespace BingoAPI.Services
                     UserName = userInfo.Email,
                     FirstName = userInfo.FirstName,
                     LastName = userInfo.LastName,
-                    ProfilePicture = userInfo.Picture.Data.Url.ToString()                    
+                    ProfilePicture = userInfo.Picture.Data.Url.ToString(),
+                    RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
                 };
                 // no password
                 var createdResult = await _userManager.CreateAsync(appUser);

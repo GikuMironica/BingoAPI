@@ -19,10 +19,13 @@ namespace BingoAPI.MappingProfiles
     {
         public RequestToDomainProfile()
         {
+            CreateMap<FilteredGetAllPostsRequest, GetPostsFilter>();
+
             CreateMap<UpdateUserRequest, AppUser>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<PaginationQuery, PaginationFilter>();
+            CreateMap<PostsPaginationQuery, PaginationFilter>();
 
             // Map child of UpdatePostRequest to Location
             CreateMap<UpdatedCompleteLocation, EventLocation>()

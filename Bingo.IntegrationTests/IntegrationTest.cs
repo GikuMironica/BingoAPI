@@ -1,6 +1,7 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Identity;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Identity;
 using Bingo.Contracts.V1.Responses.Post;
@@ -19,6 +20,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,7 +31,7 @@ namespace Bingo.IntegrationTests
     public class IntegrationTest
     {
         protected readonly HttpClient TestClient;
-        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiMTZiYzdhYWItZGI1MS00ZTQ3LWJmZTUtMTQwMjc3NDc3NDc4IiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkzMjU1OTUyLCJleHAiOjE1OTMyNzM5NTIsImlhdCI6MTU5MzI1NTk1Mn0.4a95Q47hV-PkfD2MBOCejS9_qsmgP2ZBS-uMV26Dt0o";
+        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiZWQ1Njg1MzItZTEzZS00MWQyLTk0MjItMjY5YzYwYTI5ZTYyIiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTkzNjk1MTkzLCJleHAiOjE1OTM3MTMxOTMsImlhdCI6MTU5MzY5NTE5M30.e_O73CUXWYaaBGAdbQqyrBJuVPjul_pLwuAUjthvtn4";
 
         public IntegrationTest()
         {
@@ -53,6 +55,16 @@ namespace Bingo.IntegrationTests
         {
             var authResult = await GetJwtAsync();
             TestClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", authResult.JWT);
+
+            var updateData = new UpdateUserRequest
+            {
+                FirstName = "Test",
+                LastName = "User"
+            };
+            var updateUserRequest = await TestClient.PutAsJsonAsync(ApiRoutes.Users.Update.Replace("{userId}", authResult.UserId), updateData);
+            if (!updateUserRequest.IsSuccessStatusCode)
+                throw new NullReferenceException();
+
             return authResult;
         }
 
@@ -80,10 +92,15 @@ namespace Bingo.IntegrationTests
                 Password = request.Password
             };
 
+            var confirmEmail = new ConfirmEmailRequest
+            {
+                Email = loginRequest.Email
+            };
+
             // set admin jwt token in order to confirm the email
             TestClient.DefaultRequestHeaders.Authorization = 
                 new AuthenticationHeaderValue("bearer", _token);
-            var result = await TestClient.GetAsync(ApiRoutes.Identity.AdminConfirmEmail.Replace("{email}", loginRequest.Email));
+            var result = await TestClient.PostAsJsonAsync(ApiRoutes.Identity.AdminConfirmEmail, confirmEmail);
 
             var loginResponse = await TestClient.PostAsJsonAsync(ApiRoutes.Identity.Login, loginRequest);
 

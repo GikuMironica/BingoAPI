@@ -10,12 +10,12 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
 {
     public class AttendEventsIntegrationTest : AnnouncementIntegrationTest
     {
-        public async Task<CreatePostResponse> CreateSampleHousePartyAsync(int? slots)
+        public async Task<CreatePostResponse> CreateSampleHousePartyAsync(int? slots, long? starttime = null, long? endtime = null)
         {
             var createdPost = new CreatePostRequest
             {
-                EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 10000,
-                EndTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 12000,
+                EventTime = starttime ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 10000,
+                EndTime = endtime ?? DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 12000,
                 UserLocation = new UserCompleteLocation
                 {
                     Latitude = 48.3996,

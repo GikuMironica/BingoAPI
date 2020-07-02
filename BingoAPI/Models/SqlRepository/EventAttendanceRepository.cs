@@ -28,6 +28,11 @@ namespace BingoAPI.Models.SqlRepository
             {
                 return new AttendedEventResult { Result = false };
             }
+            // if event in past
+            if(post.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            {
+                return new AttendedEventResult { Result = false };
+            }
 
             var requested = await context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
                 .SingleOrDefaultAsync();
@@ -83,7 +88,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<List<Post>> GetActiveAttendedPostsByUserId(string userId)
         {
             return await context.Participations
-                .Where(p => p.UserId == userId)
+                .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
                     .ThenInclude(p => p.Event)
                 .Include(p => p.Post.Location)
@@ -95,7 +100,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<List<Post>> GetOldAttendedPostsByUserId(string userId)
         {
             return await context.Participations
-                .Where(p => p.UserId == userId)
+                .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
                     .ThenInclude(p => p.Event)
                 .Include(p => p.Post.Location)
