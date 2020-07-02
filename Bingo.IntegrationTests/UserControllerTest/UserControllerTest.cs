@@ -50,7 +50,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.Equal("LolMaNiggaas", result.Description);
             Assert.Equal("TestUser", result.FirstName);
             Assert.NotEqual("Test", result.LastName);
-            Assert.Null(result.LastName);
+            Assert.NotNull(result.LastName);
         }
 
         [Fact, Priority(10)]
@@ -71,7 +71,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.Equal("LolMaNiggaas", result.Description);
             Assert.Equal("TestUser", result.FirstName);
             Assert.NotEqual("Test", result.LastName);
-            Assert.Null(result.LastName);
+            Assert.NotNull(result.LastName);
         }
 
 

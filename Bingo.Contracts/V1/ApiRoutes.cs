@@ -25,7 +25,7 @@ namespace Bingo.Contracts.V1
 
             public const string ConfirmEmail = Base + "/identity/confirmemail";
 
-            public const string AdminConfirmEmail = Base + "/identity/confirmemail/{email}";
+            public const string AdminConfirmEmail = Base + "/identity/confirmemail";
 
             public const string FacebookAuth = Base + "/identity/auth/fb";
 
