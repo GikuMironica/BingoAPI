@@ -49,9 +49,9 @@ namespace BingoAPI.Controllers
         /// Returns relevant data about all the users in the system
         /// </summary>
         /// <returns></returns>
-        [Authorize(Roles = "SuperAdmin, Admin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
         [HttpGet(ApiRoutes.Users.GetAll)]
-        public async Task<IActionResult> GetAll([FromQuery] PaginationQuery paginationQuery)
+        public async Task<IActionResult> GetAll([FromQuery] UsersPaginationQuery paginationQuery)
         {
             var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
             var users = await GetUsersAsync(paginationFilter);
