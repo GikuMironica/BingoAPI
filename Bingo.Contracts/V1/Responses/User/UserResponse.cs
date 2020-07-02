@@ -19,5 +19,7 @@ namespace Bingo.Contracts.V1.Responses.User
         public string Email { get; set; }
 
         public string Description { get; set; }
+
+        public Int64 RegistrationTimeStamp { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Announcement;
+using Bingo.Contracts.V1.Requests.EventAttendee;
 using Bingo.Contracts.V1.Requests.Report;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Requests.UserReport;
@@ -49,7 +50,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.Equal("LolMaNiggaas", result.Description);
             Assert.Equal("TestUser", result.FirstName);
             Assert.NotEqual("Test", result.LastName);
-            Assert.Null(result.LastName);
+            Assert.NotNull(result.LastName);
         }
 
         [Fact, Priority(10)]
@@ -70,7 +71,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.Equal("LolMaNiggaas", result.Description);
             Assert.Equal("TestUser", result.FirstName);
             Assert.NotEqual("Test", result.LastName);
-            Assert.Null(result.LastName);
+            Assert.NotNull(result.LastName);
         }
 
 
@@ -125,6 +126,17 @@ namespace Bingo.IntegrationTests.UserControllerTest
             };
 
 
+            // attend an event
+            var host = await AuthenticateAsync();
+            var party = await CreateSamplePostAsync();
+
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", party.Id.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", party.Id.ToString()));
+            var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
+
+            UpdateToken(user.JWT);
+                      
+
             // Act
             var reportResponse = await TestClient.PostAsJsonAsync(ApiRoutes.UserReports.Create, reportUser);
             var reportReq1 = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
@@ -138,9 +150,11 @@ namespace Bingo.IntegrationTests.UserControllerTest
             Assert.NotEqual(HttpStatusCode.InternalServerError, getResponse.StatusCode);
             Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
             Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            Assert.NotNull(postDataBefore.Data);
             reportResponse.StatusCode.Should().Be(HttpStatusCode.Created);
             reportReq1.StatusCode.Should().Be(HttpStatusCode.Created);
             createAnnouncementResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+            attendReq.StatusCode.Should().Be(HttpStatusCode.OK);
         }
     }
 }

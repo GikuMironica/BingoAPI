@@ -25,14 +25,16 @@ namespace BingoAPI.Controllers
         private readonly IEventAttendanceRepository eventAttendanceService;
         private readonly IMapper mapper;
         private readonly INotificationService notificationService;
+        private readonly IPostsRepository postsRepository;
 
         public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceRepository eventAttendanceService,
-                                        IMapper mapper, INotificationService notificationService)
+                                        IMapper mapper, INotificationService notificationService, IPostsRepository postsRepository)
         {
             this.userManager = userManager;
             this.eventAttendanceService = eventAttendanceService;
             this.mapper = mapper;
             this.notificationService = notificationService;
+            this.postsRepository = postsRepository;
         }
 
 
@@ -51,12 +53,21 @@ namespace BingoAPI.Controllers
             var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+         //   if (user.FirstName == null || user.LastName == null)
+         //   {
+         //       return BadRequest(new SingleError { Message = "User has to input first and last name in attend an event" });
+         //   }
 
             var result = await eventAttendanceService.AttendEvent(user, postId);
+            var post = await postsRepository.GetPlainPostAsync(postId);
+            if(post == null)
+            {
+                return NotFound();
+            }
 
             if (!result.Result)
             {
-                return BadRequest(new SingleError { Message = "Post does not exist / No slots available / User already applied to this event" });
+                return BadRequest(new SingleError { Message = " No slots available / User already applied to this event / This event already passed" });
             }
             if (result.IsHouseParty)
             {
@@ -81,9 +92,9 @@ namespace BingoAPI.Controllers
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
 
             var result = await eventAttendanceService.GetActiveAttendedPostsByUserId(user.Id);
-            if(result == null)
+            if (result.Count == 0)
             {
-                return Ok("No events attended");
+                return Ok(new Response<string> { Data = "No events attended" } );
             }
 
             return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
@@ -128,11 +139,17 @@ namespace BingoAPI.Controllers
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
 
+            var post = await postsRepository.GetPlainPostAsync(postId);
+            if (post == null)
+            {
+                return NotFound();
+            }
+
             var result = await eventAttendanceService.UnAttendEvent(user, postId);
 
             if (!result)
             {
-                return BadRequest(new SingleError { Message = "Post does not exist / User did not applied to this event" });
+                return BadRequest(new SingleError { Message = "User did not applied to this event" });
             }
             return Ok();
         }

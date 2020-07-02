@@ -25,7 +25,7 @@ namespace Bingo.Contracts.V1
 
             public const string ConfirmEmail = Base + "/identity/confirmemail";
 
-            public const string AdminConfirmEmail = Base + "/identity/confirmemail/{email}";
+            public const string AdminConfirmEmail = Base + "/identity/confirmemail";
 
             public const string FacebookAuth = Base + "/identity/auth/fb";
 
@@ -54,6 +54,10 @@ namespace Bingo.Contracts.V1
         {
             public const string GetAll = Base + "/posts";
 
+            public const string GetAllActive = Base + "/posts/myactive";
+
+            public const string GetAllInactive = Base + "/posts/myinactive";
+
             public const string Get = Base + "/posts/{postId}";
 
             public const string Create = Base + "/posts";
@@ -61,6 +65,8 @@ namespace Bingo.Contracts.V1
             public const string Update = Base + "/posts/{postId}";
 
             public const string Delete = Base + "/posts/{postId}";
+
+            public const string DisablePost = Base + "/posts";
         }
 
         public static class AttendedEvents

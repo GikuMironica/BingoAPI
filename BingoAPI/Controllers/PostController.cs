@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
+using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Cache;
@@ -8,6 +9,7 @@ using BingoAPI.CustomMapper;
 using BingoAPI.CustomValidation;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
+using BingoAPI.Helpers;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
@@ -46,12 +48,13 @@ namespace BingoAPI.Controllers
         private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
         private readonly IRatingRepository ratingRepository;
         private readonly IEventAttendanceRepository attendanceRepository;
+        private readonly IRequestToDomainMapper requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
                               , IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
-                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository)
+                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
         {
             this.eventTypes = eventTypes.Value;
             this.mapper = mapper;
@@ -68,6 +71,7 @@ namespace BingoAPI.Controllers
             this.postDetailsWatcher = postDetailsWatcher;
             this.ratingRepository = ratingRepository;
             this.attendanceRepository = attendanceRepository;
+            this.requestToDomainMapper = requestToDomainMapper;
         }
 
         /// <summary>
@@ -108,28 +112,90 @@ namespace BingoAPI.Controllers
         }
 
 
+        /// <summary>
+        /// This end point is used to fetch all current active events of an user
+        /// </summary>
+        /// <param name="paginationQuery"></param>
+        /// <returns></returns>
+        [HttpGet(ApiRoutes.Posts.GetAllActive)]
+        public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
+        {
+            var userId = HttpContext.GetUserId();
+            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var posts = await postRepository.GetMyActive(userId, paginationFilter);
+
+            if (posts.Count() == 0)
+            {
+                return NoContent();
+            }
+
+            var resultList = new List<Posts>();
+            foreach (var post in posts)
+            {
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
+            }
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, resultList);
+            return Ok(paginationResponse);
+        }
+
+
+        /// <summary>
+        /// This end point is used to fetch all inactive events of an user
+        /// </summary>
+        /// <param name="paginationQuery"></param>
+        /// <returns></returns>
+        [HttpGet(ApiRoutes.Posts.GetAllInactive)]
+        public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
+        {
+            var userId = HttpContext.GetUserId();
+            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var posts = await postRepository.GetMyInactive(userId, paginationFilter);
+
+            if (posts.Count() == 0)
+            {
+                return NoContent();
+            }
+
+            var resultList = new List<Posts>();
+            foreach (var post in posts)
+            {
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
+            }
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, resultList);
+            return Ok(paginationResponse);
+        }
+
+
 
         /// <summary>
         /// This endpoint returns all active events base on users location.
-        /// By default it returns the events within 30km range
+        /// By default it returns the events within 15km range
         /// </summary>
-        /// <param name="getAllRequest"></param>
+        /// <param name="getAllRequest">Contains user location data, and search range</param>
+        /// <param name="filteredGetAll">Event types to be included in the search result, if all false, all will be included</param>
         /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAll)]
-        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest)
+        public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
-            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange ?? 20);
+            var filter = requestToDomainMapper.MapPostFilterRequestToDomain(mapper, filteredGetAll);
+            Int64 Today = 15778476 + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            if (filteredGetAll.Today.GetValueOrDefault(false))
+            {
+                Today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
+            }
 
+            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, Today, filteredGetAll.Tag ?? "%");
             if (posts == null || posts.Count() == 0)
             {
                 return Ok(new Response<string> { Data = "No events in your area" });
             }
-
-           // if(getAllRequest.UserLocation.HouseParty == true)
-           // {
-
-           //  }
 
             var resultList = new List<Posts>();
 
@@ -158,6 +224,16 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if(User.FirstName == null || User.LastName == null)
+            {
+                return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
+            }
+            var activePosts = await postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
+            if(activePosts != 0)
+            {
+                return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
+            }
+
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 
@@ -269,6 +345,31 @@ namespace BingoAPI.Controllers
 
             return BadRequest();
         }
+
+
+        /// <summary>
+        /// This endpoint is used by admins to disable posts
+        /// </summary>
+        /// <param name="disableRequest">contains the post id</param>
+        /// <returns></returns>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
+        [HttpPut(ApiRoutes.Posts.DisablePost)]
+        public async Task<IActionResult> Disable([FromBody] DisablePostRequest disableRequest)
+        {
+            var post = await postRepository.GetPlainPostAsync(disableRequest.Id);
+            if(post == null)
+            {
+                return NotFound();
+            }
+
+            var result = await postRepository.DisablePost(post);
+            if (result)
+            {
+                return Ok();
+            }
+            return BadRequest();
+        }
+
 
 
         private async Task<ImageProcessingResult> ProcessImagesAsync(IFormFile picture1, IFormFile picture2, IFormFile picture3, Post post)
