@@ -112,7 +112,11 @@ namespace BingoAPI.Controllers
         }
 
 
-
+        /// <summary>
+        /// This end point is used to fetch all current active events of an user
+        /// </summary>
+        /// <param name="paginationQuery"></param>
+        /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAllActive)]
         public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -138,6 +142,11 @@ namespace BingoAPI.Controllers
         }
 
 
+        /// <summary>
+        /// This end point is used to fetch all inactive events of an user
+        /// </summary>
+        /// <param name="paginationQuery"></param>
+        /// <returns></returns>
         [HttpGet(ApiRoutes.Posts.GetAllInactive)]
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -215,10 +224,10 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
-         //   if(User.FirstName == null || User.LastName == null)
-         //   {
-         //       return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
-         //   }
+            if(User.FirstName == null || User.LastName == null)
+            {
+                return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
+            }
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 
@@ -337,7 +346,7 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="disableRequest">contains the post id</param>
         /// <returns></returns>
-        [Authorize(Roles ="Admin,SuperAdmin")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
         [HttpPut(ApiRoutes.Posts.DisablePost)]
         public async Task<IActionResult> Disable([FromBody] DisablePostRequest disableRequest)
         {

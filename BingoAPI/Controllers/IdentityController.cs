@@ -203,19 +203,15 @@ namespace BingoAPI.Controllers
         /// <param name="email">the users email</param>
         /// <response code="200">Success</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
-        [HttpGet(ApiRoutes.Identity.AdminConfirmEmail)]
-        public async Task<IActionResult> ConfirmEmail(string email)
+        [HttpPost(ApiRoutes.Identity.AdminConfirmEmail)]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest confirmEmailRequest)
         {
-            if (email == null)
-            {
-                return BadRequest();
-            }
-
+            string email = confirmEmailRequest.Email;
             var user = await _userManager.FindByEmailAsync(email);
 
             if (user == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
