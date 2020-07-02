@@ -200,7 +200,7 @@ namespace BingoAPI.Controllers
         /// This endpoint can be used by admins only to confirm users email
         /// in case of system failure
         /// </summary>
-        /// <param name="email">the users email</param>
+        /// <param name="confirmEmailRequest">Email to be confirmed</param>
         /// <response code="200">Success</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
         [HttpPost(ApiRoutes.Identity.AdminConfirmEmail)]

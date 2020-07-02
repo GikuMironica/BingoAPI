@@ -611,9 +611,11 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_No_Preferences()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("hello", 1, 9.89, 10);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("butwhysir", 2, 8.89, 5, 3600, 15000);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("wow", 1, 7.89, 5, 1800, 18000);
             var gues = await AuthenticateAsync();
 
@@ -641,8 +643,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Tag()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("bustard", 1, 9.89, 10);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("yoyoyo", 2, 8.89, 5, 3600, 15000);
             var gues = await AuthenticateAsync();
 
@@ -667,8 +670,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Today()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("Dickbag", 1, 5.89, 15);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("nutbag", 2, 6.89, 5, 30000, 46000);
             var gues = await AuthenticateAsync();
 
@@ -694,8 +698,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Today_Load_Test()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("Dickbag", 1, 5.89, 15);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("nutbag", 2, 6.89, 5, 30000, 46000);
             var gues = await AuthenticateAsync();
 
@@ -727,13 +732,19 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Few_Types()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("Nutbag", 1, 5.89, 15);
+            var host2 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("Nutbag", 2, 5.89, 15);
+            var host3 = await AuthenticateAsync();
             var post4 = await CreateSamplePostAsync("Nutbag", 3, 5.89, 15);
+            var host4 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lollo", 4, 6.89, 5, 33400, 45000);
+            var host5 = await AuthenticateAsync();
             var post5 = await CreateSamplePostAsync("Lgeol", 5, 6.89, 5, 31500, 44000);
+            var host6 = await AuthenticateAsync();
             var post6 = await CreateSamplePostAsync("Logegl", 6, 6.89, 5, 30430, 49000);
+            var host7 = await AuthenticateAsync();
             var post7 = await CreateSamplePostAsync("Lofdgl", 7, 6.89, 5, 29000, 38000);
             var gues = await AuthenticateAsync();
 
@@ -761,10 +772,13 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Types_And_Today()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("Lollo", 4, 6.89, 5, 33400, 45000);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lgeol", 5, 6.89, 5, 31500, 44000);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("Logegl", 6, 6.89, 5, 30430, 49000);
+            var host4 = await AuthenticateAsync();
             var post4 = await CreateSamplePostAsync("Lofdgl", 7, 6.89, 5, 60000, 68000);
             var gues = await AuthenticateAsync();
 
@@ -792,10 +806,13 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Types_And_Tag()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("NoNo", 9, 6.89, 5, 33400, 45000);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lgeol", 5, 6.89, 5, 31500, 44000);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("NoNo", 9, 6.89, 5, 30430, 49000);
+            var host4 = await AuthenticateAsync();
             var post4 = await CreateSamplePostAsync("Lofdgl", 9, 6.89, 5, 60000, 68000);
             var gues = await AuthenticateAsync();
 
@@ -822,12 +839,17 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Types_And_Tag_And_Today()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("MF", 9, 6.89, 5, 70000, 75000);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lgeol", 5, 6.89, 5, 31500, 44000);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("MF", 9, 6.89, 5, 30430, 49000);
+            var host4 = await AuthenticateAsync();
             var post4 = await CreateSamplePostAsync("Lofdgl", 9, 6.89, 5, 60000, 68000);
+            var host5 = await AuthenticateAsync();
             var post5 = await CreateSamplePostAsync("Lofdgl", 1, 6.89, 5, 60000, 68000);
+            var host6 = await AuthenticateAsync();
             var post6 = await CreateSamplePostAsync("Lofdgl", 2, 6.89, 5, 60000, 68000);
             var gues = await AuthenticateAsync();
 
@@ -883,9 +905,11 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Types_When_None()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("MF", 1, 6.89, 5, 70000, 75000);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lgeol", 2, 6.89, 5, 31500, 44000);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("MF", 3, 6.89, 5, 30430, 49000);
             var gues = await AuthenticateAsync();
 
@@ -908,9 +932,11 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Today_When_None()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("MF", 1, 6.89, 5, 70000, 75000, -170, -80);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lgeol", 2, 6.89, 5, 75999, 85000, - 170, -80);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("MF", 3, 6.89, 5, 87500, 91000, - 170, -80);
             var gues = await AuthenticateAsync();
 
@@ -933,9 +959,11 @@ namespace Bingo.IntegrationTests.PostControllerTest
         public async Task Get_AllPosts_By_Tag_When_None()
         {
             // Arrange
-            var host = await AuthenticateAsync();
+            var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("MF", 1, 6.89, 5, 70000, 75000);
+            var host2 = await AuthenticateAsync();
             var post2 = await CreateSamplePostAsync("Lgeol", 2, 6.89, 5, 31500, 44000);
+            var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync("MF", 3, 6.89, 5, 30430, 49000);
             var gues = await AuthenticateAsync();
 
@@ -961,7 +989,6 @@ namespace Bingo.IntegrationTests.PostControllerTest
             // Arrange
             var host = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync("123", 1, 6.89, 5, 70000, 75000);
-            var post2 = await CreateSamplePostAsync("456", 2, 6.89, 5, 31500, 44000);
 
             
             // Act
@@ -972,7 +999,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             // Assert
             getPostRequest.StatusCode.Should().Be(HttpStatusCode.OK);
             Assert.NotNull(dataResponse.Data);
-            Assert.Equal(2, dataResponse.Data.Count());
+            Assert.Single(dataResponse.Data);
         }
 
         [Fact, Priority(1)]

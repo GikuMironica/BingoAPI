@@ -382,5 +382,13 @@ namespace BingoAPI.Models.SqlRepository
             var updated = await _context.SaveChangesAsync();
             return updated > 0;
         }
+
+        public async Task<int> GetActiveEventsNumbers(string userId)
+        {
+            return await _context.Posts
+                .Where(p => p.UserId == userId
+                         && p.ActiveFlag == 1)
+                .CountAsync();
+        }
     }
 }

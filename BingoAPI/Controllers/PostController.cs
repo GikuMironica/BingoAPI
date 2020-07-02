@@ -228,6 +228,12 @@ namespace BingoAPI.Controllers
             {
                 return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
             }
+            var activePosts = await postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
+            if(activePosts != 0)
+            {
+                return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
+            }
+
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
             post.ActiveFlag = 1;
 

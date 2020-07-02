@@ -20,6 +20,7 @@ namespace BingoAPI.Models.SqlRepository
         public Task<bool> IsHostIdPostOwner(string hostId, int postId);
         public Task<string> GetHostId(int postId);
         public Task<int> GetEventType(int postId);
+        public Task<int> GetActiveEventsNumbers(string userId);
         public Task<IEnumerable<Post>> GetMyActive(string userId, PaginationFilter paginationFilter);
         public Task<IEnumerable<Post>> GetMyInactive(string userId, PaginationFilter paginationFilter);
 
