@@ -314,15 +314,13 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
             var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post3.Id.ToString()), null);
 
             var getPosts = await TestClient.GetAsync(ApiRoutes.AttendedEvents.GetActiveAttendedPosts);
-            var postData = await getPosts.Content.ReadFromJsonAsync<Response<string>>();
 
 
             // Assert
             attendReq1.StatusCode.Should().Be(HttpStatusCode.OK);
             attendReq2.StatusCode.Should().Be(HttpStatusCode.OK);
             attendReq3.StatusCode.Should().Be(HttpStatusCode.OK);
-
-            Assert.Equal("No events attended", postData.Data);
+            getPosts.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
     }
 }

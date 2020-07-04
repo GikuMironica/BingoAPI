@@ -75,8 +75,8 @@ namespace BingoAPI.Controllers
         }
 
         /// <summary>
-        /// This endpoint returns relevant data about a post
-        /// it includes the owner id, the location, pictures, tags
+        /// This endpoint returns relevant data about a post.
+        /// It includes the owner id, the location, pictures, tags
         /// </summary>
         /// <param name="postId">The post Id</param>
         /// <response code="200">The post was found and returned</response>
@@ -192,6 +192,8 @@ namespace BingoAPI.Controllers
         /// It also contains an option to returns the events which will occur today. And lastly, Tag, will return posts containig this tag.</param>
         /// <response code="200">Returns shrunk data of the post</response>
         /// <response code="204">No active events in this area</response>
+        [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {

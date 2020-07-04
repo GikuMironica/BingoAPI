@@ -142,7 +142,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError), 400)]
         [Authorize(Roles = "Admin,SuperAdmin")]
         [HttpDelete(ApiRoutes.UserReports.Delete)]
-        public async Task<IActionResult> DeleteReport(int reportId)
+        public async Task<IActionResult> DeleteReport([FromRoute]int reportId)
         {
             if(reportId == 0)
             {

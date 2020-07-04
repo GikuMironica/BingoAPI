@@ -38,7 +38,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint returns a report on a post by Id
+        /// This endpoint returns a report on a post by Id.
         /// Can be viewed by administration only.
         /// </summary>
         /// <param name="reportId">The report Id</param>
@@ -140,7 +140,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError), 400)]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete(ApiRoutes.Reports.Delete)]
-        public async Task<IActionResult> DeleteReport(int reportId)
+        public async Task<IActionResult> DeleteReport([FromRoute]int reportId)
         {
             var result = await reportsRepository.DeleteAsync(reportId);
             if (!result)
@@ -153,7 +153,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for deleting all reports on a users posts.
+        /// This endpoint is used for deleting all reports on a users posts.
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="userId">The user Id</param>
@@ -163,7 +163,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError), 400)]
         [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpDelete(ApiRoutes.Reports.DeleteAll)]
-        public async Task<IActionResult> DeleteAllReportForUser(string userId)
+        public async Task<IActionResult> DeleteAllReportForUser([FromRoute]string userId)
         {
             var result = await reportsRepository.DeleteAllForUserAsync(userId);
             if (!result)

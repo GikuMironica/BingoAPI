@@ -45,7 +45,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns a rating by Id.
+        /// This endpoint returns a rating by Id.
         /// </summary>
         /// <param name="ratingId">The rating Id</param>
         /// <response code="200">Success</response>
@@ -65,7 +65,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns all ratings of an user by his Id.
+        /// This endpoint returns all ratings of an user by his Id.
         /// </summary>
         /// <param name="userId">The user Id</param>
         /// <response code="200">Success</response>
@@ -136,7 +136,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for deleting a rating.
+        /// This endpoint is used for deleting a rating.
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="ratingId">The rating Id</param>
@@ -146,7 +146,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError), 400)]
         [HttpDelete(ApiRoutes.Ratings.Delete)]
         [Authorize(Roles ="Admin,SuperAdmin")]
-        public async Task<IActionResult> DeleteRating(int ratingId)
+        public async Task<IActionResult> DeleteRating([FromRoute]int ratingId)
         {
             var result = await ratingRepository.DeleteAsync(ratingId);
             if (!result)

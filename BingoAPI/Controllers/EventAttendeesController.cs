@@ -11,6 +11,7 @@ using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -49,14 +50,16 @@ namespace BingoAPI.Controllers
         /// <param name="attendeeRequest">This object contains the post id and the requester id</param>
         /// <response code="200">Accepted</response>
         /// <response code="400">No slots available / user did not request to attent this party</response>
+        /// <response code="403">The requester is not the event host</response>
         [HttpPost(ApiRoutes.EventAttendees.Accept)]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         public async Task<IActionResult> AcceptAttendee([FromBody] AttendeeRequest attendeeRequest)
         {
             if (!await IsOwner(attendeeRequest.PostId))
             {
-                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
 
             var result = await eventParticipantsRepository.AcceptAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
@@ -76,19 +79,21 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// This endpoint rejects an user request to join a house party / removes a user from participators list.
-        /// This endpoint is only accesible for event hosts.
+        /// This endpoint is only accesible for the event hosts.
         /// </summary>
         /// <param name="attendeeRequest">This object contains the attendee Id, post id containing the event</param>
-        /// <response code="200">Rejected/Removed</response>
+        /// <response code="200">Success</response>
         /// <response code="400">User is not in the participators list</response>
+        /// <response code="403">Requester is not the event host</response>
         [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         [ProducesResponseType(200)]
         [HttpPost(ApiRoutes.EventAttendees.Reject)]
         public async Task<IActionResult> RejectAttendee([FromBody] AttendeeRequest attendeeRequest)
         {
             if (!await IsOwner(attendeeRequest.PostId))
             {
-                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
 
             var result = await eventParticipantsRepository.RejectAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
@@ -103,22 +108,30 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint fetches data about all event attendees regardless where there are accepted or in the pending list
+        /// This endpoint fetches data about all event attendees regardless of whether they are accepted or in the pending list.
         /// This information is private and only accessible for the event host
         /// </summary>
         /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the default is page 1, 50 results per page</param>
-        /// <response code="200">Returns paginated result with the list of users</response>
+        /// <response code="200">Returns paginated result with the list of users.</response>
+        /// <response code="204">Nobody attends this event or requested to attend it.</response>
+        /// <response code="403">Requester is not the event host.</response>
         [HttpGet(ApiRoutes.EventAttendees.FetchAll)]
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         public async Task<IActionResult> DisplayAll([FromQuery] PaginationQuery paginationQuery)
         {
             if (!await IsOwner(paginationQuery.Id))
             {
-                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
 
             var ParticipantsList = await eventParticipantsRepository.DisplayAll(paginationQuery.Id, paginationFilter);
+            if(ParticipantsList.Count == 0)
+            {
+                return NoContent();
+            }
 
             // map to response
             var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
@@ -134,7 +147,9 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
         /// <response code="200">Returns paginated result with the list of users</response>
+        /// <response code="204">No users are accepted to this event yet.</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
         public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery)
         {
@@ -145,6 +160,10 @@ namespace BingoAPI.Controllers
             }
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
             var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(paginationQuery.Id, paginationFilter);
+            if (ParticipantsList.Count == 0)
+            {
+                return NoContent();
+            }
 
             var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
@@ -154,11 +173,13 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint fetches the data about every user who requested to join this event
+        /// This endpoint fetches the data about every user who requested to join this event.
         /// </summary>
         /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
         /// <response code="200">Returns paginated result with the list of users</response>
+        /// <response code="204">No pending requests to join this event yet</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.EventAttendees.FetchPending)]
         public async Task<IActionResult> FetchPending([FromQuery] PaginationQuery paginationQuery)
         {            
@@ -168,6 +189,10 @@ namespace BingoAPI.Controllers
             }
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
             var ParticipantsList = await eventParticipantsRepository.DisplayAllPending(paginationQuery.Id, paginationFilter);
+            if (ParticipantsList.Count == 0)
+            {
+                return NoContent();
+            }
 
             var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);

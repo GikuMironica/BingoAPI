@@ -570,7 +570,6 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var postDataAfter3 = await getPostReq.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.Id.ToString());
-            var acceptedParticipantsData = await getAllAccepted.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
             var getAllPending = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.Id.ToString());
             var pendingParticipantsData = await getAllPending.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
 
@@ -579,10 +578,10 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             attendReq1.StatusCode.Should().Be(HttpStatusCode.OK);
             attendReq2.StatusCode.Should().Be(HttpStatusCode.OK);
             attendReq3.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllAccepted.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
             Assert.NotNull(postDataAfter3.Data);
             Assert.Equal(10, postDataAfter3.Data.AvailableSlots);
-            Assert.Empty(acceptedParticipantsData.Data);
             Assert.Equal(3, pendingParticipantsData.Data.Count());
         }
 
@@ -611,18 +610,17 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var getPostReq = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
             var postDataAfter3 = await getPostReq.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
-            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.Id.ToString());
-            var acceptedParticipantsData = await getAllAccepted.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
+            var getAllPending = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.Id.ToString());
 
 
             // Assert
             attendReq1.StatusCode.Should().Be(HttpStatusCode.OK);
             attendReq2.StatusCode.Should().Be(HttpStatusCode.OK);
             attendReq3.StatusCode.Should().Be(HttpStatusCode.OK);
+            getAllPending.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
             Assert.NotNull(postDataAfter3.Data);
             Assert.Equal(0, postDataAfter3.Data.AvailableSlots);
-            Assert.Empty(acceptedParticipantsData.Data);
         }
 
     }
