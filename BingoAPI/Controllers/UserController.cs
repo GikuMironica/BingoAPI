@@ -50,8 +50,10 @@ namespace BingoAPI.Controllers
         /// Returns relevant data about all the users in the system.
         /// Only administration has access to this resource.
         /// </summary>
-        /// <returns></returns>
+        /// <param name="paginationQuery">Contains the pagination configuration like page nr, page size. Default values are 1 and 50.</param>
+        /// <response code="200">Returns paginated response with all users</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
+        [ProducesResponseType(typeof(PagedResponse<UserResponse>), 200)]
         [HttpGet(ApiRoutes.Users.GetAll)]
         public async Task<IActionResult> GetAll([FromQuery] UsersPaginationQuery paginationQuery)
         {

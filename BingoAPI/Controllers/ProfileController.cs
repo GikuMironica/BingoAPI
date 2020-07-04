@@ -30,7 +30,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns the profile data of a user by his Id.
+        /// This endpoint returns the profile data of a user by his Id.
         /// Can be viewed by any authenticated app user.
         /// </summary>
         /// <param name="userId">The user Id</param>
