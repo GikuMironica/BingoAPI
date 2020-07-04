@@ -49,8 +49,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns an announcement by Id.
-        /// Can be vieewed by event participator / admin / host
+        /// This endpoint returns an announcement by Id.
+        /// Can be viewed by an event participator / admin / host
         /// </summary>
         /// <param name="announcementId">The announcement Id</param>
         /// <response code="200">Success</response>
@@ -82,8 +82,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns all announcements related to a post
-        /// Can be vieewed by event participator / admin / host
+        /// This endpoint returns all announcements related to a post.
+        /// Can be viewed by event participator / admin / host
         /// </summary>
         /// <param name="postId">The post Id</param>
         /// <response code="200">Success</response>
@@ -109,10 +109,11 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for creating an announcement
-        /// Can be created only by event host / admin
+        /// This endoint is used for creating an announcement.
+        /// Can be created only by event host / admin.
+        /// All event attendees will get a push notification when the host creates an announcement.
         /// </summary>
-        /// <param name="createAnnouncementRequest">The announcement data</param>
+        /// <param name="createAnnouncementRequest">The announcement data, the message should be not less than 10 characters</param>
         /// <response code="201">Successfuly created</response>
         /// <response code="400">Persistence error</response>
         /// <response code="403">Requester is not not an admin or host either</response>
@@ -152,11 +153,11 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for updating an announcement
+        /// This endpoint is used for updating an announcement.
         /// Can be updated only by event host / admin
         /// </summary>
         /// <param name="announcementId">The announcement Id</param>
-        /// <param name="updateRequest">updated data</param>
+        /// <param name="updateRequest">Updated data, the message should be not less than 10 characters</param>
         /// <response code="200">Successfuly updated</response>
         /// <response code="400">Update could not be persisted</response>
         /// <response code="403">Requester is not the host / admin</response>
@@ -176,9 +177,8 @@ namespace BingoAPI.Controllers
             }
 
             var postId = announcement.PostId;
-            var isOwner = await postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
-            if (!(isAdmin || isOwner))
+            var isOwnerOrAdmin = await postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
+            if (!(isOwnerOrAdmin))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
@@ -194,10 +194,10 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for creating an announcement
-        /// Can be created only by event host / admin
+        /// This endpoint is used for deleting an announcement.
+        /// Can be deleted only by event host / admin
         /// </summary>
-        /// <param name="announcementId">The announcement data</param>
+        /// <param name="announcementId">The announcement id</param>
         /// <response code="204">Successfuly deleted</response>
         /// <response code="400">Delete failed</response>
         /// <response code="403">Requester is not the host / admin</response>

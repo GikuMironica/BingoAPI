@@ -66,7 +66,7 @@ namespace Bingo.Contracts.V1
 
             public const string Delete = Base + "/posts/{postId}";
 
-            public const string DisablePost = Base + "/posts";
+            public const string DisablePost = Base + "/posts/disable";
         }
 
         public static class AttendedEvents

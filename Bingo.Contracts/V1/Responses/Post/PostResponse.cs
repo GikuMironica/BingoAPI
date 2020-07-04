@@ -59,7 +59,7 @@ namespace Bingo.Contracts.V1.Responses.Post
     {
         public int Id { get; set; }
 #nullable enable
-        public double? Logitude { get; set; }
+        public double? Longitude { get; set; }
 #nullable enable
         public double? Latitude { get; set; }
 

@@ -33,7 +33,8 @@ namespace BingoAPI.Controllers
         }
 
         /// <summary>
-        /// Registers user in the system
+        /// Registers user in the system. User will be able to use the app only upon email confirmation.
+        /// An email with a confirmation link will be sent to the user.
         /// </summary>
         /// <param name="request">Request object containing user email , password</param>
         /// <response code="200">If user registered, email confirmation link is sent to user over email, 200 ok returned with userId</response>
@@ -197,7 +198,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint can be used by admins only to confirm users email
+        /// This endpoint can be used by admins only, to confirm users email
         /// in case of system failure
         /// </summary>
         /// <param name="confirmEmailRequest">Email to be confirmed</param>
@@ -229,7 +230,7 @@ namespace BingoAPI.Controllers
         /// <summary>
         /// This endpoint send instructions to reset the password to the provided email address
         /// </summary>
-        /// <param name="request">Contains the emailof the account</param>
+        /// <param name="request">Contains the email of the account</param>
         /// <response code="200">The instructions have been successfully sent if the user is registered in the system</response>
         /// <response code="400">The provided email is not valid</response>
         [ProducesResponseType(typeof(Response<string>), 200)]

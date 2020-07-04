@@ -13,7 +13,7 @@ namespace Bingo.Contracts.V1.Responses.Post
         public string Title { get; set; }
         public double HostRating { get; set; }
         public double Latitude { get; set; }
-        public double Logitude { get; set; }
+        public double Longitude { get; set; }
         public int RepteatableEnabled { get; set; }
         public int Frequency { get; set; }
         public int VouchersEnabled { get; set; }

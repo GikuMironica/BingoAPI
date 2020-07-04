@@ -26,6 +26,7 @@ namespace BingoAPI.MappingProfiles
 
             CreateMap<PaginationQuery, PaginationFilter>();
             CreateMap<PostsPaginationQuery, PaginationFilter>();
+            CreateMap<UsersPaginationQuery, PaginationFilter>();
 
             // Map child of UpdatePostRequest to Location
             CreateMap<UpdatedCompleteLocation, EventLocation>()

@@ -46,14 +46,11 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// This endoint returns a rating by Id.
-        /// Can be vieewed by event admin / host
         /// </summary>
         /// <param name="ratingId">The rating Id</param>
         /// <response code="200">Success</response>
-        /// <response code="403">Requester is not an admin or host either</response>
         /// <response code="404">Rating not found</response>
         [ProducesResponseType(typeof(Response<GetRating>), 200)]
-        [ProducesResponseType(typeof(SingleError), 403)]
         [ProducesResponseType(typeof(SingleError),404)]
         [HttpGet(ApiRoutes.Ratings.Get)]
         public async Task<IActionResult> GetRating(int ratingId)
@@ -67,17 +64,13 @@ namespace BingoAPI.Controllers
         }
 
 
-
         /// <summary>
         /// This endoint returns all ratings of an user by his Id.
-        /// Can be viewed by event admin / host
         /// </summary>
         /// <param name="userId">The user Id</param>
         /// <response code="200">Success</response>
-        /// <response code="403">Requester is not an admin or host either</response>
         /// <response code="204">No ratings for this user yet</response>
         [ProducesResponseType(typeof(Response<List<GetRating>>), 200)]
-        [ProducesResponseType(typeof(SingleError), 403)]
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Ratings.GetAll)]
         public async Task<IActionResult> GetRatings(string userId)
@@ -94,17 +87,18 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for creating a rating.
-        /// Only users attending an event can rate it
+        /// This endpoint is used for rating the host based on his event specified in the request. The rating is assigned to the host.
+        /// The average rating of the host will be displayed in his events data.
+        /// Ratings can be given only by users attending the event.
         /// </summary>
-        /// <param name="createRequest">The rating data</param>
+        /// <param name="createRequest">The rating data, the host id, the event id</param>
         /// <response code="201">Success</response>
-        /// <response code="403">Requester is not attending this event / Provided user id is not event host / 
-        /// requester already rated this event</response>
+        /// <response code="403">Requester is not attending this event / Provided user id is not the event host /
+        /// Requester already rated this event</response>
         /// <response code="400">Rating could not be submitted</response>
         [ProducesResponseType(typeof(Response<CreateRatingResponse>), 201)]
         [ProducesResponseType(typeof(SingleError), 403)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [HttpPost(ApiRoutes.Ratings.Create)]
         public async Task<IActionResult> CreateRating([FromBody] CreateRatingRequest createRequest)
         {
@@ -142,7 +136,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for deleting a rating
+        /// This endoint is used for deleting a rating.
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="ratingId">The rating Id</param>
