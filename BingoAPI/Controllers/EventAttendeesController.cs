@@ -41,10 +41,12 @@ namespace BingoAPI.Controllers
             this.postsRepository = postsRepository;
         }
 
+
         /// <summary>
-        /// This endpoint accepts request of user to attend house party
+        /// This endpoint enables the host to accept participants at his house party.
+        /// Once an user is accepted, he will receive a push notification with the confirmation message.
         /// </summary>
-        /// <param name="attendeeRequest">This object containts the post id and the requester id</param>
+        /// <param name="attendeeRequest">This object contains the post id and the requester id</param>
         /// <response code="200">Accepted</response>
         /// <response code="400">No slots available / user did not request to attent this party</response>
         [HttpPost(ApiRoutes.EventAttendees.Accept)]
@@ -73,9 +75,10 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint rejects the request to join a house party / removes a user from participators list.
+        /// This endpoint rejects an user request to join a house party / removes a user from participators list.
+        /// This endpoint is only accesible for event hosts.
         /// </summary>
-        /// <param name="attendeeRequest">This object containes the attendee Id, post id containing the event</param>
+        /// <param name="attendeeRequest">This object contains the attendee Id, post id containing the event</param>
         /// <response code="200">Rejected/Removed</response>
         /// <response code="400">User is not in the participators list</response>
         [ProducesResponseType(typeof(SingleError), 400)]
@@ -100,9 +103,10 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint fetches data about all event attendees or pending requests to attend a party
+        /// This endpoint fetches data about all event attendees regardless where there are accepted or in the pending list
+        /// This information is private and only accessible for the event host
         /// </summary>
-        /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the default is page 1, 50 results per page</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         [HttpGet(ApiRoutes.EventAttendees.FetchAll)]
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
@@ -125,9 +129,10 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint fetches data about all event accepted attendees
+        /// This endpoint returns data about all users which are accepted in an event.
+        /// This information is private and only accessible for the event host.
         /// </summary>
-        /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
@@ -149,9 +154,9 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint fetches data about all event pending request from attendees to attend an event
+        /// This endpoint fetches the data about every user who requested to join this event
         /// </summary>
-        /// <param name="paginationQuery">Specifies the pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]
         [HttpGet(ApiRoutes.EventAttendees.FetchPending)]

@@ -41,8 +41,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns a user report by Id.
-        /// Can be viewed by administration only
+        /// This endpoint returns the report on an user, by the report Id.
+        /// Can be viewed by administration only.
         /// </summary>
         /// <param name="reportId">The report Id</param>
         /// <response code="200">Success</response>
@@ -65,8 +65,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns all reports of an user by his Id.
-        /// Can be viewed by event administration only
+        /// This endpoint returns all reports on an user by his Id.
+        /// Can be viewed by event administration only.
         /// </summary>
         /// <param name="userId">The user Id</param>
         /// <response code="200">Success</response>
@@ -90,16 +90,18 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for reporting a user.
-        /// Everyone can report a user
+        /// This endpoint is used for reporting an user.
+        /// Everyone can report a user.
         /// </summary>
         /// <param name="reportUser">The report data</param>
         /// <response code="201">Success</response>
         /// <response code="403">Requester already reported this user, cooldown 1 week</response>
         /// <response code="400">Report could not be submitted</response>
+        /// <response code="404">User not found</response>
         [ProducesResponseType(typeof(Response<ReportUserRequest>), 201)]
         [ProducesResponseType(typeof(SingleError), 403)]
         [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(404)]
         [HttpPost(ApiRoutes.UserReports.Create)]
         public async Task<IActionResult> CreateReport([FromBody] ReportUserRequest reportUser)
         {
@@ -107,7 +109,7 @@ namespace BingoAPI.Controllers
             var reported = await userManager.FindByIdAsync(reportUser.ReportedUserId);
             if(reported == null)
             {
-                return BadRequest(new SingleError { Message = "User does not exist" });
+                return NotFound();
             }
 
             if(!(await userReportRepository.CanReport(reporterId, reportUser.ReportedUserId)))
@@ -130,8 +132,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for deleting a report on a user
-        /// Can be deleted only by admins
+        /// This endpoint is used for deleting a report on an user.
+        /// Can be deleted only by admins.
         /// </summary>
         /// <param name="reportId">The report Id</param>
         /// <response code="204">Successfuly deleted</response>

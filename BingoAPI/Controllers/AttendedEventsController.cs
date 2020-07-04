@@ -39,10 +39,11 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This end point add the user to the event participators list.
-        /// If the event is a house party, it is added to the pending requests list
+        /// This end point adds the requester to the event participators list.
+        /// If the event is a house party, it is added to the pending requests list.
+        /// The host will get a push notification about a new request.
         /// </summary>
-        /// <param name="postId">The post Id which has the event</param>
+        /// <param name="postId">The post Id</param>
         /// <response code="200">User successfuly added to the list</response>
         /// <response code="400">Post does not exist or no more slots available for this event or user already applied to this event</response>
         [ProducesResponseType(200)]
@@ -79,7 +80,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint returns all events which user marked as "Attend" which are currently active
+        /// This endpoint returns all events that the requester is going to participate in.
+        /// The user data is retrieved from the JWT
         /// </summary>
         /// <response code="200">List of attended events or null if there are none</response>
         [ProducesResponseType(typeof(Response<List<ActiveAttendedEvent>>), 200)]
@@ -103,7 +105,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint returns all events atttended by the user in the past
+        /// This endpoint returns all events, that the requester attended in the past.
+        /// The user data is retrieved from the JWT.
         /// </summary>
         /// <response code="200">Returns the list of events or null</response>
         [HttpGet(ApiRoutes.AttendedEvents.GetInactiveAttendedPosts)]
@@ -125,9 +128,10 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint removes user from the participation list of an event
+        /// This endpoint removes the requester from the participation list of an event
+        /// The user data is retrieved from the JWT.
         /// </summary>
-        /// <param name="postId">The post id contained the event</param>
+        /// <param name="postId">The post id</param>
         /// <response code="200">Removed</response>
         /// <response code="400">Post does not exists/ user did not subscribe to this event</response>
         [HttpPost(ApiRoutes.AttendedEvents.UnAttend)]

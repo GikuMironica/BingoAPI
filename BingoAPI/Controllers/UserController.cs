@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -46,7 +47,8 @@ namespace BingoAPI.Controllers
         }
 
         /// <summary>
-        /// Returns relevant data about all the users in the system
+        /// Returns relevant data about all the users in the system.
+        /// Only administration has access to this resource.
         /// </summary>
         /// <returns></returns>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
@@ -64,12 +66,15 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// Returns relevant data about a system user by Id
+        /// Returns relevant data about a system user by Id.
+        /// This data is only available to admins and the account owner.
         /// </summary>
         /// <param name="userId">Id of the user</param>
-        /// <response code="200">Returns the updated user </response>
-        /// <response code="404">user not found </response>
+        /// <response code="200">Returns the data</response>
+        /// <response code="404">User not found </response>
         [ProducesResponseType(typeof(Response<UserResponse>),200)]
+        [ProducesResponseType(typeof(SingleError),403)]
+        [ProducesResponseType(404)]
         [HttpGet(ApiRoutes.Users.Get)]
         public async Task<IActionResult> Get([FromRoute] string userId)
         {
@@ -92,7 +97,7 @@ namespace BingoAPI.Controllers
 
             if (!isOwnerOrAdmin)
             {
-                return BadRequest(new SingleError { Message = "You do not own this account/ You are not an admin" });
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this account/ You are not an admin" });
             }
 
             // domain to response contract mapping
@@ -101,15 +106,15 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// Updates a user in the system,
-        /// Users can update only their own profile
+        /// Updates a user in the system.
+        /// The data can be updated only by the account owner or an admin.
         /// </summary>
         /// <param name="userId">Id of the user</param>
-        /// <param name="request">All these attributes will be updated</param>
+        /// <param name="request">All attributes that are not null, will be updated</param>
         /// <response code="200">Returns the updated user</response>
         /// <response code="404">User not found</response>
         /// <response code="403">User can only update his own profile</response>
-        /// <response code="400">Unable to update user due to invalid attributes of the model</response>
+        /// <response code="400">Attempt to input invalid data</response>
         /// <response code="406">Unable to update user due to system requirements of the application user</response>
         [ProducesResponseType(typeof(Response<UserResponse>), 200)]
         [ProducesResponseType(406)]
@@ -144,7 +149,17 @@ namespace BingoAPI.Controllers
         }
 
 
-
+        /// <summary>
+        /// This endpoint is used for updating the profile picture of an user.
+        /// This data can only be updated by the account owner or an admin.
+        /// </summary>
+        /// <param name="userId">The account Id</param>
+        /// <param name="userPictureRequest">Contains the new profile picture</param>
+        /// <response code="403">User can only update his own profile</response>
+        /// <response code="400">Provided image could not be persited.</response>
+        /// <response code="200">Returns the users data.</response>
+        [ProducesResponseType(typeof(Response<UserResponse>), 200)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [HttpPut(ApiRoutes.Users.UpdateProfilePicture)]
         public async Task<IActionResult> UpdatePicture([FromRoute] string userId, [FromForm] UpdateUserPictureRequest userPictureRequest)
         {
@@ -194,6 +209,9 @@ namespace BingoAPI.Controllers
         /// <response code="204">User successfuly deleted</response>
         /// <response code="403">Not enough priviledges</response>
         /// <response code="406">Unable to update user due to system requirements of the application user</response>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(SingleError), 406)]
         [HttpDelete(ApiRoutes.Users.Delete)]
         public async Task<IActionResult> Delete([FromRoute] string userId)
         {

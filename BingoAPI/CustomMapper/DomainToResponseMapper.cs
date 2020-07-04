@@ -27,7 +27,7 @@ namespace BingoAPI.CustomMapper
                 Thumbnail = post.Pictures.FirstOrDefault(),
                 PostType = eventTypeNumber,
                 Title = post.Event.Title,
-                Logitude = post.Location.Location.X,
+                Longitude = post.Location.Location.X,
                 Latitude = post.Location.Location.Y,
                 EntracePrice = post.Event.EntrancePrice ?? 0,
                 Frequency = post.Repeatable.Frequency,

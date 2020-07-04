@@ -80,8 +80,10 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="postId">The post Id</param>
         /// <response code="200">The post was found and returned</response>
+        /// <response code="404">The post was not found</response>
         [HttpGet(ApiRoutes.Posts.Get)]
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> Get([FromRoute] int postId)
         {
 
@@ -113,10 +115,14 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This end point is used to fetch all current active events of an user
+        /// This endpoint is used to fetch all currenttly active events hosted by the requester.
+        /// The user data is retrieved from the JWT.
         /// </summary>
-        /// <param name="paginationQuery"></param>
-        /// <returns></returns>
+        /// <param name="paginationQuery">Containes the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
+        /// <response code="200">Returns shrunk data of the posts</response>
+        /// <response code="204">User has no active posts</response>
+        [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Posts.GetAllActive)]
         public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -143,10 +149,14 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This end point is used to fetch all inactive events of an user
+        /// This end point is used to fetch all inactive events hosted by the requester.
+        /// The user data is retrieved from the JWT.
         /// </summary>
-        /// <param name="paginationQuery"></param>
-        /// <returns></returns>
+        /// <param name="paginationQuery">Containes the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
+        /// <response code="200">Returns shrunk data of the posts</response>
+        /// <response code="204">User did not host any event yet</response>
+        [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Posts.GetAllInactive)]
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -174,12 +184,14 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint returns all active events base on users location.
+        /// This endpoint returns all active events base on requesters location.
         /// By default it returns the events within 15km range
         /// </summary>
-        /// <param name="getAllRequest">Contains user location data, and search range</param>
-        /// <param name="filteredGetAll">Event types to be included in the search result, if all false, all will be included</param>
-        /// <returns></returns>
+        /// <param name="getAllRequest">Contains users Longitude,Latitude and search range</param>
+        /// <param name="filteredGetAll">Event types to be included in the search result. If all are null or false, all of them will be included in the result. 
+        /// It also contains an option to returns the events which will occur today. And lastly, Tag, will return posts containig this tag.</param>
+        /// <response code="200">Returns shrunk data of the post</response>
+        /// <response code="204">No active events in this area</response>
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {
@@ -194,7 +206,7 @@ namespace BingoAPI.Controllers
             var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, Today, filteredGetAll.Tag ?? "%");
             if (posts == null || posts.Count() == 0)
             {
-                return Ok(new Response<string> { Data = "No events in your area" });
+                return NoContent();
             }
 
             var resultList = new List<Posts>();
@@ -221,6 +233,7 @@ namespace BingoAPI.Controllers
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
+        [ProducesResponseType(typeof(SingleError), 400)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
             var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
@@ -252,12 +265,17 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint is used to update a post with it's related data which are all optional
-        /// Event Location, The contained Event, The Post itself, Tags and Pictures can be updated here
+        /// This endpoint is used to update a post with it's related data which are all optional.
+        /// Event Location, The contained Event, The Post itself, Tags and Pictures can be updated here by the even host or admin only.
         /// </summary>
         /// <param name="postId">The post id</param>
         /// <param name="postRequest">The request object, all attributes are optional</param>
-        /// <response code="200"></response>
+        /// <response code="200">Update successful</response>
+        /// <response code="400">Attempt to input invalid data</response>
+        /// <response code="403">Not authorized fo this action</response>
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         [HttpPost(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update(int postId, [FromForm]UpdatePostRequest postRequest)
         {
@@ -300,8 +318,8 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// This endpoint is used for deleting posts.
-        /// A post can only be deleted by it's owner or by Admin / SuperAdmin
-        /// It will delete all related data, like Event, EventLocation but will leave the created tags.
+        /// A post can only be deleted by it's owner or by Admin
+        /// It will delete all related data, like Event, Location but, it will leave the created tags.
         /// </summary>
         /// <param name="postId">The post id</param>
         /// <response code="204">Post was successfuly deleted</response>
@@ -309,6 +327,8 @@ namespace BingoAPI.Controllers
         /// <response code="404">Post was not found</response>
         [HttpDelete(ApiRoutes.Posts.Delete)]
         [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
         public async Task<IActionResult> Delete([FromRoute] int postId )
         {
             var userOwnsPost = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
@@ -350,8 +370,9 @@ namespace BingoAPI.Controllers
         /// <summary>
         /// This endpoint is used by admins to disable posts
         /// </summary>
-        /// <param name="disableRequest">contains the post id</param>
-        /// <returns></returns>
+        /// <param name="disableRequest">Contains the post id</param>
+        /// <response code="200">Success</response>
+        /// <response code="404">Post not found</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
         [HttpPut(ApiRoutes.Posts.DisablePost)]
         public async Task<IActionResult> Disable([FromBody] DisablePostRequest disableRequest)

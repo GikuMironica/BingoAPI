@@ -281,7 +281,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Assert
             Assert.Equal(48.143, post.Data.Location.Latitude);
-            Assert.Equal(9.23235, post.Data.Location.Logitude);
+            Assert.Equal(9.23235, post.Data.Location.Longitude);
             Assert.Equal("UlmTest", post.Data.Location.City);
             Assert.Equal("My place", post.Data.Location.Address);
             Assert.Equal("HopAutHQ", post.Data.Location.EntityName);
@@ -330,7 +330,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Assert
             Assert.Equal(48.143, post.Data.Location.Latitude);
-            Assert.Equal(9.23235, post.Data.Location.Logitude);
+            Assert.Equal(9.23235, post.Data.Location.Longitude);
             Assert.Equal("UlmTest", post.Data.Location.City);
             Assert.Equal("My place", post.Data.Location.Address);
             Assert.Equal("HopAutHQ", post.Data.Location.EntityName);
@@ -360,7 +360,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Assert
             Assert.Equal(48.143, post.Data.Location.Latitude);
-            Assert.Equal(9.23235, post.Data.Location.Logitude);
+            Assert.Equal(9.23235, post.Data.Location.Longitude);
             Assert.Equal("UlmTest", post.Data.Location.City);
             Assert.Equal("My place", post.Data.Location.Address);
             Assert.Equal("HopAutHQ", post.Data.Location.EntityName);
@@ -408,7 +408,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Assert
             Assert.Equal(48.256, post.Data.Location.Latitude);
-            Assert.Equal(9.13235, post.Data.Location.Logitude);
+            Assert.Equal(9.13235, post.Data.Location.Longitude);
             Assert.Equal("UlmTest", post.Data.Location.City);
             Assert.Equal("Street", post.Data.Location.Address);
             Assert.Equal("BW", post.Data.Location.Region);
@@ -452,7 +452,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Assert
             Assert.Equal(48.124, post.Data.Location.Latitude);
-            Assert.Equal(9.992980, post.Data.Location.Logitude);
+            Assert.Equal(9.992980, post.Data.Location.Longitude);
             Assert.Equal("UlmTest", post.Data.Location.City);
             Assert.Equal("My place", post.Data.Location.Address);
             Assert.Equal("BW", post.Data.Location.Region);
@@ -495,7 +495,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Assert
             Assert.Equal(48.124, post.Data.Location.Latitude);
-            Assert.Equal(9.992980, post.Data.Location.Logitude);
+            Assert.Equal(9.992980, post.Data.Location.Longitude);
             Assert.Equal("UlmTest", post.Data.Location.City);
             Assert.Equal("Street", post.Data.Location.Address);
             Assert.Equal("BW", post.Data.Location.Region);
@@ -891,13 +891,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Act
             var getPostRequest = await TestClient.GetAsync(URL);
-            var dataResponse = await getPostRequest.Content.ReadFromJsonAsync<Response<string>>();
-
 
             // Assert
-            getPostRequest.StatusCode.Should().Be(HttpStatusCode.OK);
-            Assert.NotNull(dataResponse.Data);
-            Assert.Equal("No events in your area", dataResponse.Data);
+            getPostRequest.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
 
@@ -918,13 +914,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Act
             var getPostRequest = await TestClient.GetAsync(URL);
-            var dataResponse = await getPostRequest.Content.ReadFromJsonAsync<Response<string>>();
-
 
             // Assert
-            getPostRequest.StatusCode.Should().Be(HttpStatusCode.OK);
-            Assert.NotNull(dataResponse.Data);
-            Assert.Equal("No events in your area", dataResponse.Data);
+            getPostRequest.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
 
@@ -933,25 +925,21 @@ namespace Bingo.IntegrationTests.PostControllerTest
         {
             // Arrange
             var host1 = await AuthenticateAsync();
-            var post1 = await CreateSamplePostAsync("MF", 1, 6.89, 5, 70000, 75000, -170, -80);
+            var post1 = await CreateSamplePostAsync("MF", 1, 6.89, 5, 70000, 75000, -170, -50);
             var host2 = await AuthenticateAsync();
-            var post2 = await CreateSamplePostAsync("Lgeol", 2, 6.89, 5, 75999, 85000, - 170, -80);
+            var post2 = await CreateSamplePostAsync("Lgeol", 2, 6.89, 5, 75999, 85000, - 170, -50);
             var host3 = await AuthenticateAsync();
-            var post3 = await CreateSamplePostAsync("MF", 3, 6.89, 5, 87500, 91000, - 170, -80);
+            var post3 = await CreateSamplePostAsync("MF", 3, 6.89, 5, 87500, 91000, - 170, -50);
             var gues = await AuthenticateAsync();
 
-            var URL = ApiRoutes.Posts.GetAll + _Longitude.Replace("{0}", "-170.0") + _Latitude.Replace("{0}", "-80")
+            var URL = ApiRoutes.Posts.GetAll + _Longitude.Replace("{0}", "-170.0") + _Latitude.Replace("{0}", "-50")
                 + _Radius.Replace("{0}", "15") + _Today;
 
             // Act
             var getPostRequest = await TestClient.GetAsync(URL);
-            var dataResponse = await getPostRequest.Content.ReadFromJsonAsync<Response<string>>();
-
 
             // Assert
-            getPostRequest.StatusCode.Should().Be(HttpStatusCode.OK);
-            Assert.NotNull(dataResponse.Data);
-            Assert.Equal("No events in your area", dataResponse.Data);
+            getPostRequest.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
 
@@ -972,13 +960,10 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Act
             var getPostRequest = await TestClient.GetAsync(URL);
-            var dataResponse = await getPostRequest.Content.ReadFromJsonAsync<Response<string>>();
 
 
             // Assert
-            getPostRequest.StatusCode.Should().Be(HttpStatusCode.OK);
-            Assert.NotNull(dataResponse.Data);
-            Assert.Equal("No events in your area", dataResponse.Data);
+            getPostRequest.StatusCode.Should().Be(HttpStatusCode.NoContent);
         }
 
 // GET ALL MY ACTIVE EVENTS TEST ----------------------------------------------------------------------------------------------------------------------------------------------------
