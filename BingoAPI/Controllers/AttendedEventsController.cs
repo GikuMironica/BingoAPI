@@ -84,7 +84,9 @@ namespace BingoAPI.Controllers
         /// The user data is retrieved from the JWT
         /// </summary>
         /// <response code="200">List of attended events or null if there are none</response>
+        /// <response code="204">User is not attending any events.</response>
         [ProducesResponseType(typeof(Response<List<ActiveAttendedEvent>>), 200)]
+        [ProducesResponseType(204)]
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
         [HttpGet(ApiRoutes.AttendedEvents.GetActiveAttendedPosts)]
         public async Task<IActionResult> GetAllActiveAttendedEvents()
@@ -96,7 +98,7 @@ namespace BingoAPI.Controllers
             var result = await eventAttendanceService.GetActiveAttendedPostsByUserId(user.Id);
             if (result.Count == 0)
             {
-                return Ok(new Response<string> { Data = "No events attended" } );
+                return NoContent();
             }
 
             return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
@@ -109,6 +111,7 @@ namespace BingoAPI.Controllers
         /// The user data is retrieved from the JWT.
         /// </summary>
         /// <response code="200">Returns the list of events or null</response>
+        /// <response code="204">User didn't attend any event so far.</response>
         [HttpGet(ApiRoutes.AttendedEvents.GetInactiveAttendedPosts)]
         [ProducesResponseType(typeof(Response<List<ActiveAttendedEvent>>), 200)]
         public async Task<IActionResult> GetAllOldAttendedEvents()
@@ -120,7 +123,7 @@ namespace BingoAPI.Controllers
             var result = await eventAttendanceService.GetOldAttendedPostsByUserId(user.Id);
             if (result == null)
             {
-                return Ok("No events attended");
+                return NoContent();
             }
 
             return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
@@ -133,10 +136,12 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="postId">The post id</param>
         /// <response code="200">Removed</response>
+        /// <response code="404">Post not found</response>
         /// <response code="400">Post does not exists/ user did not subscribe to this event</response>
         [HttpPost(ApiRoutes.AttendedEvents.UnAttend)]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Response<SingleError>), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(Response<SingleError>), 400)]
         public async Task<IActionResult> UnAttendEvent(int postId)
         {
             var user = await userManager.FindByIdAsync(HttpContext.GetUserId());

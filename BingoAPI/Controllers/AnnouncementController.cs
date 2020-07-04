@@ -87,13 +87,23 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="postId">The post Id</param>
         /// <response code="200">Success</response>
+        /// <response code="204">No announcements for this post</response>
+        /// <response code="404">Post with such id was not found</response>
         /// <response code="403">Requester is not participating in the event / not an admin or host either</response>
         [ProducesResponseType(typeof(Response<List<GetAnnouncement>>), 200)]
         [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Announcements.GetAll)]
         public async Task<IActionResult> GetAllAnnouncements([FromRoute] int postId)
         {
             var requester = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            var post = await postsRepository.GetPlainPostAsync(postId);
+            if (post == null)
+            {
+                return NotFound();
+            }
+
             var isParticipator = await participationRepository.IsParticipatorAsync(postId, requester.Id);
             var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
 
@@ -103,6 +113,11 @@ namespace BingoAPI.Controllers
             }
 
             var announcements = await announcementRepository.GetAllByPostIdAsync(postId);
+            if(announcements.Count == 0)
+            {
+                return NoContent();
+            }
+
             return Ok(new Response<List<GetAnnouncement>>(mapper.Map<List<GetAnnouncement>>(announcements)));
         }
 
