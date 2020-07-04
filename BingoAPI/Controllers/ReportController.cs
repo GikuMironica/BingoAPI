@@ -38,8 +38,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns a user-post report by Id.
-        /// Can be viewed by administration only
+        /// This endpoint returns a report on a post by Id
+        /// Can be viewed by administration only.
         /// </summary>
         /// <param name="reportId">The report Id</param>
         /// <response code="200">Success</response>
@@ -62,8 +62,8 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint returns all reports of an user-posts by his Id.
-        /// Can be viewed by event administration only
+        /// This endpoint returns all reports on users posts by his Id.
+        /// Can be viewed by administration only.
         /// </summary>
         /// <param name="userId">The user Id</param>
         /// <response code="200">Success</response>
@@ -87,10 +87,10 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for reporting a user-post.
-        /// Everyone can report a users post
+        /// This endpoint is used for reporting a post.
+        /// Everyone can report a post.
         /// </summary>
-        /// <param name="reportRequest">The report data</param>
+        /// <param name="reportRequest">The report data. The message minimum length is 10 characters.</param>
         /// <response code="201">Success</response>
         /// <response code="403">User already reported this event</response>
         /// <response code="400">Report could not be submitted</response>
@@ -130,7 +130,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for deleting a report on a users post
+        /// This endpoint is used for deleting a report on a post.
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="reportId">The report Id</param>
@@ -153,7 +153,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endoint is used for deleting all reports on a users post
+        /// This endoint is used for deleting all reports on a users posts.
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="userId">The user Id</param>

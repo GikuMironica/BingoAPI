@@ -2,5 +2,4 @@
 2. Check environment for Production
 3. Check connection strings
 4. Check registration email sending
-5. Uncomment check first&last name before creating & attending post 
 6. Make sure all migrations are also ran on production DB

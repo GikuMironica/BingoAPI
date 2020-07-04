@@ -32,7 +32,7 @@ namespace BingoAPI.MappingProfiles
             // used for GetPost
             CreateMap<Post, PostResponse>()
                 .ForPath(dest => dest.Location.Id, opt => opt.MapFrom(src => src.Location.Id))
-                .ForPath(dest => dest.Location.Logitude, opt => opt.MapFrom(src => src.Location.Location.X))
+                .ForPath(dest => dest.Location.Longitude, opt => opt.MapFrom(src => src.Location.Location.X))
                 .ForPath(dest => dest.Location.Latitude, opt => opt.MapFrom(src => src.Location.Location.Y))
                 .ForPath(dest => dest.Location.Region, opt => opt.MapFrom(src => src.Location.Region))
                 .ForPath(dest => dest.Location.Address, opt => opt.MapFrom(src => src.Location.Address))

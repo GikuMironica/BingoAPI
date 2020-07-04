@@ -31,13 +31,13 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// This endoint returns the profile data of a user by his Id.
-        /// Can be vieewed by any authenticated application member
+        /// Can be viewed by any authenticated app user.
         /// </summary>
         /// <param name="userId">The user Id</param>
         /// <response code="200">Success</response>
         /// <response code="404">User not found</response>
         [ProducesResponseType(typeof(Response<ProfileResponse>), 200)]
-        [ProducesResponseType(typeof(SingleError), 403)]
+        [ProducesResponseType(404)]
         [HttpGet(ApiRoutes.Profile.Get)]
         public async Task<IActionResult> GetProfile([FromRoute] string userId)
         {
