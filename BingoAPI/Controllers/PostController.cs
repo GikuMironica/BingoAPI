@@ -350,11 +350,8 @@ namespace BingoAPI.Controllers
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList.Count > 0)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);
-                if (!deletedPicturesResult.Result)
-                {
-                    // log the Delete Exceptions list
-                }
+                // errors logged in bucketManager
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);                
             }
 
             // notify users
@@ -432,12 +429,8 @@ namespace BingoAPI.Controllers
 
             if (deletedImages.Count > 0)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);
-                if (!deletedPicturesResult.Result)
-                {
-                    // log the Delete Exceptions list
-                    
-                }
+                // errors logged in bucketManager
+                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);                
                 post.Pictures = postRequest.RemainingImagesGuids;
             }
         }

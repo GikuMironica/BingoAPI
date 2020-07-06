@@ -103,6 +103,14 @@ namespace BingoAPI.Services
             catch (DeleteObjectsException e)
             {
                 // logg
+                var errorObj = new ErrorLog
+                {
+                    Date = DateTime.Now,
+                    ExtraData = "Image could not be deleted",
+                    Message = e.Message,
+                    UserId = httpContext.HttpContext.GetUserId()
+                };
+                await errorService.AddErrorAsync(errorObj);
                 return new ImageDeleteResult { Result = false, ErrorMessages = e.Response.DeleteErrors };
             }
         }
