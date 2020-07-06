@@ -49,9 +49,9 @@ namespace BingoAPI.Installers
             services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
 
             // services
-            services.AddSingleton<IImageLoader, ImageLoader>();
-            services.AddSingleton<IAwsBucketManager, AwsBucketManager>();
-            services.AddSingleton<INotificationService, NotificationService>();
+            services.AddScoped<IImageLoader, ImageLoader>();
+            services.AddScoped<IAwsBucketManager, AwsBucketManager>();
+            services.AddScoped<INotificationService, NotificationService>();
         }
     }
 }

@@ -14,6 +14,7 @@ namespace BingoAPI.Models
         public string Controller { get; set; }
         public string Message { get; set; }
         public string InnerMessage { get; set; }
+        public string ExtraData { get; set; }
         public string Url { get; set; }
         public string ActionMethod { get; set; }
         public string UserId { get; set; }

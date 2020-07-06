@@ -51,6 +51,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             var response = await TestClient.PostAsync(ApiRoutes.Posts.Create, new FormUrlEncodedContent(postFieldsCollection));
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
+                var error = await response.Content.ReadAsStringAsync();
                 throw new NullReferenceException();
             }
             if (!response.IsSuccessStatusCode)

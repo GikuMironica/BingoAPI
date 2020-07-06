@@ -407,7 +407,7 @@ namespace BingoAPI.Controllers
 
             if ((pictures.Count > 0))
             {
-                ImageProcessingResult imageProcessingResult = imageLoader.LoadFiles(pictures);
+                ImageProcessingResult imageProcessingResult = await imageLoader.LoadFiles(pictures);
 
                 if (imageProcessingResult.Result)
                 {

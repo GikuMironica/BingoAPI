@@ -1,4 +1,7 @@
-﻿using BingoAPI.Options;
+﻿using BingoAPI.Extensions;
+using BingoAPI.Models;
+using BingoAPI.Options;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -16,14 +19,18 @@ namespace BingoAPI.Services
     {
         private readonly IOptions<OneSignalNotificationSettigs> oneSignalSettings;
         private readonly IOptions<NotificationTemplates> notificationTemplates;
+        private readonly IHttpContextAccessor httpContext;
+        private readonly IErrorService errorService;
         private readonly HttpRequestMessage request;
         private readonly HttpClient httpClient;
 
         public NotificationService(IOptions<OneSignalNotificationSettigs> oneSignalSettings, IOptions<NotificationTemplates> notificationTemplates,
-                                   IHttpClientFactory clientFactory)
+                                   IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IErrorService errorService)
         {
             this.oneSignalSettings = oneSignalSettings;
             this.notificationTemplates = notificationTemplates;
+            this.httpContext = httpContext;
+            this.errorService = errorService;
 
             // request configuration
             httpClient = clientFactory.CreateClient();
@@ -154,7 +161,14 @@ namespace BingoAPI.Services
             if (!response.IsSuccessStatusCode)
             {
                 // logg error
-
+                var errorObj = new ErrorLog
+                {
+                    Date = DateTime.UtcNow,
+                    ExtraData = "Sending notificatification failed...",
+                    UserId = httpContext.HttpContext.GetUserId(),
+                    Message = await response.Content.ReadAsStringAsync()
+                };
+                var ok = await errorService.AddErrorAsync(errorObj);               
             }
         }
                 
