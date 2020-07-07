@@ -10,7 +10,7 @@ namespace BingoAPI.Services
 {
     public class ImageLoader : IImageLoader
     {
-        public ImageProcessingResult LoadFiles(List<IFormFile> images)
+        public async Task<ImageProcessingResult> LoadFiles(List<IFormFile> images)
         {
             ImageProcessingResult resultList = new ImageProcessingResult { ProcessedPictures = new List<MemoryStream>(), Result = true };
 
@@ -27,8 +27,9 @@ namespace BingoAPI.Services
 
                 // load pic in Main Memory
                 MemoryStream memoryStream = new MemoryStream();
-                image.CopyToAsync(memoryStream);
-                resultList.ProcessedPictures.Add(memoryStream);
+                await image.CopyToAsync(memoryStream);
+                resultList.ProcessedPictures.Add(memoryStream);                                   
+                
             }
 
             return resultList;

@@ -19,7 +19,7 @@ namespace BingoAPI.Installers
 
             services.AddSingleton(facebookAuthSettings);
             services.AddHttpClient();
-            services.AddSingleton<IFacebookAuthService, FacebookAuthService>();
+            services.AddScoped<IFacebookAuthService, FacebookAuthService>();
         }
     }
 }
