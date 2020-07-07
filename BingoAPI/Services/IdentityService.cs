@@ -344,7 +344,7 @@ namespace BingoAPI.Services
                 {
                     return new AuthenticationResult
                     {
-                        Errors = new[] { "Somethign went wrong" }
+                        Errors = new[] { "Something went wrong" }
                     };
                 }
                 // when registering user, assign him user role, also need to be added in the JWT!!!
@@ -380,7 +380,7 @@ namespace BingoAPI.Services
 
         public async Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request)
         {
-            var result = await _userManager.ChangePasswordAsync(appUser, request.OldPass, request.NewPasword);
+            var result = await _userManager.ChangePasswordAsync(appUser, request.OldPass, request.NewPassword);
 
             // if new password does not meet requirements or current password not correct
             if (!result.Succeeded)

@@ -34,6 +34,8 @@ namespace Bingo.Contracts.V1
             public const string ResetPassword = Base + "/identity/resetpassword";
 
             public const string ChangePassword = Base + "/identity/changepassword";
+
+            public const string AddPassword = Base + "/identity/addpassword";
         }
 
         public static class Users

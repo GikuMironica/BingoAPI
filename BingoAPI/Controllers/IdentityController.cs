@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Bingo.Contracts.V1.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using BingoAPI.Extensions;
 
 namespace BingoAPI.Controllers
 {
@@ -325,5 +326,45 @@ namespace BingoAPI.Controllers
 
             return Ok(new Response<string> { Data = "Password successfully update" });
         }
+
+
+
+        /// <summary>
+        /// This end point adds new password for current user if he has none ( in case he registered with facebook )
+        /// </summary>
+        /// <param name="request">Contains the new password</param>
+        /// <response code="200">Success confirmation</response>
+        /// <response code="400">Provided password might not meet the security requirements</response>
+        [ProducesResponseType(typeof(Response<string>), 200)]
+        [ProducesResponseType(typeof(AuthFailedResponse), 400)]
+        [HttpPost(ApiRoutes.Identity.AddPassword)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin,User")]
+        public async Task<IActionResult> AddPassword([FromBody] AddPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return BadRequest();
+            }
+            var requester = await _userManager.FindByIdAsync(HttpContext.GetUserId());            
+            if(user.Id != requester.Id)
+            {
+                return BadRequest();
+            }
+            var hasPassword = await _userManager.HasPasswordAsync(requester);
+            if (hasPassword)
+            {
+                return BadRequest();
+            }
+
+            var authResponse = await _userManager.AddPasswordAsync(requester, request.NewPassword);
+            if (!authResponse.Succeeded)
+            {
+                return BadRequest(new AuthFailedResponse { Errors = authResponse.Errors.Select(x => x.Description) });
+            }
+
+            return Ok(new Response<string> { Data = "Password successfully added" });
+        }
+
     }
 }
