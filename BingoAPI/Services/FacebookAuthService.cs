@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BingoAPI.ExternalLogin;
+using BingoAPI.Models;
 using BingoAPI.Options;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -18,12 +19,14 @@ namespace BingoAPI.Services
         private readonly FacebookAuthSettings facebookAuthSettings;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IConfiguration configuration;
+        private readonly IErrorService errorService;
 
-        public FacebookAuthService(FacebookAuthSettings facebookAuthSettings, IHttpClientFactory httpClientFactory , IConfiguration configuration)
+        public FacebookAuthService(FacebookAuthSettings facebookAuthSettings, IHttpClientFactory httpClientFactory , IConfiguration configuration, IErrorService errorService)
         {
             this.facebookAuthSettings = facebookAuthSettings;
             this.httpClientFactory = httpClientFactory;
             this.configuration = configuration;
+            this.errorService = errorService;
         }
 
         public async Task<FacebookUserInfoResult> GetUserInfoAsync(string accessToken)
@@ -50,7 +53,19 @@ namespace BingoAPI.Services
 
             // get request to specified url
             var result = await httpClientFactory.CreateClient().GetAsync(formatedUrl);
-            result.EnsureSuccessStatusCode();
+            try
+            {
+                result.EnsureSuccessStatusCode();
+            }catch(Exception e)
+            {
+                var errorObj = new ErrorLog
+                {
+                    Date = DateTime.Now,
+                    ExtraData = "Error in Facebook auhentication",
+                    Message = e.Message
+                };
+                await errorService.AddErrorAsync(errorObj);
+            }
 
             var responseAsString = await result.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<FacebookTokenValidationResult>(responseAsString);

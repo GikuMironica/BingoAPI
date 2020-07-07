@@ -9,6 +9,6 @@ namespace BingoAPI.Services
 {
     public interface IImageLoader
     {
-        public ImageProcessingResult LoadFiles(List<IFormFile> images);
+        public Task<ImageProcessingResult> LoadFiles(List<IFormFile> images);
     }
 }

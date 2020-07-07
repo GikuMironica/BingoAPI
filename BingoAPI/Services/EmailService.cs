@@ -1,4 +1,5 @@
-﻿using BingoAPI.Options;
+﻿using BingoAPI.Models;
+using BingoAPI.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using System;
@@ -11,11 +12,12 @@ namespace BingoAPI.Services
 {
     public class EmailService : IEmailService
     {
+        private readonly IErrorService errorService;
         private SmtpClient client;
         private MailAddress mailFrom;
         private ApplicationEmailSettings _emailSettings;
 
-        public EmailService(IOptions<ApplicationEmailSettings> emailSettings)
+        public EmailService(IOptions<ApplicationEmailSettings> emailSettings, IErrorService errorService)
         {
             _emailSettings = emailSettings.Value;
             client = new SmtpClient(_emailSettings.SmtpClient);
@@ -23,6 +25,7 @@ namespace BingoAPI.Services
             client.Port = _emailSettings.Port;
             client.EnableSsl = _emailSettings.SSL;
             mailFrom = new MailAddress(_emailSettings.EmailAddress);
+            this.errorService = errorService;
         }
 
 
@@ -33,7 +36,19 @@ namespace BingoAPI.Services
             mailMessage.Body = message;
             mailMessage.Subject = subject;
 
-            await client.SendMailAsync(mailMessage);
+            try
+            {
+                await client.SendMailAsync(mailMessage);
+            }catch(Exception e)
+            {
+                var errorObj = new ErrorLog
+                {
+                    Date = DateTime.Now,
+                    ExtraData = "Email could not be sent to "+receiver,
+                    Message = e.Message
+                };
+                await errorService.AddErrorAsync(errorObj);
+            }
 
             return true;
         }

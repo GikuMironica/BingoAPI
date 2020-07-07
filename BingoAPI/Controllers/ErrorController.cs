@@ -48,8 +48,6 @@ namespace BingoAPI.Controllers
                 $"threw an exception {exceptionHandlerPathFeature.Error}");
             var execptionPath = exceptionHandlerPathFeature.Path;
             var Exmsg = exceptionHandlerPathFeature.Error.Message;
-            var stack = exceptionHandlerPathFeature.Error.StackTrace;
-            var innerEx = exceptionHandlerPathFeature.Error.InnerException;
 
             ErrorLog errorLog = new ErrorLog
             {
@@ -62,7 +60,6 @@ namespace BingoAPI.Controllers
             };
 
             var result = await errorService.AddErrorAsync(errorLog);
-
             return BadRequest(new SingleError { Message = "Internal Error"});
         }
 
@@ -82,11 +79,11 @@ namespace BingoAPI.Controllers
             return BadRequest();
         }
 
-        [HttpGet("/swaggerr/index.html")]
+       /* [HttpGet("/swaggerr/index.html")]
         public IActionResult SIndex()
         {           
 
             return NotFound();
-        }
+        }*/
     }
 }

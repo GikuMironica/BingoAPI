@@ -22,7 +22,7 @@ namespace BingoAPI.Installers
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<ApplicationEmailSettings>(configuration.GetSection("ApplicationEmail"));
-            services.AddSingleton<IEmailService, EmailService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             // in order to use HttpContext, IUriHelper in services classes
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -49,9 +49,9 @@ namespace BingoAPI.Installers
             services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
 
             // services
-            services.AddSingleton<IImageLoader, ImageLoader>();
-            services.AddSingleton<IAwsBucketManager, AwsBucketManager>();
-            services.AddSingleton<INotificationService, NotificationService>();
+            services.AddScoped<IImageLoader, ImageLoader>();
+            services.AddScoped<IAwsBucketManager, AwsBucketManager>();
+            services.AddScoped<INotificationService, NotificationService>();
         }
     }
 }
