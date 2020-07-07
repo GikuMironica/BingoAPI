@@ -176,7 +176,7 @@ namespace BingoAPI.Controllers
             await DeletePicturesAsync(verificationResult.User);     
             
             // load pictures in memory stream
-            ImageProcessingResult imageProcessingResult = imageLoader.LoadFiles(new List<IFormFile> { userPictureRequest.UpdatedPicture });
+            ImageProcessingResult imageProcessingResult = await imageLoader.LoadFiles(new List<IFormFile> { userPictureRequest.UpdatedPicture });
 
             // upload to bucket
             if (imageProcessingResult.Result)
