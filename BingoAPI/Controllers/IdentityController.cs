@@ -22,14 +22,17 @@ namespace BingoAPI.Controllers
     {
         private readonly IIdentityService _identityService;
         private readonly UserManager<AppUser> _userManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
 
         public IdentityController(IIdentityService identityService,
                                   UserManager<AppUser> userManager,
+                                  SignInManager<AppUser> signInManager,
                                   IEmailService emailService)
         {
             this._identityService = identityService;
             this._userManager = userManager;
+            this._signInManager = signInManager;
             this._emailService = emailService;
         }
 
@@ -324,6 +327,7 @@ namespace BingoAPI.Controllers
                 return new BadRequestObjectResult(new AuthFailedResponse { Errors = authResponse.Errors } );
             }
 
+            await _signInManager.RefreshSignInAsync(user);
             return Ok(new Response<string> { Data = "Password successfully update" });
         }
 
@@ -363,6 +367,7 @@ namespace BingoAPI.Controllers
                 return BadRequest(new AuthFailedResponse { Errors = authResponse.Errors.Select(x => x.Description) });
             }
 
+            await _signInManager.RefreshSignInAsync(user);
             return Ok(new Response<string> { Data = "Password successfully added" });
         }
 
