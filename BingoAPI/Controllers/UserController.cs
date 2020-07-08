@@ -3,7 +3,6 @@ using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.User;
-using BingoAPI.Cache;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Helpers;
@@ -15,12 +14,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -46,6 +41,8 @@ namespace BingoAPI.Controllers
             this.imageLoader = imageLoader;
         }
 
+
+
         /// <summary>
         /// Returns relevant data about all the users in the system.
         /// Only administration has access to this resource.
@@ -65,6 +62,7 @@ namespace BingoAPI.Controllers
 
             return Ok(paginationResponse);
         }
+
 
 
         /// <summary>
@@ -105,6 +103,7 @@ namespace BingoAPI.Controllers
             // domain to response contract mapping
             return Ok(new Response<UserResponse>(_mapper.Map<UserResponse>(user)));
         }
+
 
 
         /// <summary>
@@ -149,6 +148,7 @@ namespace BingoAPI.Controllers
 
             return StatusCode(406);
         }
+
 
 
         /// <summary>
@@ -209,11 +209,11 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="userId">The user id to be deleted</param>
         /// <response code="204">User successfuly deleted</response>
-        /// <response code="400">Bad request</response>
-        /// <response code="406">Unable to update user due to system requirements of the application user</response>
+        /// <response code="403">Unauthorized access</response>
+        /// <response code="406">Unable to update user</response>
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         [ProducesResponseType(typeof(SingleError), 406)]
         [HttpDelete(ApiRoutes.Users.Delete)]
         public async Task<IActionResult> Delete([FromRoute] string userId)
@@ -235,6 +235,32 @@ namespace BingoAPI.Controllers
         }
 
 
+
+        /// <summary>
+        /// This endpoint allows users to delete his profile picture 
+        /// </summary>
+        /// <param name="userId">The user id</param>
+        /// <response code="204">Success</response>
+        /// <response code="403">Unauthorized</response>
+        [ProducesResponseType(204)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(400)]
+        [HttpDelete(ApiRoutes.Users.DeletePicture)]
+        public async Task<IActionResult> DeletePicture([FromRoute] string userId)
+        {
+            // Compare the user id from the request & claim
+            var verificationResult = await IsProfileOwnerOrAdminAsync(HttpContext.GetUserId(), userId);
+            if (!verificationResult.Result)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" });
+            }
+
+            await DeletePicturesAsync(verificationResult.User);
+            return NoContent();
+        }
+
+
+
         public async Task<List<AppUser>> GetUsersAsync(PaginationFilter paginationFilter = null)
         {
 
@@ -251,12 +277,13 @@ namespace BingoAPI.Controllers
         }
 
 
+
         public async Task<ProfileOwnershipState> IsProfileOwnerOrAdminAsync(string requesterId, string userId)
         {
             var isOwner = requesterId == userId;
             var user = await _userManager.FindByIdAsync(userId);
             var requester = await _userManager.FindByIdAsync(requesterId);
-            if(user == null)
+            if(user == null || requester == null)
             {
                 return new ProfileOwnershipState { Result = false };
             }
@@ -269,9 +296,9 @@ namespace BingoAPI.Controllers
                     isAdmin = true;
             }
 
-
             return new ProfileOwnershipState { Result = isOwner || isAdmin, User = user };
         }
+
 
 
         private async Task DeletePicturesAsync(AppUser User)
@@ -279,12 +306,7 @@ namespace BingoAPI.Controllers
 
             if (User.ProfilePicture != null)
             {
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(new List<string> { User.ProfilePicture }, AwsAssetsPath.ProfilePictures);
-                if (!deletedPicturesResult.Result)
-                {
-                    // log the Delete Exceptions list
-
-                }
+                await awsBucketManager.DeleteFileAsync(new List<string> { User.ProfilePicture }, AwsAssetsPath.ProfilePictures);                
             }
         }
 

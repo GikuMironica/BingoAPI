@@ -48,6 +48,8 @@ namespace Bingo.Contracts.V1
 
             public const string Delete = Base + "/users/{userId}";
 
+            public const string DeletePicture = Base + "/users/deleteprofilepic/{userId}";
+
             public const string Get = Base + "/users/{userId}";
 
         }
