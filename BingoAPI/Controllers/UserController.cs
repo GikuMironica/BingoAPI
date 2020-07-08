@@ -209,22 +209,23 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="userId">The user id to be deleted</param>
         /// <response code="204">User successfuly deleted</response>
-        /// <response code="403">Not enough priviledges</response>
+        /// <response code="400">Bad request</response>
         /// <response code="406">Unable to update user due to system requirements of the application user</response>
         [ProducesResponseType(204)]
         [ProducesResponseType(404)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(typeof(SingleError), 406)]
         [HttpDelete(ApiRoutes.Users.Delete)]
         public async Task<IActionResult> Delete([FromRoute] string userId)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user == null)
+            // Compare the user id from the request & claim
+            var verificationResult = await IsProfileOwnerOrAdminAsync(HttpContext.GetUserId(), userId);
+            if (!verificationResult.Result)
             {
-                return NotFound();
+                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" });
             }
 
-            var deleted = await _userManager.DeleteAsync(user);
+            var deleted = await _userManager.DeleteAsync(verificationResult.User);
             if (deleted.Succeeded)
             {
                 return NoContent();
@@ -232,6 +233,7 @@ namespace BingoAPI.Controllers
 
             return StatusCode(StatusCodes.Status406NotAcceptable, new SingleError { Message = "User can't be deleted due to some system constraints" });
         }
+
 
         public async Task<List<AppUser>> GetUsersAsync(PaginationFilter paginationFilter = null)
         {
@@ -247,6 +249,7 @@ namespace BingoAPI.Controllers
 
             return await queryable.Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
         }
+
 
         public async Task<ProfileOwnershipState> IsProfileOwnerOrAdminAsync(string requesterId, string userId)
         {
@@ -269,6 +272,7 @@ namespace BingoAPI.Controllers
 
             return new ProfileOwnershipState { Result = isOwner || isAdmin, User = user };
         }
+
 
         private async Task DeletePicturesAsync(AppUser User)
         {           

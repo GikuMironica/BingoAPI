@@ -32,7 +32,6 @@ namespace BingoAPI.Data
         public DbSet<BikerMeet> BikerMeets { get; set; }
         public DbSet<Marathon> Marathons { get; set; }
         public DbSet<StreetParty> StreetParties { get; set; }
-        public DbSet<FlashMob> FlashMobs { get; set; }
         public DbSet<Other> Others { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTags> PostTags { get; set; }
@@ -73,7 +72,6 @@ namespace BingoAPI.Data
                 .HasValue<BicycleMeet>("bicyclemeet_type")
                 .HasValue<Marathon>("marathon_type")
                 .HasValue<StreetParty>("streetparty_type")
-                .HasValue<FlashMob>("flashmob_type")
                 .HasValue<Other>("other_type");
 
             // indexes, constraints
