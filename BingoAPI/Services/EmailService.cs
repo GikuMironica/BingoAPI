@@ -24,7 +24,7 @@ namespace BingoAPI.Services
             client.Credentials = new System.Net.NetworkCredential(_emailSettings.EmailAddress, _emailSettings.Password);
             client.Port = _emailSettings.Port;
             client.EnableSsl = _emailSettings.SSL;
-            mailFrom = new MailAddress(_emailSettings.EmailAddress);
+            mailFrom = new MailAddress(_emailSettings.Sender);
             this.errorService = errorService;
         }
 

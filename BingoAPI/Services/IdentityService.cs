@@ -100,12 +100,11 @@ namespace BingoAPI.Services
                     new { userId = newUser.Id, token = token }, _httpRequest.HttpContext.Request.Scheme);
 
             // send it per email
-            // uncomment   var mailresult = 
-            // uncomment       await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
-            // uncomment   if (mailresult)
-            return new AuthenticationResult { Success = true, UserId = newUser.Id };
-            // uncomment   else
-            // uncomment       return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+            // uncomment var mailresult = await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
+            // uncomment if (mailresult)
+                return new AuthenticationResult { Success = true, UserId = newUser.Id };
+            // uncomment else
+            // uncomment   return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
         }
 
 
