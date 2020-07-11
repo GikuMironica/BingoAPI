@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using BingoAPI.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -18,7 +19,14 @@ namespace BingoAPI.Installers
             services.AddSwaggerGen(x =>
             {
                 // register Swagger document generator, defining >1 Swagger documents
-                x.SwaggerDoc("v1", new OpenApiInfo { Title = "Bingo REST API", Version = "v1" });
+                x.SwaggerDoc("v1",
+                    new OpenApiInfo 
+                    { 
+                        Title = "Bingo REST API",
+                        Version = "v1",
+                        Contact = new OpenApiContact { Email = "administration@hopaut.com", Name = "Gheorghe Mironica"}
+                    });
+
 
                 // this will add the filters
                 x.ExampleFilters();

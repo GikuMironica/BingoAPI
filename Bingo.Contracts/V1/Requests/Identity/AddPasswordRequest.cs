@@ -5,12 +5,10 @@ using System.Text;
 
 namespace Bingo.Contracts.V1.Requests.Identity
 {
-    public class ChangePasswordRequest
+    public class AddPasswordRequest
     {
         [Required]
         public string Email { get; set; }
-        [Required]
-        public string OldPass { get; set; }
         [Required]
         public string NewPassword { get; set; }
     }

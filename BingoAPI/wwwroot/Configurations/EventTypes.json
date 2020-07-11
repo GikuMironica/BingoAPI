@@ -32,13 +32,9 @@
       {
         "Id": "8",
         "Type": "Marathon"
-      },
+      },      
       {
         "Id": "9",
-        "Type": "FlashMob"
-      },
-      {
-        "Id": "10",
         "Type": "Other"
       }
 
