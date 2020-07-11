@@ -78,12 +78,18 @@ namespace BingoAPI.Controllers
 
             return BadRequest();
         }
+        /*
+         [HttpGet("/swagger/index.html")]
+         public IActionResult S1Index()
+         {           
+             return NotFound();
+         }
 
-       /* [HttpGet("/swaggerr/index.html")]
-        public IActionResult SIndex()
+        [HttpGet("/swagger/v1/swagger.json")]
+        public IActionResult S2Index()
         {           
-
             return NotFound();
         }*/
+
     }
 }

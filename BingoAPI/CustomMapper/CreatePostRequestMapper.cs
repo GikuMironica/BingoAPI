@@ -122,21 +122,13 @@ namespace BingoAPI.CustomMapper
                     };
                     break;
                 case 9:
-                    generatedEvent = new FlashMob
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 10:
                     generatedEvent = new Other
                     {
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
                         Title = containedEvent.Title
                     };
-                    break;
+                    break;               
                 default:
                     generatedEvent = new Other
                     {

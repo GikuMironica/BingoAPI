@@ -18,6 +18,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
         public async Task<UserResponse> UpdateUserAsync(UpdateUserRequest updateUser, string userId)
         {
             var response = await TestClient.PutAsJsonAsync(ApiRoutes.Users.Update.Replace("{userId}",userId), updateUser);
+            var responseTxt = await response.Content.ReadAsStringAsync();
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
                 throw new NullReferenceException();

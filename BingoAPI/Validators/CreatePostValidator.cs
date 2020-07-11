@@ -40,7 +40,7 @@ namespace BingoAPI.Validators
                 .WithMessage("Description length at most 5000 characters");
 
             RuleFor(x => x.Event.EventType)
-                 .LessThanOrEqualTo(10)
+                 .LessThanOrEqualTo(9)
                  .GreaterThanOrEqualTo(1);
 
             RuleFor(x => x.Tags.All(x => x.Length < 20));                                    
