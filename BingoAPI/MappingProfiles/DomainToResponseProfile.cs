@@ -7,6 +7,7 @@ using Bingo.Contracts.V1.Responses.Post;
 using Bingo.Contracts.V1.Responses.Profile;
 using Bingo.Contracts.V1.Responses.Rating;
 using Bingo.Contracts.V1.Responses.Report;
+using Bingo.Contracts.V1.Responses.Tag;
 using Bingo.Contracts.V1.Responses.User;
 using Bingo.Contracts.V1.Responses.UserReport;
 using BingoAPI.Models;
@@ -93,6 +94,10 @@ namespace BingoAPI.MappingProfiles
             // Map UserReports
             CreateMap<UserReport, CreateUserReportResponse>();
             CreateMap<UserReport, UserReportResponse>();
+
+            // Map Tags
+            CreateMap<List<string>, Tags>()
+                .ForMember(dest => dest.TagNames, opt => opt.MapFrom(src => src));
 
         }
         
