@@ -4,7 +4,6 @@ using Bingo.Contracts.V1.Requests.Tag;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Tag;
 using BingoAPI.Cache;
-using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
