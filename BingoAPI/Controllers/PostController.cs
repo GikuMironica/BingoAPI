@@ -246,6 +246,8 @@ namespace BingoAPI.Controllers
             var activePosts = await postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
             if(activePosts != 0)
             {
+                var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, User);
+                if(!isAdmin)
                 return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
             }
 

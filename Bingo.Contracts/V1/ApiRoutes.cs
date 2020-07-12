@@ -128,5 +128,9 @@ namespace Bingo.Contracts.V1
         {
             public const string Get = Base + "/profile/{userId}";
         }
+        public static class Tag
+        {
+            public const string GetAll = Base + "/tag/{TagName}";
+        }
     }
 }
