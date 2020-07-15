@@ -2,6 +2,8 @@
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
+using BingoAPI.CustomMapper;
+using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,15 +29,22 @@ namespace BingoAPI.Controllers
         private readonly IMapper mapper;
         private readonly INotificationService notificationService;
         private readonly IPostsRepository postsRepository;
+        private readonly IDomainToResponseMapper domainToResponseMapper;
+        private readonly IRatingRepository ratingRepository;
+        private readonly EventTypes eventTypes;
 
         public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceRepository eventAttendanceService,
-                                        IMapper mapper, INotificationService notificationService, IPostsRepository postsRepository)
+                                        IMapper mapper, INotificationService notificationService, IPostsRepository postsRepository,
+                                        IDomainToResponseMapper domainToResponseMapper, IOptions<EventTypes> eventTypes, IRatingRepository ratingRepository)
         {
             this.userManager = userManager;
             this.eventAttendanceService = eventAttendanceService;
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.postsRepository = postsRepository;
+            this.domainToResponseMapper = domainToResponseMapper;
+            this.ratingRepository = ratingRepository;
+            this.eventTypes = eventTypes.Value;
         }
 
 
@@ -58,13 +68,13 @@ namespace BingoAPI.Controllers
          //   {
          //       return BadRequest(new SingleError { Message = "User has to input first and last name in attend an event" });
          //   }
-
-            var result = await eventAttendanceService.AttendEvent(user, postId);
+                     
             var post = await postsRepository.GetPlainPostAsync(postId);
             if(post == null)
             {
                 return NotFound();
             }
+            var result = await eventAttendanceService.AttendEvent(user, postId);
 
             if (!result.Result)
             {
@@ -85,7 +95,7 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <response code="200">List of attended events or null if there are none</response>
         /// <response code="204">User is not attending any events.</response>
-        [ProducesResponseType(typeof(Response<List<ActiveAttendedEvent>>), 200)]
+        [ProducesResponseType(typeof(Response<List<Bingo.Contracts.V1.Responses.Post.Posts>>), 200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
         [HttpGet(ApiRoutes.AttendedEvents.GetActiveAttendedPosts)]
@@ -101,7 +111,18 @@ namespace BingoAPI.Controllers
                 return NoContent();
             }
 
-            return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
+            var resultList = new List<Bingo.Contracts.V1.Responses.Post.Posts>();
+
+            foreach (var post in result)
+            {
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
+            }
+
+            return Ok(new Response<List<Bingo.Contracts.V1.Responses.Post.Posts>> { Data = resultList });
+            //return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
         }
 
 
@@ -113,7 +134,9 @@ namespace BingoAPI.Controllers
         /// <response code="200">Returns the list of events or null</response>
         /// <response code="204">User didn't attend any event so far.</response>
         [HttpGet(ApiRoutes.AttendedEvents.GetInactiveAttendedPosts)]
-        [ProducesResponseType(typeof(Response<List<ActiveAttendedEvent>>), 200)]
+        [ProducesResponseType(typeof(Response<List<Bingo.Contracts.V1.Responses.Post.Posts>>), 200)]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(typeof(Response<SingleError>), 400)]
         public async Task<IActionResult> GetAllOldAttendedEvents()
         {
             var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
@@ -121,12 +144,23 @@ namespace BingoAPI.Controllers
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
 
             var result = await eventAttendanceService.GetOldAttendedPostsByUserId(user.Id);
-            if (result == null)
+            if (result.Count==0)
             {
                 return NoContent();
             }
 
-            return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
+            var resultList = new List<Bingo.Contracts.V1.Responses.Post.Posts>();
+
+            foreach (var post in result)
+            {
+                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                mappedPost.Slots = post.Event.GetSlotsIfAny();
+                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                resultList.Add(mappedPost);
+            }
+
+            return Ok(new Response<List<Bingo.Contracts.V1.Responses.Post.Posts>> { Data = resultList });
+            //return Ok(new Response<List<ActiveAttendedEvent>> { Data = mapper.Map<List<ActiveAttendedEvent>>(result) });
         }
 
 

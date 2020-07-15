@@ -90,8 +90,12 @@ namespace BingoAPI.Models.SqlRepository
             return await context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
-                    .ThenInclude(p => p.Event)
                 .Include(p => p.Post.Location)
+                .Include(p => p.Post.Event)
+                .Include(p => p.Post.Repeatable)
+                .Include(p => p.Post.Voucher)
+                .Include(p => p.Post.Tags)
+                    .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
                 .Where(p => p.ActiveFlag == 1)                
                 .ToListAsync();
@@ -102,8 +106,12 @@ namespace BingoAPI.Models.SqlRepository
             return await context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
-                    .ThenInclude(p => p.Event)
                 .Include(p => p.Post.Location)
+                .Include(p => p.Post.Event)
+                .Include(p => p.Post.Repeatable)
+                .Include(p => p.Post.Voucher)
+                .Include(p => p.Post.Tags)
+                    .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
                 .Where(p => p.ActiveFlag == 0)
                 .Take(50)
