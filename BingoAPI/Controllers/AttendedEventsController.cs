@@ -64,10 +64,10 @@ namespace BingoAPI.Controllers
             var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
-         //   if (user.FirstName == null || user.LastName == null)
-         //   {
-         //       return BadRequest(new SingleError { Message = "User has to input first and last name in attend an event" });
-         //   }
+            if (user.FirstName == null || user.LastName == null)
+            {
+                return BadRequest(new SingleError { Message = "User has to input first and last name in attend an event" });
+            }
                      
             var post = await postsRepository.GetPlainPostAsync(postId);
             if(post == null)

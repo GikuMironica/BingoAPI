@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Net.Http.Json; 
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -920,28 +920,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         }
 
 
-        [Fact, Priority(1)]
-        public async Task Get_AllPosts_By_Today_When_None()
-        {
-            // Arrange
-            var host1 = await AuthenticateAsync();
-            var post1 = await CreateSamplePostAsync("MF", 1, 6.89, 5, 70000, 75000, -170, -50);
-            var host2 = await AuthenticateAsync();
-            var post2 = await CreateSamplePostAsync("Lgeol", 2, 6.89, 5, 75999, 85000, - 170, -50);
-            var host3 = await AuthenticateAsync();
-            var post3 = await CreateSamplePostAsync("MF", 3, 6.89, 5, 87500, 91000, - 170, -50);
-            var gues = await AuthenticateAsync();
-
-            var URL = ApiRoutes.Posts.GetAll + _Longitude.Replace("{0}", "-170.0") + _Latitude.Replace("{0}", "-50")
-                + _Radius.Replace("{0}", "15") + _Today;
-
-            // Act
-            var getPostRequest = await TestClient.GetAsync(URL);
-
-            // Assert
-            getPostRequest.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        }
-
+        
 
         [Fact, Priority(1)]
         public async Task Get_AllPosts_By_Tag_When_None()
