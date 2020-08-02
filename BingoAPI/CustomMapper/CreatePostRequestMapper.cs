@@ -58,6 +58,7 @@ namespace BingoAPI.CustomMapper
                         Requirements = containedEvent.Requirements,
                         Slots = containedEvent.Slots,
                         EntrancePrice = containedEvent.EntrancePrice,
+                        Currency = containedEvent.Currency.GetValueOrDefault(0),
                         Title = containedEvent.Title
                        
                     };
@@ -68,6 +69,7 @@ namespace BingoAPI.CustomMapper
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
                         EntrancePrice = containedEvent.EntrancePrice ?? 0,
+                        Currency = containedEvent.Currency.GetValueOrDefault(0),
                         Title = containedEvent.Title
                     };
                     break;
@@ -77,6 +79,7 @@ namespace BingoAPI.CustomMapper
                         Description = containedEvent.Description,
                         Requirements = containedEvent.Requirements,
                         EntrancePrice = containedEvent.EntrancePrice ?? 0,
+                        Currency = containedEvent.Currency.GetValueOrDefault(0),
                         Title = containedEvent.Title
 
                     };

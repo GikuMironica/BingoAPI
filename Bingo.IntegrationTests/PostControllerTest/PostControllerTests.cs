@@ -262,7 +262,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
                     City = "UlmTest2",
                     Country = "mars"
                 },
-                Event = new Contracts.V1.Requests.Post.UpdatedEvent
+                UpdatedEvent = new Contracts.V1.Requests.Post.UpdatedEvent
                 {
                     Title = "Azazazazazazazazazaz",
                     Description = "Test lolmanigaaadsasd",
@@ -311,7 +311,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
                     City = "UlmTest2",
                     Country = "mars"
                 },
-                Event = new Contracts.V1.Requests.Post.UpdatedEvent
+                UpdatedEvent = new Contracts.V1.Requests.Post.UpdatedEvent
                 {
                     Title = "Azazazazazazazazazaz",
                     Description = "Test lolmanigaaadsasd",
@@ -389,7 +389,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
                     City = "UlmTest2",
                     Country = "mars"
                 },
-                Event = new Contracts.V1.Requests.Post.UpdatedEvent
+                UpdatedEvent = new Contracts.V1.Requests.Post.UpdatedEvent
                 {
                     Title = "Azazazazazazazazazaz",
                     Description = "Test lolmanigaaadsasd",
@@ -418,95 +418,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.Equal("Test lolmanigaaadsasd", post.Data.Event.Description);
             Assert.Equal("None", post.Data.Event.Requirements);
         }
-
-        [Fact, Priority(15)]
-        public async Task Update_HouseParty_WithValidData()
-        {
-            // Arrange
-            AuthenticateAdmin();
-            var updatePost = new UpdatePostRequest
-            {
-                EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                EndTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 5000,
-                UserLocation = new UpdatedCompleteLocation
-                {
-                    Latitude = 48.124,
-                    Longitude = 9.992980
-                },
-                Event = new Contracts.V1.Requests.Post.UpdatedEvent
-                {
-                    Title = "Valid House Party",
-                    Description = "TestTestTestTest",
-                    Requirements = "AHAH",
-                    Slots = 50,
-                    EntrancePrice = 17.9
-                },
-                TagNames = new List<string> { "ValidHausTag" }
-            };
-
-            // Act
-            var result = await UpdatePostAsync(updatePost, _housePartyId);
-            Assert.True(result);
-            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _housePartyId.ToString()));
-            var post = await response.Content.ReadFromJsonAsync<Response<PostResponse>>();
-
-            // Assert
-            Assert.Equal(48.124, post.Data.Location.Latitude);
-            Assert.Equal(9.992980, post.Data.Location.Longitude);
-            Assert.Equal("UlmTest", post.Data.Location.City);
-            Assert.Equal("My place", post.Data.Location.Address);
-            Assert.Equal("BW", post.Data.Location.Region);
-            Assert.Equal(50, post.Data.Event.Slots);
-            Assert.Equal(17.9, post.Data.Event.EntrancePrice);
-            Assert.Equal(1, post.Data.Event.EventType);
-            Assert.Equal("TestTestTestTest", post.Data.Event.Description);
-            Assert.Equal("Valid House Party", post.Data.Event.Title);
-            Assert.Equal("AHAH", post.Data.Event.Requirements);
-            Assert.Equal("mars", post.Data.Location.Country);
-        }
-
-        [Fact, Priority(15)]
-        public async Task Update_StreetParty_WithValidData()
-        {
-            // Arrange
-            AuthenticateAdmin();
-            var updatePost = new UpdatePostRequest
-            {
-                EventTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-                EndTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 5000,
-                UserLocation = new UpdatedCompleteLocation
-                {
-                    Latitude = 48.124,
-                    Longitude = 9.992980
-                },
-                Event = new Contracts.V1.Requests.Post.UpdatedEvent
-                {
-                    Title = "Valid House Party"
-                },
-                TagNames = new List<string> { "ValidHausTag" }
-            };
-            
-
-            // Act
-            var result = await UpdatePostAsync(updatePost, _streetPatyId);
-            Assert.True(result);
-            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", _streetPatyId.ToString()));
-            var post = await response.Content.ReadFromJsonAsync<Response<PostResponse>>();
-
-            // Assert
-            Assert.Equal(48.124, post.Data.Location.Latitude);
-            Assert.Equal(9.992980, post.Data.Location.Longitude);
-            Assert.Equal("UlmTest", post.Data.Location.City);
-            Assert.Equal("Street", post.Data.Location.Address);
-            Assert.Equal("BW", post.Data.Location.Region);
-            Assert.Equal(0, post.Data.Event.Slots);
-            Assert.Equal(0, post.Data.Event.EntrancePrice);
-            Assert.Equal(7, post.Data.Event.EventType);
-            Assert.Equal("Test lolmanigaaadsasd", post.Data.Event.Description);
-            Assert.Equal("Valid House Party", post.Data.Event.Title);
-            Assert.Equal("None", post.Data.Event.Requirements);
-            Assert.Equal("mars", post.Data.Location.Country);
-        }
+        
 
 
         // GET POSTS TEST ------------------------------------------------------------------------------------------------------------------------------------------------------------

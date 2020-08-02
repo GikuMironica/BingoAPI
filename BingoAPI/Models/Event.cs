@@ -16,7 +16,7 @@ namespace BingoAPI.Models
 
         public double? EntrancePrice { get; set; }
 
-        public int Currency { get; set; }
+        public int? Currency { get; set; }
 
         public string? Title { get; set; }
 
