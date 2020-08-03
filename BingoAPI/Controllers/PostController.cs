@@ -248,7 +248,7 @@ namespace BingoAPI.Controllers
             {
                 var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, User);
                 if(!isAdmin)
-                return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
+                    return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
             }
 
             var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);

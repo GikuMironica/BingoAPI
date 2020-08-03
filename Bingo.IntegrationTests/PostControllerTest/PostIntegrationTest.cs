@@ -81,14 +81,14 @@ namespace Bingo.IntegrationTests.PostControllerTest
                 postFieldsCollection.Add(new KeyValuePair<string, string>("EventTime", updatePostRequest.EventTime.ToString()));
             if (updatePostRequest.EndTime != null || updatePostRequest.EndTime != 0)
                 postFieldsCollection.Add(new KeyValuePair<string, string>("EndTime", updatePostRequest.EndTime.ToString()));
-            if (updatePostRequest.Event != null)
+            if (updatePostRequest.UpdatedEvent != null)
             {
-                if (updatePostRequest.Event.Slots != null)
-                    postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Slots", updatePostRequest.Event.Slots.ToString()));
-                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Description", updatePostRequest.Event.Description));
-                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Requirements", updatePostRequest.Event.Requirements));
-                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Title", updatePostRequest.Event.Title));
-                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.EntrancePrice", updatePostRequest.Event.EntrancePrice.ToString()));
+                if (updatePostRequest.UpdatedEvent.Slots != null)
+                    postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Slots", updatePostRequest.UpdatedEvent.Slots.ToString()));
+                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Description", updatePostRequest.UpdatedEvent.Description));
+                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Requirements", updatePostRequest.UpdatedEvent.Requirements));
+                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.Title", updatePostRequest.UpdatedEvent.Title));
+                postFieldsCollection.Add(new KeyValuePair<string, string>("Event.EntrancePrice", updatePostRequest.UpdatedEvent.EntrancePrice.ToString()));
             }
                
 

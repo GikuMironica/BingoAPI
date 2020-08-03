@@ -25,7 +25,7 @@ namespace Bingo.Contracts.V1.Requests.Post
 
         public IFormFile? Picture3 { get; set; }
 
-        public UpdatedEvent? Event { get; set; }
+        public UpdatedEvent? UpdatedEvent { get; set; }
 
         public List<String>? RemainingImagesGuids { get; set; }
         #nullable enable
@@ -55,7 +55,10 @@ namespace Bingo.Contracts.V1.Requests.Post
         #nullable enable
         public string? Requirements { get; set; }
         public int? Slots { get; set; }
+        [Range(0, 24)]
+        public int? Currency { get; set; }
         public double? EntrancePrice { get; set; }
+        [MaxLength(30)]
         public string? Title { get; set; }
     }
 

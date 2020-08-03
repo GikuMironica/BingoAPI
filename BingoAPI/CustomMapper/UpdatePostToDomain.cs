@@ -22,15 +22,21 @@ namespace BingoAPI.CustomMapper
             // map all properties except the tags
             mapper.Map<UpdatePostRequest, Post>(updatePostRequest, post);
 
-            if(updatePostRequest.EventTime != null)
+            if (updatePostRequest.EventTime != null)
             {
                 post.EventTime = updatePostRequest.EventTime.Value;
             }
-            if (updatePostRequest.Event !=null && updatePostRequest.Event.Slots.HasValue)
+            if (!post.Event.GetType().ToString().Contains("HouseParty") 
+                && !post.Event.GetType().ToString().Contains("Bar") 
+                && !post.Event.GetType().ToString().Contains("Club"))
+            {
+                post.Event.EntrancePrice = 0;
+            }
+            if (updatePostRequest.UpdatedEvent !=null && updatePostRequest.UpdatedEvent.Slots.HasValue)
             {
                 if (post.Event.GetType().ToString().Contains("HouseParty"))
                 {
-                    ((HouseParty)(post.Event)).Slots = updatePostRequest.Event.Slots.Value;
+                    ((HouseParty)(post.Event)).Slots = updatePostRequest.UpdatedEvent.Slots.Value;
                 }                    
             }
 
