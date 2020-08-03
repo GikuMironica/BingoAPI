@@ -14,10 +14,10 @@ namespace BingoAPI.CustomValidation
 
             updatedFields.Add("location", updatePostRequest.UserLocation != null);
             updatedFields.Add("event time", updatePostRequest.EventTime != null);
-            if(updatePostRequest.Event != null)
+            if(updatePostRequest.UpdatedEvent != null)
             {
-                updatedFields.Add("requirements", updatePostRequest.Event.Requirements != null);
-                updatedFields.Add("entrance price", updatePostRequest.Event.EntrancePrice != null);
+                updatedFields.Add("requirements", updatePostRequest.UpdatedEvent.Requirements != null);
+                updatedFields.Add("entrance price", updatePostRequest.UpdatedEvent.EntrancePrice != null);
             }
             
 
