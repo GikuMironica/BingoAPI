@@ -310,7 +310,10 @@ namespace BingoAPI.Controllers
                 if (postDetailsWatcher.GetValidatedFields(postRequest))
                 {
                     var participants = await postRepository.GetParticipantsIdAsync(post.Id);
-                    await notificationService.NotifyParticipantsEventUpdatedAsync(participants, post.Event.Title);
+                    if (participants.Count != 0)
+                    {
+                        await notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title);
+                    }
                 }                
 
                 //var locationUri = uriService.GetPostUri(post.Id.ToString());
@@ -358,7 +361,10 @@ namespace BingoAPI.Controllers
 
             // notify users
             var participants = await postRepository.GetParticipantsIdAsync(post.Id);
-            await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
+            if (participants.Count !=0)
+            {
+                await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
+            }
 
             var deleted = await postRepository.DeleteAsync(postId);
             if (deleted)
