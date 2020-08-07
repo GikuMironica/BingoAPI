@@ -152,12 +152,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
         public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery)
-        {
-            var eType = await postsRepository.GetEventType(paginationQuery.Id);
-            if (!await IsOwner(paginationQuery.Id) && eType == 1)
-            {
-                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
-            }
+        {            
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
             var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(paginationQuery.Id, paginationFilter);
             if (ParticipantsList.Count == 0)
