@@ -168,6 +168,35 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
+        /// This endpoint returns brief data about first 3 event attendees.
+        /// </summary>
+        /// <param name="fetchAttendees">Specifies the id of the post</param>
+        /// <response code="200">Returns the data about first 3 attendees and total ammount of users</response>
+        /// <response code="204">No users are accepted to this event yet.</response>
+        [ProducesResponseType(typeof(Response<EventParticipantData>), 200)]
+        [ProducesResponseType(204)]
+        [HttpGet(ApiRoutes.EventAttendees.FetchAcceptedShort)]
+        public async Task<IActionResult> FetchAcceptedShort(FetchAttendeesRequest fetchAttendees)
+        {
+            var ParticipantsList = await eventParticipantsRepository.DisplayShortlyAccepted(fetchAttendees.PostId);
+            var Number = await eventParticipantsRepository.CountAccepted(fetchAttendees.PostId);
+            if (ParticipantsList.Count == 0)
+            {
+                return NoContent();
+            }
+
+            var result = new EventParticipantData
+            {
+                Attendees = mapper.Map<List<EventParticipant>>(ParticipantsList),
+                AttendeesNumber = Number
+            };
+            return Ok(new Response<EventParticipantData>(result));
+        }
+
+
+
+
+        /// <summary>
         /// This endpoint fetches the data about every user who requested to join this event.
         /// </summary>
         /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>

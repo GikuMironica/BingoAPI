@@ -87,6 +87,7 @@ namespace Bingo.Contracts.V1
             public const string Reject = Base + "/rejectattendee";
             public const string FetchAll = Base + "/fetchallattendee";
             public const string FetchAccepted = Base + "/fetchallaccepted";
+            public const string FetchAcceptedShort = Base + "/fetchaccepteddata";
             public const string FetchPending = Base + "/fetchallpending";
         }
 
