@@ -105,7 +105,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             // add announcement
             var newAnnouncement = new CreateAnnouncementRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 Message = "This is a sample Announcement 😋😎😎😶😴🤔😃🤗😢😍🍣🥗☪💫🔯🈚🆑🆎🆎㊗ for a sample post"
             };
 
@@ -114,7 +114,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             {
                 Message = "ShitboxHahaha",
                 Reason = "I dont like it",
-                PostId = post.Id
+                PostId = post.PostId
             };
 
             // report user
@@ -130,8 +130,8 @@ namespace Bingo.IntegrationTests.UserControllerTest
             var host = await AuthenticateAsync();
             var party = await CreateSamplePostAsync();
 
-            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", party.Id.ToString()), null);
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", party.Id.ToString()));
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", party.PostId.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", party.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(user.JWT);

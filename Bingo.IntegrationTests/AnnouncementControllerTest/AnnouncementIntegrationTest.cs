@@ -10,7 +10,7 @@ namespace Bingo.IntegrationTests.AnnouncementControllerTest
 {
     public class AnnouncementIntegrationTest : PostIntegrationTest
     {
-        public async Task<CreatePostResponse> CreateSamplePostAsync()
+        public async Task<Posts> CreateSamplePostAsync()
         {
             var createdPost = new CreatePostRequest
             {

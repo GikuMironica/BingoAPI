@@ -34,12 +34,12 @@ namespace Bingo.IntegrationTests.RatingsTest
             var rating = new CreateRatingRequest
             {
                 Feedback = "Good event 👨‍🦰🧑",
-                PostId = createEvent.Id,
+                PostId = createEvent.PostId,
                 UserId = hostAuthResult.UserId,
                 Rate = 4
             };
 
-            var attentReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response = await rateReq.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
             _ratingId = response.Data.Id;
@@ -119,12 +119,12 @@ namespace Bingo.IntegrationTests.RatingsTest
             var rating = new CreateRatingRequest
             {
                 Feedback = "Good event 👨‍🦰🧑",
-                PostId = createEvent.Id,
+                PostId = createEvent.PostId,
                 UserId = hostAuthResult.UserId,
                 Rate = 4
             };
 
-            var attentReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var rateReq2 = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response = await rateReq.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
@@ -154,7 +154,7 @@ namespace Bingo.IntegrationTests.RatingsTest
             var rating = new CreateRatingRequest
             {
                 Feedback = "Good event 👨‍🦰🧑",
-                PostId = createEvent.Id,
+                PostId = createEvent.PostId,
                 UserId = hostAuthResult.UserId,
                 Rate = 4
             };
@@ -233,32 +233,32 @@ namespace Bingo.IntegrationTests.RatingsTest
             var rating = new CreateRatingRequest
             {
                 Feedback = "Good event 👨‍🦰🧑",
-                PostId = createEvent.Id,
+                PostId = createEvent.PostId,
                 UserId = host.UserId,
                 Rate = 4
             };
             var guest1AuthResult = await AuthenticateAsync(); 
-            var attentReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq1 = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response1 = await rateReq1.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
 
             var guest2AuthResult = await AuthenticateAsync();
-            var attentReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq2 = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response2 = await rateReq2.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
 
             var guest3AuthResult = await AuthenticateAsync();
-            var attentReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq3 = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response3 = await rateReq3.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
 
             var guest4AuthResult = await AuthenticateAsync();
-            var attentReq4 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq4 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq4 = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response4 = await rateReq4.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
 
             var guest5AuthResult = await AuthenticateAsync();
-            var attentReq5 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.Id.ToString()), null);
+            var attentReq5 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", createEvent.PostId.ToString()), null);
             var rateReq5 = await TestClient.PostAsJsonAsync(ApiRoutes.Ratings.Create, rating);
             var response5 = await rateReq5.Content.ReadFromJsonAsync<Response<CreateRatingResponse>>();
 

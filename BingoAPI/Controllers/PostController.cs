@@ -261,8 +261,12 @@ namespace BingoAPI.Controllers
             if (!result)
                 return BadRequest();
 
+            var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+            mappedPost.Slots = post.Event.GetSlotsIfAny();
+            mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+
             var locationUri = uriService.GetPostUri(post.Id.ToString());
-            return Created(locationUri, new Response<CreatePostResponse>(mapper.Map<CreatePostResponse>(post)));
+            return Created(locationUri, new Response<Posts>(mappedPost));
         }
 
 

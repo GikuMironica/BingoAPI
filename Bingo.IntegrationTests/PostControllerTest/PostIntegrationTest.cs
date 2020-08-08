@@ -14,7 +14,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
 {
     public class PostIntegrationTest : IntegrationTest
     {
-        protected async Task<Response<CreatePostResponse>> CreatePostAsync(CreatePostRequest createPostRequest)
+        protected async Task<Response<Posts>> CreatePostAsync(CreatePostRequest createPostRequest)
         {
             string tag1 = null;
             string tag2 = null;
@@ -57,7 +57,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             if (!response.IsSuccessStatusCode)
                 return null;
 
-            return await response.Content.ReadFromJsonAsync<Response<CreatePostResponse>>();
+            return await response.Content.ReadFromJsonAsync<Response<Posts>>();
         }
 
         protected async Task<bool> UpdatePostAsync(UpdatePostRequest updatePostRequest, int id)
