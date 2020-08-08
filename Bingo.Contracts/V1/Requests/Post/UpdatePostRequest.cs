@@ -10,10 +10,9 @@ namespace Bingo.Contracts.V1.Requests.Post
 {
     public class UpdatePostRequest
     {
-        #nullable enable
-        [Required]
+        
         public Int64? EventTime { get; set; }
-        [Required]
+        
         public long? EndTime { get; set; }
 
         #nullable enable

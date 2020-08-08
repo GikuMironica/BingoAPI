@@ -11,7 +11,7 @@ namespace BingoAPI.Validators
     {
         public UpdatePostValidator()
         {
-            RuleFor(x => x.EventTime)
+            /*RuleFor(x => x.EventTime)
                  .GreaterThan(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 600)
                  .WithMessage("Event starting time can't be in the past");
 
@@ -19,7 +19,7 @@ namespace BingoAPI.Validators
                  .GreaterThanOrEqualTo(x => x.EventTime + 900)
                  .WithMessage("Event should last at least 15 min")
                  .LessThan(x => x.EventTime + 43200)
-                 .WithMessage("Event duration time limited to 12h");
+                 .WithMessage("Event duration time limited to 12h");*/
         }
     }
 }

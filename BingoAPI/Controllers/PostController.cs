@@ -280,7 +280,7 @@ namespace BingoAPI.Controllers
         /// <param name="postRequest">The request object, all attributes are optional</param>
         /// <response code="200">Update successful</response>
         /// <response code="400">Attempt to input invalid data</response>
-        /// <response code="403">Not authorized fo this action</response>
+        /// <response code="403">Not authorized for this action</response>
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(SingleError), 400)]
         [ProducesResponseType(typeof(SingleError), 403)]
@@ -296,6 +296,12 @@ namespace BingoAPI.Controllers
             var post = await postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
+
+            var validatedTime = postDetailsWatcher.ValidateUpdatedTime(postRequest, post);
+            if (!validatedTime.Result)
+            {
+                return BadRequest(new SingleError { Message = validatedTime.ErrorMessage });
+            }
 
             Post mappedPost = updatePostToDomain.Map(postRequest, post);
 
