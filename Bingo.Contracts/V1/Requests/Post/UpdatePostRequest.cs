@@ -16,7 +16,8 @@ namespace Bingo.Contracts.V1.Requests.Post
         public long? EndTime { get; set; }
 
         #nullable enable
-        public UpdatedCompleteLocation? UserLocation { get; set; }
+        [Required]
+        public UpdatedCompleteLocation UserLocation { get; set; }
 
         public IFormFile? Picture1 { get; set; }
 

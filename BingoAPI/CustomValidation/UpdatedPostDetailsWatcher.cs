@@ -100,7 +100,7 @@ namespace BingoAPI.CustomValidation
                     return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Can't change start time if event already started" };
                 }
               
-                if (updatePostRequest.EndTime < post.EventTime + 1000)
+                if (updatePostRequest.EndTime < post.EventTime + 900)
                 {
                     return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event should last at least 15 min" };
                 }
@@ -108,12 +108,13 @@ namespace BingoAPI.CustomValidation
                 {
                     return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can last at most 12h" };
                 }
-                if (updatePostRequest.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 2000)
+                if (updatePostRequest.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 1700)
                 {
                     return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can be extended by at least 30 min relative to current time" };
                 }
-
             }
+
+            return new UpdatedTimeValidationResult { Result = true };
         }
     }
 }

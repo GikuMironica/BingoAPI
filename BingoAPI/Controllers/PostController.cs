@@ -297,6 +297,7 @@ namespace BingoAPI.Controllers
             if (post == null)
                 return NotFound();
 
+            // make sure time is updated correctly
             var validatedTime = postDetailsWatcher.ValidateUpdatedTime(postRequest, post);
             if (!validatedTime.Result)
             {
