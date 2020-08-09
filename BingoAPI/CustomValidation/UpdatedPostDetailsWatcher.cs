@@ -37,6 +37,7 @@ namespace BingoAPI.CustomValidation
         {
             // check first if end/start time were changed, if not, aprove.
             if (updatePostRequest.EventTime == null && updatePostRequest.EndTime == null)
+
                 return new UpdatedTimeValidationResult { Result = true };
 
             long currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();

@@ -52,7 +52,6 @@ namespace Bingo.Contracts.V1.Requests.Post
         [MinLength(10)]
         [MaxLength(5000)]
         public string? Description { get; set; }
-        #nullable enable
         public string? Requirements { get; set; }
         public int? Slots { get; set; }
         [Range(0, 24)]
