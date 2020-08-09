@@ -31,6 +31,7 @@ namespace BingoAPI.CustomMapper
                 && !post.Event.GetType().ToString().Contains("Club"))
             {
                 post.Event.EntrancePrice = 0;
+                post.Event.Currency = null;
             }
             if (updatePostRequest.UpdatedEvent !=null && updatePostRequest.UpdatedEvent.Slots.HasValue)
             {
@@ -38,6 +39,12 @@ namespace BingoAPI.CustomMapper
                 {
                     ((HouseParty)(post.Event)).Slots = updatePostRequest.UpdatedEvent.Slots.Value;
                 }                    
+            }
+
+            // Temp workaround for Requirements - (can't be deleted)
+            if(updatePostRequest.UpdatedEvent.Requirements == ":~+_77?!")
+            {
+                post.Event.Requirements = null;
             }
 
             // if updateRequest has tags, delete all tags  from post and assign to it the tags from request object
