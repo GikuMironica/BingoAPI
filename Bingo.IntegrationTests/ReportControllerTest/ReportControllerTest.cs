@@ -31,7 +31,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             {
                 Message = "ShitboxHahaha",
                 Reason = "I dont like it",
-                PostId = post.Id
+                PostId = post.PostId
             };
 
             var reporter1 = await AuthenticateAsync();
@@ -134,7 +134,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             {
                 Message = "ShitboxHahaha",
                 Reason = "I dont like it",
-                PostId = post.Id
+                PostId = post.PostId
             };
             var reportReq = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
             var responseData = await reportReq.Content.ReadFromJsonAsync<Response<CreateReportResponse>>();
@@ -180,7 +180,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             {
                 Message = "ShitboxHahaha",
                 Reason = "I dont like it",
-                PostId = post.Id
+                PostId = post.PostId
             };
             var reportReq = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
             var responseData = await reportReq.Content.ReadFromJsonAsync<Response<CreateReportResponse>>();
@@ -209,7 +209,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             {
                 Message = "To be deleted anyawys",
                 Reason = "I dont like it",
-                PostId = post.Id
+                PostId = post.PostId
             };
 
             var reporter1 = await AuthenticateAsync();
@@ -276,7 +276,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             {
                 Message = "ShitboxHahaha",
                 Reason = "I dont like it",
-                PostId = post.Id
+                PostId = post.PostId
             };
             var reportReq = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
             var responseData = await reportReq.Content.ReadFromJsonAsync<Response<CreateReportResponse>>();

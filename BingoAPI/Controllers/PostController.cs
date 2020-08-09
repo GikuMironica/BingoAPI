@@ -261,8 +261,12 @@ namespace BingoAPI.Controllers
             if (!result)
                 return BadRequest();
 
+            var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+            mappedPost.Slots = post.Event.GetSlotsIfAny();
+            mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+
             var locationUri = uriService.GetPostUri(post.Id.ToString());
-            return Created(locationUri, new Response<CreatePostResponse>(mapper.Map<CreatePostResponse>(post)));
+            return Created(locationUri, new Response<Posts>(mappedPost));
         }
 
 
@@ -276,7 +280,7 @@ namespace BingoAPI.Controllers
         /// <param name="postRequest">The request object, all attributes are optional</param>
         /// <response code="200">Update successful</response>
         /// <response code="400">Attempt to input invalid data</response>
-        /// <response code="403">Not authorized fo this action</response>
+        /// <response code="403">Not authorized for this action</response>
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(SingleError), 400)]
         [ProducesResponseType(typeof(SingleError), 403)]
@@ -292,6 +296,13 @@ namespace BingoAPI.Controllers
             var post = await postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
+
+            // make sure time is updated correctly
+            var validatedTime = postDetailsWatcher.ValidateUpdatedTime(postRequest, post);
+            if (!validatedTime.Result)
+            {
+                return BadRequest(new SingleError { Message = validatedTime.ErrorMessage });
+            }
 
             Post mappedPost = updatePostToDomain.Map(postRequest, post);
 
@@ -310,7 +321,10 @@ namespace BingoAPI.Controllers
                 if (postDetailsWatcher.GetValidatedFields(postRequest))
                 {
                     var participants = await postRepository.GetParticipantsIdAsync(post.Id);
-                    await notificationService.NotifyParticipantsEventUpdatedAsync(participants, post.Event.Title);
+                    if (participants.Count != 0)
+                    {
+                        await notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title);
+                    }
                 }                
 
                 //var locationUri = uriService.GetPostUri(post.Id.ToString());
@@ -358,7 +372,10 @@ namespace BingoAPI.Controllers
 
             // notify users
             var participants = await postRepository.GetParticipantsIdAsync(post.Id);
-            await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
+            if (participants.Count !=0)
+            {
+                await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
+            }
 
             var deleted = await postRepository.DeleteAsync(postId);
             if (deleted)

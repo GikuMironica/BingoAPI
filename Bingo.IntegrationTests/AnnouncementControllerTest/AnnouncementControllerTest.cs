@@ -32,7 +32,7 @@ namespace Bingo.IntegrationTests.AnnouncementControllerTest
             var createPostResult = await CreateSamplePostAsync();
             var newAnnouncement = new CreateAnnouncementRequest
             {
-                PostId = createPostResult.Id,
+                PostId = createPostResult.PostId,
                 Message = "This is a sample Announcement 😋😎😎😶😴🤔😃🤗😢😍🍣🥗☪💫🔯🈚🆑🆎🆎㊗ for a sample post"
             };
 
@@ -50,7 +50,7 @@ namespace Bingo.IntegrationTests.AnnouncementControllerTest
             Assert.NotNull(announcement.Data);
             Assert.Equal("This is a sample Announcement 😋😎😎😶😴🤔😃🤗😢😍🍣🥗☪💫🔯🈚🆑🆎🆎㊗ for a sample post", announcement.Data.Message);
             Assert.NotEqual(0, announcement.Data.Timestamp);
-            Assert.Equal(createPostResult.Id, announcement.Data.PostId);
+            Assert.Equal(createPostResult.PostId, announcement.Data.PostId);
 
         }
 

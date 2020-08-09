@@ -32,20 +32,20 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             var acceptReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -73,12 +73,12 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             var acceptReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -104,7 +104,7 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             };
 
             var acceptReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -123,20 +123,20 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             var acceptReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -161,20 +161,20 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             var rejectReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Reject, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -198,26 +198,26 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             // accept
             var acceptReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
-            var getPostReqBeforeReject = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqBeforeReject = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBeforeReject = await getPostReqBeforeReject.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             //reject
             var rejectReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Reject, acceptUser);
-            var getPostReqAfterReject = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfterReject = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfterReject = await getPostReqAfterReject.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -244,19 +244,19 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             var rejectReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Reject, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -279,7 +279,7 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
@@ -289,7 +289,7 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             };
 
             var rejectReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Reject, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -312,20 +312,20 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             var guest = await AuthenticateAsync();
 
             // Act
-            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
-            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var attendReq = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
+            var getPostReqBefore = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataBefore = await getPostReqBefore.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest.UserId
             };
 
             var rejectReq = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Reject, acceptUser);
-            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfter = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter = await getPostReqAfter.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // Assert
@@ -352,28 +352,28 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
 
             // Request attend
             var guest1 = await AuthenticateAsync();            
-            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest2 = await AuthenticateAsync();
-            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest3 = await AuthenticateAsync();
-            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest4 = await AuthenticateAsync();
-            var attendReq4 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq4 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest5 = await AuthenticateAsync();
-            var attendReq5 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq5 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest6 = await AuthenticateAsync();
-            var attendReq6 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq6 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest1.UserId
             };
             
@@ -386,7 +386,7 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             acceptUser.AttendeeId = guest3.UserId;
             var acceptReq3 = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
                         
-            var getPostReqAfterAccepted3 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfterAccepted3 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter3 = await getPostReqAfterAccepted3.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // accept all request
@@ -399,13 +399,13 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             acceptUser.AttendeeId = guest6.UserId;
             var acceptReq6 = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
 
-            var getPostReqAfterAccepted5 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfterAccepted5 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfterAll = await getPostReqAfterAccepted5.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
-            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.Id.ToString());
+            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.PostId.ToString());
             var acceptedParticipantsData = await getAllAccepted.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
 
-            var getAllParticipants = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAll+"?Id="+post.Id.ToString());
+            var getAllParticipants = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAll+"?Id="+post.PostId.ToString());
             var participantsData = await getAllParticipants.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
 
             // Assert
@@ -445,19 +445,19 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             // Act
             // Request attend
             var guest1 = await AuthenticateAsync();
-            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest2 = await AuthenticateAsync();
-            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest3 = await AuthenticateAsync();
-            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             UpdateToken(host.JWT);
 
             var acceptUser = new AttendeeRequest
             {
-                PostId = post.Id,
+                PostId = post.PostId,
                 AttendeeId = guest1.UserId
             };
 
@@ -470,7 +470,7 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             acceptUser.AttendeeId = guest3.UserId;
             var acceptReq3 = await TestClient.PostAsJsonAsync(ApiRoutes.EventAttendees.Accept, acceptUser);
 
-            var getPostReqAfterAccepted3 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfterAccepted3 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter3 = await getPostReqAfterAccepted3.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
             // delete 1 user
@@ -480,10 +480,10 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             UpdateToken(host.JWT);
 
             // get final data
-            var getPostReqAfterDelete = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfterDelete = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfterDelete = await getPostReqAfterDelete.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
-            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.Id.ToString());
+            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.PostId.ToString());
             var acceptedParticipantsData = await getAllAccepted.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
 
 
@@ -515,20 +515,20 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             // Act
             // Request attend
             var guest1 = await AuthenticateAsync();
-            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest2 = await AuthenticateAsync();
-            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest3 = await AuthenticateAsync();
-            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             UpdateToken(host.JWT);
 
-            var getPostReqAfterAccepted3 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReqAfterAccepted3 = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter3 = await getPostReqAfterAccepted3.Content.ReadFromJsonAsync<Response<PostResponse>>();
             
-            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.Id.ToString());
+            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.PostId.ToString());
             var acceptedParticipantsData = await getAllAccepted.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
 
 
@@ -556,21 +556,21 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             // Act
             // Request attend
             var guest1 = await AuthenticateAsync();
-            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest2 = await AuthenticateAsync();
-            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest3 = await AuthenticateAsync();
-            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             UpdateToken(host.JWT);
 
-            var getPostReq = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReq = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter3 = await getPostReq.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
-            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.Id.ToString());
-            var getAllPending = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.Id.ToString());
+            var getAllAccepted = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchAccepted + "?Id=" + post.PostId.ToString());
+            var getAllPending = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.PostId.ToString());
             var pendingParticipantsData = await getAllPending.Content.ReadFromJsonAsync<PagedResponse<EventParticipant>>();
 
 
@@ -597,20 +597,20 @@ namespace Bingo.IntegrationTests.EventAttendeesControllerTest
             // Act
             // Request attend
             var guest1 = await AuthenticateAsync();
-            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest2 = await AuthenticateAsync();
-            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq2 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             var guest3 = await AuthenticateAsync();
-            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.Id.ToString()), null);
+            var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post.PostId.ToString()), null);
 
             UpdateToken(host.JWT);
 
-            var getPostReq = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString()));
+            var getPostReq = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", post.PostId.ToString()));
             var postDataAfter3 = await getPostReq.Content.ReadFromJsonAsync<Response<PostResponse>>();
 
-            var getAllPending = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.Id.ToString());
+            var getAllPending = await TestClient.GetAsync(ApiRoutes.EventAttendees.FetchPending + "?Id=" + post.PostId.ToString());
 
 
             // Assert

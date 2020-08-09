@@ -152,12 +152,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
         public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery)
-        {
-            var eType = await postsRepository.GetEventType(paginationQuery.Id);
-            if (!await IsOwner(paginationQuery.Id) && eType == 1)
-            {
-                return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
-            }
+        {            
             var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
             var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(paginationQuery.Id, paginationFilter);
             if (ParticipantsList.Count == 0)
@@ -169,6 +164,35 @@ namespace BingoAPI.Controllers
             var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
             return Ok(paginationResponse);
         }
+
+
+
+        /// <summary>
+        /// This endpoint returns brief data about first 3 event attendees.
+        /// </summary>
+        /// <param name="fetchAttendees">Specifies the id of the post</param>
+        /// <response code="200">Returns the data about first 3 attendees and total ammount of users</response>
+        /// <response code="204">No users are accepted to this event yet.</response>
+        [ProducesResponseType(typeof(Response<EventParticipantData>), 200)]
+        [ProducesResponseType(204)]
+        [HttpGet(ApiRoutes.EventAttendees.FetchAcceptedShort)]
+        public async Task<IActionResult> FetchAcceptedShort(FetchAttendeesRequest fetchAttendees)
+        {
+            var ParticipantsList = await eventParticipantsRepository.DisplayShortlyAccepted(fetchAttendees.PostId);
+            var Number = await eventParticipantsRepository.CountAccepted(fetchAttendees.PostId);
+            if (ParticipantsList.Count == 0)
+            {
+                return NoContent();
+            }
+
+            var result = new EventParticipantData
+            {
+                Attendees = mapper.Map<List<EventParticipant>>(ParticipantsList),
+                AttendeesNumber = Number
+            };
+            return Ok(new Response<EventParticipantData>(result));
+        }
+
 
 
 

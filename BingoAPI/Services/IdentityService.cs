@@ -106,6 +106,7 @@ namespace BingoAPI.Services
                 return new AuthenticationResult { Success = true, UserId = newUser.Id };
             else
                 return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+
         }
 
 

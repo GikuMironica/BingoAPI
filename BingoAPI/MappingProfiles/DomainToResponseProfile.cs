@@ -49,8 +49,7 @@ namespace BingoAPI.MappingProfiles
                 .ForPath(dest => dest.Event.Currency, opt => opt.MapFrom(src => src.Event.Currency))
                 .ForMember(dest => dest.RepeatablePropertyDataId, src => src.MapFrom(s => s.Id))
                 .ForMember(dest => dest.VoucherDataId, src => src.MapFrom(s => s.Id))
-                .ForMember(dest => dest.AnnouncementsDataId, src => src.MapFrom(s => s.Id))
-                .ForMember(dest => dest.AttendanceDataId, src => src.MapFrom(s => s.Id));
+                .ForMember(dest => dest.AnnouncementsDataId, src => src.MapFrom(s => s.Id));
                 
 
             // For update post

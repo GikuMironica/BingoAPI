@@ -176,8 +176,8 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Act
             var result = await CreatePostAsync(createdPost);
-            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", result.Data.Id.ToString()));
-            _housePartyId = result.Data.Id;
+            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", result.Data.PostId.ToString()));
+            _housePartyId = result.Data.PostId;
 
             // Assert
             var post = await response.Content.ReadFromJsonAsync<Response<PostResponse>>();
@@ -226,8 +226,8 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             // Act
             var result = await CreatePostAsync(createdPost);
-            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", result.Data.Id.ToString()));
-            _streetPatyId = result.Data.Id;
+            var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", result.Data.PostId.ToString()));
+            _streetPatyId = result.Data.PostId;
 
 
             // Assert
@@ -543,9 +543,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
 
             Assert.True(dataResponse.Data.Count() >= 3);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post2.Id
-                         || p.PostId == post3.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post2.PostId
+                         || p.PostId == post3.PostId);
 
             Assert.True(foundPosts.Count() == 3);            
         }
@@ -573,7 +573,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.NotNull(dataResponse.Data);
             Assert.True(dataResponse.Data.Count() >= 1);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id);
+                .Where(p => p.PostId == post1.PostId);
             Assert.True(foundPosts.Count() == 1);
         }
 
@@ -600,8 +600,8 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.NotNull(dataResponse.Data);
             Assert.True(dataResponse.Data.Count() >= 2);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post2.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post2.PostId);
             Assert.True(foundPosts.Count() == 2);
         }
 
@@ -633,8 +633,8 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.NotNull(dataResponse.Data);
             Assert.True(dataResponse.Data.Count() >= 2);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post2.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post2.PostId);
             Assert.True(foundPosts.Count() == 2);
         }
 
@@ -673,9 +673,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.NotNull(dataResponse.Data);
             Assert.True(dataResponse.Data.Count() >= 3);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post4.Id
-                         || p.PostId == post3.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post4.PostId
+                         || p.PostId == post3.PostId);
             Assert.True(foundPosts.Count() == 3);
         }
 
@@ -707,9 +707,9 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.NotNull(dataResponse.Data);
             Assert.True(dataResponse.Data.Count() >= 3);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post2.Id
-                         || p.PostId == post3.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post2.PostId
+                         || p.PostId == post3.PostId);
             Assert.True(foundPosts.Count() == 3);
         }
 
@@ -741,8 +741,8 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.NotNull(dataResponse.Data);
             Assert.True(dataResponse.Data.Count() >= 2);
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post3.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post3.PostId);
             Assert.True(foundPosts.Count() == 2);
         }
 
@@ -779,13 +779,13 @@ namespace Bingo.IntegrationTests.PostControllerTest
             Assert.True(dataResponse.Data.Count() >= 1);
 
             var foundPosts = dataResponse.Data
-                .Where(p => p.PostId == post3.Id);
+                .Where(p => p.PostId == post3.PostId);
             var shouldNotBeThere = dataResponse.Data
-                .Where(p => p.PostId == post1.Id
-                         || p.PostId == post2.Id
-                         || p.PostId == post4.Id
-                         || p.PostId == post5.Id
-                         || p.PostId == post6.Id);
+                .Where(p => p.PostId == post1.PostId
+                         || p.PostId == post2.PostId
+                         || p.PostId == post4.PostId
+                         || p.PostId == post5.PostId
+                         || p.PostId == post6.PostId);
 
             Assert.Empty(shouldNotBeThere);
             Assert.True(foundPosts.Count() == 1);
@@ -887,7 +887,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             AuthenticateAdmin();
             var disable = new DisablePostRequest
             {
-                Id = post1.Id
+                Id = post1.PostId
             };
 
             // Act
@@ -911,7 +911,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
             AuthenticateAdmin();
             var disable = new DisablePostRequest
             {
-                Id = post1.Id
+                Id = post1.PostId
             };
 
             // Act
@@ -943,7 +943,7 @@ namespace Bingo.IntegrationTests.PostControllerTest
         }
 
 
-        public async Task<CreatePostResponse> CreateSamplePostAsync(string tag, int type=1, double price=9.99, int slots=10, int startTime = 10000, 
+        public async Task<Posts> CreateSamplePostAsync(string tag, int type=1, double price=9.99, int slots=10, int startTime = 10000, 
                                                                     int endTime = 12000, double longit= 0, double lat = 0)
         {
             var createdPost = new CreatePostRequest

@@ -104,6 +104,25 @@ namespace BingoAPI.Models.SqlRepository
                 .Take(paginationFilter.PageSize).ToListAsync();
         }
 
+        public async Task<List<AppUser>> DisplayShortlyAccepted(int postId)
+        {
+            return await context.Participations
+                .Where(p => p.PostId == postId && p.Accepted == 1)
+                .Select(p => p.User)
+                .AsNoTracking()
+                .Take(3)
+                .ToListAsync();
+        }
+
+        public async Task<int> CountAccepted(int postId)
+        {
+            return await context.Participations
+                .Where(p => p.PostId == postId && p.Accepted == 1)
+                .AsNoTracking()
+                .CountAsync();
+        }
+
+
         public async Task<List<AppUser>> DisplayAllPending(int postId, PaginationFilter paginationFilter = null)
         {
             if (paginationFilter == null)
