@@ -8,7 +8,8 @@ namespace Bingo.Contracts.V1.Requests.Report
     public class CreateReportRequest
     {
         [Required]
-        public string Reason { get; set; }
+        [Range(1,6)]
+        public int Reason { get; set; }
 
         [MinLength(10, ErrorMessage = "Minimum length of the report message is 10 char")]
         [Required]
