@@ -15,7 +15,7 @@ namespace BingoAPI.Models
 
         public Int64 Timestamp { get; set; }
 
-        public string Reason { get; set; }
+        public int Reason { get; set; }
 
         public string Message { get; set; }
 

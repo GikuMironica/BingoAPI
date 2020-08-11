@@ -113,7 +113,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it",
+                Reason = 1,
                 PostId = post.PostId
             };
 
@@ -121,7 +121,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             var reportUser = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 2,
                 ReportedUserId = user.UserId
             };
 
