@@ -101,7 +101,7 @@ namespace BingoAPI.Services
 
             // send it per email
             //var mailresult = await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
-            // if (mailresult)
+            //if (mailresult)
                 return new AuthenticationResult { Success = true, UserId = newUser.Id };
             //else
             //return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };

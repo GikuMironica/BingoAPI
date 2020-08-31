@@ -82,7 +82,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint returns all announcements related to a post.
+        /// This endpoint returns all announcements related to a post. The newest come on top of the list.
         /// Can be viewed by event participator / admin / host
         /// </summary>
         /// <param name="postId">The post Id</param>
@@ -109,7 +109,8 @@ namespace BingoAPI.Controllers
 
             if (!(isAdmin || isParticipator))
             {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator / Not owner of post" });
+                if (!(await participationRepository.IsPostOwnerAsync(postId, requester.Id)))
+                    return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator / Not owner of post" });
             }
 
             var announcements = await announcementRepository.GetAllByPostIdAsync(postId);

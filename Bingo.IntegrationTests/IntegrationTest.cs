@@ -31,7 +31,7 @@ namespace Bingo.IntegrationTests
     public class IntegrationTest
     {
         protected readonly HttpClient TestClient;
-        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiNWFkNzc0YzUtMmU4MS00NDA0LTkzYTMtNzVkMDhjY2MzNTFkIiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTk2OTgxNjA1LCJleHAiOjE1OTcwMTc2MDUsImlhdCI6MTU5Njk4MTYwNX0.ZjBkVXvR5yThbTBSmKQrw9XanUBh0OV5Apx9HoP0fds";
+        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiMTFlYzMyMjQtNzhjOS00ZDlhLTk5ZGItZGE5ZGFjMTQ3YjBlIiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTk3MTkwMDE3LCJleHAiOjE1OTcyMjYwMTcsImlhdCI6MTU5NzE5MDAxN30.S9BQETZl38UMtW-Qyvv51gdO4WZJ7PLzR7ZVFi0KbMI";
         public IntegrationTest()
         {
             var appFactory = new WebApplicationFactory<Startup>()

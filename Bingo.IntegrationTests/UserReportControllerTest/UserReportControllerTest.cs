@@ -57,7 +57,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
 
             Assert.NotNull(getReportData.Data);
             Assert.Equal("He is a nutbag", getReportData.Data.Message);
-            Assert.Equal("Spam", getReportData.Data.Reason);
+            Assert.Equal(1, getReportData.Data.Reason);
 
         }
 
