@@ -164,6 +164,38 @@ namespace BingoAPI.Controllers
         }
 
 
+
+        /// <summary>
+        /// This endpoint returns all events that the user will attend or has attended already, and that contains any announcements.
+        /// The returned list of posts is sorted descending by the timestamp of their last announcement. 
+        /// i.e the post with the most recent announcement comes on top of the list.
+        /// </summary>
+        /// <response code="200">Returns a custom mini post for announcement data.</response>
+        /// <response code="204">No announcements to display</response>
+        [HttpGet(ApiRoutes.Posts.GetAllWithAnnouncements)]
+        public async Task<IActionResult> GetAllWithAnnouncements()
+        {
+            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await eventAttendanceService.GetAttendedEventsWithAnnouncements(user.Id);
+
+            if (result.Count == 0)
+                return NoContent();
+
+            var resultList = new List<MiniPostForAnnouncements>();
+            foreach (var post in result)
+            {
+                var mappedPost = domainToResponseMapper.MapMiniPostForAnnouncementsList(post, eventTypes);
+                resultList.Add(mappedPost);
+            }
+
+            return Ok(new Response<List<MiniPostForAnnouncements>> { Data = resultList });
+        }
+
+
+
         /// <summary>
         /// This endpoint removes the requester from the participation list of an event
         /// The user data is retrieved from the JWT.

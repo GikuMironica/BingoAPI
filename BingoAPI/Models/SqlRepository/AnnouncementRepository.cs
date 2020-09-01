@@ -36,6 +36,7 @@ namespace BingoAPI.Models.SqlRepository
         {
             return await context.Announcements
                 .Where(a => a.PostId == id)
+                .OrderByDescending(a => a.Timestamp)
                 .AsNoTracking()
                 .ToListAsync();
         }
