@@ -76,7 +76,7 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// This endpoint returns relevant data about a post.
-        /// It includes the owner id, the location, pictures, tags
+        /// It includes the host id, the location, pictures, tags and other details.
         /// </summary>
         /// <param name="postId">The post Id</param>
         /// <response code="200">The post was found and returned</response>
@@ -115,11 +115,11 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint is used to fetch all currenttly active events hosted by the requester.
+        /// This endpoint is used to fetch all currently active events hosted by the requester.
         /// The user data is retrieved from the JWT.
         /// </summary>
-        /// <param name="paginationQuery">Containes the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
-        /// <response code="200">Returns shrunk data of the posts</response>
+        /// <param name="paginationQuery">Contains the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
+        /// <response code="200">Returns the standard mini post</response>
         /// <response code="204">User has no active posts</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
@@ -153,7 +153,7 @@ namespace BingoAPI.Controllers
         /// The user data is retrieved from the JWT.
         /// </summary>
         /// <param name="paginationQuery">Containes the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
-        /// <response code="200">Returns shrunk data of the posts</response>
+        /// <response code="200">Returns the standard mini post</response>
         /// <response code="204">User did not host any event yet</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
@@ -190,7 +190,7 @@ namespace BingoAPI.Controllers
         /// <param name="getAllRequest">Contains users Longitude,Latitude and search range</param>
         /// <param name="filteredGetAll">Event types to be included in the search result. If all are null or false, all of them will be included in the result. 
         /// It also contains an option to returns the events which will occur today. And lastly, Tag, will return posts containig this tag.</param>
-        /// <response code="200">Returns shrunk data of the post</response>
+        /// <response code="200">Returns the standard mini post</response>
         /// <response code="204">No active events in this area</response>
         [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
         [ProducesResponseType(204)]
@@ -224,11 +224,11 @@ namespace BingoAPI.Controllers
             return Ok(new Response<List<Posts>> { Data = resultList });
         }
 
-
+        
 
         /// <summary>
-        /// This endpoint is used for creating posts
-        /// A post includes location, event, pictures, tags.
+        /// This endpoint is used for creating posts.
+        /// A post includes location, event, pictures, tags and other details.
         /// </summary>
         /// <param name="postRequest">request object</param>
         /// <response code="201">Post successfuly created</response>

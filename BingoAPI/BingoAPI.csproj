@@ -25,6 +25,8 @@
     <Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.Designer.cs" />
     <Compile Remove="Migrations\20200619123001_addTagIndexesOnMigration.cs" />
     <Compile Remove="Migrations\20200619123001_addTagIndexesOnMigration.Designer.cs" />
+    <Compile Remove="Migrations\20200811230437_ReportChange.cs" />
+    <Compile Remove="Migrations\20200811230437_ReportChange.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

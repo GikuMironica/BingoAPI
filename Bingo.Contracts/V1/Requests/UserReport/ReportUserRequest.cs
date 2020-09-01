@@ -8,7 +8,8 @@ namespace Bingo.Contracts.V1.Requests.UserReport
     public class ReportUserRequest
     {
         [Required]
-        public string Reason { get; set; }
+        [Range(1, 6)]
+        public int Reason { get; set; }
 
         public string? Message { get; set; }
 

@@ -114,7 +114,7 @@ namespace BingoAPI.Models.SqlRepository
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
                 .Where(p => p.ActiveFlag == 0)
-                .Take(50)
+                .Take(30)
                 .ToListAsync();
         }
 
@@ -139,6 +139,23 @@ namespace BingoAPI.Models.SqlRepository
                     .CountAsync();
 
             return result > 0;
+        }
+
+        public async Task<List<Post>> GetAttendedEventsWithAnnouncements(string userId)
+        {
+            return await context.Participations
+                .Where(p => p.UserId == userId && p.Accepted == 1)
+                .Include(p => p.Post)
+                .Include(p => p.Post.Location)
+                .Include(p => p.Post.Event)
+                .Include(p => p.Post.Announcements)
+                .Select(p => p.Post)
+                .Where(p => p.Announcements.Count > 0)
+                .OrderByDescending(p => p.Announcements
+                    .OrderByDescending(a => a.Timestamp)
+                    .FirstOrDefault())
+                .Take(30)
+                .ToListAsync();
         }
     }
 }

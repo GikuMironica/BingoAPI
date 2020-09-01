@@ -36,7 +36,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 1,
                 ReportedUserId = reported.UserId
             };
             var reportResponse = await TestClient.PostAsJsonAsync(ApiRoutes.UserReports.Create, report);
@@ -57,7 +57,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
 
             Assert.NotNull(getReportData.Data);
             Assert.Equal("He is a nutbag", getReportData.Data.Message);
-            Assert.Equal("Spam", getReportData.Data.Reason);
+            Assert.Equal(1, getReportData.Data.Reason);
 
         }
 
@@ -98,7 +98,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "haha",
-                Reason = "gsdgs"
+                Reason = 2
             };
             var reportResponse = await TestClient.PostAsJsonAsync(ApiRoutes.UserReports.Create, report);
             var response = await reportResponse.Content.ReadFromJsonAsync<Response<CreateUserReportResponse>>();
@@ -123,7 +123,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 4,
                 ReportedUserId = reported.UserId
             };
             var report1Response = await TestClient.PostAsJsonAsync(ApiRoutes.UserReports.Create, report);
@@ -154,7 +154,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 5,
                 ReportedUserId = host.UserId
             };
 
@@ -182,7 +182,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 1,
                 ReportedUserId = host.UserId
             };
 
@@ -210,7 +210,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 2,
                 ReportedUserId = host.UserId
             };
 
@@ -237,7 +237,7 @@ namespace Bingo.IntegrationTests.UserReportControllerTest
             var report = new ReportUserRequest
             {
                 Message = "He is a nutbag",
-                Reason = "Spam",
+                Reason = 3,
                 ReportedUserId = reported.UserId
             };
             var reportResponse1 = await TestClient.PostAsJsonAsync(ApiRoutes.UserReports.Create, report);

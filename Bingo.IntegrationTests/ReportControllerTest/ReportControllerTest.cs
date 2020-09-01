@@ -30,7 +30,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it",
+                Reason = 2,
                 PostId = post.PostId
             };
 
@@ -87,7 +87,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it"
+                Reason = 2
             };
 
             var reporter1 = await AuthenticateAsync();
@@ -108,7 +108,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it",
+                Reason = 2,
                 PostId = 99999999
             };
 
@@ -133,7 +133,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it",
+                Reason = 3,
                 PostId = post.PostId
             };
             var reportReq = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
@@ -179,7 +179,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it",
+                Reason = 3,
                 PostId = post.PostId
             };
             var reportReq = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
@@ -208,7 +208,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "To be deleted anyawys",
-                Reason = "I dont like it",
+                Reason = 5,
                 PostId = post.PostId
             };
 
@@ -275,7 +275,7 @@ namespace Bingo.IntegrationTests.ReportControllerTest
             var report = new CreateReportRequest
             {
                 Message = "ShitboxHahaha",
-                Reason = "I dont like it",
+                Reason = 4,
                 PostId = post.PostId
             };
             var reportReq = await TestClient.PostAsJsonAsync(ApiRoutes.Reports.Create, report);
