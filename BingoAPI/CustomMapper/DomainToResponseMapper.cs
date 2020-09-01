@@ -1,4 +1,5 @@
 ﻿
+using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Domain;
 using BingoAPI.Models;
@@ -36,6 +37,28 @@ namespace BingoAPI.CustomMapper
                 PostTime = post.PostTime,
                 RepteatableEnabled = post.Repeatable.Enabled,
                 VouchersEnabled = post.Voucher.Enabled
+            };
+        }
+
+        public MiniPostForAnnouncements MapMiniPostForAnnouncementsList(Post post, EventTypes eventTypes)
+        {
+            string eventType = post.Event.GetType().Name.ToString();
+            var eventTypeNumber = eventTypes.Types
+            .Where(y => y.Type == eventType)
+            .Select(x => x.Id)
+            .FirstOrDefault();
+
+            var lastAnnouncement = post.Announcements.OrderByDescending(a => a.Timestamp).FirstOrDefault();
+                     
+
+            return new MiniPostForAnnouncements
+            {
+                PostId = post.Id,               
+                Thumbnail = post.Pictures.FirstOrDefault(),
+                PostType = eventTypeNumber,
+                Title = post.Event.Title,
+                LastMessage = lastAnnouncement.Message,
+                LastMessageTime = lastAnnouncement.Timestamp               
             };
         }
     }
