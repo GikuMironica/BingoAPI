@@ -172,6 +172,8 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <response code="200">Returns a custom mini post for announcement data.</response>
         /// <response code="204">No announcements to display</response>
+        [ProducesResponseType(typeof(Response<List<MiniPostForAnnouncements>>), 200)]
+        [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Posts.GetAllWithAnnouncements)]
         public async Task<IActionResult> GetAllWithAnnouncements()
         {
