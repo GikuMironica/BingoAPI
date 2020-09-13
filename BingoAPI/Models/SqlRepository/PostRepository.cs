@@ -27,6 +27,23 @@ namespace BingoAPI.Models.SqlRepository
             this.eventTypes = eventTypes.Value;
         }
 
+
+        public async Task<List<Post>> GetEventsWithOutbox(string userId)
+        {
+            return await _context.Posts
+                .Where(p => p.UserId == userId)
+                .Include(p => p.Location)
+                .Include(p => p.Event)
+                .Include(p => p.Announcements)
+                .Where(p => p.Announcements.Count > 0 )
+                .OrderByDescending(p => p.Announcements
+                    .OrderByDescending(a => a.Timestamp)
+                    .FirstOrDefault())
+                .Take(30)
+                .ToListAsync();
+        }
+
+
         public async Task<bool> AddAsync(Post entity)
         {
             var result = 0;

@@ -74,6 +74,10 @@ namespace BingoAPI.Controllers
             {
                 return NotFound();
             }
+            if(post.UserId == user.Id)
+            {
+                return BadRequest(new SingleError { Message = "Cant join own event " });
+            }
             var result = await eventAttendanceService.AttendEvent(user, postId);
 
             if (!result.Result)
@@ -172,7 +176,9 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <response code="200">Returns a custom mini post for announcement data.</response>
         /// <response code="204">No announcements to display</response>
-        [HttpGet(ApiRoutes.Posts.GetAllWithAnnouncements)]
+        [ProducesResponseType(typeof(Response<List<MiniPostForAnnouncements>>), 200)]
+        [ProducesResponseType(204)]
+        [HttpGet(ApiRoutes.AttendedEvents.GetAllWithAnnouncements)]
         public async Task<IActionResult> GetAllWithAnnouncements()
         {
             var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
