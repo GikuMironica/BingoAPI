@@ -141,6 +141,7 @@ namespace BingoAPI.Models.SqlRepository
             return result > 0;
         }
 
+
         public async Task<List<Post>> GetAttendedEventsWithAnnouncements(string userId)
         {
             return await context.Participations

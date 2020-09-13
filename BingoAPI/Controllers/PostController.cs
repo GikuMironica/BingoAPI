@@ -3,6 +3,7 @@ using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
+using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Cache;
 using BingoAPI.CustomMapper;
@@ -224,7 +225,36 @@ namespace BingoAPI.Controllers
             return Ok(new Response<List<Posts>> { Data = resultList });
         }
 
-        
+
+        /// <summary>
+        /// This endpoint returns miniposts of user's posts that have any announcements.
+        /// The returned list of posts is sorted descending by the timestamp of their last announcement.
+        /// I.e miniposts for the outbox.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet(ApiRoutes.Posts.GetAllWithOutbox)]
+        public async Task<IActionResult> GetAllWithOutbox()
+        {
+            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await postRepository.GetEventsWithOutbox(user.Id);
+
+            if (result.Count == 0)
+                return NoContent();
+
+            var resultList = new List<MiniPostForAnnouncements>();
+            foreach (var post in result)
+            {
+                var mappedPost = domainToResponseMapper.MapMiniPostForAnnouncementsList(post, eventTypes);
+                resultList.Add(mappedPost);
+            }
+
+            return Ok(new Response<List<MiniPostForAnnouncements>> { Data = resultList });
+        }
+
+
 
         /// <summary>
         /// This endpoint is used for creating posts.

@@ -58,11 +58,11 @@ namespace Bingo.Contracts.V1
         {
             public const string GetAll = Base + "/posts";
 
-            public const string GetAllWithAnnouncements = Base + "/posts/withannouncements";
-
             public const string GetAllActive = Base + "/posts/myactive";
 
             public const string GetAllInactive = Base + "/posts/myinactive";
+
+            public const string GetAllWithOutbox = Base + "/posts/withoutbox";
 
             public const string Get = Base + "/posts/{postId}";
 
@@ -81,6 +81,7 @@ namespace Bingo.Contracts.V1
             public const string UnAttend = Base + "/unattend/{postId}";
             public const string GetActiveAttendedPosts = Base + "/attendedactive";
             public const string GetInactiveAttendedPosts = Base + "/attendedinactive";
+            public const string GetAllWithAnnouncements = Base + "/attended/withannouncements";
         }
 
         public static class EventAttendees
