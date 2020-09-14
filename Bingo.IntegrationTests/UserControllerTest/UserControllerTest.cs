@@ -154,7 +154,7 @@ namespace Bingo.IntegrationTests.UserControllerTest
             reportResponse.StatusCode.Should().Be(HttpStatusCode.Created);
             reportReq1.StatusCode.Should().Be(HttpStatusCode.Created);
             createAnnouncementResponse.StatusCode.Should().Be(HttpStatusCode.Created);
-            attendReq.StatusCode.Should().Be(HttpStatusCode.OK);
+            attendReq.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         }
     }
 }
