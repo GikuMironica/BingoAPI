@@ -34,22 +34,22 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class PostController : Controller
     {
-        private readonly EventTypes eventTypes;
-        private readonly IMapper mapper;
-        private readonly ICreatePostRequestMapper createPostRequestMapper;
-        private readonly UserManager<AppUser> userManager;
-        private readonly IPostsRepository postRepository;
-        private readonly IAwsBucketManager awsBucketManager;
-        private readonly ILogger<PostController> logger;
-        private readonly IUriService uriService;
-        private readonly IUpdatePostToDomain updatePostToDomain;
-        private readonly IImageLoader imageLoader;
-        private readonly IDomainToResponseMapper domainToResponseMapper;
-        private readonly INotificationService notificationService;
-        private readonly IUpdatedPostDetailsWatcher postDetailsWatcher;
-        private readonly IRatingRepository ratingRepository;
-        private readonly IEventAttendanceRepository attendanceRepository;
-        private readonly IRequestToDomainMapper requestToDomainMapper;
+        private readonly EventTypes _eventTypes;
+        private readonly IMapper _mapper;
+        private readonly ICreatePostRequestMapper _createPostRequestMapper;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IPostsRepository _postRepository;
+        private readonly IAwsBucketManager _awsBucketManager;
+        private readonly ILogger<PostController> _logger;
+        private readonly IUriService _uriService;
+        private readonly IUpdatePostToDomain _updatePostToDomain;
+        private readonly IImageLoader _imageLoader;
+        private readonly IDomainToResponseMapper _domainToResponseMapper;
+        private readonly INotificationService _notificationService;
+        private readonly IUpdatedPostDetailsWatcher _postDetailsWatcher;
+        private readonly IRatingRepository _ratingRepository;
+        private readonly IEventAttendanceRepository _attendanceRepository;
+        private readonly IRequestToDomainMapper _requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
@@ -57,22 +57,22 @@ namespace BingoAPI.Controllers
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
                               , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
         {
-            this.eventTypes = eventTypes.Value;
-            this.mapper = mapper;
-            this.createPostRequestMapper = createPostRequestMapper;
-            this.userManager = userManager;
-            this.postRepository = postRepository;
-            this.awsBucketManager = awsBucketManager;
-            this.logger = logger;
-            this.uriService = uriService;
-            this.updatePostToDomain = updatePostToDomain;
-            this.imageLoader = imageLoader;
-            this.domainToResponseMapper = domainToResponseMapper;
-            this.notificationService = notificationService;
-            this.postDetailsWatcher = postDetailsWatcher;
-            this.ratingRepository = ratingRepository;
-            this.attendanceRepository = attendanceRepository;
-            this.requestToDomainMapper = requestToDomainMapper;
+            this._eventTypes = eventTypes.Value;
+            this._mapper = mapper;
+            this._createPostRequestMapper = createPostRequestMapper;
+            this._userManager = userManager;
+            this._postRepository = postRepository;
+            this._awsBucketManager = awsBucketManager;
+            this._logger = logger;
+            this._uriService = uriService;
+            this._updatePostToDomain = updatePostToDomain;
+            this._imageLoader = imageLoader;
+            this._domainToResponseMapper = domainToResponseMapper;
+            this._notificationService = notificationService;
+            this._postDetailsWatcher = postDetailsWatcher;
+            this._ratingRepository = ratingRepository;
+            this._attendanceRepository = attendanceRepository;
+            this._requestToDomainMapper = requestToDomainMapper;
         }
 
         /// <summary>
@@ -88,28 +88,28 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Get([FromRoute] int postId)
         {
 
-            var post = await postRepository.GetByIdAsync(postId);
+            var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
 
-            var response = new Response<PostResponse>(mapper.Map<PostResponse>(post));
+            var response = new Response<PostResponse>(_mapper.Map<PostResponse>(post));
 
-            string eventType = post.Event.GetType().Name.ToString();
+            string eventType = post.Event.GetType().Name;
 
-            var eventTypeNumber = eventTypes.Types
+            var eventTypeNumber = _eventTypes.Types
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
 
             if(eventTypeNumber == 1)
             {
-                response.Data.AvailableSlots = await postRepository.GetAvailableSlotsAsync(postId);
+                response.Data.AvailableSlots = await _postRepository.GetAvailableSlotsAsync(postId);
             }
 
-            response.Data.IsAttending = await attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
+            response.Data.IsAttending = await _attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
 
             response.Data.Event.EventType = eventTypeNumber;
-            response.Data.HostRating = await ratingRepository.GetUserRating(post.UserId);
+            response.Data.HostRating = await _ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny();
             return Ok(response);
         }
@@ -128,10 +128,10 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
             var userId = HttpContext.GetUserId();
-            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
-            var posts = await postRepository.GetMyActive(userId, paginationFilter);
+            var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
+            var posts = await _postRepository.GetMyActive(userId, paginationFilter);
 
-            if (posts.Count() == 0)
+            if (!posts.Any())
             {
                 return NoContent();
             }
@@ -139,12 +139,12 @@ namespace BingoAPI.Controllers
             var resultList = new List<Posts>();
             foreach (var post in posts)
             {
-                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
-            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, resultList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, resultList);
             return Ok(paginationResponse);
         }
 
@@ -162,10 +162,10 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
             var userId = HttpContext.GetUserId();
-            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
-            var posts = await postRepository.GetMyInactive(userId, paginationFilter);
+            var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
+            var posts = await _postRepository.GetMyInactive(userId, paginationFilter);
 
-            if (posts.Count() == 0)
+            if (!posts.Any())
             {
                 return NoContent();
             }
@@ -173,12 +173,12 @@ namespace BingoAPI.Controllers
             var resultList = new List<Posts>();
             foreach (var post in posts)
             {
-                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
-            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, resultList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, resultList);
             return Ok(paginationResponse);
         }
 
@@ -199,14 +199,14 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
-            var filter = requestToDomainMapper.MapPostFilterRequestToDomain(mapper, filteredGetAll);
-            Int64 Today = 15778476 + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var filter = _requestToDomainMapper.MapPostFilterRequestToDomain(_mapper, filteredGetAll);
+            Int64 today = 15778476 + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             if (filteredGetAll.Today.GetValueOrDefault(false))
             {
-                Today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
+                today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
             }
 
-            var posts = await postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, Today, filteredGetAll.Tag ?? "%");
+            var posts = await _postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, today, filteredGetAll.Tag ?? "%");
             if (posts == null || posts.Count() == 0)
             {
                 return NoContent();
@@ -216,9 +216,9 @@ namespace BingoAPI.Controllers
 
             foreach (var post in posts)
             {
-                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
 
@@ -226,35 +226,7 @@ namespace BingoAPI.Controllers
         }
 
 
-        /// <summary>
-        /// This endpoint returns miniposts of user's posts that have any announcements.
-        /// The returned list of posts is sorted descending by the timestamp of their last announcement.
-        /// I.e miniposts for the outbox.
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet(ApiRoutes.Posts.GetAllWithOutbox)]
-        public async Task<IActionResult> GetAllWithOutbox()
-        {
-            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            if (user == null)
-                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
-
-            var result = await postRepository.GetEventsWithOutbox(user.Id);
-
-            if (result.Count == 0)
-                return NoContent();
-
-            var resultList = new List<MiniPostForAnnouncements>();
-            foreach (var post in result)
-            {
-                var mappedPost = domainToResponseMapper.MapMiniPostForAnnouncementsList(post, eventTypes);
-                resultList.Add(mappedPost);
-            }
-
-            return Ok(new Response<List<MiniPostForAnnouncements>> { Data = resultList });
-        }
-
-
+        
 
         /// <summary>
         /// This endpoint is used for creating posts.
@@ -268,34 +240,34 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(SingleError), 400)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
-            var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            if(User.FirstName == null || User.LastName == null)
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            if(user.FirstName == null || user.LastName == null)
             {
                 return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
             }
-            var activePosts = await postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
+            var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
             if(activePosts != 0)
             {
-                var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, User);
+                var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, user);
                 if(!isAdmin)
                     return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
             }
 
-            var post = createPostRequestMapper.MapRequestToDomain(postRequest, User);
+            var post = _createPostRequestMapper.MapRequestToDomain(postRequest, user);
             post.ActiveFlag = 1;
 
             var imagesProcessingResult = await ProcessImagesAsync(postRequest.Picture1, postRequest.Picture2, postRequest.Picture3, post);
             if (!imagesProcessingResult.Result) { return BadRequest(new SingleError { Message = imagesProcessingResult.ErrorMessage }); }
 
-            var result = await postRepository.AddAsync(post);
+            var result = await _postRepository.AddAsync(post);
             if (!result)
                 return BadRequest();
 
-            var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+            var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
             mappedPost.Slots = post.Event.GetSlotsIfAny();
-            mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+            mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
 
-            var locationUri = uriService.GetPostUri(post.Id.ToString());
+            var locationUri = _uriService.GetPostUri(post.Id.ToString());
             return Created(locationUri, new Response<Posts>(mappedPost));
         }
 
@@ -317,24 +289,24 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update(int postId, [FromForm]UpdatePostRequest postRequest)
         {
-            var userisOwnerOrAdmin = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
+            var userisOwnerOrAdmin = await _postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
             if (!userisOwnerOrAdmin)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            var post = await postRepository.GetByIdAsync(postId);
+            var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
 
             // make sure time is updated correctly
-            var validatedTime = postDetailsWatcher.ValidateUpdatedTime(postRequest, post);
+            var validatedTime = _postDetailsWatcher.ValidateUpdatedTime(postRequest, post);
             if (!validatedTime.Result)
             {
                 return BadRequest(new SingleError { Message = validatedTime.ErrorMessage });
             }
 
-            Post mappedPost = updatePostToDomain.Map(postRequest, post);
+            Post mappedPost = _updatePostToDomain.Map(postRequest, post);
 
             // delete existing pictures -> rep\upload
             await DeletePicturesAsync(postRequest, mappedPost);
@@ -344,16 +316,16 @@ namespace BingoAPI.Controllers
                 return BadRequest(new SingleError { Message = imagesProcessingResult.ErrorMessage });
             }
 
-            var updated = await postRepository.UpdateAsync(mappedPost);
+            var updated = await _postRepository.UpdateAsync(mappedPost);
             if (updated)
             {
                 // notify atendee if something important got updated
-                if (postDetailsWatcher.GetValidatedFields(postRequest))
+                if (_postDetailsWatcher.GetValidatedFields(postRequest))
                 {
-                    var participants = await postRepository.GetParticipantsIdAsync(post.Id);
+                    var participants = await _postRepository.GetParticipantsIdAsync(post.Id);
                     if (participants.Count != 0)
                     {
-                        await notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title);
+                        await _notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title);
                     }
                 }                
 
@@ -379,14 +351,14 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> Delete([FromRoute] int postId )
         {
-            var userOwnsPost = await postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
+            var userOwnsPost = await _postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
 
             if (!userOwnsPost)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            var post = await postRepository.GetByIdAsync(postId);
+            var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
             {
                  return NotFound();
@@ -394,20 +366,20 @@ namespace BingoAPI.Controllers
             List<string> deletedImagesList = post.Pictures;
 
             // delete from the S3 bucket the delete pictures
-            if (deletedImagesList.Count > 0)
+            if (deletedImagesList != null && deletedImagesList.Count > 0)
             {
                 // errors logged in bucketManager
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);                
+                var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);                
             }
 
             // notify users
-            var participants = await postRepository.GetParticipantsIdAsync(post.Id);
+            var participants = await _postRepository.GetParticipantsIdAsync(post.Id);
             if (participants.Count !=0)
             {
-                await notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
+                await _notificationService.NotifyParticipantsEventDeletedAsync(participants, post.Event.Title);
             }
 
-            var deleted = await postRepository.DeleteAsync(postId);
+            var deleted = await _postRepository.DeleteAsync(postId);
             if (deleted)
                 return NoContent();
 
@@ -425,13 +397,13 @@ namespace BingoAPI.Controllers
         [HttpPut(ApiRoutes.Posts.DisablePost)]
         public async Task<IActionResult> Disable([FromBody] DisablePostRequest disableRequest)
         {
-            var post = await postRepository.GetPlainPostAsync(disableRequest.Id);
+            var post = await _postRepository.GetPlainPostAsync(disableRequest.Id);
             if(post == null)
             {
                 return NotFound();
             }
 
-            var result = await postRepository.DisablePost(post);
+            var result = await _postRepository.DisablePost(post);
             if (result)
             {
                 return Ok();
@@ -453,12 +425,12 @@ namespace BingoAPI.Controllers
 
             if ((pictures.Count > 0))
             {
-                ImageProcessingResult imageProcessingResult = await imageLoader.LoadFiles(pictures);
+                ImageProcessingResult imageProcessingResult = await _imageLoader.LoadFiles(pictures);
 
                 if (imageProcessingResult.Result)
                 {
                     imageProcessingResult.BucketPath = AwsAssetsPath.PostPictures;
-                    var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
+                    var uploadResult = await _awsBucketManager.UploadFileAsync(imageProcessingResult);
                     if (!uploadResult.Result)
                     {
                         return new ImageProcessingResult{ Result = false, ErrorMessage = "The provided images couldn't be stored. Try to upload other pictures." };
@@ -479,7 +451,7 @@ namespace BingoAPI.Controllers
             if (deletedImages.Count > 0)
             {
                 // errors logged in bucketManager
-                var deletedPicturesResult = await awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);                
+                var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);                
                 post.Pictures = postRequest.RemainingImagesGuids;
             }
         }

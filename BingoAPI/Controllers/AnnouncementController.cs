@@ -13,9 +13,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Bingo.Contracts.V1.Responses.AttendedEvent;
+using BingoAPI.CustomMapper;
+using BingoAPI.Domain;
+using Microsoft.Extensions.Options;
 
 namespace BingoAPI.Controllers
 {
@@ -23,26 +26,31 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class AnnouncementController : Controller
     {
-        private readonly UserManager<AppUser> userManager;
-        private readonly IPostsRepository postsRepository;
-        private readonly IAnnouncementRepository announcementRepository;
-        private readonly IMapper mapper;
-        private readonly IUriService uriService;
-        private readonly IEventParticipantsRepository participationRepository;
-        private readonly INotificationService notificationService;
+        private readonly UserManager<AppUser> _userManager;
+        private EventTypes _eventTypes;
+        private readonly IPostsRepository _postsRepository;
+        private readonly IAnnouncementRepository _announcementRepository;
+        private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
+        private readonly IEventParticipantsRepository _participationRepository;
+        private readonly INotificationService _notificationService;
+        private readonly IDomainToResponseMapper _domainToResponseMapper;
 
         public AnnouncementController(UserManager<AppUser> userManager, IPostsRepository postsRepository,
                                       IAnnouncementRepository announcementRepository, IMapper mapper,
                                       IUriService uriService, IEventParticipantsRepository participationRepository,
-                                      INotificationService notificationService)
+                                      INotificationService notificationService, IDomainToResponseMapper domainToResponseMapper, 
+                                      IOptions<EventTypes> eventTypes)
         {
-            this.userManager = userManager;
-            this.postsRepository = postsRepository;
-            this.announcementRepository = announcementRepository;
-            this.mapper = mapper;
-            this.uriService = uriService;
-            this.participationRepository = participationRepository;
-            this.notificationService = notificationService;
+            this._userManager = userManager;
+            this._postsRepository = postsRepository;
+            this._announcementRepository = announcementRepository;
+            this._mapper = mapper;
+            this._uriService = uriService;
+            this._participationRepository = participationRepository;
+            this._notificationService = notificationService;
+            _domainToResponseMapper = domainToResponseMapper;
+            _eventTypes = eventTypes.Value;
         }
 
 
@@ -62,22 +70,22 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Announcements.Get)]
         public async Task<IActionResult> GetAnnouncement([FromRoute] int announcementId)
         {
-            var announcement = await announcementRepository.GetByIdAsync(announcementId);
+            var announcement = await _announcementRepository.GetByIdAsync(announcementId);
             if(announcement == null)
             {
                 return NotFound();
             }
-            var requester = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            var isParticipator = await participationRepository.IsParticipatorAsync(announcement.PostId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
-            var isOwner = await participationRepository.IsPostOwnerAsync(announcement.PostId, requester.Id);
+            var requester = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            var isParticipator = await _participationRepository.IsParticipatorAsync(announcement.PostId, requester.Id);
+            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, requester);
+            var isOwner = await _participationRepository.IsPostOwnerAsync(announcement.PostId, requester.Id);
 
             if(!(isAdmin || isParticipator || isOwner))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator" });
             }
 
-            return Ok(new Response<GetAnnouncement>(mapper.Map<GetAnnouncement>(announcement)));
+            return Ok(new Response<GetAnnouncement>(_mapper.Map<GetAnnouncement>(announcement)));
         }
 
 
@@ -97,29 +105,29 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Announcements.GetAll)]
         public async Task<IActionResult> GetAllAnnouncements([FromRoute] int postId)
         {
-            var requester = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            var post = await postsRepository.GetPlainPostAsync(postId);
+            var requester = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            var post = await _postsRepository.GetPlainPostAsync(postId);
             if (post == null)
             {
                 return NotFound();
             }
 
-            var isParticipator = await participationRepository.IsParticipatorAsync(postId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
+            var isParticipator = await _participationRepository.IsParticipatorAsync(postId, requester.Id);
+            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, requester);
 
             if (!(isAdmin || isParticipator))
             {
-                if (!(await participationRepository.IsPostOwnerAsync(postId, requester.Id)))
+                if (!(await _participationRepository.IsPostOwnerAsync(postId, requester.Id)))
                     return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator / Not owner of post" });
             }
 
-            var announcements = await announcementRepository.GetAllByPostIdAsync(postId);
+            var announcements = await _announcementRepository.GetAllByPostIdAsync(postId);
             if(announcements.Count == 0)
             {
                 return NoContent();
             }
 
-            return Ok(new Response<List<GetAnnouncement>>(mapper.Map<List<GetAnnouncement>>(announcements)));
+            return Ok(new Response<List<GetAnnouncement>>(_mapper.Map<List<GetAnnouncement>>(announcements)));
         }
 
 
@@ -140,34 +148,34 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Announcements.Create)]
         public async Task<IActionResult> CreateAnnouncement([FromBody] CreateAnnouncementRequest createAnnouncementRequest)
         {
-            var User = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            if(User == null)
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            if(user == null)
             {
                 return BadRequest();
             }
-            var isOwnerOrAdmin = await postsRepository.IsPostOwnerOrAdminAsync(createAnnouncementRequest.PostId, User.Id);
+            var isOwnerOrAdmin = await _postsRepository.IsPostOwnerOrAdminAsync(createAnnouncementRequest.PostId, user.Id);
             if (!isOwnerOrAdmin)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            var announcement = mapper.Map<CreateAnnouncementRequest, Announcement>(createAnnouncementRequest);
-            var result = await announcementRepository.AddAsync(announcement);
+            var announcement = _mapper.Map<CreateAnnouncementRequest, Announcement>(createAnnouncementRequest);
+            var result = await _announcementRepository.AddAsync(announcement);
             if (!result)
             {
                 return BadRequest(new SingleError { Message = "This announcement could not be persisted!" });
             }
 
             // notify participants about new announcement
-            var participants = await postsRepository.GetParticipantsIdAsync(createAnnouncementRequest.PostId);
+            var participants = await _postsRepository.GetParticipantsIdAsync(createAnnouncementRequest.PostId);
             if(participants.Count !=0)
             {
-                var post = await postsRepository.GetPlainPostAsync(createAnnouncementRequest.PostId);
-                await notificationService.NotifyParticipantsNewAnnouncementAsync(participants, post.Event.Title);
+                var post = await _postsRepository.GetPlainPostAsync(createAnnouncementRequest.PostId);
+                await _notificationService.NotifyParticipantsNewAnnouncementAsync(participants, post.Event.Title);
             }
 
-            var locationUri = uriService.GetAnnouncementUri(announcement.Id.ToString());
-            return Created(locationUri, new Response<CreateAnnouncementResponse>(mapper.Map<CreateAnnouncementResponse>(announcement)));
+            var locationUri = _uriService.GetAnnouncementUri(announcement.Id.ToString());
+            return Created(locationUri, new Response<CreateAnnouncementResponse>(_mapper.Map<CreateAnnouncementResponse>(announcement)));
         }
 
 
@@ -189,22 +197,22 @@ namespace BingoAPI.Controllers
         [HttpPut(ApiRoutes.Announcements.Update)]
         public async Task<IActionResult> UpdateAnnouncement([FromRoute] int announcementId, [FromBody] UpdateAnnouncementRequest updateRequest)
         {
-            var requester = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            var announcement = await announcementRepository.GetByIdAsync(announcementId);
+            var requester = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            var announcement = await _announcementRepository.GetByIdAsync(announcementId);
             if (announcement == null)
             {
                 return NotFound(new SingleError { Message = "Announcement does not exist" });
             }
 
             var postId = announcement.PostId;
-            var isOwnerOrAdmin = await postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
+            var isOwnerOrAdmin = await _postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
             if (!(isOwnerOrAdmin))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            mapper.Map<UpdateAnnouncementRequest, Announcement>(updateRequest, announcement);
-            var result = await announcementRepository.UpdateAsync(announcement);
+            _mapper.Map<UpdateAnnouncementRequest, Announcement>(updateRequest, announcement);
+            var result = await _announcementRepository.UpdateAsync(announcement);
             if (!result)
                 return BadRequest(new SingleError { Message = "Update Failed" });
 
@@ -229,26 +237,87 @@ namespace BingoAPI.Controllers
         [HttpDelete(ApiRoutes.Announcements.Delete)]
         public async Task<IActionResult> DeleteAnnouncement([FromRoute] int announcementId)
         {
-            var requester = await userManager.FindByIdAsync(HttpContext.GetUserId());
-            var announcement = await announcementRepository.GetByIdAsync(announcementId);
+            var requester = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            var announcement = await _announcementRepository.GetByIdAsync(announcementId);
             if (announcement == null)
             {
                 return NotFound(new SingleError { Message = "Announcement does not exist" });
             }
 
             var postId = announcement.PostId;
-            var isOwner = await postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(userManager, requester);
+            var isOwner = await _postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
+            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, requester);
             if (!(isAdmin || isOwner))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            var result = await announcementRepository.DeleteAsync(announcementId);
+            var result = await _announcementRepository.DeleteAsync(announcementId);
             if (!result)
                 return BadRequest(new SingleError { Message = "Delete Failed" });
 
             return NoContent();
+        }
+
+
+        /// <summary>
+        /// This endpoint returns miniposts of user's posts that have any announcements.
+        /// The returned list of posts is sorted descending by the timestamp of their last announcement.
+        /// I.e miniposts for the outbox.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet(ApiRoutes.Announcements.GetOutbox)]
+        public async Task<IActionResult> GetAllWithOutbox()
+        {
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await _announcementRepository.GetEventsWithOutbox(user.Id);
+
+            if (result.Count == 0)
+                return NoContent();
+
+            var resultList = new List<MiniPostForAnnouncements>();
+            foreach (var post in result)
+            {
+                var mappedPost = _domainToResponseMapper.MapMiniPostForAnnouncementsList(post, _eventTypes);
+                resultList.Add(mappedPost);
+            }
+
+            return Ok(new Response<List<MiniPostForAnnouncements>> { Data = resultList });
+        }
+
+
+        /// <summary>
+        /// This endpoint returns all events that the user will attend or has attended already, and that contains any announcements.
+        /// The returned list of posts is sorted descending by the timestamp of their last announcement. 
+        /// i.e the post with the most recent announcement comes on top of the list.
+        /// </summary>
+        /// <response code="200">Returns a custom mini post for announcement data.</response>
+        /// <response code="204">No announcements to display</response>
+        [ProducesResponseType(typeof(Response<List<MiniPostForAnnouncements>>), 200)]
+        [ProducesResponseType(204)]
+        [HttpGet(ApiRoutes.Announcements.GetInbox)]
+        public async Task<IActionResult> GetAllWithAnnouncements()
+        {
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
+            if (user == null)
+                return BadRequest(new SingleError { Message = "The requester is not a registered user" });
+
+            var result = await _announcementRepository.GetAttendedEventsWithAnnouncements(user.Id);
+
+            if (result.Count == 0)
+                return NoContent();
+
+            var resultList = new List<MiniPostForAnnouncements>();
+            foreach (var post in result)
+            {
+                var mappedPost = _domainToResponseMapper.MapMiniPostForAnnouncementsList(post, _eventTypes);
+                resultList.Add(mappedPost);
+            }
+
+            return Ok(new Response<List<MiniPostForAnnouncements>> { Data = resultList });
         }
     }
 }

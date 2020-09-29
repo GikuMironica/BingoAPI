@@ -190,7 +190,7 @@ namespace BingoAPI.Services
 
             if (storedRefreshToken.JwtId != jti)
             {
-                return new AuthenticationResult { Errors = new[] { "This refresh token doesn not match this JWT" } };
+                return new AuthenticationResult { Errors = new[] { "This refresh token does not match this JWT" } };
             }
 
             storedRefreshToken.Used = true;
