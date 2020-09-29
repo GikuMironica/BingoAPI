@@ -13,7 +13,6 @@ namespace BingoAPI.Models.SqlRepository
         public Task<bool> UnAttendEvent(AppUser user, int postId);
         public Task<List<Post>> GetActiveAttendedPostsByUserId(string userId);
         public Task<List<Post>> GetOldAttendedPostsByUserId(string userId);
-        public Task<List<Post>> GetAttendedEventsWithAnnouncements(string userId);
         public Task<bool> IsUserAttendingEvent(string userId, int postId);
     }
 }

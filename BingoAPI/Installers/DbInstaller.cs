@@ -34,7 +34,6 @@ namespace BingoAPI.Installers
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             }).AddRoles<IdentityRole>()
               .AddEntityFrameworkStores<DataContext>()
-              .AddDefaultUI()
               .AddDefaultTokenProviders();
 
             // repositories

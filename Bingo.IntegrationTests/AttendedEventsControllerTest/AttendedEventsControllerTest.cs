@@ -258,8 +258,6 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
         public async Task Get_All_Active_Attended_Events()
         {
             // Arrange
-            var guest = await AuthenticateAsync();
-
             var host1 = await AuthenticateAsync();
             var post1 = await CreateSamplePostAsync();
 
@@ -271,6 +269,7 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
             var host3 = await AuthenticateAsync();
             var post3 = await CreateSamplePostAsync();
 
+            var guest = await AuthenticateAsync();
 
             // Act
             var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post1.PostId.ToString()), null);
@@ -294,8 +293,7 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
         public async Task Get_All_Active_Attended_HouseParty_When_Not_Accepted()
         {
             // Arrange
-            var guest = await AuthenticateAsync();
-
+            
             var host1 = await AuthenticateAsync();
             var post1 = await CreateSampleHousePartyAsync(7);
 
@@ -307,6 +305,7 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
             var host3 = await AuthenticateAsync();
             var post3 = await CreateSampleHousePartyAsync(9);
 
+            var guest = await AuthenticateAsync();
 
             // Act
             var attendReq1 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post1.PostId.ToString()), null);
