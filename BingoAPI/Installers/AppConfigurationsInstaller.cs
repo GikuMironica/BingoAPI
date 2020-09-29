@@ -34,13 +34,13 @@ namespace BingoAPI.Installers
             });
 
             // custom mapper services
-            services.AddSingleton<ICreatePostRequestMapper, CreatePostRequestMapper>();
-            services.AddSingleton<IUpdatePostToDomain, UpdatePostToDomain>();
-            services.AddSingleton<IDomainToResponseMapper, DomainToResponseMapper>();
-            services.AddSingleton<IRequestToDomainMapper, RequestToDomainMapper>();
+            services.AddTransient<ICreatePostRequestMapper, CreatePostRequestMapper>();
+            services.AddTransient<IUpdatePostToDomain, UpdatePostToDomain>();
+            services.AddTransient<IDomainToResponseMapper, DomainToResponseMapper>();
+            services.AddTransient<IRequestToDomainMapper, RequestToDomainMapper>();
 
             // custom validation
-            services.AddSingleton<IUpdatedPostDetailsWatcher, UpdatedPostDetailsWatcher>();
+            services.AddTransient<IUpdatedPostDetailsWatcher, UpdatedPostDetailsWatcher>();
 
             // options
             services.Configure<EventTypes>(configuration.GetSection("Types"));

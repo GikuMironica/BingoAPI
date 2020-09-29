@@ -1,28 +1,14 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Identity;
-using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Identity;
-using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI;
-using BingoAPI.Data;
-using BingoAPI.Models;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Resources;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bingo.IntegrationTests
@@ -31,7 +17,7 @@ namespace Bingo.IntegrationTests
     public class IntegrationTest
     {
         protected readonly HttpClient TestClient;
-        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiMTFlYzMyMjQtNzhjOS00ZDlhLTk5ZGItZGE5ZGFjMTQ3YjBlIiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNTk3MTkwMDE3LCJleHAiOjE1OTcyMjYwMTcsImlhdCI6MTU5NzE5MDAxN30.S9BQETZl38UMtW-Qyvv51gdO4WZJ7PLzR7ZVFi0KbMI";
+        private readonly string _token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwianRpIjoiODkzOTA2M2EtYzA0Ny00NWVmLTk3NTUtODEzNTA1M2E0ZTZkIiwiZW1haWwiOiJhZG1pbmlzdHJhdGlvbkBob3BhdXQuY29tIiwiaWQiOiJkNjFkNWJhMS00MWNhLTQ0ZjMtOTI3NC05YmUyN2JmZjE1MTIiLCJyb2xlIjpbIkFkbWluIiwiVXNlciIsIlN1cGVyQWRtaW4iXSwibmJmIjoxNjAxMzgyODI3LCJleHAiOjE2MDE0MTg4MjcsImlhdCI6MTYwMTM4MjgyN30.fbeQErjhjN7Nac5WHVVP4w5EuR9tDKzfNRyKat_His0";
         public IntegrationTest()
         {
             var appFactory = new WebApplicationFactory<Startup>()

@@ -15,35 +15,20 @@ namespace BingoAPI.Models.SqlRepository
 {
     public class PostRepository : IPostsRepository
     {
-        protected readonly DataContext _context;
-        private readonly UserManager<AppUser> userManager;
-        private readonly EventTypes eventTypes;
+        protected readonly DataContext Context;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly EventTypes _eventTypes;
 
         public PostRepository(DataContext context, UserManager<AppUser> userManager,
                               IOptions<EventTypes> eventTypes)
         {
-            _context = context;
-            this.userManager = userManager;
-            this.eventTypes = eventTypes.Value;
+            Context = context;
+            this._userManager = userManager;
+            this._eventTypes = eventTypes.Value;
         }
 
 
-        public async Task<List<Post>> GetEventsWithOutbox(string userId)
-        {
-            return await _context.Posts
-                .Where(p => p.UserId == userId)
-                .Include(p => p.Location)
-                .Include(p => p.Event)
-                .Include(p => p.Announcements)
-                .Where(p => p.Announcements.Count > 0 )
-                .OrderByDescending(p => p.Announcements
-                    .OrderByDescending(a => a.Timestamp)
-                    .FirstOrDefault())
-                .Take(30)
-                .ToListAsync();
-        }
-
-
+        
         public async Task<bool> AddAsync(Post entity)
         {
             var result = 0;
@@ -55,11 +40,11 @@ namespace BingoAPI.Models.SqlRepository
                 try
                 {
                     await AddNewTagsAsync(entity);
-                    _context.Attach(entity.Event);
-                    await _context.AddAsync(entity);
-                    await _context.Database.BeginTransactionAsync();
-                    result = await _context.SaveChangesAsync();
-                    _context.Database.CommitTransaction();
+                    Context.Attach(entity.Event);
+                    await Context.AddAsync(entity);
+                    await Context.Database.BeginTransactionAsync();
+                    result = await Context.SaveChangesAsync();
+                    Context.Database.CommitTransaction();
                     tryAgain = false;
                 }
                 catch (Exception e)
@@ -81,19 +66,19 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> DeleteAsync(int Id)
         {
-            var post = await _context.Posts.SingleOrDefaultAsync(p => p.Id == Id);
+            var post = await Context.Posts.SingleOrDefaultAsync(p => p.Id == Id);
 
             if (post == null)
                 return false;
 
-            _context.Remove(post);
+            Context.Remove(post);
             
-            return await _context.SaveChangesAsync() > 0;
+            return await Context.SaveChangesAsync() > 0;
         }
 
         public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            return await _context.Posts.AsNoTracking().ToListAsync();
+            return await Context.Posts.AsNoTracking().ToListAsync();
         }
 
         public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, Int64 today, string Tag = "%")
@@ -104,7 +89,7 @@ namespace BingoAPI.Models.SqlRepository
 
             if (Tag.Equals("%"))
             {
-                posts = await _context.Posts
+                posts = await Context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Repeatable)
@@ -119,7 +104,7 @@ namespace BingoAPI.Models.SqlRepository
             else
             {
                 Tag = Tag.ToLower();
-                posts = await _context.Posts
+                posts = await Context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Repeatable)
@@ -173,10 +158,10 @@ namespace BingoAPI.Models.SqlRepository
                 try
                 {
                     await AddNewTagsAsync(entity);
-                    _context.Posts.Update(entity);
-                    await _context.Database.BeginTransactionAsync();
-                    updated = await _context.SaveChangesAsync();
-                    _context.Database.CommitTransaction();
+                    Context.Posts.Update(entity);
+                    await Context.Database.BeginTransactionAsync();
+                    updated = await Context.SaveChangesAsync();
+                    Context.Database.CommitTransaction();
                     tryAgain = false;
                 }
                 catch (Exception e)
@@ -213,7 +198,7 @@ namespace BingoAPI.Models.SqlRepository
             for(var i=0; i<post.Tags.Count; i++)
             {
                 var tag = post.Tags[i];
-                var existingTag = await _context.Tags.SingleOrDefaultAsync(x => x.TagName == tag.Tag.TagName);
+                var existingTag = await Context.Tags.SingleOrDefaultAsync(x => x.TagName == tag.Tag.TagName);
 
                 // if tag exists, link to it
                 if (existingTag != null)
@@ -228,15 +213,15 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> IsPostOwnerOrAdminAsync(int postId, string userId)
         {
-            var post = await _context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
+            var post = await Context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
 
             if (post == null)
             {
                 return false;
             }
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
 
-            var userRoles = await userManager.GetRolesAsync(user);
+            var userRoles = await _userManager.GetRolesAsync(user);
 
             var isAdmin = false;
 
@@ -252,7 +237,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<Post> GetByIdAsync(int postId)
         {
-            return await _context.Posts
+            return await Context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Tags)
@@ -296,14 +281,14 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<Post> GetPlainPostAsync(int postId)
         {
-            return await _context.Posts
+            return await Context.Posts
                 .Include(p => p.Event)
                 .SingleOrDefaultAsync(x => x.Id == postId);
         }
 
         public async Task<List<string>> GetParticipantsIdAsync(int postId)
         {
-            return await _context.Participations
+            return await Context.Participations
                 .Where(p => p.PostId ==  postId && p.Accepted == 1)
                 .Select(p => p.UserId)
                 .AsNoTracking()
@@ -312,7 +297,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> IsHostIdPostOwner(string hostId, int postId)
         {
-            var result = await _context.Posts
+            var result = await Context.Posts
                 .Where(p => p.Id == postId && p.UserId == hostId)
                 .CountAsync();
 
@@ -321,7 +306,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<string> GetHostId(int postId)
         {
-            return await _context.Posts
+            return await Context.Posts
                 .Where(p => p.Id == postId)
                 .Select(p => p.UserId)
                 .SingleOrDefaultAsync();
@@ -329,12 +314,12 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<int> GetEventType(int postId)
         {
-            var result = await _context.Events
+            var result = await Context.Events
                 .Where(e => e.PostId == postId)
                 .SingleOrDefaultAsync();
 
             string eventType = result.GetType().Name.ToString();
-            return eventTypes.Types
+            return _eventTypes.Types
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
@@ -342,7 +327,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<int> GetAvailableSlotsAsync(int postId)
         {
-            var result = await _context.Participations
+            var result = await Context.Participations
                 .Where(p => p.PostId == postId && p.Accepted == 1)
                 .CountAsync();
 
@@ -359,7 +344,7 @@ namespace BingoAPI.Models.SqlRepository
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
-            return await _context.Posts
+            return await Context.Posts
                 .Where(p => p.UserId == userId && p.ActiveFlag == 1)
                 .OrderByDescending(p => p.EventTime)
                 .Include(p => p.Location)
@@ -380,7 +365,7 @@ namespace BingoAPI.Models.SqlRepository
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
-            return await _context.Posts
+            return await Context.Posts
                .Where(p => p.UserId == userId && p.ActiveFlag == 0)
                .OrderByDescending(p => p.EventTime)
                .Include(p => p.Location)
@@ -395,14 +380,14 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<bool> DisablePost(Post post)
         {
             post.ActiveFlag = 0;
-            _context.Posts.Update(post);
-            var updated = await _context.SaveChangesAsync();
+            Context.Posts.Update(post);
+            var updated = await Context.SaveChangesAsync();
             return updated > 0;
         }
 
         public async Task<int> GetActiveEventsNumbers(string userId)
         {
-            return await _context.Posts
+            return await Context.Posts
                 .Where(p => p.UserId == userId
                          && p.ActiveFlag == 1)
                 .CountAsync();
