@@ -280,7 +280,12 @@ namespace BingoAPI.Controllers
 
         public async Task<ProfileOwnershipState> IsProfileOwnerOrAdminAsync(string requesterId, string userId)
         {
-            var isOwner = requesterId == userId;
+            if (requesterId == userId)
+                return new ProfileOwnershipState
+                {
+                    Result = true,
+                    User = await _userManager.FindByIdAsync(userId)
+                };
             var user = await _userManager.FindByIdAsync(userId);
             var requester = await _userManager.FindByIdAsync(requesterId);
             if(user == null || requester == null)
@@ -296,7 +301,7 @@ namespace BingoAPI.Controllers
                     isAdmin = true;
             }
 
-            return new ProfileOwnershipState { Result = isOwner || isAdmin, User = user };
+            return new ProfileOwnershipState { Result = isAdmin, User = user };
         }
 
 
