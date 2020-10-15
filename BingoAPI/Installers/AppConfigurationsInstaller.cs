@@ -55,6 +55,7 @@ namespace BingoAPI.Installers
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailFormatter, EmailFormatter>();
+            services.AddSingleton<FormattedEmailSingleton>();
         }
     }
 }
