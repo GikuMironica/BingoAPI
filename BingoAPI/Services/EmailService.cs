@@ -32,7 +32,9 @@ namespace BingoAPI.Services
         public async Task<bool> SendEmail(string receiver, string subject, string message)
         {
             MailAddress mailTo = new MailAddress(receiver);
+
             MailMessage mailMessage = new MailMessage(mailFrom, mailTo);
+            mailMessage.IsBodyHtml = true;
             mailMessage.Body = message;
             mailMessage.Subject = subject;
 

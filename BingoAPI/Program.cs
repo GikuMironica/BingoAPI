@@ -54,7 +54,8 @@ namespace BingoAPI
              .ConfigureAppConfiguration((hostingContext, config) =>
              {
                  config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Configurations", "EventTypes.json"), optional: false, reloadOnChange: true);
-                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Notifications", "NotificationLangTemplates.json"), optional: false, reloadOnChange: true);
+                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "NotificationTemplates", "NotificationLangTemplates.json"), optional: false, reloadOnChange: true);
+                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "EmailTemplates", "Emails.json"), optional: false, reloadOnChange: true);
              })
             .ConfigureLogging((context, logging) =>
             {

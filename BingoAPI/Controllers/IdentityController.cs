@@ -55,7 +55,7 @@ namespace BingoAPI.Controllers
             }
 
             // register the incoming user data with identity service
-            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);          
+            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password, request.Language);          
 
             if (!authResponse.Success)
             {
@@ -190,13 +190,13 @@ namespace BingoAPI.Controllers
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
-
+/*
             if (result.Succeeded)
             {
                await _emailService.SendEmail(user.Email, "BingoApp - Successfully Registered", "Congratulations,\n You have successfully activated your account!\n " +
                     "Welcome to the dark side.");
             }
-
+*/
             return Ok();
         }
 

@@ -21,8 +21,7 @@ namespace BingoAPI.Installers
     {
         public void InstallServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.Configure<ApplicationEmailSettings>(configuration.GetSection("ApplicationEmail"));
-            services.AddScoped<IEmailService, EmailService>();
+                       
 
             // in order to use HttpContext, IUriHelper in services classes
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -43,15 +42,19 @@ namespace BingoAPI.Installers
             services.AddTransient<IUpdatedPostDetailsWatcher, UpdatedPostDetailsWatcher>();
 
             // options
+            services.Configure<ApplicationEmailSettings>(configuration.GetSection("ApplicationEmail"));
             services.Configure<EventTypes>(configuration.GetSection("Types"));
             services.Configure<AwsBucketSettings>(configuration.GetSection("AWS-ImageBucket"));
             services.Configure<OneSignalNotificationSettigs>(configuration.GetSection("OneSignalNotification"));
             services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
+            services.Configure<EmailOptions>(configuration.GetSection("Email"));
 
             // services
             services.AddScoped<IImageLoader, ImageLoader>();
             services.AddScoped<IAwsBucketManager, AwsBucketManager>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEmailFormatter, EmailFormatter>();
         }
     }
 }

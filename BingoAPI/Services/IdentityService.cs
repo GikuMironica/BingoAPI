@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BingoAPI.Services
@@ -30,6 +32,7 @@ namespace BingoAPI.Services
         private readonly IUrlHelper _urlHelper;
         private readonly IHttpContextAccessor _httpRequest;
         private readonly IEmailService _emailService;
+        private readonly IEmailFormatter _emailFormatter;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -39,9 +42,11 @@ namespace BingoAPI.Services
                                RoleManager<IdentityRole> roleManager,
                                IUrlHelper urlHelper,
                                IHttpContextAccessor httpRequest,
-                               IEmailService emailService)
+                               IEmailService emailService,
+                               IEmailFormatter emailFormatter)
         {
             this._emailService = emailService;
+            this._emailFormatter = emailFormatter;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
@@ -59,9 +64,10 @@ namespace BingoAPI.Services
         /// </summary>
         /// <param name="email">User registration email</param>
         /// <param name="password">User password</param>
+        /// <param name="lang">User's phone language</param>
         /// <returns>This method returns the generaterd Jwt token
         /// if opeartion was successful</returns>
-        public async Task<AuthenticationResult> RegisterAsync(string email, string password)
+        public async Task<AuthenticationResult> RegisterAsync(string email, string password, String? lang = null)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
 
@@ -95,16 +101,20 @@ namespace BingoAPI.Services
             // force user to confirm email, generate token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
+
+
             // generate url
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
                     new { userId = newUser.Id, token = token }, _httpRequest.HttpContext.Request.Scheme);
 
+            var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
+
             // send it per email
-            //var mailresult = await _emailService.SendEmail(newUser.Email, "BingoApp Email Confirmation","Please confirm your account by clicking the link below\n"+confirmationLink);
-            //if (mailresult)
+            var mailresult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
+            if (mailresult)
                 return new AuthenticationResult { Success = true, UserId = newUser.Id };
-            //else
-            //return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+            else
+            return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
         }
 
 

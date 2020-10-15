@@ -11,7 +11,7 @@ namespace BingoAPI.Services
 {
     public interface IIdentityService
     {
-        Task<AuthenticationResult> RegisterAsync(string email, string password);
+        Task<AuthenticationResult> RegisterAsync(string email, string password, String? lang = null);
 
         Task<AuthenticationResult> LoginAsync(string email, string requestPassword);
 
