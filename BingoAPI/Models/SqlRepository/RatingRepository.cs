@@ -79,18 +79,17 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<double> GetUserRating(string userId)
         {
-            try
-            {
-                return await context.Rating
+            var ratings = await context.Rating
                 .Where(r => r.UserId == userId)
                 .Select(r => r.Rate)
-                .AverageAsync();
-            }catch(InvalidOperationException)
+                .ToListAsync();
+
+            if (ratings.Any())
             {
-                // user has no ratings yet
-                return 0;
+                return ratings.Average();
             }
-            
+
+            return 0;
         }
     }
 }

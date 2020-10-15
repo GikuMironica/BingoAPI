@@ -86,8 +86,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
         [ProducesResponseType(404)]
         public async Task<IActionResult> Get([FromRoute] int postId)
-        {
-
+        {            
             var post = await _postRepository.GetByIdAsync(postId);
             if (post == null)
                 return NotFound();
