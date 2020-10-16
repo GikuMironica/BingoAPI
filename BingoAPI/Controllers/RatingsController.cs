@@ -3,6 +3,7 @@ using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Rating;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Rating;
+using BingoAPI.Cache;
 using BingoAPI.Extensions;
 using BingoAPI.Helpers;
 using BingoAPI.Models;
@@ -73,6 +74,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<List<GetRating>>), 200)]
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Ratings.GetAll)]
+        [Cached(36000)]
         public async Task<IActionResult> GetRatings(string userId)
         {
             var result = await ratingRepository.GetAllAsync(userId);

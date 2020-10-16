@@ -2,20 +2,17 @@
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Services
 {
     public interface IIdentityService
     {
-        Task<AuthenticationResult> RegisterAsync(string email, string password);
+        Task<AuthenticationResult> RegisterAsync(string email, string password, String? lang = null);
 
         Task<AuthenticationResult> LoginAsync(string email, string requestPassword);
 
-        Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser);
+        Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? language = null);
 
         Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request);
 

@@ -67,7 +67,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Update="wwwroot\Notifications\NotificationLangTemplates.json">
+    <Content Update="wwwroot\NotificationTemplates\NotificationLangTemplates.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

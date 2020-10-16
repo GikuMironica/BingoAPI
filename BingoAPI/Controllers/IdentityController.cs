@@ -24,16 +24,19 @@ namespace BingoAPI.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly IEmailFormatter _emailFormatter;
 
         public IdentityController(IIdentityService identityService,
                                   UserManager<AppUser> userManager,
                                   SignInManager<AppUser> signInManager,
-                                  IEmailService emailService)
+                                  IEmailService emailService,
+                                  IEmailFormatter emailFormatter)
         {
             this._identityService = identityService;
             this._userManager = userManager;
             this._signInManager = signInManager;
             this._emailService = emailService;
+            _emailFormatter = emailFormatter;
         }
 
         /// <summary>
@@ -55,7 +58,7 @@ namespace BingoAPI.Controllers
             }
 
             // register the incoming user data with identity service
-            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);          
+            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password, request.Language);          
 
             if (!authResponse.Success)
             {
@@ -189,14 +192,14 @@ namespace BingoAPI.Controllers
                 return BadRequest();
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
-
+            await _userManager.ConfirmEmailAsync(user, token);
+/*
             if (result.Succeeded)
             {
                await _emailService.SendEmail(user.Email, "BingoApp - Successfully Registered", "Congratulations,\n You have successfully activated your account!\n " +
                     "Welcome to the dark side.");
             }
-
+*/
             return Ok();
         }
 
@@ -242,17 +245,17 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Identity.ForgotPassword)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            // Filter middleware validates incoming model, if hits the line below, modelstate valid
+            // Filter middleware validates incoming model, if hits the line below, model state is valid
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)) )
             {
-                // hide if user doen't not exist or not confirmed to avoid account enumeration
+                // hide if user doesn't exist or not confirmed to avoid account enumeration
                 return Ok(new Response<string> { Data = "If you are registered in our system, we have sent an email with the instructions to reset your password" });
             }
 
             // if user valid, generate token, send per email
-            var authResponse = await _identityService.RequestNewPasswordAsync(user);
+            var authResponse = await _identityService.RequestNewPasswordAsync(user, request.Language);
 
             if (!authResponse.Success)
             {
@@ -276,7 +279,7 @@ namespace BingoAPI.Controllers
         /// <param name="request">Contains the email and the token</param>
         /// <response code="200"></response>
         [HttpGet(ApiRoutes.Identity.ResetPassword)]
-        public async Task<IActionResult> ResetPassword([FromHeader] ResetPasswordRequest request)
+        public async Task<IActionResult> ResetPassword([FromQuery] ResetPasswordRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.email);
             
@@ -292,7 +295,8 @@ namespace BingoAPI.Controllers
 
                 if (passResult.Succeeded)
                 {
-                    var result = await _emailService.SendEmail(user.Email, "BingoApp", "Use this temporal password to login in to your account\n"+pass);
+                    var content = _emailFormatter.FormatResetPassword(request.language);
+                    await _emailService.SendEmail(user.Email, content.EmailSubject, content.EmailContent.Replace("{GeneratedPassword}", pass));
                 }                               
             }
 

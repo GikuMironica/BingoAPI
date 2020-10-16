@@ -42,7 +42,9 @@ namespace BingoAPI.CustomMapper
             }
 
             // Temp workaround for Requirements - (can't be deleted)
-            if(updatePostRequest.UpdatedEvent.Requirements == ":~+_77?!")
+            if(updatePostRequest.UpdatedEvent != null && 
+                updatePostRequest.UpdatedEvent.Requirements != null && 
+                updatePostRequest.UpdatedEvent.Requirements == ":~+_77?!")
             {
                 post.Event.Requirements = null;
             }

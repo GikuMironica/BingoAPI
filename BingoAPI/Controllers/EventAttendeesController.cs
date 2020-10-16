@@ -4,6 +4,7 @@ using Bingo.Contracts.V1.Requests.EventAttendee;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.EventAttendee;
+using BingoAPI.Cache;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Helpers;

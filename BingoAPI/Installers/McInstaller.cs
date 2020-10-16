@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using BingoAPI.Filters;
 using BingoAPI.Options;
 using BingoAPI.Services;
@@ -49,7 +50,8 @@ namespace BingoAPI.Installers
                 ValidateIssuer = false,
                 ValidateAudience = false,
                 RequireExpirationTime = false,
-                ValidateLifetime = true
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
             };
 
             services.AddSingleton(tokenValidationParameter);
