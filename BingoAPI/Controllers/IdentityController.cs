@@ -24,16 +24,19 @@ namespace BingoAPI.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
+        private readonly IEmailFormatter _emailFormatter;
 
         public IdentityController(IIdentityService identityService,
                                   UserManager<AppUser> userManager,
                                   SignInManager<AppUser> signInManager,
-                                  IEmailService emailService)
+                                  IEmailService emailService,
+                                  IEmailFormatter emailFormatter)
         {
             this._identityService = identityService;
             this._userManager = userManager;
             this._signInManager = signInManager;
             this._emailService = emailService;
+            _emailFormatter = emailFormatter;
         }
 
         /// <summary>
@@ -292,7 +295,8 @@ namespace BingoAPI.Controllers
 
                 if (passResult.Succeeded)
                 {
-                    await _emailService.SendEmail(user.Email, "BingoApp", "Use this temporal password to login in to your account\n"+pass);
+                    var content = _emailFormatter.FormatResetPassword(request.language);
+                    await _emailService.SendEmail(user.Email, content.EmailSubject, content.EmailContent.Replace("{GeneratedPassword}", pass));
                 }                               
             }
 

@@ -26,5 +26,13 @@ namespace BingoAPI.Services
         /// <param name="language">User's device language</param>
         /// <returns>All components required for sending and HTML content email</returns>
         public EmailFormatResult FormatForgotPassword(string generateLink, String? language = null);
+
+        /// <summary>
+        /// This method selects a specific HTML template based on user's device language.
+        /// It will display the reset password html view in the email.
+        /// </summary>
+        /// <param name="language">user's device language</param>
+        /// <returns></returns>
+        public EmailFormatResult FormatResetPassword(String? language = null);
     }
 }

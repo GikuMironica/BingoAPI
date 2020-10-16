@@ -11,14 +11,16 @@ namespace BingoAPI.Services
     {
         private readonly EmailOptions _emailOptions;
 
-        public RegisterEmailTemplate RegisterTemplate { get; set; }
-        public ForgotPasswordTemplate ForgotPasswordTemplate { get; set; }
+        public RegisterEmailTemplate RegisterHtmlTemplate { get; set; }
+        public ForgotPasswordTemplate ForgotPasswordHtmlTemplate { get; set; }
+        public ResetPasswordTemplate ResetPasswordHtmlTemplate { get; set; }  
 
         public FormattedEmailSingleton(IOptions<EmailOptions> emailOptions)
         {
             this._emailOptions = emailOptions.Value;
-            this.RegisterTemplate = new RegisterEmailTemplate();
-            this.ForgotPasswordTemplate = new ForgotPasswordTemplate();
+            this.RegisterHtmlTemplate = new RegisterEmailTemplate();
+            this.ForgotPasswordHtmlTemplate = new ForgotPasswordTemplate();
+            this.ResetPasswordHtmlTemplate = new ResetPasswordTemplate();
             FormatAll();
         }
 
@@ -26,22 +28,37 @@ namespace BingoAPI.Services
         {
             // Format the register email templates first for all languages---------------------------------------------------------------------------------------
             var jsonEmailContent = _emailOptions.RegisterConfirmation.EmailHtmlTemplate;
-            RegisterTemplate.English = jsonEmailContent
-                .Replace("{EmailRegistered}", _emailOptions.RegisterConfirmation.Languages.English.EmailRegistered)
-                .Replace("{MessagePart2}", _emailOptions.RegisterConfirmation.Languages.English.MessagePart2)
-                .Replace("{ConfirmationBtnText}", _emailOptions.RegisterConfirmation.Languages.English.ConfirmationBtnText)
-                .Replace("{MessagePart4}", _emailOptions.RegisterConfirmation.Languages.English.MessagePart4)
-                .Replace("{Warning}", _emailOptions.RegisterConfirmation.Languages.English.Warning)
-                .Replace("{Footer}", _emailOptions.RegisterConfirmation.Languages.English.Footer);
+            // alias
+            var inputRegEng = _emailOptions.RegisterConfirmation.Languages.English;
+
+            RegisterHtmlTemplate.English = jsonEmailContent
+                .Replace("{EmailRegistered}", inputRegEng.EmailRegistered)
+                .Replace("{MessagePart2}", inputRegEng.MessagePart2)
+                .Replace("{ConfirmationBtnText}", inputRegEng.ConfirmationBtnText)
+                .Replace("{MessagePart4}", inputRegEng.MessagePart4)
+                .Replace("{Warning}", inputRegEng.Warning)
+                .Replace("{Footer}", _emailOptions.Footer);
 
             // Format the forgot password email templates  for all languages------------------------------------------------------------------------------------------
             jsonEmailContent = _emailOptions.ForgotPasswordConfirmation.EmailHtmlTemplate;
-            ForgotPasswordTemplate.English = jsonEmailContent
-                .Replace("{ResetPasswordTitle}", _emailOptions.ForgotPasswordConfirmation.Languages.English.ResetPasswordTitle)
-                .Replace("{ResetPasswordMessage}", _emailOptions.ForgotPasswordConfirmation.Languages.English.ResetPasswordMessage)
-                .Replace("{GeneratePasswordBtn}", _emailOptions.ForgotPasswordConfirmation.Languages.English.GeneratePasswordBtn)
-                .Replace("{Warning}", _emailOptions.ForgotPasswordConfirmation.Languages.English.Warning)
-                .Replace("{Footer}", _emailOptions.ForgotPasswordConfirmation.Languages.English.Footer);
+            // alias
+            var inputForEng = _emailOptions.ForgotPasswordConfirmation.Languages.English;
+
+            ForgotPasswordHtmlTemplate.English = jsonEmailContent
+                .Replace("{ForgotPasswordTitle}", inputForEng.ResetPasswordTitle)
+                .Replace("{ResetPasswordMessage}", inputForEng.ResetPasswordMessage)
+                .Replace("{GeneratePasswordBtn}", inputForEng.GeneratePasswordBtn)
+                .Replace("{Warning}", inputForEng.Warning)
+                .Replace("{Footer}", _emailOptions.Footer);
+
+            // Password reset email template for all langs ------------------------------------------------------------------------------------------------------------
+            jsonEmailContent = _emailOptions.ResetPasswordConfirmation.EmailHtmlTemplate;
+            //alias
+            var inputResEng = _emailOptions.ResetPasswordConfirmation.Languages.English;
+            ResetPasswordHtmlTemplate.English = jsonEmailContent
+                .Replace("{PasswordResetTitle}", inputResEng.PasswordResetTitle)
+                .Replace("{UsageText}", inputResEng.UsageText)
+                .Replace("{Footer}", _emailOptions.Footer);
         }
     }
     public class RegisterEmailTemplate
@@ -50,6 +67,11 @@ namespace BingoAPI.Services
     }
 
     public class ForgotPasswordTemplate
+    {
+        public string English { get; set; }
+    }
+
+    public class ResetPasswordTemplate
     {
         public string English { get; set; }
     }

@@ -27,16 +27,16 @@ namespace BingoAPI.Services
             switch (language)
             {
                 case null:
-                    formattedEmail = _formattedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterHtmlTemplate.English;
                     break;
                 case "":
-                    formattedEmail = _formattedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterHtmlTemplate.English;
                     break;
                 case "en":
-                    formattedEmail = _formattedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterHtmlTemplate.English;
                     break;
                 default:
-                    formattedEmail = _formattedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterHtmlTemplate.English;
                     break;
             }                        
 
@@ -56,16 +56,16 @@ namespace BingoAPI.Services
             switch (language)
             {
                 case null:
-                    formattedEmail = _formattedEmail.ForgotPasswordTemplate.English;
+                    formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.English;
                     break;
                 case "":
-                    formattedEmail = _formattedEmail.ForgotPasswordTemplate.English;
+                    formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.English;
                     break;
                 case "en":
-                    formattedEmail = _formattedEmail.ForgotPasswordTemplate.English;
+                    formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.English;
                     break;
                 default:
-                    formattedEmail = _formattedEmail.ForgotPasswordTemplate.English;
+                    formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.English;
                     break;
             }
 
@@ -76,6 +76,32 @@ namespace BingoAPI.Services
             {
                 EmailContent = finalEmail,
                 EmailSubject = _emailOptions.ForgotPasswordConfirmation.Languages.English.Subject
+            };
+        }
+
+        public EmailFormatResult FormatResetPassword(String? language = null)
+        {
+            var formattedEmail = "";
+            switch (language)
+            {
+                case null:
+                    formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.English;
+                    break;
+                case "":
+                    formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.English;
+                    break;
+                case "en":
+                    formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.English;
+                    break;
+                default:
+                    formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.English;
+                    break;
+            }
+            
+            return new EmailFormatResult
+            {
+                EmailContent = formattedEmail,
+                EmailSubject = _emailOptions.ResetPasswordConfirmation.Languages.English.Subject
             };
         }
     }

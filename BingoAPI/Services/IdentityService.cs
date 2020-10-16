@@ -370,7 +370,7 @@ namespace BingoAPI.Services
 
             // Build the password reset link -> build hopaut.com url add these 2 as querystring params
             var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
-                    new { email = appUser.Email, token }, _httpRequest.HttpContext.Request.Scheme);
+                    new { email = appUser.Email, token, language }, _httpRequest.HttpContext.Request.Scheme);
 
             // Format email message
             var emailFormattedResult = _emailFormatter.FormatForgotPassword(passwordResetLink, language);

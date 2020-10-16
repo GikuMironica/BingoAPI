@@ -2,9 +2,10 @@
 {
     public class EmailOptions
     {
+        public string Footer { get; set; }  
         public RegisterConfirmation RegisterConfirmation { get; set; }
         public ForgotPasswordConfirmation ForgotPasswordConfirmation { get; set; }
-        public ReceivePasswordConfirmation ReceivePasswordConfirmation { get; set; }
+        public ResetPasswordConfirmation ResetPasswordConfirmation { get; set; }
     }
         
     public class RegisterConfirmation
@@ -17,13 +18,16 @@
     {
         public string EmailHtmlTemplate { get; set; }
         public ForgotPasswordLanguages Languages { get; set; }
-
-        
     }
-
-    public class ReceivePasswordConfirmation
+    
+    public class ResetPasswordConfirmation
     {
+        public string EmailHtmlTemplate { get; set; }
+        public ResetPasswordLanguages Languages { get; set; }
+
     }
+
+    // LANGUAGES --------------------------------------------------------------------------------------------------------------------------------------------------
 
     public class RegisterConfirmationLanguages
     {
@@ -37,7 +41,6 @@
             public string ConfirmationBtnText { get; set; }
             public string MessagePart4 { get; set; }
             public string Warning { get; set; }
-            public string Footer { get; set; }
         }
     }
 
@@ -52,11 +55,20 @@
             public string ResetPasswordMessage { get; set; }
             public string GeneratePasswordBtn { get; set; }
             public string Warning { get; set; }
-            public string Footer { get; set; }
         }
     }
 
+    public class ResetPasswordLanguages
+    {
+        public EnglishPR English { get; set; }
 
+        public class EnglishPR
+        {
+            public string Subject { get; set; }
+            public string PasswordResetTitle { get; set; }
+            public string UsageText { get; set; }
+        }
+    }
 
 
 }
