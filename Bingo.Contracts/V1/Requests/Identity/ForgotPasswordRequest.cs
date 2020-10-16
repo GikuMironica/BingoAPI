@@ -9,5 +9,8 @@ namespace Bingo.Contracts.V1.Requests.Identity
     {
         [Required]
         public string Email { get; set; }
+
+        [MaxLength(2)] 
+        public String? Language { get; set; }
     }
 }

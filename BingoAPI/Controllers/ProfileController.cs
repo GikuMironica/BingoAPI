@@ -2,6 +2,7 @@
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Profile;
+using BingoAPI.Cache;
 using BingoAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<ProfileResponse>), 200)]
         [ProducesResponseType(404)]
         [HttpGet(ApiRoutes.Profile.Get)]
+        [Cached(600)]
         public async Task<IActionResult> GetProfile([FromRoute] string userId)
         {
             var user = await userManager.FindByIdAsync(userId);

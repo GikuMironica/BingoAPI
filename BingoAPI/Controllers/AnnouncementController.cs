@@ -211,7 +211,7 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
 
-            _mapper.Map<UpdateAnnouncementRequest, Announcement>(updateRequest, announcement);
+            _mapper.Map(updateRequest, announcement);
             var result = await _announcementRepository.UpdateAsync(announcement);
             if (!result)
                 return BadRequest(new SingleError { Message = "Update Failed" });
