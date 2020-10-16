@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace BingoAPI.Options
+﻿namespace BingoAPI.Options
 {
     public class EmailOptions
     {
@@ -14,33 +9,54 @@ namespace BingoAPI.Options
         
     public class RegisterConfirmation
     {
-        public string EmailHTMLTemplate { get; set; }
-        public Languages Languages { get; set; }
+        public string EmailHtmlTemplate { get; set; }
+        public RegisterConfirmationLanguages Languages { get; set; }
     }
 
     public class ForgotPasswordConfirmation
     {
+        public string EmailHtmlTemplate { get; set; }
+        public ForgotPasswordLanguages Languages { get; set; }
+
+        
     }
 
     public class ReceivePasswordConfirmation
     {
     }
 
-    public class Languages
+    public class RegisterConfirmationLanguages
     {
-        public En en { get; set; }
+        public EnglishRC English { get; set; }
+
+        public class EnglishRC
+        {
+            public string Subject { get; set; }
+            public string EmailRegistered { get; set; }
+            public string MessagePart2 { get; set; }
+            public string ConfirmationBtnText { get; set; }
+            public string MessagePart4 { get; set; }
+            public string Warning { get; set; }
+            public string Footer { get; set; }
+        }
     }
 
-    public class En
+    public class ForgotPasswordLanguages
     {
-        public string Subject { get; set; }
-        public string EmailRegistered { get; set; }
-        public string MessagePart2 { get; set; }
-        public string ConfirmationBtnText { get; set; }
-        public string MessagePart4 { get; set; }
-        public string Warning { get; set; }
-        public string Footer { get; set; }
+        public EnglishFC English { get; set; }
+
+        public class EnglishFC
+        {
+            public string Subject { get; set; }
+            public string ResetPasswordTitle { get; set; }
+            public string ResetPasswordMessage { get; set; }
+            public string GeneratePasswordBtn { get; set; }
+            public string Warning { get; set; }
+            public string Footer { get; set; }
+        }
     }
+
+
 
 
 }

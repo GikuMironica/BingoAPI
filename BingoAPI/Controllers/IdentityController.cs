@@ -242,17 +242,17 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Identity.ForgotPassword)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
-            // Filter middleware validates incoming model, if hits the line below, modelstate valid
+            // Filter middleware validates incoming model, if hits the line below, model state is valid
             var user = await _userManager.FindByEmailAsync(request.Email);
 
             if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)) )
             {
-                // hide if user doen't not exist or not confirmed to avoid account enumeration
+                // hide if user doesn't exist or not confirmed to avoid account enumeration
                 return Ok(new Response<string> { Data = "If you are registered in our system, we have sent an email with the instructions to reset your password" });
             }
 
             // if user valid, generate token, send per email
-            var authResponse = await _identityService.RequestNewPasswordAsync(user);
+            var authResponse = await _identityService.RequestNewPasswordAsync(user, request.Language);
 
             if (!authResponse.Success)
             {

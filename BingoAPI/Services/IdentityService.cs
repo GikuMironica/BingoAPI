@@ -363,18 +363,20 @@ namespace BingoAPI.Services
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 
-        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser)
+        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? language= null)
         {
             // generate the reset password token
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
 
-            // Build the password reset link
+            // Build the password reset link -> build hopaut.com url add these 2 as querystring params
             var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
                     new { email = appUser.Email, token }, _httpRequest.HttpContext.Request.Scheme);
 
+            // Format email message
+            var emailFormattedResult = _emailFormatter.FormatForgotPassword(passwordResetLink, language);
+
             // Send link over email
-            var result = await _emailService.SendEmail(appUser.Email, "BingoApp", "Click the link below in order to reset your password\n " +
-                "A new temporary password will be sent back to this email in a couple of minutes\n" + passwordResetLink);
+            var result = await _emailService.SendEmail(appUser.Email, emailFormattedResult.EmailSubject, emailFormattedResult.EmailContent);
 
             return result ? new AuthenticationResult { Success = true } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email" } };
         }

@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Domain
 {
+    /// <summary>
+    /// This class contains two components for sending an email with HTML body.
+    /// The content, and the subject.
+    /// </summary>
     public class EmailFormatResult
     {
         public string EmailContent { get; set; }
