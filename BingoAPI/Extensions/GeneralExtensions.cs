@@ -13,7 +13,7 @@ namespace BingoAPI.Extensions
         */
         public static string GetUserId(this HttpContext httpContext)
         {
-            if (httpContext.User == null)
+            if (httpContext.User == null || !httpContext.User.Claims.Any())
             {
                 return string.Empty;
             }

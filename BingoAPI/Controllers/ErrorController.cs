@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin,User")]
     [Produces("application/json")]
     public class ErrorController : Controller

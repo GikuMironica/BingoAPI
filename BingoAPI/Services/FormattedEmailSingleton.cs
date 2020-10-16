@@ -11,14 +11,14 @@ namespace BingoAPI.Services
     {
         private readonly EmailOptions _emailOptions;
 
-        public RegisterEmailTemplate RegisterTemplate { get; set; } = new RegisterEmailTemplate();
-        public ForgotPasswordTemplate ForgotPasswordTemplate { get; set; } = new ForgotPasswordTemplate();
+        public RegisterEmailTemplate RegisterTemplate { get; set; }
+        public ForgotPasswordTemplate ForgotPasswordTemplate { get; set; }
 
         public FormattedEmailSingleton(IOptions<EmailOptions> emailOptions)
         {
             this._emailOptions = emailOptions.Value;
-            //this.RegisterTemplate = new RegisterEmailTemplate();
-           // this.ForgotPasswordTemplate = new ForgotPasswordTemplate();
+            this.RegisterTemplate = new RegisterEmailTemplate();
+            this.ForgotPasswordTemplate = new ForgotPasswordTemplate();
             FormatAll();
         }
 
