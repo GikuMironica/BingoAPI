@@ -189,7 +189,7 @@ namespace BingoAPI.Controllers
                 return BadRequest();
             }
 
-            var result = await _userManager.ConfirmEmailAsync(user, token);
+            await _userManager.ConfirmEmailAsync(user, token);
 /*
             if (result.Succeeded)
             {
@@ -276,7 +276,7 @@ namespace BingoAPI.Controllers
         /// <param name="request">Contains the email and the token</param>
         /// <response code="200"></response>
         [HttpGet(ApiRoutes.Identity.ResetPassword)]
-        public async Task<IActionResult> ResetPassword([FromHeader] ResetPasswordRequest request)
+        public async Task<IActionResult> ResetPassword([FromQuery] ResetPasswordRequest request)
         {
             var user = await _userManager.FindByEmailAsync(request.email);
             
@@ -292,7 +292,7 @@ namespace BingoAPI.Controllers
 
                 if (passResult.Succeeded)
                 {
-                    var result = await _emailService.SendEmail(user.Email, "BingoApp", "Use this temporal password to login in to your account\n"+pass);
+                    await _emailService.SendEmail(user.Email, "BingoApp", "Use this temporal password to login in to your account\n"+pass);
                 }                               
             }
 

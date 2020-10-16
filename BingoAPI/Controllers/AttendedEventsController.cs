@@ -1,7 +1,6 @@
-﻿using AutoMapper;
-using Bingo.Contracts.V1;
+﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
-using Bingo.Contracts.V1.Responses.AttendedEvent;
+using BingoAPI.Cache;
 using BingoAPI.CustomMapper;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
@@ -13,9 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -24,27 +21,24 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class AttendedEventsController : Controller
     {
-        private readonly UserManager<AppUser> userManager;
-        private readonly IEventAttendanceRepository eventAttendanceService;
-        private readonly IMapper mapper;
-        private readonly INotificationService notificationService;
-        private readonly IPostsRepository postsRepository;
-        private readonly IDomainToResponseMapper domainToResponseMapper;
-        private readonly IRatingRepository ratingRepository;
-        private readonly EventTypes eventTypes;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IEventAttendanceRepository _eventAttendanceService;
+        private readonly INotificationService _notificationService;
+        private readonly IPostsRepository _postsRepository;
+        private readonly IDomainToResponseMapper _domainToResponseMapper;
+        private readonly IRatingRepository _ratingRepository;
+        private readonly EventTypes _eventTypes;
 
-        public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceRepository eventAttendanceService,
-                                        IMapper mapper, INotificationService notificationService, IPostsRepository postsRepository,
+        public AttendedEventsController(UserManager<AppUser> userManager, IEventAttendanceRepository eventAttendanceService, INotificationService notificationService, IPostsRepository postsRepository,
                                         IDomainToResponseMapper domainToResponseMapper, IOptions<EventTypes> eventTypes, IRatingRepository ratingRepository)
         {
-            this.userManager = userManager;
-            this.eventAttendanceService = eventAttendanceService;
-            this.mapper = mapper;
-            this.notificationService = notificationService;
-            this.postsRepository = postsRepository;
-            this.domainToResponseMapper = domainToResponseMapper;
-            this.ratingRepository = ratingRepository;
-            this.eventTypes = eventTypes.Value;
+            this._userManager = userManager;
+            this._eventAttendanceService = eventAttendanceService;
+            this._notificationService = notificationService;
+            this._postsRepository = postsRepository;
+            this._domainToResponseMapper = domainToResponseMapper;
+            this._ratingRepository = ratingRepository;
+            this._eventTypes = eventTypes.Value;
         }
 
 
@@ -61,7 +55,7 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.AttendedEvents.Attend)]
         public async Task<IActionResult> AttendEvent(int postId)
         {
-            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
             if (user.FirstName == null || user.LastName == null)
@@ -69,7 +63,7 @@ namespace BingoAPI.Controllers
                 return BadRequest(new SingleError { Message = "User has to input first and last name in attend an event" });
             }
                      
-            var post = await postsRepository.GetPlainPostAsync(postId);
+            var post = await _postsRepository.GetPlainPostAsync(postId);
             if(post == null)
             {
                 return NotFound();
@@ -78,7 +72,7 @@ namespace BingoAPI.Controllers
             {
                 return BadRequest(new SingleError { Message = "Cant join own event " });
             }
-            var result = await eventAttendanceService.AttendEvent(user, postId);
+            var result = await _eventAttendanceService.AttendEvent(user, postId);
 
             if (!result.Result)
             {
@@ -86,7 +80,7 @@ namespace BingoAPI.Controllers
             }
             if (result.IsHouseParty)
             {
-                await notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId } , user.FirstName + " " + user.LastName );
+                await _notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId } , user.FirstName + " " + user.LastName );
             }
 
             return Ok();
@@ -103,13 +97,14 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
         [HttpGet(ApiRoutes.AttendedEvents.GetActiveAttendedPosts)]
+        [Cached(300)]
         public async Task<IActionResult> GetAllActiveAttendedEvents()
         {
-            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
 
-            var result = await eventAttendanceService.GetActiveAttendedPostsByUserId(user.Id);
+            var result = await _eventAttendanceService.GetActiveAttendedPostsByUserId(user.Id);
             if (result.Count == 0)
             {
                 return NoContent();
@@ -119,9 +114,9 @@ namespace BingoAPI.Controllers
 
             foreach (var post in result)
             {
-                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
 
@@ -141,13 +136,14 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<List<Bingo.Contracts.V1.Responses.Post.Posts>>), 200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
+        [Cached(600)]
         public async Task<IActionResult> GetAllOldAttendedEvents()
         {
-            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
 
-            var result = await eventAttendanceService.GetOldAttendedPostsByUserId(user.Id);
+            var result = await _eventAttendanceService.GetOldAttendedPostsByUserId(user.Id);
             if (result.Count==0)
             {
                 return NoContent();
@@ -157,9 +153,9 @@ namespace BingoAPI.Controllers
 
             foreach (var post in result)
             {
-                var mappedPost = domainToResponseMapper.MapPostForGetAllPostsReponse(post, eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
-                mappedPost.HostRating = await ratingRepository.GetUserRating(post.UserId);
+                mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
             }
 
@@ -183,17 +179,17 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
         public async Task<IActionResult> UnAttendEvent(int postId)
         {
-            var user = await userManager.FindByIdAsync(HttpContext.GetUserId());
+            var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             if (user == null)
                 return BadRequest(new SingleError { Message = "The requester is not a registered user" });
 
-            var post = await postsRepository.GetPlainPostAsync(postId);
+            var post = await _postsRepository.GetPlainPostAsync(postId);
             if (post == null)
             {
                 return NotFound();
             }
 
-            var result = await eventAttendanceService.UnAttendEvent(user, postId);
+            var result = await _eventAttendanceService.UnAttendEvent(user, postId);
 
             if (!result)
             {

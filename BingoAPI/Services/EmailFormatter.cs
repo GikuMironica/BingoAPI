@@ -2,48 +2,46 @@
 using BingoAPI.Options;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BingoAPI.Services
 {
     public class EmailFormatter : IEmailFormatter
     {
+        // ReSharper disable once NotAccessedField.Local
         private readonly EmailOptions _emailOptions;
-        private readonly FormattedEmailSingleton _formatedEmail;
+        private readonly FormattedEmailSingleton _formattedEmail;
 
         public string EmailSubject { get; set; }
 
-        public EmailFormatter(IOptions<EmailOptions> emailOptions, FormattedEmailSingleton formatedEmail)
+        public EmailFormatter(IOptions<EmailOptions> emailOptions, FormattedEmailSingleton formattedEmail)
         {
             this._emailOptions = emailOptions.Value;
             EmailSubject = emailOptions.Value.RegisterConfirmation.Languages.en.Subject;
-            this._formatedEmail = formatedEmail;
+            this._formattedEmail = formattedEmail;
         }
-        public EmailFormatResult FormatRegisterConfirmation(string EmailAdress, string ConfirmationLink, String? Language = null)
+        public EmailFormatResult FormatRegisterConfirmation(string emailAddress, string confirmationLink, String? language = null)
         {            
-            var FormattedEmail = "";
-            switch (Language)
+            var formattedEmail = "";
+            switch (language)
             {
                 case null:
-                    FormattedEmail = _formatedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterTemplate.English;
                     break;
                 case "en":
-                    FormattedEmail = _formatedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterTemplate.English;
                     break;
                 case "":
-                    FormattedEmail = _formatedEmail.RegisterTemplate.English;
+                    formattedEmail = _formattedEmail.RegisterTemplate.English;
                     break;
             }                        
 
-            var FinalEmail = FormattedEmail
-                .Replace("{ConfirmationLink}", ConfirmationLink);
+            var finalEmail = formattedEmail
+                .Replace("{ConfirmationLink}", confirmationLink);
 
             return new EmailFormatResult
             {
-                EmailContent = FinalEmail,
-                EmailSubject = EmailSubject
+                EmailContent = finalEmail,
+                EmailSubject = this.EmailSubject
             };
         }
     }

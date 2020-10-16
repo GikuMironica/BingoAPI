@@ -82,6 +82,7 @@ namespace BingoAPI.Controllers
         /// <param name="postId">The post Id</param>
         /// <response code="200">The post was found and returned</response>
         /// <response code="404">The post was not found</response>
+        [Cached(600)]
         [HttpGet(ApiRoutes.Posts.Get)]
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
         [ProducesResponseType(404)]
@@ -123,6 +124,7 @@ namespace BingoAPI.Controllers
         /// <response code="204">User has no active posts</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
+        [Cached(600)]
         [HttpGet(ApiRoutes.Posts.GetAllActive)]
         public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -158,6 +160,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Posts.GetAllInactive)]
+        [Cached(43200)]
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
             var userId = HttpContext.GetUserId();

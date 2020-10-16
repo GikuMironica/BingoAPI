@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Mail;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
@@ -16,7 +14,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BingoAPI.Services
@@ -28,7 +25,7 @@ namespace BingoAPI.Services
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
-        private readonly IFacebookAuthService facebookAuthService;
+        private readonly IFacebookAuthService _facebookAuthService;
         private readonly IUrlHelper _urlHelper;
         private readonly IHttpContextAccessor _httpRequest;
         private readonly IEmailService _emailService;
@@ -51,7 +48,7 @@ namespace BingoAPI.Services
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
             this._dataContext = dataContext;
-            this.facebookAuthService = facebookAuthService;
+            this._facebookAuthService = facebookAuthService;
             this._roleManager = roleManager;
             this._urlHelper = urlHelper;
             this._httpRequest = httpRequest;
@@ -105,16 +102,14 @@ namespace BingoAPI.Services
 
             // generate url
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
-                    new { userId = newUser.Id, token = token }, _httpRequest.HttpContext.Request.Scheme);
+                    new { userId = newUser.Id, token }, _httpRequest.HttpContext.Request.Scheme);
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
 
             // send it per email
-            var mailresult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
-            if (mailresult)
-                return new AuthenticationResult { Success = true, UserId = newUser.Id };
-            else
-            return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+            var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
+            return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+            // return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } uncomment this, comment the two lines above for integration tests.
         }
 
 
@@ -308,7 +303,7 @@ namespace BingoAPI.Services
                 ExpiryDate = DateTime.UtcNow.AddMonths(6)
             };
 
-            var result = await _dataContext.RefreshTokens.AddAsync(refreshToken);
+            await _dataContext.RefreshTokens.AddAsync(refreshToken);
             await _dataContext.SaveChangesAsync();
                         
 
@@ -322,7 +317,7 @@ namespace BingoAPI.Services
 
         public async Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken)
         {
-            var validatedTokenResult = await facebookAuthService.ValidateAccessTokenAsync(accessToken);
+            var validatedTokenResult = await _facebookAuthService.ValidateAccessTokenAsync(accessToken);
 
             if (!validatedTokenResult.Data.IsValid)
             {
@@ -331,7 +326,7 @@ namespace BingoAPI.Services
                     Errors = new[] { "Invalid Facebook token" }
                 };
             }
-            var userInfo = await facebookAuthService.GetUserInfoAsync(accessToken);
+            var userInfo = await _facebookAuthService.GetUserInfoAsync(accessToken);
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
 
             // if email not in the system register user with his FB email
@@ -375,16 +370,13 @@ namespace BingoAPI.Services
 
             // Build the password reset link
             var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
-                    new { email = appUser.Email, token = token }, _httpRequest.HttpContext.Request.Scheme);
+                    new { email = appUser.Email, token }, _httpRequest.HttpContext.Request.Scheme);
 
             // Send link over email
             var result = await _emailService.SendEmail(appUser.Email, "BingoApp", "Click the link below in order to reset your password\n " +
                 "A new temporary password will be sent back to this email in a couple of minutes\n" + passwordResetLink);
 
-            if (result)
-                return new AuthenticationResult { Success = true };
-            else
-                return new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email" } };
+            return result ? new AuthenticationResult { Success = true } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email" } };
         }
 
         public async Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request)

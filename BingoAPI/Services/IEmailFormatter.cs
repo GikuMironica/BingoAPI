@@ -8,6 +8,6 @@ namespace BingoAPI.Services
 {
     public interface IEmailFormatter
     {
-        public EmailFormatResult FormatRegisterConfirmation(string EmailAdress, string ConfirmationLink, String? Language = null);
+        public EmailFormatResult FormatRegisterConfirmation(string emailAddress, string ConfirmationLink, String? Language = null);
     }
 }

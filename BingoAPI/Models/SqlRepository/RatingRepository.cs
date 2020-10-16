@@ -9,33 +9,33 @@ namespace BingoAPI.Models.SqlRepository
 {
     public class RatingRepository : IRatingRepository
     {
-        private readonly DataContext context;
+        private readonly DataContext _context;
 
         public RatingRepository(DataContext context)
         {
-            this.context = context;
+            this._context = context;
         }
 
         public async Task<bool> AddAsync(Rating entity)
         {
-            await context.Rating.AddAsync(entity);
-            var result = await context.SaveChangesAsync();
+            await _context.Rating.AddAsync(entity);
+            var result = await _context.SaveChangesAsync();
             return result > 0;
         }
 
-        public async Task<bool> DeleteAsync(int Id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var rating = await context.Rating.SingleOrDefaultAsync(r => r.Id == Id);
+            var rating = await _context.Rating.SingleOrDefaultAsync(r => r.Id == id);
             if (rating == null)
                 return false;
 
-            context.Rating.Remove(rating);
-            return await context.SaveChangesAsync() > 0;
+            _context.Rating.Remove(rating);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<List<Rating>> GetAllAsync(string userId)
         {
-            return await context.Rating
+            return await _context.Rating
                 .Where(r => r.UserId == userId)
                 .AsNoTracking()
                 .ToListAsync();
@@ -44,14 +44,14 @@ namespace BingoAPI.Models.SqlRepository
         
         public async Task<Rating> GetByIdAsync(int id)
         {
-            return await context.Rating
+            return await _context.Rating
                 .Where(r => r.Id == id)
                 .SingleOrDefaultAsync();
         }
 
         public async Task<bool> HasAlreadyRatedAsync(string requesterId, string hostId, int postId)
         {
-            var result = await context.Rating
+            var result = await _context.Rating
                 .Where(r => r.UserId == hostId && r.RaterId == requesterId && r.PostId == postId)
                 .CountAsync();
 
@@ -60,7 +60,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> IsRatingOwnerAsync(string requesterId, int ratingId)
         {
-            var result = await context.Rating
+            var result = await _context.Rating
                 .Where(r => r.Id == ratingId && r.UserId == requesterId)
                 .CountAsync();
 
@@ -79,7 +79,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<double> GetUserRating(string userId)
         {
-            var ratings = await context.Rating
+            var ratings = await _context.Rating
                 .Where(r => r.UserId == userId)
                 .Select(r => r.Rate)
                 .ToListAsync();

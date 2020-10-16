@@ -1,10 +1,5 @@
 ﻿using BingoAPI.Options;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace BingoAPI.Services
 {
     public class FormattedEmailSingleton
@@ -21,8 +16,8 @@ namespace BingoAPI.Services
 
         private void FormatAll()
         {
-            var EmailContent = _emailOptions.RegisterConfirmation.EmailHTMLTemplate;
-            RegisterTemplate.English = EmailContent
+            var emailContent = _emailOptions.RegisterConfirmation.EmailHTMLTemplate;
+            RegisterTemplate.English = emailContent
                         .Replace("{EmailRegistered}", _emailOptions.RegisterConfirmation.Languages.en.EmailRegistered)
                         .Replace("{MessagePart2}", _emailOptions.RegisterConfirmation.Languages.en.MessagePart2)
                         .Replace("{ConfirmationBtnText}", _emailOptions.RegisterConfirmation.Languages.en.ConfirmationBtnText)
