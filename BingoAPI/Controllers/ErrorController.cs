@@ -1,71 +1,43 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
-using BingoAPI.Data;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
 {
+    [ApiExplorerSettings(IgnoreApi = true)]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin,User")]
     [Produces("application/json")]
     public class ErrorController : Controller
     {
-        
-        private readonly UserManager<AppUser> userManager;
-        private readonly SignInManager<AppUser> signInManager;
-        private readonly ILogger<ErrorController> logger;
-        private readonly IErrorService errorService;
+        private readonly ILogger<ErrorController> _logger;
+        private readonly IErrorService _errorService;
 
-        public ErrorController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            ILogger<ErrorController> logger, IErrorService errorService)
+        public ErrorController(ILogger<ErrorController> logger, IErrorService errorService)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.logger = logger;
-            this.errorService = errorService;
+            this._logger = logger;
+            this._errorService = errorService;
         }
 
         [HttpGet(ApiRoutes.Error.ErrorRoute)]
         public async Task<IActionResult> Error()
         {
-            // Retrieve the exception Details
-            var exceptionHandlerPathFeature =
-                HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            // LogError() method logs the exception under Error category in the log
-            logger.LogError($"The path {exceptionHandlerPathFeature.Path} " +
-                $"threw an exception {exceptionHandlerPathFeature.Error}");
-            var execptionPath = exceptionHandlerPathFeature.Path;
-            var Exmsg = exceptionHandlerPathFeature.Error.Message;
-
-            ErrorLog errorLog = new ErrorLog
-            {
-                UserId = HttpContext.GetUserId(),
-                ActionMethod = execptionPath,
-                Controller = execptionPath,
-                Url = execptionPath,
-                Message = Exmsg,
-                Date = DateTime.Now
-            };
-
-            var result = await errorService.AddErrorAsync(errorLog);
-            return BadRequest(new SingleError { Message = "Internal Error"});
+            var errorLog = GetErrorLog();
+            await _errorService.AddErrorAsync(errorLog);
+            return BadRequest(new SingleError { Message = "Error"});
         }
 
-
+        
         [HttpGet("/Error/{statuscode}")]
-        public IActionResult HttpStatusCodeHandler(int statusCode)
+        public async Task<IActionResult> HttpStatusCodeHandler(int statusCode)
         {
             var statusCodeResult =
                 HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
@@ -74,9 +46,36 @@ namespace BingoAPI.Controllers
             {
                 case 404:
                     return NotFound();
+                default:
+                    var errorLog = GetErrorLog(statusCode);
+                    await _errorService.AddErrorAsync(errorLog);
+                    break;
             }
-
             return BadRequest();
+        }
+        
+        private ErrorLog GetErrorLog(int statuscode = 0)
+        {
+            // Retrieve the exception Details
+            var exceptionHandlerPathFeature =
+                HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            // LogError() method logs the exception under Error category in the log
+            _logger.LogError($"The path {exceptionHandlerPathFeature.Path} " +
+                            $"threw an exception {exceptionHandlerPathFeature.Error}");
+            var exceptionPath = exceptionHandlerPathFeature.Path;
+            var exceptionMessage = exceptionHandlerPathFeature.Error.Message;
+
+            ErrorLog errorLog = new ErrorLog
+            {
+                UserId = HttpContext.GetUserId(),
+                ActionMethod = exceptionPath,
+                Controller = exceptionPath,
+                Url = exceptionPath,
+                Message = exceptionMessage,
+                Date = DateTime.Now,
+                ExtraData = ("Status Code: "+ statuscode)
+            };
+            return errorLog;
         }
         /*
          [HttpGet("/swagger/index.html")]

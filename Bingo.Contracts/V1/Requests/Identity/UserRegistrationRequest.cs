@@ -13,5 +13,8 @@ namespace Bingo.Contracts.V1.Requests.Identity
 
         [Required]
         public string Password { get; set; }
+
+        [MaxLength(2)]
+        public String? Language { get; set; }
     }
 }

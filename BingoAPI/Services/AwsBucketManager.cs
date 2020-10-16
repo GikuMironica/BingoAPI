@@ -1,20 +1,13 @@
 ﻿using Amazon.S3;
-using Amazon.S3.Transfer;
 using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using BingoAPI.Options;
 using Amazon;
 using BingoAPI.Domain;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Options;
-using Amazon.Runtime;
 using Microsoft.AspNetCore.Http;
-using System.Drawing;
 using Amazon.S3.Model;
-using Npgsql;
 using BingoAPI.Models;
 using BingoAPI.Extensions;
 
@@ -22,20 +15,18 @@ namespace BingoAPI.Services
 {
     public class AwsBucketManager : IAwsBucketManager
     {
-        private readonly AwsBucketSettings awsBucketSettings;
-        private readonly IWebHostEnvironment webHostEnvironment;
-        private readonly IHttpContextAccessor httpContext;
-        private readonly IErrorService errorService;
-        private static readonly RegionEndpoint bucketRegion = RegionEndpoint.EUCentral1;
-        private static IAmazonS3 s3Client;
-        public AwsBucketManager(IOptions<AwsBucketSettings> awsBucketSettings, IWebHostEnvironment webHostEnvironment, IHttpContextAccessor httpContext,
+        private readonly AwsBucketSettings _awsBucketSettings;
+        private readonly IHttpContextAccessor _httpContext;
+        private readonly IErrorService _errorService;
+        private static readonly RegionEndpoint BucketRegion = RegionEndpoint.EUCentral1;
+        private static IAmazonS3 _s3Client;
+        public AwsBucketManager(IOptions<AwsBucketSettings> awsBucketSettings, IHttpContextAccessor httpContext,
                                 IErrorService errorService)
         {
-            this.awsBucketSettings = awsBucketSettings.Value;
-            this.webHostEnvironment = webHostEnvironment;
-            this.httpContext = httpContext;
-            this.errorService = errorService;
-            s3Client = new AmazonS3Client(this.awsBucketSettings.aws_access_key_id, this.awsBucketSettings.aws_secret_access_key, bucketRegion);
+            this._awsBucketSettings = awsBucketSettings.Value;
+            this._httpContext = httpContext;
+            this._errorService = errorService;
+            _s3Client = new AmazonS3Client(this._awsBucketSettings.aws_access_key_id, this._awsBucketSettings.aws_secret_access_key, BucketRegion);
         }
 
         public async Task<ImageUploadResult> UploadFileAsync(ImageProcessingResult imageProcessingResult)
@@ -48,18 +39,17 @@ namespace BingoAPI.Services
                     string guid = Guid.NewGuid().ToString();
                     string path = imageProcessingResult.BucketPath;
                     string keyName = $"assets/{path}/{guid}.webp";
-                    byte[] memString = image.GetBuffer();
-                    var length = memString.Length;
+                    image.GetBuffer();
 
-                        var request = new Amazon.S3.Model.PutObjectRequest                        
+                    var request = new PutObjectRequest                        
                         {
-                            BucketName = awsBucketSettings.bucketName,
+                            BucketName = _awsBucketSettings.bucketName,
                             Key = keyName,
                             InputStream = image,
-                            ContentType = awsBucketSettings.contentFormat,
+                            ContentType = _awsBucketSettings.contentFormat,
                             CannedACL = S3CannedACL.PublicRead
                         };
-                        var rez = await s3Client.PutObjectAsync(request);
+                        await _s3Client.PutObjectAsync(request);
                         imageUploadResult.ImageNames.Add(guid);
                 }
             }
@@ -71,9 +61,9 @@ namespace BingoAPI.Services
                     Date = DateTime.Now,
                     ExtraData = "Image could not be uploaded to AWS Bucket",
                     Message = e.Message,
-                    UserId = httpContext.HttpContext.GetUserId()
+                    UserId = _httpContext.HttpContext.GetUserId()
                 };
-                await errorService.AddErrorAsync(errorObj);
+                await _errorService.AddErrorAsync(errorObj);
                 imageUploadResult.Result = false;
             }
             return imageUploadResult;
@@ -90,13 +80,13 @@ namespace BingoAPI.Services
 
             var deleteObjectsRequest = new DeleteObjectsRequest
             {
-                BucketName = awsBucketSettings.bucketName,
+                BucketName = _awsBucketSettings.bucketName,
                 Objects = keyverison
             };
 
             try
             {
-                DeleteObjectsResponse response = await s3Client.DeleteObjectsAsync(deleteObjectsRequest);
+                DeleteObjectsResponse response = await _s3Client.DeleteObjectsAsync(deleteObjectsRequest);
                 bool cnt = response.DeletedObjects.Count == imagesGuids.Count;
                 return new ImageDeleteResult { Result = cnt };
             }
@@ -108,9 +98,9 @@ namespace BingoAPI.Services
                     Date = DateTime.Now,
                     ExtraData = "Image could not be deleted",
                     Message = e.Message,
-                    UserId = httpContext.HttpContext.GetUserId()
+                    UserId = _httpContext.HttpContext.GetUserId()
                 };
-                await errorService.AddErrorAsync(errorObj);
+                await _errorService.AddErrorAsync(errorObj);
                 return new ImageDeleteResult { Result = false, ErrorMessages = e.Response.DeleteErrors };
             }
         }

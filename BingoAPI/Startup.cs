@@ -2,6 +2,7 @@
 using AspNetCoreRateLimit;
 using AutoMapper;
 using BingoAPI.Extensions;
+using BingoAPI.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -59,8 +60,9 @@ namespace BingoAPI
             }
             else
             {
-                app.UseExceptionHandler("/Error");
-                app.UseStatusCodePagesWithReExecute("/Error/{0}");
+                app.UseMiddleware(typeof(ErrorHandlingMiddleware));
+                //app.UseExceptionHandler("/Error");
+                //app.UseStatusCodePagesWithReExecute("/Error/{0}");
                 app.UseHsts();
             }
 

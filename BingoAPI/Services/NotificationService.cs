@@ -6,9 +6,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,25 +14,25 @@ namespace BingoAPI.Services
 {
     public class NotificationService : INotificationService
     {
-        private readonly IOptions<OneSignalNotificationSettigs> oneSignalSettings;
-        private readonly IOptions<NotificationTemplates> notificationTemplates;
-        private readonly IHttpContextAccessor httpContext;
-        private readonly IErrorService errorService;
-        private readonly HttpRequestMessage request;
-        private readonly HttpClient httpClient;
+        private readonly IOptions<OneSignalNotificationSettigs> _oneSignalSettings;
+        private readonly IOptions<NotificationTemplates> _notificationTemplates;
+        private readonly IHttpContextAccessor _httpContext;
+        private readonly IErrorService _errorService;
+        private readonly HttpRequestMessage _request;
+        private readonly HttpClient _httpClient;
 
         public NotificationService(IOptions<OneSignalNotificationSettigs> oneSignalSettings, IOptions<NotificationTemplates> notificationTemplates,
                                    IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IErrorService errorService)
         {
-            this.oneSignalSettings = oneSignalSettings;
-            this.notificationTemplates = notificationTemplates;
-            this.httpContext = httpContext;
-            this.errorService = errorService;
+            this._oneSignalSettings = oneSignalSettings;
+            this._notificationTemplates = notificationTemplates;
+            this._httpContext = httpContext;
+            this._errorService = errorService;
 
             // request configuration
-            httpClient = clientFactory.CreateClient();
-            httpClient.DefaultRequestHeaders.Add("authorization", oneSignalSettings.Value.Authorization);
-            request = new HttpRequestMessage(HttpMethod.Post, oneSignalSettings.Value.EndPoint);           
+            _httpClient = clientFactory.CreateClient();
+            _httpClient.DefaultRequestHeaders.Add("authorization", oneSignalSettings.Value.Authorization);
+            _request = new HttpRequestMessage(HttpMethod.Post, oneSignalSettings.Value.EndPoint);           
         }
 
 
@@ -45,16 +42,16 @@ namespace BingoAPI.Services
             //var list = new List<string> { "d150bc2e-b5ac-4787-b4ed-20e421b24d9d" };
             var obj = new            
             {
-                app_id = oneSignalSettings.Value.AppId,
+                app_id = _oneSignalSettings.Value.AppId,
                 contents = new
                 {
-                    en = string.Format(notificationTemplates.Value.AttendEventRequestAccepted.en, eventTitle),
-                    ru = string.Format(notificationTemplates.Value.AttendEventRequestAccepted.ru, eventTitle)
+                    en = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.en, eventTitle),
+                    ru = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.ru, eventTitle)
                 },
                 headings = new 
                 {
-                    en = notificationTemplates.Value.Heading.en,
-                    ru = notificationTemplates.Value.Heading.ru
+                    en = _notificationTemplates.Value.Heading.en,
+                    ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId/*list*/
             };
@@ -68,16 +65,16 @@ namespace BingoAPI.Services
         {            
             var obj = new
             {
-                app_id = oneSignalSettings.Value.AppId,
+                app_id = _oneSignalSettings.Value.AppId,
                 contents = new
                 {
-                    en = string.Format(notificationTemplates.Value.HousePartyAttendRequest.en, fullname),
-                    ru = string.Format(notificationTemplates.Value.HousePartyAttendRequest.ru, fullname)
+                    en = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.en, fullname),
+                    ru = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.ru, fullname)
                 },
                 headings = new
                 {
-                    en = notificationTemplates.Value.Heading.en,
-                    ru = notificationTemplates.Value.Heading.ru
+                    en = _notificationTemplates.Value.Heading.en,
+                    ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId
             };
@@ -90,16 +87,16 @@ namespace BingoAPI.Services
         {           
             var obj = new
             {
-                app_id = oneSignalSettings.Value.AppId,
+                app_id = _oneSignalSettings.Value.AppId,
                 contents = new
                 {
-                    en = string.Format(notificationTemplates.Value.EventUpdated.en, eventTitle),
-                    ru = string.Format(notificationTemplates.Value.EventUpdated.ru, eventTitle)
+                    en = string.Format(_notificationTemplates.Value.EventUpdated.en, eventTitle),
+                    ru = string.Format(_notificationTemplates.Value.EventUpdated.ru, eventTitle)
                 },
                 headings = new
                 {
-                    en = notificationTemplates.Value.Heading.en,
-                    ru = notificationTemplates.Value.Heading.ru
+                    en = _notificationTemplates.Value.Heading.en,
+                    ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId
             };
@@ -110,16 +107,16 @@ namespace BingoAPI.Services
         {            
             var obj = new
             {
-                app_id = oneSignalSettings.Value.AppId,
+                app_id = _oneSignalSettings.Value.AppId,
                 contents = new
                 {
-                    en = string.Format(notificationTemplates.Value.EventDeleted.en, eventTitle),
-                    ru = string.Format(notificationTemplates.Value.EventDeleted.ru, eventTitle)
+                    en = string.Format(_notificationTemplates.Value.EventDeleted.en, eventTitle),
+                    ru = string.Format(_notificationTemplates.Value.EventDeleted.ru, eventTitle)
                 },
                 headings = new
                 {
-                    en = notificationTemplates.Value.Heading.en,
-                    ru = notificationTemplates.Value.Heading.ru
+                    en = _notificationTemplates.Value.Heading.en,
+                    ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId
             };
@@ -130,16 +127,16 @@ namespace BingoAPI.Services
         {
             var obj = new
             {
-                app_id = oneSignalSettings.Value.AppId,
+                app_id = _oneSignalSettings.Value.AppId,
                 contents = new
                 {
-                    en = string.Format(notificationTemplates.Value.NewAnnouncement.en, eventTitle),
-                    ru = string.Format(notificationTemplates.Value.NewAnnouncement.ru, eventTitle)
+                    en = string.Format(_notificationTemplates.Value.NewAnnouncement.en, eventTitle),
+                    ru = string.Format(_notificationTemplates.Value.NewAnnouncement.ru, eventTitle)
                 },
                 headings = new
                 {
-                    en = notificationTemplates.Value.Heading.en,
-                    ru = notificationTemplates.Value.Heading.ru
+                    en = _notificationTemplates.Value.Heading.en,
+                    ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId
             };
@@ -156,7 +153,7 @@ namespace BingoAPI.Services
                 
         private async Task SendNotificationAsync(StringContent buffer)
         {            
-            var response = await httpClient.PostAsync(request.RequestUri, buffer);
+            var response = await _httpClient.PostAsync(_request.RequestUri, buffer);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -164,11 +161,11 @@ namespace BingoAPI.Services
                 var errorObj = new ErrorLog
                 {
                     Date = DateTime.UtcNow,
-                    ExtraData = "Sending notificatification failed...",
-                    UserId = httpContext.HttpContext.GetUserId(),
+                    ExtraData = "Sending notification failed...",
+                    UserId = _httpContext.HttpContext.GetUserId(),
                     Message = await response.Content.ReadAsStringAsync()
                 };
-                var ok = await errorService.AddErrorAsync(errorObj);               
+                var ok = await _errorService.AddErrorAsync(errorObj);               
             }
         }
                 
