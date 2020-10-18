@@ -4,7 +4,6 @@ using Bingo.Contracts.V1.Requests.EventAttendee;
 using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.EventAttendee;
-using BingoAPI.Cache;
 using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Helpers;
@@ -14,10 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -26,21 +22,18 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class EventAttendeesController : Controller
     {
-        private readonly IEventParticipantsRepository eventParticipantsRepository;
-        private readonly IMapper mapper;
-        private readonly IUriService uriService;
-        private readonly INotificationService notificationService;
-        private readonly IPostsRepository postsRepository;
+        private readonly IEventParticipantsRepository _eventParticipantsRepository;
+        private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
+        private readonly INotificationService _notificationService;
 
         public EventAttendeesController(IEventParticipantsRepository eventParticipantsRepository, IMapper mapper,
-                                        IUriService uriService, INotificationService notificationService,
-                                        IPostsRepository postsRepository)
+                                        IUriService uriService, INotificationService notificationService)
         {
-            this.eventParticipantsRepository = eventParticipantsRepository;
-            this.mapper = mapper;
-            this.uriService = uriService;
-            this.notificationService = notificationService;
-            this.postsRepository = postsRepository;
+            this._eventParticipantsRepository = eventParticipantsRepository;
+            this._mapper = mapper;
+            this._uriService = uriService;
+            this._notificationService = notificationService;
         }
 
 
@@ -63,7 +56,7 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
 
-            var result = await eventParticipantsRepository.AcceptAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
+            var result = await _eventParticipantsRepository.AcceptAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
 
             if (!result.Result)
             {
@@ -71,7 +64,7 @@ namespace BingoAPI.Controllers
             }
 
             var userList = new List<string> { attendeeRequest.AttendeeId };
-            await notificationService.NotifyAttendEventRequestAcceptedAsync(userList, result.EventTitle);
+            await _notificationService.NotifyAttendEventRequestAcceptedAsync(userList, result.EventTitle);
 
             return Ok();
         }
@@ -97,7 +90,7 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
 
-            var result = await eventParticipantsRepository.RejectAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
+            var result = await _eventParticipantsRepository.RejectAttendee(attendeeRequest.AttendeeId, attendeeRequest.PostId);
 
             if (!result)
             {
@@ -126,17 +119,17 @@ namespace BingoAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
-            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
+            var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
 
-            var ParticipantsList = await eventParticipantsRepository.DisplayAll(paginationQuery.Id, paginationFilter);
-            if(ParticipantsList.Count == 0)
+            var participantsList = await _eventParticipantsRepository.DisplayAll(paginationQuery.Id, paginationFilter);
+            if(participantsList.Count == 0)
             {
                 return NoContent();
             }
 
             // map to response
-            var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
-            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
+            var eventParticipants = _mapper.Map<List<EventParticipant>>(participantsList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, eventParticipants);
             return Ok(paginationResponse);
         }
 
@@ -154,15 +147,15 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.EventAttendees.FetchAccepted)]
         public async Task<IActionResult> FetchAccepted([FromQuery] PaginationQuery paginationQuery)
         {            
-            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
-            var ParticipantsList = await eventParticipantsRepository.DisplayAllAccepted(paginationQuery.Id, paginationFilter);
-            if (ParticipantsList.Count == 0)
+            var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
+            var participantsList = await _eventParticipantsRepository.DisplayAllAccepted(paginationQuery.Id, paginationFilter);
+            if (participantsList.Count == 0)
             {
                 return NoContent();
             }
 
-            var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
-            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
+            var eventParticipants = _mapper.Map<List<EventParticipant>>(participantsList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, eventParticipants);
             return Ok(paginationResponse);
         }
 
@@ -179,17 +172,17 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.EventAttendees.FetchAcceptedShort)]
         public async Task<IActionResult> FetchAcceptedShort(FetchAttendeesRequest fetchAttendees)
         {
-            var ParticipantsList = await eventParticipantsRepository.DisplayShortlyAccepted(fetchAttendees.PostId);
-            var Number = await eventParticipantsRepository.CountAccepted(fetchAttendees.PostId);
-            if (ParticipantsList.Count == 0)
+            var participantsList = await _eventParticipantsRepository.DisplayShortlyAccepted(fetchAttendees.PostId);
+            var number = await _eventParticipantsRepository.CountAccepted(fetchAttendees.PostId);
+            if (participantsList.Count == 0)
             {
                 return NoContent();
             }
 
             var result = new EventParticipantData
             {
-                Attendees = mapper.Map<List<EventParticipant>>(ParticipantsList),
-                AttendeesNumber = Number
+                Attendees = _mapper.Map<List<EventParticipant>>(participantsList),
+                AttendeesNumber = number
             };
             return Ok(new Response<EventParticipantData>(result));
         }
@@ -212,22 +205,22 @@ namespace BingoAPI.Controllers
             {
                 return BadRequest(new SingleError { Message = "Requester is not the post owner or post does not exist" });
             }
-            var paginationFilter = mapper.Map<PaginationFilter>(paginationQuery);
-            var ParticipantsList = await eventParticipantsRepository.DisplayAllPending(paginationQuery.Id, paginationFilter);
-            if (ParticipantsList.Count == 0)
+            var paginationFilter = _mapper.Map<PaginationFilter>(paginationQuery);
+            var participantsList = await _eventParticipantsRepository.DisplayAllPending(paginationQuery.Id, paginationFilter);
+            if (participantsList.Count == 0)
             {
                 return NoContent();
             }
 
-            var eventParticipants = mapper.Map<List<EventParticipant>>(ParticipantsList);
-            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, eventParticipants);
+            var eventParticipants = _mapper.Map<List<EventParticipant>>(participantsList);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, eventParticipants);
             return Ok(paginationResponse);
         }
 
         private async Task<bool> IsOwner(int postId)
         {
             var userId = HttpContext.GetUserId();
-            var isPostOwner = await eventParticipantsRepository.IsPostOwnerAsync(postId, userId);
+            var isPostOwner = await _eventParticipantsRepository.IsPostOwnerAsync(postId, userId);
 
             if (!isPostOwner)
             {
