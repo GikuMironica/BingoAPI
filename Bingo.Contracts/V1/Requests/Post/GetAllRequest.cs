@@ -22,7 +22,7 @@ namespace Bingo.Contracts.V1.Requests.Post
         public double Latitude { get; set; }
 
         [MaxValue(15, ErrorMessage = "Maximum range is 15km")]
-        [MinValue(1, ErrorMessage = "Minimum range is 15km")]
+        [MinValue(1, ErrorMessage = "Minimum range is 1km")]
         [Required]
         public int RadiusRange { get; set; }
 

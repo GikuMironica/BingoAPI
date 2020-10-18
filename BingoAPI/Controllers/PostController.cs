@@ -1,9 +1,7 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Requests.Post;
-using Bingo.Contracts.V1.Requests.User;
 using Bingo.Contracts.V1.Responses;
-using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.Post;
 using BingoAPI.Cache;
 using BingoAPI.CustomMapper;
@@ -19,12 +17,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,7 +36,6 @@ namespace BingoAPI.Controllers
         private readonly UserManager<AppUser> _userManager;
         private readonly IPostsRepository _postRepository;
         private readonly IAwsBucketManager _awsBucketManager;
-        private readonly ILogger<PostController> _logger;
         private readonly IUriService _uriService;
         private readonly IUpdatePostToDomain _updatePostToDomain;
         private readonly IImageLoader _imageLoader;
@@ -52,8 +47,7 @@ namespace BingoAPI.Controllers
         private readonly IRequestToDomainMapper _requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, ILogger<PostController> logger
-                              , IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
+                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
                               , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
         {
@@ -63,7 +57,6 @@ namespace BingoAPI.Controllers
             this._userManager = userManager;
             this._postRepository = postRepository;
             this._awsBucketManager = awsBucketManager;
-            this._logger = logger;
             this._uriService = uriService;
             this._updatePostToDomain = updatePostToDomain;
             this._imageLoader = imageLoader;
@@ -82,7 +75,7 @@ namespace BingoAPI.Controllers
         /// <param name="postId">The post Id</param>
         /// <response code="200">The post was found and returned</response>
         /// <response code="404">The post was not found</response>
-        [Cached(600)]
+        [Cached(300)]
         [HttpGet(ApiRoutes.Posts.Get)]
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
         [ProducesResponseType(404)]
@@ -124,7 +117,6 @@ namespace BingoAPI.Controllers
         /// <response code="204">User has no active posts</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
-        [Cached(600)]
         [HttpGet(ApiRoutes.Posts.GetAllActive)]
         public async Task<IActionResult> GetMyActiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -160,7 +152,6 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Posts.GetAllInactive)]
-        [Cached(43200)]
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
             var userId = HttpContext.GetUserId();
@@ -197,6 +188,7 @@ namespace BingoAPI.Controllers
         /// <response code="204">No active events in this area</response>
         [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
         [ProducesResponseType(204)]
+        [Cached(300)]
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {

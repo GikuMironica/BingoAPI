@@ -27,7 +27,7 @@ namespace BingoAPI.Controllers
     public class AnnouncementController : Controller
     {
         private readonly UserManager<AppUser> _userManager;
-        private EventTypes _eventTypes;
+        private readonly EventTypes _eventTypes;
         private readonly IPostsRepository _postsRepository;
         private readonly IAnnouncementRepository _announcementRepository;
         private readonly IMapper _mapper;

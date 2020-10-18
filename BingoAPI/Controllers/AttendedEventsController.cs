@@ -97,7 +97,6 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
         [HttpGet(ApiRoutes.AttendedEvents.GetActiveAttendedPosts)]
-        [Cached(300)]
         public async Task<IActionResult> GetAllActiveAttendedEvents()
         {
             var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
@@ -136,7 +135,6 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<List<Bingo.Contracts.V1.Responses.Post.Posts>>), 200)]
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(Response<SingleError>), 400)]
-        [Cached(600)]
         public async Task<IActionResult> GetAllOldAttendedEvents()
         {
             var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
