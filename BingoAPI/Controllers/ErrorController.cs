@@ -18,7 +18,7 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class ErrorController : Controller
     {
-        private readonly ILogger<ErrorController> _logger;
+        /*private readonly ILogger<ErrorController> _logger;
         private readonly IErrorService _errorService;
 
         public ErrorController(ILogger<ErrorController> logger, IErrorService errorService)
@@ -88,7 +88,8 @@ namespace BingoAPI.Controllers
         public IActionResult S2Index()
         {           
             return NotFound();
-        }*/
+        }#1#
 
+    }*/
     }
 }
