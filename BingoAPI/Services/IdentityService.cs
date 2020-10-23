@@ -33,9 +33,9 @@ namespace BingoAPI.Services
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
         private readonly IWebHostEnvironment _environment;
-        private readonly string _WebServerRelativeUrl = "hopaut.com/account/";
-        private readonly string _BingoServerRelativeUrl = "hopout.eu/api/v1/identity/";
-        private readonly string _BingoLocalServerRelativeUrl = "localhost:44375/api/v1/identity/";
+        private readonly string _WebServerRelativeUrl = "https://www.hopaut.com/account/";
+        private readonly string _BingoServerRelativeUrl = "https://www.hopout.eu/api/v1/identity/";
+        private readonly string _BingoLocalServerRelativeUrl = "https://localhost:44375/api/v1/identity/";
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -70,8 +70,8 @@ namespace BingoAPI.Services
         /// <param name="email">User registration email</param>
         /// <param name="password">User password</param>
         /// <param name="lang">User's phone language</param>
-        /// <returns>This method returns the generaterd Jwt token
-        /// if opeartion was successful</returns>
+        /// <returns>This method returns the generated Jwt token
+        /// if operation was successful</returns>
         public async Task<AuthenticationResult> RegisterAsync(string email, string password, String? lang = null)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
@@ -108,7 +108,7 @@ namespace BingoAPI.Services
 
 
             // generate url
-            var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
+            var confirmationLink = _urlHelper.Action("ConfirmEmail", "identity",
                     new { userId = newUser.Id, token, lang}, _httpRequest.HttpContext.Request.Scheme);
 
             var url = confirmationLink.Replace(_BingoServerRelativeUrl, _WebServerRelativeUrl);
@@ -382,7 +382,7 @@ namespace BingoAPI.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
 
             // Build the password reset link -> build hopaut.com url add these 2 as querystring params
-            var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
+            var passwordResetLink = _urlHelper.Action("ResetPassword", "identity",
                 new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
             var url = passwordResetLink.Replace(_BingoServerRelativeUrl, _WebServerRelativeUrl);
