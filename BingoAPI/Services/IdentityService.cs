@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
@@ -108,13 +109,13 @@ namespace BingoAPI.Services
 
 
             // generate url
-            var confirmationLink = _urlHelper.Action("ConfirmEmail", "identity",
+            var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
                     new { userId = newUser.Id, token, lang}, _httpRequest.HttpContext.Request.Scheme);
 
-            var url = confirmationLink.Replace(_BingoServerRelativeUrl, _WebServerRelativeUrl);
+            var url = Regex.Replace(confirmationLink, _BingoServerRelativeUrl, _WebServerRelativeUrl);
             if (_environment.IsDevelopment())
             {
-                url = confirmationLink.Replace(_BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
+                url = Regex.Replace(confirmationLink, _BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
             }
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, url, lang);
@@ -385,10 +386,10 @@ namespace BingoAPI.Services
             var passwordResetLink = _urlHelper.Action("ResetPassword", "identity",
                 new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
-            var url = passwordResetLink.Replace(_BingoServerRelativeUrl, _WebServerRelativeUrl);
+            var url = Regex.Replace(passwordResetLink, _BingoServerRelativeUrl, _WebServerRelativeUrl);
             if (_environment.IsDevelopment())
             {
-                url = passwordResetLink.Replace(_BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
+                url = Regex.Replace(passwordResetLink, _BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
             }
 
             // Format email message
