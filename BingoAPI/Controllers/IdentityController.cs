@@ -178,7 +178,7 @@ namespace BingoAPI.Controllers
         /// <response code="200">Confirmed</response>
         /// <response code="400">Denied, token invalid or user does not exist</response>
         [HttpGet(ApiRoutes.Identity.ConfirmEmail)]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        public async Task<IActionResult> ConfirmEmail(string userId, string token, String? lang = null)
         {
             if (userId == null || token == null)
             {
@@ -193,13 +193,6 @@ namespace BingoAPI.Controllers
             }
 
             await _userManager.ConfirmEmailAsync(user, token);
-/*
-            if (result.Succeeded)
-            {
-               await _emailService.SendEmail(user.Email, "BingoApp - Successfully Registered", "Congratulations,\n You have successfully activated your account!\n " +
-                    "Welcome to the dark side.");
-            }
-*/
             return Ok();
         }
 
