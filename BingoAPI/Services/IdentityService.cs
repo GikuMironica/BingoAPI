@@ -102,7 +102,7 @@ namespace BingoAPI.Services
 
             // generate url
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
-                    new { userId = newUser.Id, token }, _httpRequest.HttpContext.Request.Scheme);
+                    new { userId = newUser.Id, token, lang}, _httpRequest.HttpContext.Request.Scheme);
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
 
@@ -363,17 +363,17 @@ namespace BingoAPI.Services
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 
-        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? language= null)
+        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? lang= null)
         {
             // generate the reset password token
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
 
             // Build the password reset link -> build hopaut.com url add these 2 as querystring params
             var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
-                    new { email = appUser.Email, token, language }, _httpRequest.HttpContext.Request.Scheme);
+                    new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
             // Format email message
-            var emailFormattedResult = _emailFormatter.FormatForgotPassword(passwordResetLink, language);
+            var emailFormattedResult = _emailFormatter.FormatForgotPassword(passwordResetLink, lang);
 
             // Send link over email
             var result = await _emailService.SendEmail(appUser.Email, emailFormattedResult.EmailSubject, emailFormattedResult.EmailContent);
