@@ -4,19 +4,15 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using BingoAPI.Options;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
+using Flurl;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BingoAPI.Services
@@ -29,14 +25,9 @@ namespace BingoAPI.Services
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService _facebookAuthService;
-        private readonly IUrlHelper _urlHelper;
-        private readonly IHttpContextAccessor _httpRequest;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
-        private readonly IWebHostEnvironment _environment;
-        private readonly string _WebServerRelativeUrl = "https://www.hopaut.com/account/";
-        private readonly string _BingoServerRelativeUrl = "https://www.hopout.eu/api/v1/identity/";
-        private readonly string _BingoLocalServerRelativeUrl = "https://localhost:44375/api/v1/identity/";
+        private const string WebServerRelativeUrl = "https://www.hopaut.com/account";
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -44,23 +35,17 @@ namespace BingoAPI.Services
                                DataContext dataContext,
                                IFacebookAuthService facebookAuthService,
                                RoleManager<IdentityRole> roleManager,
-                               IUrlHelper urlHelper,
-                               IHttpContextAccessor httpRequest,
                                IEmailService emailService,
-                               IEmailFormatter emailFormatter,
-                               IWebHostEnvironment environment)
+                               IEmailFormatter emailFormatter)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
-            _environment = environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
             this._dataContext = dataContext;
             this._facebookAuthService = facebookAuthService;
             this._roleManager = roleManager;
-            this._urlHelper = urlHelper;
-            this._httpRequest = httpRequest;
         }
 
 
@@ -106,17 +91,18 @@ namespace BingoAPI.Services
 
             // force user to confirm email, generate token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-
-
-            // generate url
-            var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
-                    new { userId = newUser.Id, token, lang}, _httpRequest.HttpContext.Request.Scheme);
-
-            var url = Regex.Replace(confirmationLink, _BingoServerRelativeUrl, _WebServerRelativeUrl);
-            if (_environment.IsDevelopment())
-            {
-                url = Regex.Replace(confirmationLink, _BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
-            }
+            
+            // generate email confirmation url
+            var url = WebServerRelativeUrl
+                .AppendPathSegment("confirmemail")
+                .SetQueryParams(new
+                {
+                    userId = newUser.Id,
+                    // ReSharper disable once RedundantAnonymousTypePropertyName
+                    token = token,
+                    // ReSharper disable once RedundantAnonymousTypePropertyName
+                    lang = lang
+                });
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, url, lang);
 
@@ -383,15 +369,20 @@ namespace BingoAPI.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
 
             // Build the password reset link -> build hopaut.com url add these 2 as querystring params
-            var passwordResetLink = _urlHelper.Action("ResetPassword", "identity",
-                new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
+            //var passwordResetLink = _urlHelper.Action("ResetPassword", "identity",
+            //    new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
-            var url = Regex.Replace(passwordResetLink, _BingoServerRelativeUrl, _WebServerRelativeUrl);
-            if (_environment.IsDevelopment())
-            {
-                url = Regex.Replace(passwordResetLink, _BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
-            }
-
+            var url = WebServerRelativeUrl
+                .AppendPathSegment("resetpassword")
+                .SetQueryParams(new
+                {
+                    email = appUser.Email,
+                    // ReSharper disable once RedundantAnonymousTypePropertyName
+                    token = token,
+                    // ReSharper disable once RedundantAnonymousTypePropertyName
+                    lang = lang
+                });
+            
             // Format email message
             var emailFormattedResult = _emailFormatter.FormatForgotPassword(url, lang);
 
