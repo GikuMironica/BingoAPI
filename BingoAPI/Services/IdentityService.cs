@@ -10,10 +10,12 @@ using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using BingoAPI.Options;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BingoAPI.Services
@@ -30,6 +32,10 @@ namespace BingoAPI.Services
         private readonly IHttpContextAccessor _httpRequest;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
+        private readonly IWebHostEnvironment _environment;
+        private readonly string _WebServerRelativeUrl = "hopaut.com/account/";
+        private readonly string _BingoServerRelativeUrl = "hopout.eu/api/v1/identity/";
+        private readonly string _BingoLocalServerRelativeUrl = "localhost:44375/api/v1/identity/";
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -40,10 +46,12 @@ namespace BingoAPI.Services
                                IUrlHelper urlHelper,
                                IHttpContextAccessor httpRequest,
                                IEmailService emailService,
-                               IEmailFormatter emailFormatter)
+                               IEmailFormatter emailFormatter,
+                               IWebHostEnvironment environment)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
+            _environment = environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
@@ -99,12 +107,17 @@ namespace BingoAPI.Services
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
 
 
-
             // generate url
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
-                    new { userId = newUser.Id, token }, _httpRequest.HttpContext.Request.Scheme);
+                    new { userId = newUser.Id, token, lang}, _httpRequest.HttpContext.Request.Scheme);
 
-            var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
+            var url = confirmationLink.Replace(_BingoServerRelativeUrl, _WebServerRelativeUrl);
+            if (_environment.IsDevelopment())
+            {
+                url = confirmationLink.Replace(_BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
+            }
+
+            var content = _emailFormatter.FormatRegisterConfirmation(email, url, lang);
 
             // send it per email
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
@@ -363,17 +376,23 @@ namespace BingoAPI.Services
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 
-        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? language= null)
+        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? lang= null)
         {
             // generate the reset password token
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
 
             // Build the password reset link -> build hopaut.com url add these 2 as querystring params
             var passwordResetLink = _urlHelper.Action("ResetPassword", "Identity",
-                    new { email = appUser.Email, token, language }, _httpRequest.HttpContext.Request.Scheme);
+                new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
+
+            var url = passwordResetLink.Replace(_BingoServerRelativeUrl, _WebServerRelativeUrl);
+            if (_environment.IsDevelopment())
+            {
+                url = passwordResetLink.Replace(_BingoLocalServerRelativeUrl, _WebServerRelativeUrl);
+            }
 
             // Format email message
-            var emailFormattedResult = _emailFormatter.FormatForgotPassword(passwordResetLink, language);
+            var emailFormattedResult = _emailFormatter.FormatForgotPassword(url, lang);
 
             // Send link over email
             var result = await _emailService.SendEmail(appUser.Email, emailFormattedResult.EmailSubject, emailFormattedResult.EmailContent);
@@ -397,5 +416,6 @@ namespace BingoAPI.Services
 
             return new AuthenticationResult { Success = true };
         }
+
     }
 }
