@@ -28,6 +28,8 @@ namespace BingoAPI.Services
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
         private const string WebServerRelativeUrl = "https://www.hopaut.com/account";
+        private const string ConfirmEmailPath = "confirmemail";
+        private const string ResetPassPath = "resetpassword";
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -94,7 +96,7 @@ namespace BingoAPI.Services
             
             // generate email confirmation url
             var url = WebServerRelativeUrl
-                .AppendPathSegment("confirmemail")
+                .AppendPathSegment(ConfirmEmailPath)
                 .SetQueryParams(new
                 {
                     userId = newUser.Id,
@@ -373,7 +375,7 @@ namespace BingoAPI.Services
             //    new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
             var url = WebServerRelativeUrl
-                .AppendPathSegment("resetpassword")
+                .AppendPathSegment(ResetPassPath)
                 .SetQueryParams(new
                 {
                     email = appUser.Email,

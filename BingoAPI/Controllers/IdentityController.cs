@@ -142,7 +142,7 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// Generates a new JWT, Refresh token combination and stores it 
-        /// in the system databse
+        /// in the system database
         /// </summary>
         /// <param name="request">Contains the JWT and the refresh token</param>
         /// <response code="200">New JWT, Refresh token combination</response>
@@ -178,7 +178,7 @@ namespace BingoAPI.Controllers
         /// <response code="200">Confirmed</response>
         /// <response code="400">Denied, token invalid or user does not exist</response>
         [HttpGet(ApiRoutes.Identity.ConfirmEmail)]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token, String? lang = null)
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (userId == null || token == null)
             {
