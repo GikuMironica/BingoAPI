@@ -75,7 +75,7 @@ namespace BingoAPI.Controllers
         /// <param name="postId">The post Id</param>
         /// <response code="200">The post was found and returned</response>
         /// <response code="404">The post was not found</response>
-        [Cached(300)]
+        //[Cached(300)]
         [HttpGet(ApiRoutes.Posts.Get)]
         [ProducesResponseType(typeof(Response<PostResponse>), 200)]
         [ProducesResponseType(404)]
@@ -178,12 +178,12 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint returns all active events base on requesters location.
+        /// This endpoint returns all active events based on the requester's location.
         /// By default it returns the events within 15km range
         /// </summary>
         /// <param name="getAllRequest">Contains users Longitude,Latitude and search range</param>
         /// <param name="filteredGetAll">Event types to be included in the search result. If all are null or false, all of them will be included in the result. 
-        /// It also contains an option to returns the events which will occur today. And lastly, Tag, will return posts containig this tag.</param>
+        /// It also contains an option to returns the events which will occur today. And lastly, Tag, will return posts containing this tag.</param>
         /// <response code="200">Returns the standard mini post</response>
         /// <response code="204">No active events in this area</response>
         [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
@@ -201,7 +201,7 @@ namespace BingoAPI.Controllers
             }
 
             var posts = await _postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, today, filteredGetAll.Tag ?? "%");
-            if (posts == null || posts.Count() == 0)
+            if (posts == null || !posts.Any())
             {
                 return NoContent();
             }
@@ -227,9 +227,10 @@ namespace BingoAPI.Controllers
         /// A post includes location, event, pictures, tags and other details.
         /// </summary>
         /// <param name="postRequest">request object</param>
-        /// <response code="201">Post successfuly created</response>
+        /// <response code="201">Post successfully created</response>
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
+        [Authorize(Policy="CreateEditPost")]
         [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
         [ProducesResponseType(typeof(SingleError), 400)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
@@ -313,7 +314,7 @@ namespace BingoAPI.Controllers
             var updated = await _postRepository.UpdateAsync(mappedPost);
             if (updated)
             {
-                // notify atendee if something important got updated
+                // notify attendee if something important got updated
                 if (_postDetailsWatcher.GetValidatedFields(postRequest))
                 {
                     var participants = await _postRepository.GetParticipantsIdAsync(post.Id);
@@ -336,7 +337,7 @@ namespace BingoAPI.Controllers
         /// It will delete all related data, like Event, Location but, it will leave the created tags.
         /// </summary>
         /// <param name="postId">The post id</param>
-        /// <response code="204">Post was successfuly deleted</response>
+        /// <response code="204">Post was successfully deleted</response>
         /// <response code="403">You do not own this post / You are not an Administrator</response>
         /// <response code="404">Post was not found</response>
         [HttpDelete(ApiRoutes.Posts.Delete)]
