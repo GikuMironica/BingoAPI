@@ -254,16 +254,16 @@ namespace BingoAPI.Services
             // token generations
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            // Secret is mapped with the one from appsettings.json, binded in startup.class, then jwtSettings added as singleton
+            // Secret is mapped with the one from appsettings.json, bound in startup.class, then jwtSettings added as singleton
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
             var claims = new List<Claim>
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("id", user.Id)
-                };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", user.Id)
+            };
 
             // load all Identity Related claims, roles for this user
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -401,6 +401,7 @@ namespace BingoAPI.Services
         {
             var result = await _userManager.ChangePasswordAsync(appUser, request.OldPass, request.NewPassword);
 
+            
             // if new password does not meet requirements or current password not correct
             if (!result.Succeeded)
             {
