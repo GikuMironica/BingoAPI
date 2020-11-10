@@ -375,8 +375,14 @@ namespace BingoAPI.Controllers
 
 
 
-
+        /// <summary>
+        /// This endpoint disables the specified user's claim for creating posts. A time stamp is added in the claim value with the timestamp.
+        /// </summary>
+        /// <param name="request">The target user email</param>
+        /// <response code="200">Action has been completed successfully</response>
+        /// <response code="400">Action could not be completed. Check error logs</response>
         [HttpPost(ApiRoutes.Identity.RevokePostCreateClaim)]
+        [ProducesResponseType(typeof(Response<SingleError>), 400)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> RevokeCreatePostClaim([FromBody] RevokePostClaimRequest request)
         {
@@ -410,14 +416,26 @@ namespace BingoAPI.Controllers
                     Controller = ControllerContext.ActionDescriptor.ControllerName
                 };
                 await _errorService.AddErrorAsync(errorObj);
+
+                return BadRequest(new SingleError
+                {
+                    Message = "Could not disable the user's claim"
+                });
             }
+
             return Ok();
         }
 
 
 
-
+        /// <summary>
+        /// This endpoint enables the specified user's claim for creating events. 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">Action has been completed successfully</response>
+        /// <response code="400">Action could not be completed. Check error logs</response>
         [HttpPost(ApiRoutes.Identity.GrantPostCreateClaim)]
+        [ProducesResponseType(typeof(Response<SingleError>), 400)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> GrantCreatePostClaim([FromBody] GrantPostClaimRequest request)
         {
@@ -441,7 +459,7 @@ namespace BingoAPI.Controllers
             var replaceClaimResult = await _userManager.ReplaceClaimAsync(user, postClaim, enabledClaim);
             if (!replaceClaimResult.Succeeded)
             {
-                // logg
+                // loggs
                 var errorObj = new ErrorLog
                 {
                     Date = DateTime.Now,
@@ -450,7 +468,13 @@ namespace BingoAPI.Controllers
                     Controller = ControllerContext.ActionDescriptor.ControllerName
                 };
                 await _errorService.AddErrorAsync(errorObj);
+
+                return BadRequest(new SingleError
+                {
+                    Message = "Could not disable the user's claim"
+                });
             }
+
             return Ok();
         }
 
