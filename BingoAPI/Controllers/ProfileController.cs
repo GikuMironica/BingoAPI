@@ -40,7 +40,6 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<ProfileResponse>), 200)]
         [ProducesResponseType(404)]
         [HttpGet(ApiRoutes.Profile.Get)]
-        [Cached(600)]
         public async Task<IActionResult> GetProfile([FromRoute] string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
