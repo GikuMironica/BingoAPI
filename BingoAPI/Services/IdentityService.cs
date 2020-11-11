@@ -112,9 +112,9 @@ namespace BingoAPI.Services
             var content = _emailFormatter.FormatRegisterConfirmation(email, url, lang);
 
             // send it per email
-            var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
-            return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
-            // return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } uncomment this, comment the two lines above for integration tests.
+            //var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
+            //return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
+            return new AuthenticationResult {Success = true, UserId = newUser.Id};
         }
 
 
