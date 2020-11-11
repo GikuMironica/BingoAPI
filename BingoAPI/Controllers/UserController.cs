@@ -208,7 +208,7 @@ namespace BingoAPI.Controllers
         /// This endpoint allows users to delete their account 
         /// </summary>
         /// <param name="userId">The user id to be deleted</param>
-        /// <response code="204">User successfuly deleted</response>
+        /// <response code="204">User successfully deleted</response>
         /// <response code="403">Unauthorized access</response>
         /// <response code="406">Unable to update user</response>
         [ProducesResponseType(204)]

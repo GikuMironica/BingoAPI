@@ -69,7 +69,12 @@ namespace BingoAPI.Installers
                 x.TokenValidationParameters = tokenValidationParameter;
             });
 
-            services.AddAuthorization();
+
+            // claims
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CreateEditPost", builder => builder.RequireClaim("post.add", "true"));
+            });
 
             services.AddSingleton<IUriService>(provider =>
             {

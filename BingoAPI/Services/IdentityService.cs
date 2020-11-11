@@ -28,6 +28,8 @@ namespace BingoAPI.Services
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
         private const string WebServerRelativeUrl = "https://www.hopaut.com/account";
+        private const string ConfirmEmailPath = "confirmemail";
+        private const string ResetPassPath = "resetpassword";
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -89,12 +91,15 @@ namespace BingoAPI.Services
             // when registering user, assign him user role, also need to be added in the JWT!!!
             await _userManager.AddToRoleAsync(newUser, "User");
 
+            // Give user basic claims ( create/edit post )
+            await _userManager.AddClaimAsync(newUser, new Claim("post.add", "true"));
+
             // force user to confirm email, generate token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
             
             // generate email confirmation url
             var url = WebServerRelativeUrl
-                .AppendPathSegment("confirmemail")
+                .AppendPathSegment(ConfirmEmailPath)
                 .SetQueryParams(new
                 {
                     userId = newUser.Id,
@@ -109,7 +114,7 @@ namespace BingoAPI.Services
             // send it per email
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
             return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
-            // return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } uncomment this, comment the two lines above for integration tests.
+            //return new AuthenticationResult {Success = true, UserId = newUser.Id};
         }
 
 
@@ -249,16 +254,16 @@ namespace BingoAPI.Services
             // token generations
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            // Secret is mapped with the one from appsettings.json, binded in startup.class, then jwtSettings added as singleton
+            // Secret is mapped with the one from appsettings.json, bound in startup.class, then jwtSettings added as singleton
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
             var claims = new List<Claim>
-                {
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("id", user.Id)
-                };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim("id", user.Id)
+            };
 
             // load all Identity Related claims, roles for this user
             var userClaims = await _userManager.GetClaimsAsync(user);
@@ -373,7 +378,7 @@ namespace BingoAPI.Services
             //    new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
             var url = WebServerRelativeUrl
-                .AppendPathSegment("resetpassword")
+                .AppendPathSegment(ResetPassPath)
                 .SetQueryParams(new
                 {
                     email = appUser.Email,
@@ -396,6 +401,7 @@ namespace BingoAPI.Services
         {
             var result = await _userManager.ChangePasswordAsync(appUser, request.OldPass, request.NewPassword);
 
+            
             // if new password does not meet requirements or current password not correct
             if (!result.Succeeded)
             {

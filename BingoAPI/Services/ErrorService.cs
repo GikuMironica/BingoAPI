@@ -9,17 +9,17 @@ namespace BingoAPI.Services
 {
     public class ErrorService : IErrorService
     {
-        private readonly ErrorDataContext context;
+        private readonly ErrorDataContext _context;
 
         public ErrorService(ErrorDataContext context)
         {
-            this.context = context;
+            this._context = context;
         }
 
         public async Task<bool> AddErrorAsync(ErrorLog errorLog)
         {
-            await context.AddAsync(errorLog);
-            return await context.SaveChangesAsync() > 0;
+            await _context.AddAsync(errorLog);
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

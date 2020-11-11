@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using BingoAPI.Models;
@@ -25,18 +26,22 @@ namespace BingoAPI.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
+        private readonly IErrorService _errorService;
+        private readonly String _createEditPostClaim = "post.add";
 
         public IdentityController(IIdentityService identityService,
                                   UserManager<AppUser> userManager,
                                   SignInManager<AppUser> signInManager,
                                   IEmailService emailService,
-                                  IEmailFormatter emailFormatter)
+                                  IEmailFormatter emailFormatter,
+                                  IErrorService errorService)
         {
             this._identityService = identityService;
             this._userManager = userManager;
             this._signInManager = signInManager;
             this._emailService = emailService;
             _emailFormatter = emailFormatter;
+            _errorService = errorService;
         }
 
         /// <summary>
@@ -142,7 +147,7 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// Generates a new JWT, Refresh token combination and stores it 
-        /// in the system databse
+        /// in the system database
         /// </summary>
         /// <param name="request">Contains the JWT and the refresh token</param>
         /// <response code="200">New JWT, Refresh token combination</response>
@@ -178,7 +183,7 @@ namespace BingoAPI.Controllers
         /// <response code="200">Confirmed</response>
         /// <response code="400">Denied, token invalid or user does not exist</response>
         [HttpGet(ApiRoutes.Identity.ConfirmEmail)]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token, String? lang = null)
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (userId == null || token == null)
             {
@@ -367,6 +372,112 @@ namespace BingoAPI.Controllers
             await _signInManager.RefreshSignInAsync(user);
             return Ok(new Response<string> { Data = "Password successfully added" });
         }
+
+
+
+        /// <summary>
+        /// This endpoint disables the specified user's claim for creating posts. A time stamp is added in the claim value with the timestamp.
+        /// </summary>
+        /// <param name="request">The target user email</param>
+        /// <response code="200">Action has been completed successfully</response>
+        /// <response code="400">Action could not be completed. Check error logs</response>
+        [HttpPost(ApiRoutes.Identity.RevokePostCreateClaim)]
+        [ProducesResponseType(typeof(Response<SingleError>), 400)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> RevokeCreatePostClaim([FromBody] RevokePostClaimRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return BadRequest(new SingleError
+                {
+                    Message = "User with this email does not exit"
+                });
+                
+            }
+
+            var claims = await _userManager.GetClaimsAsync(user);
+
+            // find the post add/edit claim
+            var postClaim = claims.FirstOrDefault(c => c.Type == _createEditPostClaim);
+
+            var disabledClaim = new Claim(_createEditPostClaim, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
+
+            // replace the claim with another one, with the removal date timestamp as value
+            var replaceClaimResult = await _userManager.ReplaceClaimAsync(user, postClaim, disabledClaim);
+            if (!replaceClaimResult.Succeeded)
+            {
+                // logg
+                var errorObj = new ErrorLog
+                {
+                    Date = DateTime.Now,
+                    ExtraData = "Could not disable user's post add/edit claim. User email: "+user.Email,
+                    Message = string.Join(">>next error>>", replaceClaimResult.Errors),
+                    Controller = ControllerContext.ActionDescriptor.ControllerName
+                };
+                await _errorService.AddErrorAsync(errorObj);
+
+                return BadRequest(new SingleError
+                {
+                    Message = "Could not disable the user's claim"
+                });
+            }
+
+            return Ok();
+        }
+
+
+
+        /// <summary>
+        /// This endpoint enables the specified user's claim for creating events. 
+        /// </summary>
+        /// <param name="request"></param>
+        /// <response code="200">Action has been completed successfully</response>
+        /// <response code="400">Action could not be completed. Check error logs</response>
+        [HttpPost(ApiRoutes.Identity.GrantPostCreateClaim)]
+        [ProducesResponseType(typeof(Response<SingleError>), 400)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> GrantCreatePostClaim([FromBody] GrantPostClaimRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return BadRequest(new SingleError
+                {
+                    Message = "User with this email does not exit"
+                });
+            }
+
+            var claims = await _userManager.GetClaimsAsync(user);
+
+            // find the post add/edit claim
+            var postClaim = claims.FirstOrDefault(c => c.Type == _createEditPostClaim);
+
+            var enabledClaim = new Claim(_createEditPostClaim, "true");
+
+            // replace the claim with another one, with the value as true
+            var replaceClaimResult = await _userManager.ReplaceClaimAsync(user, postClaim, enabledClaim);
+            if (!replaceClaimResult.Succeeded)
+            {
+                // loggs
+                var errorObj = new ErrorLog
+                {
+                    Date = DateTime.Now,
+                    ExtraData = "Could not enable user's post add/edit claim. User email: " + user.Email,
+                    Message = string.Join(">>next error>>", replaceClaimResult.Errors),
+                    Controller = ControllerContext.ActionDescriptor.ControllerName
+                };
+                await _errorService.AddErrorAsync(errorObj);
+
+                return BadRequest(new SingleError
+                {
+                    Message = "Could not disable the user's claim"
+                });
+            }
+
+            return Ok();
+        }
+
 
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Bingo.Contracts.V1
+﻿namespace Bingo.Contracts.V1
 {
     public class ApiRoutes
     {
@@ -36,6 +32,10 @@ namespace Bingo.Contracts.V1
             public const string ChangePassword = Base + "/identity/changepassword";
 
             public const string AddPassword = Base + "/identity/addpassword";
+
+            public const string RevokePostCreateClaim = Base + "/identity/revokepostcreateclaim";
+
+            public const string GrantPostCreateClaim = Base + "/identity/grantpostcreateclaim";
         }
 
         public static class Users

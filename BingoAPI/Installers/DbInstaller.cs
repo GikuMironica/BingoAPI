@@ -36,6 +36,7 @@ namespace BingoAPI.Installers
               .AddEntityFrameworkStores<DataContext>()
               .AddDefaultTokenProviders();
 
+
             // repositories
             services.AddScoped<IPostsRepository, PostRepository>();
             services.AddScoped<IEventAttendanceRepository, EventAttendanceRepository>();
@@ -45,6 +46,9 @@ namespace BingoAPI.Installers
             services.AddScoped<IReportsRepository, RepostsRepository>();
             services.AddScoped<IUserReportRepository, UserReportRepository>();
             services.AddScoped<ITagsRepository, TagsRepository>();
+
+
+
         }
     }
 }
