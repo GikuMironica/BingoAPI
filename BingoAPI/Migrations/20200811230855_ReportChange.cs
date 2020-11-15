@@ -6,27 +6,17 @@ namespace BingoAPI.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-          
-            migrationBuilder.Sql("ALTER TABLE public.\"UserReports\" ALTER COLUMN \"Reason\" TYPE integer USING \"Reason\"::integer");
-            migrationBuilder.Sql("ALTER TABLE public.\"Reports\" ALTER COLUMN \"Reason\" TYPE integer USING \"Reason\"::integer");
-
+            migrationBuilder.AddColumn<int>(
+                name: "Reason",
+                table: "UserReports",
+                type: "integer",
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Reason",
-                table: "UserReports",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(int));
+            
 
-            migrationBuilder.AlterColumn<string>(
-                name: "Reason",
-                table: "Reports",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(int));
         }
     }
 }
