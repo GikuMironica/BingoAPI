@@ -1,5 +1,4 @@
-﻿using Bingo.Contracts.V1.Requests.Post;
-using BingoAPI.Data;
+﻿using BingoAPI.Data;
 using BingoAPI.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,9 +6,9 @@ using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using BingoAPI.Services;
 
 namespace BingoAPI.Models.SqlRepository
 {
@@ -17,13 +16,15 @@ namespace BingoAPI.Models.SqlRepository
     {
         protected readonly DataContext Context;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IErrorService _errorService;
         private readonly EventTypes _eventTypes;
 
         public PostRepository(DataContext context, UserManager<AppUser> userManager,
-                              IOptions<EventTypes> eventTypes)
+                              IOptions<EventTypes> eventTypes, IErrorService errorService)
         {
             Context = context;
             this._userManager = userManager;
+            _errorService = errorService;
             this._eventTypes = eventTypes.Value;
         }
 
@@ -32,7 +33,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<bool> AddAsync(Post entity)
         {
             var result = 0;
-            bool tryAgain = true;
+            var tryAgain = true;
             entity.Voucher = new DrinkVoucher();
             entity.Repeatable = new RepeatableProperty();
             while (tryAgain)
@@ -49,14 +50,13 @@ namespace BingoAPI.Models.SqlRepository
                 }
                 catch (Exception e)
                 {
-                    // if server tried to create a dublicate tag. try again
-                    var isUniqueConstraintViolated = HandleInsertTagException(e);
+                    // if server tried to create a duplicate tag. try again
+                    var isUniqueConstraintViolated = await HandleInsertTagException(e);
 
                     // other exception which has to be logged
                     if (!isUniqueConstraintViolated)
                     {
                         tryAgain = false;
-
                     }
                 }
             }
@@ -64,9 +64,9 @@ namespace BingoAPI.Models.SqlRepository
 
         }
 
-        public async Task<bool> DeleteAsync(int Id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var post = await Context.Posts.SingleOrDefaultAsync(p => p.Id == Id);
+            var post = await Context.Posts.SingleOrDefaultAsync(p => p.Id == id);
 
             if (post == null)
                 return false;
@@ -85,7 +85,7 @@ namespace BingoAPI.Models.SqlRepository
         {
             
             location.SRID = 4326;
-            List<Post> posts = null;
+            List<Post> posts;
 
             if (Tag.Equals("%"))
             {
@@ -125,7 +125,7 @@ namespace BingoAPI.Models.SqlRepository
         private List<Post> FilterByType(List<Post> posts, GetPostsFilter postsFilter)
         {
             var filteredPosts = posts;
-            if(posts.Count() > 0)
+            if(posts.Any())
             {
                 if (postsFilter.HouseParty == false)
                     filteredPosts.RemoveAll(p =>p.Event.GetType().Name.ToString() == "HouseParty");
@@ -166,8 +166,8 @@ namespace BingoAPI.Models.SqlRepository
                 }
                 catch (Exception e)
                 {
-                    // if server tried to create a dublicate tag. try again
-                    var isUniqueConstraintViolated = HandleInsertTagException(e);
+                    // if server tried to create a duplicate tag. try again
+                    var isUniqueConstraintViolated = await HandleInsertTagException(e);
 
                     // other exception which has to be logged
                     if (!isUniqueConstraintViolated)
@@ -249,35 +249,40 @@ namespace BingoAPI.Models.SqlRepository
         }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
-        private bool HandleInsertTagException(Exception exception)
+        private async Task<bool> HandleInsertTagException(Exception exception)
         {
-            var isUniqueConstraintFaulty = false;
             if (exception is DbUpdateException dbUpdateEx)
             {
-                if (dbUpdateEx.InnerException != null)
+                if (dbUpdateEx.InnerException?.Message != null)
                 {
-                    if (dbUpdateEx.InnerException.Message != null)
+                    if (dbUpdateEx.InnerException.Message.Contains("23505"))
                     {
-                        if (dbUpdateEx.InnerException.Message.Contains("23505"))
-                        {
-                            // inserted twice same tag
-                            return false;
-                        }
-                        else
-                        {
-                            // Log smth else
-                            return false;
-                        }
-                        
+                        // inserted twice same tag
+                        return false;
                     }
-                }
-                else
-                {
-                    // logg
+
+                    await LogError(dbUpdateEx.InnerException.Message, dbUpdateEx.InnerException.StackTrace);
+                    return false;
                 }
             }
-            return isUniqueConstraintFaulty;
+            await LogError(exception.Message+" \n Notice: Most probably someone uses PostMan to test the endpoint.", exception.StackTrace);
+            return false;
         }
+
+
+
+        private async Task LogError(string message, string stacktrace)
+        {
+            var log = new ErrorLog
+            {
+                Message = message,
+                ExtraData = stacktrace,
+                Date = DateTime.Now
+            };
+            await _errorService.AddErrorAsync(log);
+        }
+
+
 
         public async Task<Post> GetPlainPostAsync(int postId)
         {
@@ -295,6 +300,8 @@ namespace BingoAPI.Models.SqlRepository
                 .ToListAsync();
         }
 
+
+
         public async Task<bool> IsHostIdPostOwner(string hostId, int postId)
         {
             var result = await Context.Posts
@@ -304,6 +311,8 @@ namespace BingoAPI.Models.SqlRepository
             return result > 0;
         }
 
+
+
         public async Task<string> GetHostId(int postId)
         {
             return await Context.Posts
@@ -312,18 +321,22 @@ namespace BingoAPI.Models.SqlRepository
                 .SingleOrDefaultAsync();
         }
 
+
+
         public async Task<int> GetEventType(int postId)
         {
             var result = await Context.Events
                 .Where(e => e.PostId == postId)
                 .SingleOrDefaultAsync();
 
-            string eventType = result.GetType().Name.ToString();
+            string eventType = result.GetType().Name;
             return _eventTypes.Types
                 .Where(y => y.Type == eventType)
                 .Select(x => x.Id)
                 .FirstOrDefault();
         }
+
+
 
         public async Task<int> GetAvailableSlotsAsync(int postId)
         {
@@ -334,6 +347,8 @@ namespace BingoAPI.Models.SqlRepository
             var total = await GetPlainPostAsync(postId);
             return total.Event.GetSlotsIfAny() - result;
         }
+
+
 
         public async Task<IEnumerable<Post>> GetMyActive(string userId, PaginationFilter paginationFilter)
         {
