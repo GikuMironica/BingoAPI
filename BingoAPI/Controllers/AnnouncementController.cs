@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
 using BingoAPI.CustomMapper;
 using BingoAPI.Domain;
+using BingoAPI.Options;
 using Microsoft.Extensions.Options;
 
 namespace BingoAPI.Controllers

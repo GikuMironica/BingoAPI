@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Models.SqlRepository
 {
-    public class RepostsRepository : IReportsRepository
+    public class ReportsRepository : IReportsRepository
     {
         private readonly DataContext context;
 
-        public RepostsRepository(DataContext context)
+        public ReportsRepository(DataContext context)
         {
             this.context = context;
         }
@@ -36,9 +36,9 @@ namespace BingoAPI.Models.SqlRepository
             return await context.SaveChangesAsync() > 0;
         }
 
-        public async Task<bool> DeleteAsync(int Id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == Id);
+            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == id);
             if (report == null)
                 return false;
 
