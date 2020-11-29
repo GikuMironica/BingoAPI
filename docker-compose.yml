@@ -30,4 +30,12 @@ services:
       - "5432:5432"
     networks: 
       - localdev
+
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - localdev
     
