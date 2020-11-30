@@ -1,4 +1,5 @@
 .vs/
+.idea/
 BingoAPI/bin
 BingoAPI/obj
 Bingo.Contracts/obj
