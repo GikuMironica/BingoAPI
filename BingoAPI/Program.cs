@@ -21,6 +21,10 @@ namespace BingoAPI
 
             using (var serviceScope = host.Services.CreateScope())
             {
+		var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+
+                await dbContext.Database.MigrateAsync();
+
                 var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 // create Admin role if doesnt exist, create
