@@ -9,7 +9,7 @@ volumes:
 
 services:
   main-api:
-    build: BingoAPI/
+    build: .
     restart: always
     ports:
       - "443:443"
@@ -27,7 +27,7 @@ services:
     volumes: 
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5431:5432"
     networks: 
       - localdev
 
