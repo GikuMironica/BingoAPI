@@ -23,7 +23,7 @@ namespace BingoAPI
 
             using (var serviceScope = host.Services.CreateScope())
             {
-		var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+		        var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
 
                 await dbContext.Database.MigrateAsync();
 
