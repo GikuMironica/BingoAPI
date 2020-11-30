@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BingoAPI.Data;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +23,10 @@ namespace BingoAPI
 
             using (var serviceScope = host.Services.CreateScope())
             {
+		var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+
+                await dbContext.Database.MigrateAsync();
+
                 var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 // create Admin role if doesnt exist, create
