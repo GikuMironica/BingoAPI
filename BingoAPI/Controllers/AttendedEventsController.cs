@@ -81,9 +81,10 @@ namespace BingoAPI.Controllers
             }
             if (result.IsHouseParty)
             {
-                await _notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId } , user.FirstName + " " + user.LastName );
+                await _notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId },
+                    user.FirstName + " " + user.LastName,
+                    postId);
             }
-
             return Ok();
         }
 

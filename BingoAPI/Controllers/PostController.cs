@@ -232,7 +232,7 @@ namespace BingoAPI.Controllers
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [Authorize(Policy="CreateEditPost")]
-        [ProducesResponseType(typeof(Response<CreatePostResponse>), 201)]
+        [ProducesResponseType(typeof(Response<Posts>), 201)]
         [ProducesResponseType(typeof(SingleError), 400)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
@@ -321,7 +321,7 @@ namespace BingoAPI.Controllers
                     var participants = await _postRepository.GetParticipantsIdAsync(post.Id);
                     if (participants.Count != 0)
                     {
-                        await _notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title);
+                        await _notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title, postId);
                     }
                 }                
 

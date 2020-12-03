@@ -64,8 +64,7 @@ namespace BingoAPI.Controllers
             }
 
             var userList = new List<string> { attendeeRequest.AttendeeId };
-            await _notificationService.NotifyAttendEventRequestAcceptedAsync(userList, result.EventTitle);
-
+            await _notificationService.NotifyAttendEventRequestAcceptedAsync(userList, result.EventTitle, attendeeRequest.PostId);
             return Ok();
         }
 
@@ -222,11 +221,7 @@ namespace BingoAPI.Controllers
             var userId = HttpContext.GetUserId();
             var isPostOwner = await _eventParticipantsRepository.IsPostOwnerAsync(postId, userId);
 
-            if (!isPostOwner)
-            {
-                return false;
-            }
-            return true;
+            return isPostOwner;
         }
     }
 }
