@@ -87,9 +87,7 @@ namespace BingoAPI
             {
                 options.SwaggerEndpoint(swaggerOptions.UiEndpoint, swaggerOptions.Description);
             });
-
-
-
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BingoAPI.Options;
 
 namespace BingoAPI.Controllers
 {
@@ -80,9 +81,10 @@ namespace BingoAPI.Controllers
             }
             if (result.IsHouseParty)
             {
-                await _notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId } , user.FirstName + " " + user.LastName );
+                await _notificationService.NotifyHostNewParticipationRequestAsync(new List<string> { result.HostId },
+                    user.FirstName + " " + user.LastName,
+                    postId);
             }
-
             return Ok();
         }
 

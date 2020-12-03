@@ -1,6 +1,10 @@
 .idea/
 .vs/
+<<<<<<< HEAD
 .vscode/
+=======
+.idea/
+>>>>>>> development
 BingoAPI/bin
 BingoAPI/obj
 Bingo.Contracts/obj

@@ -37,7 +37,7 @@ namespace BingoAPI.Services
 
 
 
-        public async Task NotifyAttendEventRequestAcceptedAsync(List<string> usersId, string eventTitle)
+        public async Task NotifyAttendEventRequestAcceptedAsync(List<string> usersId, string eventTitle, int postId)
         {
             //var list = new List<string> { "d150bc2e-b5ac-4787-b4ed-20e421b24d9d" };
             var obj = new            
@@ -47,6 +47,11 @@ namespace BingoAPI.Services
                 {
                     en = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.en, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.ru, eventTitle)
+                },
+                data = new
+                {
+                    type = "event",
+                    postId = postId
                 },
                 headings = new 
                 {
@@ -61,7 +66,7 @@ namespace BingoAPI.Services
 
 
 
-        public async Task NotifyHostNewParticipationRequestAsync(List<string> usersId, string fullname)
+        public async Task NotifyHostNewParticipationRequestAsync(List<string> usersId, string fullname, int postId)
         {            
             var obj = new
             {
@@ -70,6 +75,11 @@ namespace BingoAPI.Services
                 {
                     en = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.en, fullname),
                     ru = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.ru, fullname)
+                },
+                data = new
+                {
+                    type = "pendingRequests",
+                    postId = postId
                 },
                 headings = new
                 {
@@ -83,7 +93,7 @@ namespace BingoAPI.Services
         }
 
 
-        public async Task NotifyParticipantsEventUpdatedAsync(List<string> usersId, string eventTitle)
+        public async Task NotifyParticipantsEventUpdatedAsync(List<string> usersId, string eventTitle, int postId)
         {           
             var obj = new
             {
@@ -92,6 +102,11 @@ namespace BingoAPI.Services
                 {
                     en = string.Format(_notificationTemplates.Value.EventUpdated.en, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.EventUpdated.ru, eventTitle)
+                },
+                data = new
+                {
+                    type = "event",
+                    postId = postId.ToString()
                 },
                 headings = new
                 {
@@ -113,17 +128,23 @@ namespace BingoAPI.Services
                     en = string.Format(_notificationTemplates.Value.EventDeleted.en, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.EventDeleted.ru, eventTitle)
                 },
+                data = new
+                {
+                    type = "deletedEvent",
+                    title = eventTitle
+                },
                 headings = new
                 {
                     en = _notificationTemplates.Value.Heading.en,
                     ru = _notificationTemplates.Value.Heading.ru
+                    
                 },
                 include_external_user_ids = usersId
             };
             await SerializeNotificationAsync(obj);
         }
 
-        public async Task NotifyParticipantsNewAnnouncementAsync(List<string> usersId, string eventTitle)
+        public async Task NotifyParticipantsNewAnnouncementAsync(List<string> usersId, string eventTitle, int postId)
         {
             var obj = new
             {
@@ -132,6 +153,12 @@ namespace BingoAPI.Services
                 {
                     en = string.Format(_notificationTemplates.Value.NewAnnouncement.en, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.NewAnnouncement.ru, eventTitle)
+                    
+                },
+                data = new
+                {
+                    type = "announcements",
+                    postId = postId
                 },
                 headings = new
                 {
