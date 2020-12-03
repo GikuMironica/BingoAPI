@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
 using BingoAPI.CustomMapper;
 using BingoAPI.Domain;
+using BingoAPI.Options;
 using Microsoft.Extensions.Options;
 
 namespace BingoAPI.Controllers
@@ -171,7 +172,7 @@ namespace BingoAPI.Controllers
             if(participants.Count !=0)
             {
                 var post = await _postsRepository.GetPlainPostAsync(createAnnouncementRequest.PostId);
-                await _notificationService.NotifyParticipantsNewAnnouncementAsync(participants, post.Event.Title);
+                await _notificationService.NotifyParticipantsNewAnnouncementAsync(participants, post.Event.Title, createAnnouncementRequest.PostId);
             }
 
             var locationUri = _uriService.GetAnnouncementUri(announcement.Id.ToString());

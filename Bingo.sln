@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BingoAPI", "BingoAPI\BingoA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bingo.Contracts", "Bingo.Contracts\Bingo.Contracts.csproj", "{BA970713-37FE-4645-9446-BEF45896C3E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bingo.IntegrationTests", "Bingo.IntegrationTests\Bingo.IntegrationTests.csproj", "{E81C9DC5-8F5A-438C-8E57-B46ACD30DD70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bingo.IntegrationTests", "Bingo.IntegrationTests\Bingo.IntegrationTests.csproj", "{E81C9DC5-8F5A-438C-8E57-B46ACD30DD70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

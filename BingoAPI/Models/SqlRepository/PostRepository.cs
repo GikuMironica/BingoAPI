@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BingoAPI.Options;
 using BingoAPI.Services;
 
 namespace BingoAPI.Models.SqlRepository
