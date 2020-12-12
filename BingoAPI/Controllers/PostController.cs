@@ -359,7 +359,7 @@ namespace BingoAPI.Controllers
             {
                  return NotFound();
             }
-            List<string> deletedImagesList = post.Pictures.Select(p => p.Url).ToList();
+            List<string> deletedImagesList = post.Pictures?.Select(p => p.Url)?.ToList();
 
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList != null && deletedImagesList.Count > 0)
@@ -431,7 +431,13 @@ namespace BingoAPI.Controllers
                     {
                         return new ImageProcessingResult{ Result = false, ErrorMessage = "The provided images couldn't be stored. Try to upload other pictures." };
                     }
-                    post.Pictures.AddAllIfNotNull(uploadResult.ImageNames);
+                    foreach (var uploadedPic in uploadResult.ImageNames)
+                    {
+                        post.Pictures.Add(new Picture
+                        {
+                            Url = uploadedPic
+                        });
+                    }
                 }
                 else { return new ImageProcessingResult{Result=false, ErrorMessage = imageProcessingResult.ErrorMessage }; }
             }
@@ -442,13 +448,24 @@ namespace BingoAPI.Controllers
         {
             if (postRequest.RemainingImagesGuids == null)
                 postRequest.RemainingImagesGuids = new List<string>();
-            List<string> deletedImages = post.Pictures.Except(postRequest.RemainingImagesGuids).ToList();
+            List<string> deletedImages = post.Pictures.Select(p=>p.Url)
+                .Except(postRequest.RemainingImagesGuids)
+                .ToList();
 
             if (deletedImages.Count > 0)
             {
                 // errors logged in bucketManager
                 var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);                
-                post.Pictures = postRequest.RemainingImagesGuids;
+                // post.Pictures = postRequest.RemainingImagesGuids;
+                post.Pictures = new List<Picture>();
+                foreach (var pic in postRequest.RemainingImagesGuids)
+                {
+                    post.Pictures.Add(new Picture
+                    {
+                        Url = pic
+                    });
+                }
+
             }
         }
 
