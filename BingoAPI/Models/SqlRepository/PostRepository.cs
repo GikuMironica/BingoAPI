@@ -82,17 +82,18 @@ namespace BingoAPI.Models.SqlRepository
             return await Context.Posts.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, Int64 today, string Tag = "%")
+        public async Task<IEnumerable<Post>> GetAllAsync(Point location, int radius, GetPostsFilter postsFilter, Int64 today, string tag = "%")
         {
             
             location.SRID = 4326;
             List<Post> posts;
 
-            if (Tag.Equals("%"))
+            if (tag.Equals("%"))
             {
                 posts = await Context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
+                .Include(p => p.Pictures)
                 .Include(p => p.Repeatable)
                 .Include(p => p.Voucher)
                 .Include(p => p.Tags)
@@ -104,10 +105,11 @@ namespace BingoAPI.Models.SqlRepository
             }
             else
             {
-                Tag = Tag.ToLower();
+                tag = tag.ToLower();
                 posts = await Context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
+                .Include(p => p.Pictures)
                 .Include(p => p.Repeatable)
                 .Include(p => p.Voucher)
                 .Include(p => p.Tags)
@@ -116,7 +118,7 @@ namespace BingoAPI.Models.SqlRepository
                        p.Location.Location.IsWithinDistance(location, radius * 1000) &&
                        p.EndTime < today &&
                        p.Tags.Count > 0 &&
-                       p.Tags.Any(pt => pt.Tag.TagName.Contains(Tag)))
+                       p.Tags.Any(pt => pt.Tag.TagName.Contains(tag)))
                 .AsNoTracking().ToListAsync();
             }          
            
@@ -239,6 +241,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<Post> GetByIdAsync(int postId)
         {
             return await Context.Posts
+                .Include(p => p.Pictures)
                 .Include(p => p.Location)
                 .Include(p => p.Event)
                 .Include(p => p.Tags)
@@ -288,6 +291,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<Post> GetPlainPostAsync(int postId)
         {
             return await Context.Posts
+                .Include(p => p.Pictures)
                 .Include(p => p.Event)
                 .SingleOrDefaultAsync(x => x.Id == postId);
         }
@@ -364,6 +368,7 @@ namespace BingoAPI.Models.SqlRepository
                 .Where(p => p.UserId == userId && p.ActiveFlag == 1)
                 .OrderByDescending(p => p.EventTime)
                 .Include(p => p.Location)
+                .Include(p => p.Pictures)
                 .Include(p => p.Event)
                 .Include(p => p.Voucher)
                 .Include(p => p.Repeatable)
@@ -385,6 +390,7 @@ namespace BingoAPI.Models.SqlRepository
                .Where(p => p.UserId == userId && p.ActiveFlag == 0)
                .OrderByDescending(p => p.EventTime)
                .Include(p => p.Location)
+               .Include(p => p.Pictures)
                .Include(p => p.Event)
                .Include(p => p.Voucher)
                .Include(p => p.Repeatable)

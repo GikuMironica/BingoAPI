@@ -102,7 +102,6 @@ namespace BingoAPI.Controllers
             }
 
             response.Data.IsAttending = await _attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
-
             response.Data.Event.EventType = eventTypeNumber;
             response.Data.HostRating = await _ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny();

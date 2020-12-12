@@ -8,10 +8,6 @@ using Bingo.Contracts.V1.Requests.UserReport;
 using BingoAPI.Domain;
 using BingoAPI.Models;
 using NetTopologySuite.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BingoAPI.MappingProfiles
 {

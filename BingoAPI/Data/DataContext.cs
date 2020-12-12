@@ -1,14 +1,6 @@
-﻿using BingoAPI.Domain;
-using BingoAPI.Models;
+﻿using BingoAPI.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Dataflow;
 
 namespace BingoAPI.Data
 
@@ -24,6 +16,13 @@ namespace BingoAPI.Data
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<Participation> Participations { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<UserReport> UserReports { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<Rating> Rating { get; set; }
+        public DbSet<Tag> Tags { get; set; }
+        public DbSet<Picture> Pictures { get; set; }
         public DbSet<HouseParty> HouseParties { get; set; }
         public DbSet<Bar> Bars { get; set; }
         public DbSet<Club> Clubs { get; set; }
@@ -33,14 +32,8 @@ namespace BingoAPI.Data
         public DbSet<Marathon> Marathons { get; set; }
         public DbSet<StreetParty> StreetParties { get; set; }
         public DbSet<Other> Others { get; set; }
-        public DbSet<Tag> Tags { get; set; }
         public DbSet<PostTags> PostTags { get; set; }
         public DbSet<EventLocation> EventLocations { get; set; }
-        public DbSet<Participation> Participations { get; set; }
-        public DbSet<Report> Reports { get; set; }
-        public DbSet<UserReport> UserReports { get; set; }
-        public DbSet<Announcement> Announcements { get; set; }
-        public DbSet<Rating> Rating { get; set; }
         public DbSet<RepeatableProperty> RepeatableProperties { get; set; }
         public DbSet<DrinkVoucher> DrinkVouchers { get; set; }
         public DbSet<UserVoucher> UserVouchers { get; set; }
@@ -77,7 +70,7 @@ namespace BingoAPI.Data
             // indexes, constraints
             modelBuilder.Entity<Tag>()
                 .HasIndex(t => t.TagName)
-                .IsUnique(true);
+                .IsUnique();
 
 
             // One - to Many relationship between AppUser <-> Post
@@ -102,18 +95,13 @@ namespace BingoAPI.Data
                 .HasForeignKey<EventLocation>(p => p.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            modelBuilder.Entity<Post>().Property(p => p.Pictures)
-                .HasConversion(
-                v => string.Join(',', v),
-                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
-
+            
             // Many - Many relationship Post <-> Tag
             modelBuilder.Entity<PostTags>()
                 .HasOne(pt => pt.Tag)
                 .WithMany(t => t.Posts)
                 .HasForeignKey(pt => pt.TagId)
-                .OnDelete(DeleteBehavior.NoAction); ;
+                .OnDelete(DeleteBehavior.NoAction); 
 
             modelBuilder.Entity<PostTags>()
                 .HasOne(pt => pt.Post)
@@ -132,6 +120,13 @@ namespace BingoAPI.Data
                 .HasOne(p => p.User)
                 .WithMany(au => au.AttendedEvents)
                 .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // One - Many between Post - Pictures
+            modelBuilder.Entity<Picture>()
+                .HasOne(pi => pi.Post)
+                .WithMany(pt => pt.Pictures)
+                .HasForeignKey(pi => pi.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // One - Many between Post - Announcements
