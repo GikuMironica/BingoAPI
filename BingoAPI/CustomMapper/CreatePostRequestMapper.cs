@@ -20,7 +20,7 @@ namespace BingoAPI.CustomMapper
                 EventTime = postRequest.EventTime,
                 EndTime = postRequest.EndTime ?? postRequest.EventTime + 25200,
                 PostTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            User = user,
+                User = user,
                 Location = new EventLocation
                 {
                     Location = new Point(postRequest.UserLocation.Longitude, postRequest.UserLocation.Latitude),

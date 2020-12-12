@@ -48,7 +48,8 @@ namespace BingoAPI.Controllers
         private readonly IRequestToDomainMapper _requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
+                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, 
+                              IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
                               , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
         {
