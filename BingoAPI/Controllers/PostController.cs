@@ -133,7 +133,7 @@ namespace BingoAPI.Controllers
             var resultList = new List<Posts>();
             foreach (var post in posts)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -167,7 +167,7 @@ namespace BingoAPI.Controllers
             var resultList = new List<Posts>();
             foreach (var post in posts)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -211,7 +211,7 @@ namespace BingoAPI.Controllers
 
             foreach (var post in posts)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -259,7 +259,7 @@ namespace BingoAPI.Controllers
             if (!result)
                 return BadRequest();
 
-            var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+            var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
             mappedPost.Slots = post.Event.GetSlotsIfAny();
             mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
 
@@ -359,7 +359,7 @@ namespace BingoAPI.Controllers
             {
                  return NotFound();
             }
-            List<string> deletedImagesList = post.Pictures;
+            List<string> deletedImagesList = post.Pictures.Select(p => p.Url).ToList();
 
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList != null && deletedImagesList.Count > 0)

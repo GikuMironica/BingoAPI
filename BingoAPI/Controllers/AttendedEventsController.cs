@@ -115,7 +115,7 @@ namespace BingoAPI.Controllers
 
             foreach (var post in result)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -153,7 +153,7 @@ namespace BingoAPI.Controllers
 
             foreach (var post in result)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
