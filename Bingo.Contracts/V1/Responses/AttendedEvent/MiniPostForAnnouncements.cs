@@ -10,7 +10,7 @@ namespace Bingo.Contracts.V1.Responses.AttendedEvent
             public int PostType { get; set; }
             public string Thumbnail { get; set; }
             public string LastMessage { get; set; }
-            public Int64 LastMessageTime { get; set; }
+            public Int64? LastMessageTime { get; set; }
             public string Title { get; set; }       
     }
 }

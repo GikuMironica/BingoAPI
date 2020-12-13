@@ -27,12 +27,14 @@ namespace Bingo.Contracts.V1.Responses.Post
         public int AvailableSlots { get; set; }
 
         public Event Event { get; set; }
+
         public int RepeatablePropertyDataId { get; set; }
+
         public int VoucherDataId { get; set; }
+
         public int AnnouncementsDataId { get; set; }
 
         public IEnumerable<string>? Pictures { get; set; }
-
 #nullable enable
         public List<String>? Tags { get; set; }
     }
@@ -46,7 +48,9 @@ namespace Bingo.Contracts.V1.Responses.Post
         public int? Slots { get; set; }
 
         public string? Title { get; set; }
+
         public int? Currency { get; set; }
+
         public double? EntrancePrice { get; set; }
 #nullable enable
         public string? Requirements { get; set; }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Responses.Announcement;
 using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.EventAttendee;
@@ -11,10 +10,8 @@ using Bingo.Contracts.V1.Responses.Tag;
 using Bingo.Contracts.V1.Responses.User;
 using Bingo.Contracts.V1.Responses.UserReport;
 using BingoAPI.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BingoAPI.MappingProfiles
 {
@@ -49,8 +46,9 @@ namespace BingoAPI.MappingProfiles
                 .ForPath(dest => dest.Event.Currency, opt => opt.MapFrom(src => src.Event.Currency))
                 .ForMember(dest => dest.RepeatablePropertyDataId, src => src.MapFrom(s => s.Id))
                 .ForMember(dest => dest.VoucherDataId, src => src.MapFrom(s => s.Id))
-                .ForMember(dest => dest.AnnouncementsDataId, src => src.MapFrom(s => s.Id));
-                
+                .ForMember(dest => dest.AnnouncementsDataId, src => src.MapFrom(s => s.Id))
+                .ForMember(dest => dest.Pictures, opt => opt.MapFrom(src => src.Pictures.Select(p => p.Url)));
+
 
             // For update post
             CreateMap<EventLocation, UpdatedLocation>()

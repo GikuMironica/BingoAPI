@@ -277,7 +277,7 @@ namespace Bingo.IntegrationTests.AttendedEventsControllerTest
             var attendReq3 = await TestClient.PostAsync(ApiRoutes.AttendedEvents.Attend.Replace("{postId}", post3.PostId.ToString()), null);
 
             var getPosts = await TestClient.GetAsync(ApiRoutes.AttendedEvents.GetActiveAttendedPosts);
-            var postData = await getPosts.Content.ReadFromJsonAsync<Response<List<ActiveAttendedEvent>>>();
+            var postData = await getPosts.Content.ReadFromJsonAsync<Response<List<Posts>>>();
 
 
             // Assert

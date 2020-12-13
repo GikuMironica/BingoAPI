@@ -11,7 +11,7 @@ namespace BingoAPI.CustomMapper
 {
     public class DomainToResponseMapper : IDomainToResponseMapper
     {
-        public Posts MapPostForGetAllPostsReponse(Post post, EventTypes eventTypes)
+        public Posts MapPostForGetAllPostsResponse(Post post, EventTypes eventTypes)
         {
             string eventType = post.Event.GetType().Name.ToString();
 
@@ -24,7 +24,7 @@ namespace BingoAPI.CustomMapper
             {
                 PostId = post.Id,
                 Address = post.Location.Address,
-                Thumbnail = post.Pictures.FirstOrDefault(),
+                Thumbnail = post.Pictures?.FirstOrDefault()?.Url,
                 PostType = eventTypeNumber,
                 Title = post.Event.Title,
                 Longitude = post.Location.Location.X,
@@ -53,11 +53,11 @@ namespace BingoAPI.CustomMapper
             return new MiniPostForAnnouncements
             {
                 PostId = post.Id,               
-                Thumbnail = post.Pictures.FirstOrDefault(),
+                Thumbnail = post.Pictures.FirstOrDefault()?.Url,
                 PostType = eventTypeNumber,
                 Title = post.Event.Title,
-                LastMessage = lastAnnouncement.Message,
-                LastMessageTime = lastAnnouncement.Timestamp               
+                LastMessage = lastAnnouncement?.Message,
+                LastMessageTime = lastAnnouncement?.Timestamp               
             };
         }
     }
