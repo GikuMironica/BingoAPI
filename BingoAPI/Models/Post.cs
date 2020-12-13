@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BingoAPI.Models
 {
@@ -32,8 +30,8 @@ namespace BingoAPI.Models
         
         public Event Event { get; set; }
 
-        #nullable enable
-        public List<string>? Pictures { get; set; }
+        
+        public List<Picture> Pictures { get; set; }
 
         // todo
         public RepeatableProperty Repeatable { get; set; }

@@ -48,7 +48,8 @@ namespace BingoAPI.Controllers
         private readonly IRequestToDomainMapper _requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
-                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
+                              , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, 
+                              IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
                               , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
         {
@@ -101,7 +102,6 @@ namespace BingoAPI.Controllers
             }
 
             response.Data.IsAttending = await _attendanceRepository.IsUserAttendingEvent(HttpContext.GetUserId(), postId);
-
             response.Data.Event.EventType = eventTypeNumber;
             response.Data.HostRating = await _ratingRepository.GetUserRating(post.UserId);
             response.Data.Event.Slots = post.Event.GetSlotsIfAny();
@@ -133,7 +133,7 @@ namespace BingoAPI.Controllers
             var resultList = new List<Posts>();
             foreach (var post in posts)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -167,7 +167,7 @@ namespace BingoAPI.Controllers
             var resultList = new List<Posts>();
             foreach (var post in posts)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -211,7 +211,7 @@ namespace BingoAPI.Controllers
 
             foreach (var post in posts)
             {
-                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+                var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
                 mappedPost.Slots = post.Event.GetSlotsIfAny();
                 mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
                 resultList.Add(mappedPost);
@@ -259,7 +259,7 @@ namespace BingoAPI.Controllers
             if (!result)
                 return BadRequest();
 
-            var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsReponse(post, _eventTypes);
+            var mappedPost = _domainToResponseMapper.MapPostForGetAllPostsResponse(post, _eventTypes);
             mappedPost.Slots = post.Event.GetSlotsIfAny();
             mappedPost.HostRating = await _ratingRepository.GetUserRating(post.UserId);
 
@@ -359,7 +359,7 @@ namespace BingoAPI.Controllers
             {
                  return NotFound();
             }
-            List<string> deletedImagesList = post.Pictures;
+            List<string> deletedImagesList = post.Pictures?.Select(p => p.Url)?.ToList();
 
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList != null && deletedImagesList.Count > 0)
@@ -431,7 +431,13 @@ namespace BingoAPI.Controllers
                     {
                         return new ImageProcessingResult{ Result = false, ErrorMessage = "The provided images couldn't be stored. Try to upload other pictures." };
                     }
-                    post.Pictures.AddAllIfNotNull(uploadResult.ImageNames);
+                    foreach (var uploadedPic in uploadResult.ImageNames)
+                    {
+                        post.Pictures.Add(new Picture
+                        {
+                            Url = uploadedPic
+                        });
+                    }
                 }
                 else { return new ImageProcessingResult{Result=false, ErrorMessage = imageProcessingResult.ErrorMessage }; }
             }
@@ -442,16 +448,31 @@ namespace BingoAPI.Controllers
         {
             if (postRequest.RemainingImagesGuids == null)
                 postRequest.RemainingImagesGuids = new List<string>();
-            List<string> deletedImages = post.Pictures.Except(postRequest.RemainingImagesGuids).ToList();
+            List<string> deletedImages = post.Pictures.Select(p=>p.Url)
+                .Except(postRequest.RemainingImagesGuids)
+                .ToList();
 
             if (deletedImages.Count > 0)
             {
                 // errors logged in bucketManager
                 var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);                
-                post.Pictures = postRequest.RemainingImagesGuids;
+                // post.Pictures = postRequest.RemainingImagesGuids;
+                post.Pictures = new List<Picture>();
+                foreach (var pic in postRequest.RemainingImagesGuids)
+                {
+                    if (pic != null)
+                    {
+                        post.Pictures.Add(new Picture
+                        {
+                            Url = pic
+                        });
+                    }
+                }
+
             }
         }
 
                    
     }
 }
+    
