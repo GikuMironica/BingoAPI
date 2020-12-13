@@ -48,7 +48,7 @@ namespace BingoAPI
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             // disable for testing
-            app.UseIpRateLimiting();
+            //app.UseIpRateLimiting();
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto

@@ -460,10 +460,13 @@ namespace BingoAPI.Controllers
                 post.Pictures = new List<Picture>();
                 foreach (var pic in postRequest.RemainingImagesGuids)
                 {
-                    post.Pictures.Add(new Picture
+                    if (pic != null)
                     {
-                        Url = pic
-                    });
+                        post.Pictures.Add(new Picture
+                        {
+                            Url = pic
+                        });
+                    }
                 }
 
             }
