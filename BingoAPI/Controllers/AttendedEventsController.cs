@@ -1,8 +1,6 @@
 ﻿using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
-using BingoAPI.Cache;
 using BingoAPI.CustomMapper;
-using BingoAPI.Domain;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;

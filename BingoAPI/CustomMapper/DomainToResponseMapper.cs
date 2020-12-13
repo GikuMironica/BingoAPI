@@ -24,7 +24,7 @@ namespace BingoAPI.CustomMapper
             {
                 PostId = post.Id,
                 Address = post.Location.Address,
-                Thumbnail = post.Pictures.FirstOrDefault()?.Url,
+                Thumbnail = post.Pictures?.FirstOrDefault()?.Url,
                 PostType = eventTypeNumber,
                 Title = post.Event.Title,
                 Longitude = post.Location.Location.X,
