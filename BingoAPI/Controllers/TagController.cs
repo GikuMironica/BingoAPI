@@ -16,13 +16,13 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class TagController : Controller
     {
-        private readonly ITagsRepository tagsRepository;
-        private readonly IMapper mapper;
+        private readonly ITagsRepository _tagsRepository;
+        private readonly IMapper _mapper;
 
         public TagController(ITagsRepository tagsRepository, IMapper mapper)
         {
-            this.tagsRepository = tagsRepository;
-            this.mapper = mapper;
+            this._tagsRepository = tagsRepository;
+            this._mapper = mapper;
         }
 
 
@@ -31,13 +31,13 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Tag.GetAll)]
         public async Task<IActionResult> FindTags([FromRoute] GetAllTagsRequest tagsRequest)
         {
-            var result = await tagsRepository.FindTags(tagsRequest.TagName);
+            var result = await _tagsRepository.FindTags(tagsRequest.TagName);
             if (result.Count == 0)
             {
                 return NoContent();
             }
 
-            return Ok(new Response<Tags>(mapper.Map<Tags>(result)));
+            return Ok(new Response<Tags>(_mapper.Map<Tags>(result)));
         }
 
     }

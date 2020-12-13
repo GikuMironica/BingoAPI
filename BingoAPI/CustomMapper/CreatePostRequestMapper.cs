@@ -32,7 +32,7 @@ namespace BingoAPI.CustomMapper
                 }
             };
             post.Event.Post = post;
-            post.Pictures = new List<string>();
+            post.Pictures = new List<Picture>();
             post.Tags = new List<PostTags>();
             if (postRequest.Tags != null) { 
                 foreach (var tag in postRequest.Tags)

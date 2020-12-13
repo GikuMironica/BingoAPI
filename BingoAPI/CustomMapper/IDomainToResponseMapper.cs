@@ -12,7 +12,7 @@ namespace BingoAPI.CustomMapper
 {
     public interface IDomainToResponseMapper
     {
-        public Posts MapPostForGetAllPostsReponse(Post post, EventTypes eventTypes);
+        public Posts MapPostForGetAllPostsResponse(Post post, EventTypes eventTypes);
         public MiniPostForAnnouncements MapMiniPostForAnnouncementsList(Post post, EventTypes eventTypes);
     }
 }
