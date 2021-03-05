@@ -9,6 +9,7 @@ namespace BingoAPI.Options
     {
         public int Environment { get; set; }       
         public string Server { get; set; }       
+        public int Swagger { get; set; }       
         
     }
 }

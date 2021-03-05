@@ -53,7 +53,7 @@ namespace BingoAPI.Middleware
 
             ErrorLog errorLog = new ErrorLog
             {
-                UserId = context.GetUserId(),
+                UserId = context?.GetUserId(),
                 Server = _eOptions.Server,
                 ActionMethod = exceptionPath,
                 Controller = exceptionPath,
