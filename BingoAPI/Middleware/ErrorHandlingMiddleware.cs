@@ -3,10 +3,12 @@ using System.Net;
 using System.Threading.Tasks;
 using BingoAPI.Extensions;
 using BingoAPI.Models;
+using BingoAPI.Options;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace BingoAPI.Middleware
@@ -15,11 +17,13 @@ namespace BingoAPI.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly IErrorService _errorService;
+        private readonly EnvironmentOptions _eOptions;
 
-        public ErrorHandlingMiddleware(RequestDelegate next, IErrorService errorService)
+        public ErrorHandlingMiddleware(RequestDelegate next, IErrorService errorService, IOptions<EnvironmentOptions> eOptions)
         {
             _next = next;
             _errorService = errorService;
+            _eOptions = eOptions.Value;
         }
 
         public async Task Invoke(HttpContext context, IWebHostEnvironment env)
@@ -50,6 +54,7 @@ namespace BingoAPI.Middleware
             ErrorLog errorLog = new ErrorLog
             {
                 UserId = context.GetUserId(),
+                Server = _eOptions.Server,
                 ActionMethod = exceptionPath,
                 Controller = exceptionPath,
                 Message = exception.Message,

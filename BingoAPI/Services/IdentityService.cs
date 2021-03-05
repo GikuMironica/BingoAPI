@@ -13,6 +13,7 @@ using BingoAPI.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Flurl;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace BingoAPI.Services
@@ -27,6 +28,7 @@ namespace BingoAPI.Services
         private readonly IFacebookAuthService _facebookAuthService;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
+        private readonly int _enOptions;
         private const string WebServerRelativeUrl = "https://www.hopaut.com/account";
         private const string ConfirmEmailPath = "confirmemail";
         private const string ResetPassPath = "resetpassword";
@@ -38,10 +40,12 @@ namespace BingoAPI.Services
                                IFacebookAuthService facebookAuthService,
                                RoleManager<IdentityRole> roleManager,
                                IEmailService emailService,
-                               IEmailFormatter emailFormatter)
+                               IEmailFormatter emailFormatter,
+                               IOptions<EnvironmentOptions> enOptions)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
+            this._enOptions = enOptions.Value.Environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
@@ -111,10 +115,11 @@ namespace BingoAPI.Services
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, url, lang);
 
-            // send it per email
+            // If Development Environment, don't send email
+            if (_enOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
+
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
-            //return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address"} };
-            return new AuthenticationResult {Success = true, UserId = newUser.Id};
+            return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address" } };
         }
 
 
