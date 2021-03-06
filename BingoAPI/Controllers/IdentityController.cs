@@ -51,6 +51,8 @@ namespace BingoAPI.Controllers
         /// <param name="request">Request object containing user email , password</param>
         /// <response code="200">If user registered, email confirmation link is sent to user over email, 200 ok returned with userId</response>
         /// <response code="400">List of errors</response>
+        [ProducesResponseType(typeof(Response<string>), 200)]
+        [ProducesResponseType(typeof(AuthFailedResponse), 400)]
         [HttpPost(ApiRoutes.Identity.Register)]
         public async Task<IActionResult> Register([FromBody] UserRegistrationRequest request)
         {
@@ -152,6 +154,8 @@ namespace BingoAPI.Controllers
         /// <param name="request">Contains the JWT and the refresh token</param>
         /// <response code="200">New JWT, Refresh token combination</response>
         /// <response code="400">List of errors</response>
+        [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
+        [ProducesResponseType(typeof(AuthFailedResponse), 400)]
         [HttpPost(ApiRoutes.Identity.Refresh)]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
@@ -209,6 +213,7 @@ namespace BingoAPI.Controllers
         /// <param name="confirmEmailRequest">Email to be confirmed</param>
         /// <response code="200">Success</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "SuperAdmin,Admin")]
+        [ProducesResponseType(typeof(SingleError), 400)]
         [HttpPost(ApiRoutes.Identity.AdminConfirmEmail)]
         public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest confirmEmailRequest)
         {

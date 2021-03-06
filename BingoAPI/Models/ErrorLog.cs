@@ -12,6 +12,7 @@ namespace BingoAPI.Models
         public int? Id { get; set; }
         public DateTime Date { get; set; }
         public string Controller { get; set; }
+        public string Server { get; set; }
         public string Message { get; set; }
         public string InnerMessage { get; set; }
         public string ExtraData { get; set; }

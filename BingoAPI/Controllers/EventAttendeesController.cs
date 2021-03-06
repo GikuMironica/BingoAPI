@@ -138,7 +138,7 @@ namespace BingoAPI.Controllers
         /// This endpoint returns data about all users which are accepted in an event.
         /// This information is private and only accessible for the event host.
         /// </summary>
-        /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+        /// <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the default is page 1, 50 results per page</param>
         /// <response code="200">Returns paginated result with the list of users</response>
         /// <response code="204">No users are accepted to this event yet.</response>
         [ProducesResponseType(typeof(PagedResponse<EventParticipant>), 200)]

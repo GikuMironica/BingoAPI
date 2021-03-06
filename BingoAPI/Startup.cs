@@ -3,6 +3,7 @@ using AspNetCoreRateLimit;
 using AutoMapper;
 using BingoAPI.Extensions;
 using BingoAPI.Middleware;
+using BingoAPI.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -75,18 +76,25 @@ namespace BingoAPI
             app.UseAuthentication();
             app.UseAuthorization();
 
-            var swaggerOptions = new Options.SwaggerOptions();
-            Configuration.GetSection(nameof(swaggerOptions)).Bind(swaggerOptions);
-
-            app.UseSwagger(option =>
+            // Enable/Disable swagger from appsettings.json
+            var environmentOptions = new Options.EnvironmentOptions();
+            Configuration.GetSection(nameof(EnvironmentOptions)).Bind(environmentOptions);
+            if (environmentOptions.Swagger!=0)
             {
-                option.RouteTemplate = swaggerOptions.JsonRoute;
-            });
+                var swaggerOptions = new Options.SwaggerOptions();
+                Configuration.GetSection(nameof(swaggerOptions)).Bind(swaggerOptions);
 
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint(swaggerOptions.UiEndpoint, swaggerOptions.Description);
-            });
+                app.UseSwagger(option =>
+                {
+                    option.RouteTemplate = swaggerOptions.JsonRoute;
+                });
+
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint(swaggerOptions.UiEndpoint, swaggerOptions.Description);
+                });
+            } 
+            
             
             app.UseEndpoints(endpoints =>
             {

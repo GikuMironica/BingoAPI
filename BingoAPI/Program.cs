@@ -5,6 +5,7 @@ using BingoAPI.Data;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,7 @@ namespace BingoAPI
             {
 		        var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
 
-                // await dbContext.Database.MigrateAsync();
+                 await dbContext.Database.MigrateAsync();
 
                 var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
