@@ -40,7 +40,7 @@ namespace BingoAPI.Installers
             // options
             services.Configure<ApplicationEmailSettings>(configuration.GetSection("ApplicationEmail"));
             services.Configure<EventTypes>(configuration.GetSection("Types"));
-            services.Configure<AwsBucketSettings>(configuration.GetSection("AWS-ImageBucket"));
+            services.Configure<AwsBucketSettings>(configuration.GetSection("AWSImageBucket"));
             services.Configure<OneSignalNotificationSettigs>(configuration.GetSection("OneSignalNotification"));
             services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
