@@ -24,15 +24,15 @@ namespace BingoAPI.Installers
                        options.EnableEndpointRouting = true;
                        options.Filters.Add<ValidationFilter>();
                    })
-                   .AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>()
+                .AddFluentValidation(mvcConfiguration => mvcConfiguration.RegisterValidatorsFromAssemblyContaining<Startup>()
                                          .ConfigureClientsideValidation(enabled: false))
-                   .AddNewtonsoftJson(options =>
-                   {
-                       options.SerializerSettings.ContractResolver = new DefaultContractResolver();
-                   })
-                   .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0)
-                   .AddNewtonsoftJson(options =>
-                               options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+                .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0)
+                .AddNewtonsoftJson(options =>
+                {
+                    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                })
+                .AddNewtonsoftJson(options =>
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
                     
 
             // Setting JWT

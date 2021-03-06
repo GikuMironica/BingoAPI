@@ -3,15 +3,17 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BingoAPI.Migrations.ErrorData
 {
     [DbContext(typeof(ErrorDataContext))]
-    partial class ErrorDataContextModelSnapshot : ModelSnapshot
+    [Migration("20210306122116_ServeName")]
+    partial class ServeName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
