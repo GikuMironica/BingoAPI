@@ -44,6 +44,7 @@ namespace BingoAPI.Installers
             services.Configure<OneSignalNotificationSettigs>(configuration.GetSection("OneSignalNotification"));
             services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
+            services.Configure<EnvironmentOptions>(configuration.GetSection("Environment"));
 
             // services
             services.AddScoped<IImageLoader, ImageLoader>();
