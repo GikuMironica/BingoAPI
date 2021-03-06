@@ -12,7 +12,7 @@ namespace BingoAPI.Validators
     {
         public CreatePostValidator()
         {
-            this.CascadeMode = CascadeMode.StopOnFirstFailure;
+            this.CascadeMode = CascadeMode.Stop;
                       
             RuleFor(x => x.EventTime)
                  .GreaterThan(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 1800)
