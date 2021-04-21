@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Bingo.Contracts.V1.Responses.Profile
 {
@@ -13,5 +11,7 @@ namespace Bingo.Contracts.V1.Responses.Profile
         public string? ProfilePicture { get; set; }
 
         public string? Description { get; set; }
+
+        public Double? Rating { get; set; }
     }
 }
