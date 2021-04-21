@@ -26,9 +26,9 @@ namespace BingoAPI.Controllers
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly IUriService uriService;
-        private readonly IAwsBucketManager awsBucketManager;
-        private readonly IImageLoader imageLoader;
+        private readonly IUriService _uriService;
+        private readonly IAwsBucketManager _awsBucketManager;
+        private readonly IImageLoader _imageLoader;
 
         public UserController(UserManager<AppUser> userManager,
                               IMapper mapper, IUriService uriService, IAwsBucketManager awsBucketManager,
@@ -36,9 +36,9 @@ namespace BingoAPI.Controllers
         {
             _userManager = userManager;
             _mapper = mapper;
-            this.uriService = uriService;
-            this.awsBucketManager = awsBucketManager;
-            this.imageLoader = imageLoader;
+            this._uriService = uriService;
+            this._awsBucketManager = awsBucketManager;
+            this._imageLoader = imageLoader;
         }
 
 
@@ -58,7 +58,7 @@ namespace BingoAPI.Controllers
             var users = await GetUsersAsync(paginationFilter);
             var userResponse = _mapper.Map<List<UserResponse>>(users);
 
-            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(uriService, paginationFilter, userResponse);
+            var paginationResponse = PaginationHelpers.CreatePaginatedResponse(_uriService, paginationFilter, userResponse);
 
             return Ok(paginationResponse);
         }
@@ -176,13 +176,13 @@ namespace BingoAPI.Controllers
             await DeletePicturesAsync(verificationResult.User);     
             
             // load pictures in memory stream
-            ImageProcessingResult imageProcessingResult = await imageLoader.LoadFiles(new List<IFormFile> { userPictureRequest.UpdatedPicture });
+            ImageProcessingResult imageProcessingResult = await _imageLoader.LoadFiles(new List<IFormFile> { userPictureRequest.UpdatedPicture });
 
             // upload to bucket
             if (imageProcessingResult.Result)
             {
                 imageProcessingResult.BucketPath = AwsAssetsPath.ProfilePictures;
-                var uploadResult = await awsBucketManager.UploadFileAsync(imageProcessingResult);
+                var uploadResult = await _awsBucketManager.UploadFileAsync(imageProcessingResult);
                 if (!uploadResult.Result)
                 {
                     return BadRequest (new SingleError { Message = "The provided image couldn't be stored. Try to upload other picture." });
@@ -237,7 +237,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint allows users to delete his profile picture 
+        /// This endpoint allows user to delete his profile picture 
         /// </summary>
         /// <param name="userId">The user id</param>
         /// <response code="204">Success</response>
@@ -266,10 +266,7 @@ namespace BingoAPI.Controllers
 
             var queryable = _userManager.Users.AsQueryable();  
 
-            if(paginationFilter == null)
-            {
-                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
-            }
+            paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
@@ -306,12 +303,12 @@ namespace BingoAPI.Controllers
 
 
 
-        private async Task DeletePicturesAsync(AppUser User)
+        private async Task DeletePicturesAsync(AppUser user)
         {           
 
-            if (User.ProfilePicture != null)
+            if (user.ProfilePicture != null)
             {
-                await awsBucketManager.DeleteFileAsync(new List<string> { User.ProfilePicture }, AwsAssetsPath.ProfilePictures);                
+                await _awsBucketManager.DeleteFileAsync(new List<string> { user.ProfilePicture }, AwsAssetsPath.ProfilePictures);                
             }
         }
 
