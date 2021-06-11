@@ -147,7 +147,7 @@ namespace BingoAPI.Controllers
         /// This end point is used to fetch all inactive events hosted by the requester.
         /// The user data is retrieved from the JWT.
         /// </summary>
-        /// <param name="paginationQuery">Containes the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
+        /// <param name="paginationQuery">Contains the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
         /// <response code="200">Returns the standard mini post</response>
         /// <response code="204">User did not host any event yet</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
@@ -446,8 +446,7 @@ namespace BingoAPI.Controllers
 
         private async Task DeletePicturesAsync(UpdatePostRequest postRequest, Post post)
         {
-            if (postRequest.RemainingImagesGuids == null)
-                postRequest.RemainingImagesGuids = new List<string>();
+            postRequest.RemainingImagesGuids ??= new List<string>();
             List<string> deletedImages = post.Pictures.Select(p=>p.Url)
                 .Except(postRequest.RemainingImagesGuids)
                 .ToList();
@@ -455,7 +454,7 @@ namespace BingoAPI.Controllers
             if (deletedImages.Count > 0)
             {
                 // errors logged in bucketManager
-                var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.ProfilePictures);                
+                var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.PostPictures);                
                 // post.Pictures = postRequest.RemainingImagesGuids;
                 post.Pictures = new List<Picture>();
                 foreach (var pic in postRequest.RemainingImagesGuids)

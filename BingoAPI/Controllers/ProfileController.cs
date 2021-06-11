@@ -2,16 +2,13 @@
 using Bingo.Contracts.V1;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Profile;
-using BingoAPI.Cache;
 using BingoAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using BingoAPI.Models.SqlRepository;
 
 namespace BingoAPI.Controllers
 {
@@ -20,13 +17,15 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class ProfileController : Controller
     {
-        private readonly UserManager<AppUser> userManager;
-        private readonly IMapper mapper;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IMapper _mapper;
+        private readonly IRatingRepository _ratingRepository;
 
-        public ProfileController(UserManager<AppUser> userManager, IMapper mapper)
+        public ProfileController(UserManager<AppUser> userManager, IMapper mapper, IRatingRepository _ratingRepository)
         {
-            this.userManager = userManager;
-            this.mapper = mapper;
+            this._userManager = userManager;
+            this._mapper = mapper;
+            this._ratingRepository = _ratingRepository;
         }
 
 
@@ -42,12 +41,16 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Profile.Get)]
         public async Task<IActionResult> GetProfile([FromRoute] string userId)
         {
-            var user = await userManager.FindByIdAsync(userId);
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
                 return NotFound();
 
-            return Ok(new Response<ProfileResponse>(mapper.Map<ProfileResponse>(user)));
+            var response = new Response<ProfileResponse>(_mapper.Map<ProfileResponse>(user))
+            {
+                Data = {Rating = await _ratingRepository.GetUserRating(user.Id)}
+            };
+            return Ok(response);
         }
 
     }

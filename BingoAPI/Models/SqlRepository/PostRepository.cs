@@ -379,10 +379,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<IEnumerable<Post>> GetMyInactive(string userId, PaginationFilter paginationFilter)
         {
-            if (paginationFilter == null)
-            {
-                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
-            }
+            paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
