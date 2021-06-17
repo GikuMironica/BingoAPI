@@ -2,19 +2,15 @@
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Post;
-using BingoAPI.Models;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json; 
-using System.Text;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Priority;
-using Xunit.Sdk;
 
 namespace Bingo.IntegrationTests.PostControllerTest
 {

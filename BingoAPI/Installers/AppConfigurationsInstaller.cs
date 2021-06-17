@@ -1,6 +1,5 @@
 ﻿using BingoAPI.CustomMapper;
 using BingoAPI.CustomValidation;
-using BingoAPI.Domain;
 using BingoAPI.Options;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Http;

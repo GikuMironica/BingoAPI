@@ -359,13 +359,13 @@ namespace BingoAPI.Controllers
             {
                  return NotFound();
             }
-            List<string> deletedImagesList = post.Pictures?.Select(p => p.Url)?.ToList();
+            var deletedImagesList = post.Pictures?.Select(p => p.Url)?.ToList();
 
             // delete from the S3 bucket the delete pictures
             if (deletedImagesList != null && deletedImagesList.Count > 0)
             {
                 // errors logged in bucketManager
-                var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);                
+                await _awsBucketManager.DeleteFileAsync(deletedImagesList, AwsAssetsPath.PostPictures);
             }
 
             // notify users
@@ -454,18 +454,15 @@ namespace BingoAPI.Controllers
             if (deletedImages.Count > 0)
             {
                 // errors logged in bucketManager
-                var deletedPicturesResult = await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.PostPictures);                
+                await _awsBucketManager.DeleteFileAsync(deletedImages, AwsAssetsPath.PostPictures);                
                 // post.Pictures = postRequest.RemainingImagesGuids;
                 post.Pictures = new List<Picture>();
-                foreach (var pic in postRequest.RemainingImagesGuids)
+                foreach (var pic in postRequest.RemainingImagesGuids.Where(pic => pic != null))
                 {
-                    if (pic != null)
+                    post.Pictures.Add(new Picture
                     {
-                        post.Pictures.Add(new Picture
-                        {
-                            Url = pic
-                        });
-                    }
+                        Url = pic
+                    });
                 }
 
             }
