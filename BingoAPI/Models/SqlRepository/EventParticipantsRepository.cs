@@ -12,18 +12,18 @@ namespace BingoAPI.Models.SqlRepository
 {
     public class EventParticipantsRepository : IEventParticipantsRepository
     {
-        private readonly DataContext context;
-        private readonly UserManager<AppUser> userManager;
+        private readonly DataContext _context;
+        private readonly UserManager<AppUser> _userManager;
 
         public EventParticipantsRepository(DataContext context, UserManager<AppUser> userManager)
         {
-            this.context = context;
-            this.userManager = userManager;
+            this._context = context;
+            this._userManager = userManager;
         }
 
         public async Task<ProcessAttendRequest> AcceptAttendee(string userId, int postId)
         {
-            var participation = await context.Participations
+            var participation = await _context.Participations
                 .Where(p => p.PostId == postId && p.UserId == userId)
                 .Include(p => p.Post)
                 .ThenInclude(e => e.Event)
@@ -39,11 +39,11 @@ namespace BingoAPI.Models.SqlRepository
             
             if(participation.Post.Event.GetSlotsIfAny() > 0)
             {
-                var reserved = context.Participations.Where(p => p.PostId == postId && p.Accepted == 1).Count();
+                var reserved = _context.Participations.Count(p => p.PostId == postId && p.Accepted == 1);
                 if( participation.Post.Event.GetSlotsIfAny() > reserved)
                 {
                     participation.Accepted = 1;
-                    context.Participations.Update(participation);
+                    _context.Participations.Update(participation);
 
                 }
                 else
@@ -54,18 +54,18 @@ namespace BingoAPI.Models.SqlRepository
             else
             {
                 participation.Accepted = 1;
-                context.Participations.Update(participation);
+                _context.Participations.Update(participation);
 
             }
-            await context.Database.BeginTransactionAsync();
-            var ResultObject = new ProcessAttendRequest
+            await _context.Database.BeginTransactionAsync();
+            var resultObject = new ProcessAttendRequest
             {
-                Result = await context.SaveChangesAsync() > 0,
+                Result = await _context.SaveChangesAsync() > 0,
                 EventTitle = participation.Post.Event.Title
             };
-            context.Database.CommitTransaction();            
+            await _context.Database.CommitTransactionAsync();            
         
-            return ResultObject;
+            return resultObject;
         }
 
         public async Task<List<AppUser>> DisplayAll(int postId, PaginationFilter paginationFilter = null)
@@ -77,7 +77,7 @@ namespace BingoAPI.Models.SqlRepository
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.PostId == postId)
                 .Select(p => p.User)
                 .AsNoTracking()
@@ -95,7 +95,7 @@ namespace BingoAPI.Models.SqlRepository
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.PostId == postId && p.Accepted == 1)
                 .Select(p => p.User)
                 .AsNoTracking()
@@ -106,7 +106,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<AppUser>> DisplayShortlyAccepted(int postId)
         {
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.PostId == postId && p.Accepted == 1)
                 .Select(p => p.User)
                 .AsNoTracking()
@@ -116,7 +116,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<int> CountAccepted(int postId)
         {
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.PostId == postId && p.Accepted == 1)
                 .AsNoTracking()
                 .CountAsync();
@@ -132,7 +132,7 @@ namespace BingoAPI.Models.SqlRepository
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.PostId == postId && p.Accepted == 0)
                 .Select(p => p.User)
                 .AsNoTracking()
@@ -143,7 +143,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> RejectAttendee(string userId, int postId)
         {
-            var participation = await context.Participations
+            var participation = await _context.Participations
                .Where(p => p.PostId == postId && p.UserId == userId)
                .Include(p => p.Post)
                .ThenInclude(e => e.Event)
@@ -153,13 +153,13 @@ namespace BingoAPI.Models.SqlRepository
             if (participation == null)
                 return false;
 
-            context.Participations.Remove(participation);
-            return await context.SaveChangesAsync() > 0;
+            _context.Participations.Remove(participation);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> IsPostOwnerAsync(int postId, string userId)
         {
-            var post = await context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
+            var post = await _context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
 
             if (post == null)
             {
@@ -171,7 +171,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> IsParticipatorAsync(int postId, string userId)
         {
-            var count = await context.Participations
+            var count = await _context.Participations
                 .Where(p => p.PostId == postId && p.UserId == userId && p.Accepted == 1)
                 .AsNoTracking()
                 .CountAsync();

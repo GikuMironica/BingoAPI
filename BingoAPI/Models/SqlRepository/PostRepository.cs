@@ -46,7 +46,7 @@ namespace BingoAPI.Models.SqlRepository
                     await Context.AddAsync(entity);
                     await Context.Database.BeginTransactionAsync();
                     result = await Context.SaveChangesAsync();
-                    Context.Database.CommitTransaction();
+                    await Context.Database.CommitTransactionAsync();
                     tryAgain = false;
                 }
                 catch (Exception e)
@@ -164,7 +164,7 @@ namespace BingoAPI.Models.SqlRepository
                     Context.Posts.Update(entity);
                     await Context.Database.BeginTransactionAsync();
                     updated = await Context.SaveChangesAsync();
-                    Context.Database.CommitTransaction();
+                    await Context.Database.CommitTransactionAsync();
                     tryAgain = false;
                 }
                 catch (Exception e)
