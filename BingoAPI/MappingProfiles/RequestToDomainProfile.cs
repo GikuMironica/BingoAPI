@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Bingo.Contracts.V1.Requests.Announcement;
+using Bingo.Contracts.V1.Requests.Payments;
 using Bingo.Contracts.V1.Requests.Post;
 using Bingo.Contracts.V1.Requests.Rating;
 using Bingo.Contracts.V1.Requests.Report;
@@ -63,6 +64,9 @@ namespace BingoAPI.MappingProfiles
             // UserReports
             CreateMap<ReportUserRequest, UserReport>()
                 .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+
+            // PaymentTokenRequest
+            CreateMap<CheckoutRequest, GatewayCheckoutRequest>();
         }
     }
 
