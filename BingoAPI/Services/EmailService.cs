@@ -48,6 +48,7 @@ namespace BingoAPI.Services
                     Message = e.Message
                 };
                 await _errorService.AddErrorAsync(errorObj);
+                return false;
             }
 
             return true;

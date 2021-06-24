@@ -9,41 +9,41 @@ namespace BingoAPI.Models.SqlRepository
 {
     public class ReportsRepository : IReportsRepository
     {
-        private readonly DataContext context;
+        private readonly DataContext _context;
 
         public ReportsRepository(DataContext context)
         {
-            this.context = context;
+            this._context = context;
         }
 
         public async Task<bool> AddAsync(Report entity)
         {
             entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-            await context.Reports.AddAsync(entity);
-            return await context.SaveChangesAsync() > 0;
+            await _context.Reports.AddAsync(entity);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteAllForUserAsync(string userId)
         {
-            var report = await context.Reports
+            var report = await _context.Reports
                 .Where(r => r.ReportedHostId == userId)
                 .ToListAsync();
 
             if (report.Count == 0)
                 return false;
 
-            context.Reports.RemoveRange(report);
-            return await context.SaveChangesAsync() > 0;
+            _context.Reports.RemoveRange(report);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var report = await context.Reports.SingleOrDefaultAsync(r => r.Id == id);
+            var report = await _context.Reports.SingleOrDefaultAsync(r => r.Id == id);
             if (report == null)
                 return false;
 
-            context.Reports.Remove(report);
-            return await context.SaveChangesAsync() > 0;
+            _context.Reports.Remove(report);
+            return await _context.SaveChangesAsync() > 0;
         }
 
         public Task<IEnumerable<Report>> GetAllAsync()
@@ -53,7 +53,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<Report>> GetAllAsync(string userId)
         {
-            return await context.Reports
+            return await _context.Reports
                 .Where(r => r.ReportedHostId == userId)
                 .AsNoTracking()
                 .ToListAsync();
@@ -61,14 +61,14 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<Report> GetByIdAsync(int id)
         {
-            return await context.Reports
+            return await _context.Reports
                 .Where(r => r.Id == id)
                 .SingleOrDefaultAsync();
         }
 
         public async Task<bool> HasAlreadyReported(string reporterId, int postId)
         {
-            int result = await context.Reports
+            var result = await _context.Reports
                 .Where(r => r.ReporterId == reporterId && r.PostId == postId)
                 .CountAsync();
 
