@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using AspNetCoreRateLimit;
-using AutoMapper;
 using BingoAPI.Extensions;
 using BingoAPI.Middleware;
 using BingoAPI.Options;
@@ -48,8 +47,15 @@ namespace BingoAPI
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // disable for testing
-            app.UseIpRateLimiting();
+         
+            var environmentOptions = new Options.EnvironmentOptions();
+            Configuration.GetSection(nameof(EnvironmentOptions)).Bind(environmentOptions);
+
+            // disable the rate limits for testing,
+            if (environmentOptions.Environment > 0)
+            {
+                app.UseIpRateLimiting();
+            }
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -77,8 +83,6 @@ namespace BingoAPI
             app.UseAuthorization();
 
             // Enable/Disable swagger from appsettings.json
-            var environmentOptions = new Options.EnvironmentOptions();
-            Configuration.GetSection(nameof(EnvironmentOptions)).Bind(environmentOptions);
             if (environmentOptions.Swagger!=0)
             {
                 var swaggerOptions = new Options.SwaggerOptions();

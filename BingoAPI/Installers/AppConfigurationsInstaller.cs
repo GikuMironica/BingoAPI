@@ -1,6 +1,5 @@
 ﻿using BingoAPI.CustomMapper;
 using BingoAPI.CustomValidation;
-using BingoAPI.Domain;
 using BingoAPI.Options;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Http;
@@ -44,7 +43,8 @@ namespace BingoAPI.Installers
             services.Configure<OneSignalNotificationSettigs>(configuration.GetSection("OneSignalNotification"));
             services.Configure<NotificationTemplates>(configuration.GetSection("Message"));
             services.Configure<EmailOptions>(configuration.GetSection("Email"));
-            services.Configure<EnvironmentOptions>(configuration.GetSection("Environment"));
+            services.Configure<EnvironmentOptions>(configuration.GetSection("EnvironmentOptions"));
+            services.Configure<MyServicesSettings>(configuration.GetSection("MyServicesSettings"));
 
             // services
             services.AddScoped<IImageLoader, ImageLoader>();
@@ -53,6 +53,8 @@ namespace BingoAPI.Installers
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IEmailFormatter, EmailFormatter>();
             services.AddSingleton<FormattedEmailSingleton>();
+            services.AddSingleton<MyServicesHttpClient>();
+
         }
     }
 }

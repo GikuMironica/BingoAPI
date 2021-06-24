@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using BingoAPI.Data;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
-using BingoAPI.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -46,9 +42,6 @@ namespace BingoAPI.Installers
             services.AddScoped<IReportsRepository, ReportsRepository>();
             services.AddScoped<IUserReportRepository, UserReportRepository>();
             services.AddScoped<ITagsRepository, TagsRepository>();
-
-
-
         }
     }
 }

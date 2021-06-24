@@ -135,5 +135,11 @@
         {
             public const string GetAll = Base + "/tag/{TagName}";
         }
+
+        public static class Payments
+        {
+            public const string GetPaymentToken = Base + "/payments/tokens";
+            public const string PostPaymentInfo = Base + "/payments/data";
+        }
     }
 }

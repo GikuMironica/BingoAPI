@@ -13,17 +13,17 @@ namespace BingoAPI.Models.SqlRepository
 {
     public class EventAttendanceRepository : IEventAttendanceRepository
     {
-        private readonly IPostsRepository postsRepository;
-        private readonly DataContext context;
+        private readonly IPostsRepository _postsRepository;
+        private readonly DataContext _context;
 
         public EventAttendanceRepository(IPostsRepository postsRepository, DataContext context)
         {
-            this.postsRepository = postsRepository;
-            this.context = context;
+            this._postsRepository = postsRepository;
+            this._context = context;
         }
         public async Task<AttendedEventResult> AttendEvent(AppUser user, int postId)
         {
-            var post = await postsRepository.GetByIdAsync(postId);
+            var post = await _postsRepository.GetByIdAsync(postId);
             if (post == null)
             {
                 return new AttendedEventResult { Result = false };
@@ -34,7 +34,7 @@ namespace BingoAPI.Models.SqlRepository
                 return new AttendedEventResult { Result = false };
             }
 
-            var requested = await context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
+            var requested = await _context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
                 .SingleOrDefaultAsync();
 
             if(requested != null)
@@ -60,34 +60,28 @@ namespace BingoAPI.Models.SqlRepository
             }
             else
             {
-                await context.Participations.AddAsync(new Participation { Accepted = 1, Post = post, User = user });
+                await _context.Participations.AddAsync(new Participation { Accepted = 1, Post = post, User = user });
             }
 
-            await context.Database.BeginTransactionAsync();
-            attendedEventResult.Result = await context.SaveChangesAsync() > 0;
-            context.Database.CommitTransaction();
+            await _context.Database.BeginTransactionAsync();
+            attendedEventResult.Result = await _context.SaveChangesAsync() > 0;
+            await _context.Database.CommitTransactionAsync();
 
             return attendedEventResult;
         }
 
         private async Task<bool> AttendHousePartyAsync(AppUser user, Post post)
         {
-            if (post.Participators == null)
-            {
-                post.Participators = new List<Participation>();
-            }
-            var reserved = post.Participators.Where(p => p.PostId == post.Id && p.Accepted == 1).Count();
-            if (reserved < post.Event.GetSlotsIfAny())
-            {
-                await context.Participations.AddAsync(new Participation { Accepted = 0, Post = post, User = user });
-                return true;
-            }
-            return false;
+            post.Participators ??= new List<Participation>();
+            var reserved = post.Participators.Count(p => p.PostId == post.Id && p.Accepted == 1);
+            if (reserved >= post.Event.GetSlotsIfAny()) return false;
+            await _context.Participations.AddAsync(new Participation { Accepted = 0, Post = post, User = user });
+            return true;
         }
 
         public async Task<List<Post>> GetActiveAttendedPostsByUserId(string userId)
         {
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
                 .Include(p => p.Post.Location)
@@ -103,7 +97,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<Post>> GetOldAttendedPostsByUserId(string userId)
         {
-            return await context.Participations
+            return await _context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
                 .Include(p => p.Post.Location)
@@ -120,21 +114,19 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> UnAttendEvent(AppUser user, int postId)
         {
-            var Attendance = await context.Participations
+            var attendance = await _context.Participations
                 .Where(p => p.PostId == postId && p.UserId == user.Id)
                 .SingleOrDefaultAsync();
 
-            if (Attendance != null)
-            {
-                context.Participations.Remove(Attendance);
-                await context.SaveChangesAsync();
-            }
+            if (attendance == null) return true;
+            _context.Participations.Remove(attendance);
+            await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> IsUserAttendingEvent(string userId, int postId)
         {
-            var result = await context.Participations
+            var result = await _context.Participations
                     .Where(p => p.UserId == userId && p.PostId == postId && p.Accepted == 1)
                     .CountAsync();
 

@@ -46,7 +46,7 @@ namespace BingoAPI.Models.SqlRepository
                     await Context.AddAsync(entity);
                     await Context.Database.BeginTransactionAsync();
                     result = await Context.SaveChangesAsync();
-                    Context.Database.CommitTransaction();
+                    await Context.Database.CommitTransactionAsync();
                     tryAgain = false;
                 }
                 catch (Exception e)
@@ -164,7 +164,7 @@ namespace BingoAPI.Models.SqlRepository
                     Context.Posts.Update(entity);
                     await Context.Database.BeginTransactionAsync();
                     updated = await Context.SaveChangesAsync();
-                    Context.Database.CommitTransaction();
+                    await Context.Database.CommitTransactionAsync();
                     tryAgain = false;
                 }
                 catch (Exception e)
@@ -357,10 +357,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<IEnumerable<Post>> GetMyActive(string userId, PaginationFilter paginationFilter)
         {
-            if (paginationFilter == null)
-            {
-                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
-            }
+            paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 

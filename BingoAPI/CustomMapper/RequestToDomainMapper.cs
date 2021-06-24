@@ -14,15 +14,15 @@ namespace BingoAPI.CustomMapper
         {
             List<bool> values = new List<bool>
             {
-                filteredGetAllPosts.HouseParty.Value,
-                filteredGetAllPosts.Club.Value,
-                filteredGetAllPosts.Bar.Value,
-                filteredGetAllPosts.CarMeet.Value,
-                filteredGetAllPosts.BicycleMeet.Value,
-                filteredGetAllPosts.BikerMeet.Value,
-                filteredGetAllPosts.Marathon.Value,
-                filteredGetAllPosts.Other.Value,
-                filteredGetAllPosts.StreetParty.Value
+                filteredGetAllPosts.HouseParty != null && filteredGetAllPosts.HouseParty.Value,
+                filteredGetAllPosts.Club != null && filteredGetAllPosts.Club.Value,
+                filteredGetAllPosts.Bar != null && filteredGetAllPosts.Bar.Value,
+                filteredGetAllPosts.CarMeet != null && filteredGetAllPosts.CarMeet.Value,
+                filteredGetAllPosts.BicycleMeet != null && filteredGetAllPosts.BicycleMeet.Value,
+                filteredGetAllPosts.BikerMeet != null && filteredGetAllPosts.BikerMeet.Value,
+                filteredGetAllPosts.Marathon != null && filteredGetAllPosts.Marathon.Value,
+                filteredGetAllPosts.Other != null && filteredGetAllPosts.Other.Value,
+                filteredGetAllPosts.StreetParty != null && filteredGetAllPosts.StreetParty.Value
             };
 
             int count = 0;

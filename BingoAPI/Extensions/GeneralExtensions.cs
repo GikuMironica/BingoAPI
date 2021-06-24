@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Extensions
@@ -19,7 +20,28 @@ namespace BingoAPI.Extensions
             }
             return httpContext.User.Claims.Single(x => x.Type == "id").Value;
         }
-                    
+
+        
+        /// <summary>
+        /// This method retrieves the user's email from the JWT
+        /// </summary>
+        /// <param name="httpContext"></param>
+        /// <returns></returns>
+        public static string GetUserEmail(this HttpContext httpContext)
+        {
+            return !httpContext.User.Claims.Any() ? null : httpContext.User.Claims.Single(x => x.Type == "email").Value;
+        }
+
+
+        /// <summary>
+        /// This method checks whether a specific header is already added to the httpClient for the next request
+        /// </summary>
+        /// <param name="httpClient"></param>
+        public static bool IsHeaderAdded(this HttpClient httpClient)
+        {
+            var match = httpClient.DefaultRequestHeaders.FirstOrDefault(h => h.Key.Equals("ApiKey"));
+            return match.Value != null;
+        }
 
         public static void AddAllIfNotNull<T>(this List<T> list, IEnumerable<T> values)
         {
