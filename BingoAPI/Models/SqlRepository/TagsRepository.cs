@@ -17,7 +17,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<string>> FindTags(string tag)
         {
-            string lowerTag = tag.ToLower();
+            var lowerTag = tag.ToLower();
             return await _context.Tags
                 .Where(p => p.TagName.StartsWith(lowerTag))
                 .Select(p => p.TagName)

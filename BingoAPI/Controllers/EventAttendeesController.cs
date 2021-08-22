@@ -216,6 +216,7 @@ namespace BingoAPI.Controllers
             return Ok(paginationResponse);
         }
 
+        // TODO - refactor
         private async Task<bool> IsOwner(int postId)
         {
             var userId = HttpContext.GetUserId();

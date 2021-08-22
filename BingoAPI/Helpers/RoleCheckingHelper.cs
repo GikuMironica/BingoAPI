@@ -9,15 +9,11 @@ namespace BingoAPI.Helpers
 {
     public static class RoleCheckingHelper
     {
-        public static async Task<bool> CheckIfAdmin(UserManager<AppUser> userManager, AppUser user)
+        public static async Task<bool> IsUserAdmin(UserManager<AppUser> userManager, AppUser user)
         {
             var requesterRoles = await userManager.GetRolesAsync(user);
-            foreach (var role in requesterRoles)
-            {
-                if (role == "Admin" || role == "SuperAdmin")
-                    return true;
-            }
-            return false;
-        } 
+            return requesterRoles.Any(role => role == "Admin" || role == "SuperAdmin");
+        }
+
     }
 }

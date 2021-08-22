@@ -12,7 +12,7 @@ namespace BingoAPI.CustomMapper
     {
         public GetPostsFilter MapPostFilterRequestToDomain(IMapper mapper, FilteredGetAllPostsRequest filteredGetAllPosts)
         {
-            List<bool> values = new List<bool>
+            var values = new List<bool>
             {
                 filteredGetAllPosts.HouseParty != null && filteredGetAllPosts.HouseParty.Value,
                 filteredGetAllPosts.Club != null && filteredGetAllPosts.Club.Value,
@@ -25,12 +25,7 @@ namespace BingoAPI.CustomMapper
                 filteredGetAllPosts.StreetParty != null && filteredGetAllPosts.StreetParty.Value
             };
 
-            int count = 0;
-            foreach(var value in values)
-            {
-                if (value == true)
-                    count++;
-            }
+            var count = values.Count(value => value);
 
             if (count == 0)
                 return new GetPostsFilter

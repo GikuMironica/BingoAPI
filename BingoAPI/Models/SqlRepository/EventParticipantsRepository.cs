@@ -70,10 +70,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<AppUser>> DisplayAll(int postId, PaginationFilter paginationFilter = null)
         {
-            if (paginationFilter == null)
-            {
-                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
-            }
+            paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
@@ -88,10 +85,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<AppUser>> DisplayAllAccepted(int postId, PaginationFilter paginationFilter = null)
         {
-            if (paginationFilter == null)
-            {
-                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
-            }
+            paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
@@ -125,10 +119,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<AppUser>> DisplayAllPending(int postId, PaginationFilter paginationFilter = null)
         {
-            if (paginationFilter == null)
-            {
-                paginationFilter = new PaginationFilter { PageNumber = 1, PageSize = 50 };
-            }
+            paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
@@ -159,6 +150,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> IsPostOwnerAsync(int postId, string userId)
         {
+            // TODO - to refactor
             var post = await _context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
 
             if (post == null)
@@ -176,10 +168,7 @@ namespace BingoAPI.Models.SqlRepository
                 .AsNoTracking()
                 .CountAsync();
 
-            if (count > 0)
-                return true;
-
-            return false;
+            return count > 0;
         }
     }
 }

@@ -189,6 +189,7 @@ namespace BingoAPI.Controllers
         /// <response code="204">No active events in this area</response>
         [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
         [ProducesResponseType(204)]
+        // TODO - check if cache works
         [Cached(300)]
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
@@ -244,7 +245,7 @@ namespace BingoAPI.Controllers
             var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
             if(activePosts != 0)
             {
-                var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, user);
+                var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, user);
                 if(!isAdmin)
                     return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
             }
@@ -285,6 +286,7 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update(int postId, [FromForm]UpdatePostRequest postRequest)
         {
+            // TODO - refactor
             var userisOwnerOrAdmin = await _postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
             if (!userisOwnerOrAdmin)
             {
@@ -347,6 +349,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> Delete([FromRoute] int postId )
         {
+            // TODO - refactor
             var userOwnsPost = await _postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
 
             if (!userOwnsPost)

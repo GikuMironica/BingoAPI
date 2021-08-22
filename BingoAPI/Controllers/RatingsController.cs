@@ -111,6 +111,7 @@ namespace BingoAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not attend this event/ not accepted" });
             }
+            // TODO - refactor
             var isHostIdPostOwner = await postsRepository.IsHostIdPostOwner(createRequest.UserId, createRequest.PostId);
             if (!isHostIdPostOwner)
             {
@@ -142,7 +143,7 @@ namespace BingoAPI.Controllers
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="ratingId">The rating Id</param>
-        /// <response code="204">Successfuly deleted</response>
+        /// <response code="204">Successfully deleted</response>
         /// <response code="400">Delete failed / Rating did not exist</response>
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(SingleError), 400)]

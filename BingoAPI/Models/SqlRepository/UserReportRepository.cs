@@ -47,6 +47,8 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> CanReport(string reporterId, string reportedId)
         {
+
+            // TODO - to document feature specs
             var time = await _context.UserReports
                 .Where(ur => ur.ReporterId == reporterId && ur.ReportedUserId == reportedId)
                 .OrderByDescending(ur => ur.Timestamp)

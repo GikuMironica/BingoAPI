@@ -21,6 +21,7 @@ namespace BingoAPI.Models.SqlRepository
             this._postsRepository = postsRepository;
             this._context = context;
         }
+
         public async Task<AttendedEventResult> AttendEvent(AppUser user, int postId)
         {
             var post = await _postsRepository.GetByIdAsync(postId);
@@ -34,7 +35,8 @@ namespace BingoAPI.Models.SqlRepository
                 return new AttendedEventResult { Result = false };
             }
 
-            var requested = await _context.Participations.Where(p => p.PostId == postId && p.UserId == user.Id)
+            var requested = await _context.Participations.
+                Where(p => p.PostId == postId && p.UserId == user.Id)
                 .SingleOrDefaultAsync();
 
             if(requested != null)
