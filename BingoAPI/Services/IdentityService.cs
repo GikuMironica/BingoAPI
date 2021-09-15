@@ -23,6 +23,7 @@ namespace BingoAPI.Services
         private readonly JwtSettings _jwtSettings;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SignInManager<IdentityRole> _signInManager;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService _facebookAuthService;
@@ -41,10 +42,12 @@ namespace BingoAPI.Services
                                RoleManager<IdentityRole> roleManager,
                                IEmailService emailService,
                                IEmailFormatter emailFormatter,
-                               IOptions<EnvironmentOptions> enOptions)
+                               IOptions<EnvironmentOptions> enOptions, 
+                               SignInManager<IdentityRole> signInManager)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
+            _signInManager = signInManager;
             this._enOptions = enOptions.Value.Environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
@@ -137,7 +140,7 @@ namespace BingoAPI.Services
             {
                 return new AuthenticationResult
                 {
-                    Errors = new[] { "User does not exist" }
+                    Errors = new[] { "Username / Password combination is wrong" }
                 };
             }
 
@@ -149,6 +152,17 @@ namespace BingoAPI.Services
                     Errors = new[] { "Username / Password combination is wrong" }
                 };
             }
+
+            var result = await _signInManager.PasswordSignInAsync(email, requestPassword,
+                false, true);
+            if (result.IsLockedOut)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] {"Account locked out, too many invalid attempts. Try again later."}
+                };
+            }
+
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 

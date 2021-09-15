@@ -122,6 +122,7 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="request">Generated on client side with facebook sdk</param>
         /// <response code="200">Token validated, AuthenticationResponse returned with the jwt and refresh token</response>
+        /// <response code="403">Email not confirmed yet</response>
         /// <response code="400">Invalid token</response>
         [ProducesResponseType(typeof(AuthSuccessResponse), 200)]
         [ProducesResponseType(typeof(AuthFailedResponse), 400)]
