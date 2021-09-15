@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using BingoAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Bingo.Contracts.V1.Responses;
+using BingoAPI.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using BingoAPI.Extensions;
@@ -81,6 +82,10 @@ namespace BingoAPI.Controllers
 
         /// <summary>
         /// Logs in the user in the system
+        /// Fail reasons: 0, 1, 2
+        ///     0: Email not confirmed
+        ///     1: Too many invalid attempts, account temporarly locked
+        ///     2: Invalid password
         /// </summary>
         /// <param name="request">Request containing user email and password</param>
         /// <response code="200">Authentication result containing the jwt token and http response code</response>
@@ -92,22 +97,22 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Identity.Login)]
         public async Task<IActionResult> Login([FromBody] UserLoginRequest request)
         {
-            var user = await _userManager.FindByEmailAsync(request.Email);
-
-            if (user != null && !user.EmailConfirmed)                    
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new AuthFailedResponse
-                {
-                    Errors = new List<string> { "Email not confirmed yet" }
-                });
-            }
             var authResponse = await _identityService.LoginAsync(request.Email, request.Password);
             if (!authResponse.Success)
             {
-                return BadRequest(new AuthFailedResponse
-                {
-                    Errors = authResponse.Errors
-                });
+                return authResponse.FailReason != FailReason.InvalidPassword
+                    ? StatusCode(StatusCodes.Status403Forbidden,
+                        new AuthFailedResponse
+                        {
+                            FailReason = (int) authResponse.FailReason,
+                            Errors = authResponse.Errors
+                        })
+                    : BadRequest(new AuthFailedResponse
+                    {
+                        FailReason = (int) authResponse.FailReason,
+                        Errors = authResponse.Errors
+                    });
+
             }
 
             return Ok(new AuthSuccessResponse

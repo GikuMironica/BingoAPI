@@ -136,26 +136,31 @@ namespace BingoAPI.Services
         {
             var user = await _userManager.FindByEmailAsync(email);
 
-            if(user == null)
+            if (user != null && !user.EmailConfirmed)
             {
                 return new AuthenticationResult
                 {
-                    Errors = new[] { "Username / Password combination is wrong" }
+                    Success = false,
+                    FailReason = FailReason.EmailNotConfirmed,
+                    Errors = new[] { "Email not yet confirmed" }
                 };
             }
-            
             var result = await _signInManager.PasswordSignInAsync(email, requestPassword,
                 false, true);
             if (result.IsLockedOut)
             {
                 return new AuthenticationResult
                 {
+                    Success = false,
+                    FailReason = FailReason.TooManyInvalidAttempts,
                     Errors = new[] {"Account locked out, too many invalid attempts. Try again later."}
                 };
             } if (!result.Succeeded)
             {
                 return new AuthenticationResult
                 {
+                    Success = false,
+                    FailReason = FailReason.InvalidPassword,
                     Errors = new[] { "Username / Password combination is wrong" }
                 };
             }
@@ -351,38 +356,35 @@ namespace BingoAPI.Services
             var userInfo = await _facebookAuthService.GetUserInfoAsync(accessToken);
             var user = await _userManager.FindByEmailAsync(userInfo.Email);
 
-            // if email not in the system register user with his FB email
-            if(user == null)
-            {
-                var appUser = new AppUser
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Email = userInfo.Email,
-                    UserName = userInfo.Email,
-                    FirstName = userInfo.FirstName,
-                    LastName = userInfo.LastName,
-                    ProfilePicture = userInfo.Picture.Data.Url.ToString(),
-                    RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-                };
-                // no password
-                var createdResult = await _userManager.CreateAsync(appUser);
-                if (!createdResult.Succeeded)
-                {
-                    return new AuthenticationResult
-                    {
-                        Errors = new[] { "Something went wrong" }
-                    };
-                }
-                // when registering user, assign him user role, also need to be added in the JWT!!!
-                await _userManager.AddToRoleAsync(appUser, "User");
-                appUser.EmailConfirmed = true;
-                await _userManager.UpdateAsync(appUser);
+            if (user != null) return await GenerateAuthenticationResultForUserAsync(user);
 
-                return await GenerateAuthenticationResultForUserAsync(appUser);
+            // if email not in the system register user with his FB email
+            var appUser = new AppUser
+            {
+                Id = Guid.NewGuid().ToString(),
+                Email = userInfo.Email,
+                UserName = userInfo.Email,
+                FirstName = userInfo.FirstName,
+                LastName = userInfo.LastName,
+                ProfilePicture = userInfo.Picture.Data.Url.ToString(),
+                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                EmailConfirmed = true
+            };
+            // no password
+            var createdResult = await _userManager.CreateAsync(appUser);
+            if (!createdResult.Succeeded)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "Something went wrong" }
+                };
             }
+            // when registering user, assign him user role, also need to be added in the JWT!!!
+            await _userManager.AddToRoleAsync(appUser, "User");
+            await _userManager.UpdateAsync(appUser);
+            return await GenerateAuthenticationResultForUserAsync(appUser);
 
             // if user already registered with this email, generate jwt for him
-            return await GenerateAuthenticationResultForUserAsync(user);
         }
 
         public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? lang= null)

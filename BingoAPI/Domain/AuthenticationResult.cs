@@ -16,5 +16,14 @@ namespace BingoAPI.Domain
         public string RefreshToken { get; set; }
 
         public string UserId { get; set; }
+
+        public FailReason FailReason { get; set; }
+    }
+
+    public enum FailReason
+    {
+        EmailNotConfirmed = 0,
+        TooManyInvalidAttempts = 1,
+        InvalidPassword = 2
     }
 }
