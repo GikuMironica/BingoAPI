@@ -8,7 +8,6 @@ namespace Bingo.Contracts.V1.Requests.Announcement
     public class UpdateAnnouncementRequest
     {
         [Required]
-        [MinLength(10)]
         public String Message { get; set; }
     }
 }

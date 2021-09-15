@@ -189,6 +189,7 @@ namespace BingoAPI.Controllers
         /// <response code="204">No active events in this area</response>
         [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
         [ProducesResponseType(204)]
+        // TODO - check if cache works
         [Cached(300)]
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
@@ -230,23 +231,32 @@ namespace BingoAPI.Controllers
         /// <param name="postRequest">request object</param>
         /// <response code="201">Post successfully created</response>
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
+        /// <response code="403">User is not allowed to create post. Missing fullname or active posts limit hit</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [Authorize(Policy="CreateEditPost")]
         [ProducesResponseType(typeof(Response<Posts>), 201)]
         [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
             var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             if(user.FirstName == null || user.LastName == null)
             {
-                return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
+                return StatusCode
+                (
+                    StatusCodes.Status403Forbidden,
+                    new SingleError { Message = "User has set up first and last name in order to create post" }
+                );
             }
             var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
             if(activePosts != 0)
             {
-                var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, user);
+                var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, user);
                 if(!isAdmin)
-                    return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
+                    return StatusCode(
+                        StatusCodes.Status403Forbidden,
+                        new SingleError { Message = "Basic user can't have more than 1 active event at a time" }
+                );
             }
 
             var post = _createPostRequestMapper.MapRequestToDomain(postRequest, user);
@@ -285,6 +295,7 @@ namespace BingoAPI.Controllers
         [HttpPost(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update(int postId, [FromForm]UpdatePostRequest postRequest)
         {
+            // TODO - refactor
             var userisOwnerOrAdmin = await _postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
             if (!userisOwnerOrAdmin)
             {
@@ -347,6 +358,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(400)]
         public async Task<IActionResult> Delete([FromRoute] int postId )
         {
+            // TODO - refactor
             var userOwnsPost = await _postRepository.IsPostOwnerOrAdminAsync(postId, HttpContext.GetUserId());
 
             if (!userOwnsPost)

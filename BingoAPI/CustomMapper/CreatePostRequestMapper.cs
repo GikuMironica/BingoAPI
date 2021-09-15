@@ -1,11 +1,9 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
 using BingoAPI.Models;
-using Microsoft.AspNetCore.Http;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace BingoAPI.CustomMapper
 {
@@ -34,114 +32,86 @@ namespace BingoAPI.CustomMapper
             post.Event.Post = post;
             post.Pictures = new List<Picture>();
             post.Tags = new List<PostTags>();
-            if (postRequest.Tags != null) { 
-                foreach (var tag in postRequest.Tags)
-                {
-                    if (tag != null)
-                    {
-                      post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag } });
-                    }
-                }
+            if (postRequest.Tags == null) return post;
+            foreach (var tag in postRequest.Tags.Where(tag => tag != null))
+            {
+                post.Tags.Add(new PostTags { Tag = new Tag { TagName = tag } });
             }
             return post;
         }
 
         public Event DiscriminateEvent(ContainedEvent containedEvent)
         {
-            Event generatedEvent;
-            switch (containedEvent.EventType)
+            Event generatedEvent = containedEvent.EventType switch
             {
-                case 1:
-                    generatedEvent = new HouseParty
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Slots = containedEvent.Slots,
-                        EntrancePrice = containedEvent.EntrancePrice,
-                        Currency = containedEvent.Currency.GetValueOrDefault(0),
-                        Title = containedEvent.Title
-                       
-                    };
-                    break;
-                case 2:
-                    generatedEvent = new Club
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        EntrancePrice = containedEvent.EntrancePrice ?? 0,
-                        Currency = containedEvent.Currency.GetValueOrDefault(0),
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 3:
-                    generatedEvent = new Bar
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        EntrancePrice = containedEvent.EntrancePrice ?? 0,
-                        Currency = containedEvent.Currency.GetValueOrDefault(0),
-                        Title = containedEvent.Title
-
-                    };
-                    break;
-                case 4:
-                    generatedEvent = new BikerMeet
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 5:
-                    generatedEvent = new BicycleMeet
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 6:
-                    generatedEvent = new CarMeet
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 7:
-                    generatedEvent = new StreetParty
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 8:
-                    generatedEvent = new Marathon
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                case 9:
-                    generatedEvent = new Other
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;               
-                default:
-                    generatedEvent = new Other
-                    {
-                        Description = containedEvent.Description,
-                        Requirements = containedEvent.Requirements,
-                        Title = containedEvent.Title
-                    };
-                    break;
-                   
-            }
+                1 => new HouseParty
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Slots = containedEvent.Slots,
+                    EntrancePrice = containedEvent.EntrancePrice,
+                    Currency = containedEvent.Currency.GetValueOrDefault(0),
+                    Title = containedEvent.Title
+                },
+                2 => new Club
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    EntrancePrice = containedEvent.EntrancePrice ?? 0,
+                    Currency = containedEvent.Currency.GetValueOrDefault(0),
+                    Title = containedEvent.Title
+                },
+                3 => new Bar
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    EntrancePrice = containedEvent.EntrancePrice ?? 0,
+                    Currency = containedEvent.Currency.GetValueOrDefault(0),
+                    Title = containedEvent.Title
+                },
+                4 => new BikerMeet
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                },
+                5 => new BicycleMeet
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                },
+                6 => new CarMeet
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                },
+                7 => new StreetParty
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                },
+                8 => new Marathon
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                },
+                9 => new Other
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                },
+                _ => new Other
+                {
+                    Description = containedEvent.Description,
+                    Requirements = containedEvent.Requirements,
+                    Title = containedEvent.Title
+                }
+            };
 
             return generatedEvent;
         }

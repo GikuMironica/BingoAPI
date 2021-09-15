@@ -23,18 +23,18 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class UserReportController : Controller
     {
-        private readonly IUserReportRepository userReportRepository;
-        private readonly IMapper mapper;
-        private readonly IUriService uriService;
-        private readonly UserManager<AppUser> userManager;
+        private readonly IUserReportRepository _userReportRepository;
+        private readonly IMapper _mapper;
+        private readonly IUriService _uriService;
+        private readonly UserManager<AppUser> _userManager;
 
         public UserReportController(IUserReportRepository userReportRepository, IMapper mapper,
                                     IUriService uriService, UserManager<AppUser> userManager)
         {
-            this.userReportRepository = userReportRepository;
-            this.mapper = mapper;
-            this.uriService = uriService;
-            this.userManager = userManager;
+            this._userReportRepository = userReportRepository;
+            this._mapper = mapper;
+            this._uriService = uriService;
+            this._userManager = userManager;
         }
 
 
@@ -53,13 +53,13 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.UserReports.Get)]
         public async Task<IActionResult> GetReport(int reportId)
         {
-            UserReport report = await userReportRepository.GetByIdAsync(reportId);
+            UserReport report = await _userReportRepository.GetByIdAsync(reportId);
             if (report == null)
             {
                 return NotFound(new SingleError { Message = "Report could not be found" });
             }
 
-            return Ok(new Response<UserReportResponse>(mapper.Map<UserReportResponse>(report)));
+            return Ok(new Response<UserReportResponse>(_mapper.Map<UserReportResponse>(report)));
         }
 
 
@@ -77,14 +77,14 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.UserReports.GetAll)]
         public async Task<IActionResult> GetReports(string userId)
         {
-            var reports = await userReportRepository.GetAllAsync(userId);
+            var reports = await _userReportRepository.GetAllAsync(userId);
             if (reports.Count == 0)
             {
                 return NoContent();
             }
 
 
-            return Ok(new Response<List<UserReportResponse>>(mapper.Map<List<UserReportResponse>>(reports)));
+            return Ok(new Response<List<UserReportResponse>>(_mapper.Map<List<UserReportResponse>>(reports)));
         }
 
 
@@ -106,27 +106,27 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> CreateReport([FromBody] ReportUserRequest reportUser)
         {
             var reporterId = HttpContext.GetUserId();
-            var reported = await userManager.FindByIdAsync(reportUser.ReportedUserId);
+            var reported = await _userManager.FindByIdAsync(reportUser.ReportedUserId);
             if(reported == null)
             {
                 return NotFound();
             }
 
-            if(!(await userReportRepository.CanReport(reporterId, reportUser.ReportedUserId)))
+            if(!(await _userReportRepository.CanReport(reporterId, reportUser.ReportedUserId)))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "Reporter already reported this User, cooldown 1 week" });
             }
-            UserReport userReport = mapper.Map<UserReport>(reportUser);
+            UserReport userReport = _mapper.Map<UserReport>(reportUser);
             userReport.ReporterId = reporterId;
-            var result = await userReportRepository.AddAsync(userReport);
+            var result = await _userReportRepository.AddAsync(userReport);
 
             if (!result)
             {
                 return BadRequest(new SingleError { Message = "Report could not be submitted" });
             }
 
-            var locationUri = uriService.GetUserReportUri(userReport.Id.ToString());
-            return Created(locationUri, new Response<CreateUserReportResponse>(mapper.Map<CreateUserReportResponse>(userReport)));
+            var locationUri = _uriService.GetUserReportUri(userReport.Id.ToString());
+            return Created(locationUri, new Response<CreateUserReportResponse>(_mapper.Map<CreateUserReportResponse>(userReport)));
         }
 
 
@@ -136,7 +136,7 @@ namespace BingoAPI.Controllers
         /// Can be deleted only by admins.
         /// </summary>
         /// <param name="reportId">The report Id</param>
-        /// <response code="204">Successfuly deleted</response>
+        /// <response code="204">Successfully deleted</response>
         /// <response code="400">Delete failed / Report did not exist</response>
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(SingleError), 400)]
@@ -148,7 +148,7 @@ namespace BingoAPI.Controllers
             {
                 return BadRequest();
             }
-            var result = await userReportRepository.DeleteAsync(reportId);
+            var result = await _userReportRepository.DeleteAsync(reportId);
             if (!result)
             {
                 return BadRequest(new SingleError { Message = "Report could not be deleted / Did not exist" });

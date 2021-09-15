@@ -42,12 +42,12 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This end point adds the requester to the event participators list.
+        /// This endpoint adds the requester to the event participators list.
         /// If the event is a house party, it is added to the pending requests list.
         /// The host will get a push notification about a new request.
         /// </summary>
         /// <param name="postId">The post Id</param>
-        /// <response code="200">User successfuly added to the list</response>
+        /// <response code="200">User successfully added to the list</response>
         /// <response code="400">Post does not exist or no more slots available for this event or user already applied to this event</response>
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
