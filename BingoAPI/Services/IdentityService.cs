@@ -23,7 +23,7 @@ namespace BingoAPI.Services
         private readonly JwtSettings _jwtSettings;
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly SignInManager<IdentityRole> _signInManager;
+        private readonly SignInManager<AppUser> _signInManager;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService _facebookAuthService;
@@ -43,7 +43,7 @@ namespace BingoAPI.Services
                                IEmailService emailService,
                                IEmailFormatter emailFormatter,
                                IOptions<EnvironmentOptions> enOptions, 
-                               SignInManager<IdentityRole> signInManager)
+                               SignInManager<AppUser> signInManager)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
@@ -143,16 +143,7 @@ namespace BingoAPI.Services
                     Errors = new[] { "Username / Password combination is wrong" }
                 };
             }
-
-            var userHasValidPassword = await _userManager.CheckPasswordAsync(user, requestPassword);
-            if (!userHasValidPassword)
-            {
-                return new AuthenticationResult
-                {
-                    Errors = new[] { "Username / Password combination is wrong" }
-                };
-            }
-
+            
             var result = await _signInManager.PasswordSignInAsync(email, requestPassword,
                 false, true);
             if (result.IsLockedOut)
@@ -160,6 +151,12 @@ namespace BingoAPI.Services
                 return new AuthenticationResult
                 {
                     Errors = new[] {"Account locked out, too many invalid attempts. Try again later."}
+                };
+            } if (!result.Succeeded)
+            {
+                return new AuthenticationResult
+                {
+                    Errors = new[] { "Username / Password combination is wrong" }
                 };
             }
 

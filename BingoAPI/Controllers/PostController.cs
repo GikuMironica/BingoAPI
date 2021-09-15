@@ -231,23 +231,32 @@ namespace BingoAPI.Controllers
         /// <param name="postRequest">request object</param>
         /// <response code="201">Post successfully created</response>
         /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
+        /// <response code="403">User is not allowed to create post. Missing fullname or active posts limit hit</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [Authorize(Policy="CreateEditPost")]
         [ProducesResponseType(typeof(Response<Posts>), 201)]
         [ProducesResponseType(typeof(SingleError), 400)]
+        [ProducesResponseType(typeof(SingleError), 403)]
         public async Task<IActionResult> Create([FromForm]CreatePostRequest postRequest)
         {
             var user = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             if(user.FirstName == null || user.LastName == null)
             {
-                return BadRequest(new SingleError { Message = "User has to input first and last name in order to create post" });
+                return StatusCode
+                (
+                    StatusCodes.Status403Forbidden,
+                    new SingleError { Message = "User has set up first and last name in order to create post" }
+                );
             }
             var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
             if(activePosts != 0)
             {
                 var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, user);
                 if(!isAdmin)
-                    return BadRequest(new SingleError { Message = "Basic user can't have more than 1 active event at a time" });
+                    return StatusCode(
+                        StatusCodes.Status403Forbidden,
+                        new SingleError { Message = "Basic user can't have more than 1 active event at a time" }
+                );
             }
 
             var post = _createPostRequestMapper.MapRequestToDomain(postRequest, user);
