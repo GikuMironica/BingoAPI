@@ -25,9 +25,9 @@ namespace BingoAPI.Models.SqlRepository
             return result > 0;
         }
 
-        public async Task<bool> DeleteAsync(int Id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            var announcement = await _context.Announcements.SingleOrDefaultAsync(x => x.Id == Id);
+            var announcement = await _context.Announcements.SingleOrDefaultAsync(x => x.Id == id);
             _context.Announcements.Remove(announcement);
             return await _context.SaveChangesAsync() > 0;
         }

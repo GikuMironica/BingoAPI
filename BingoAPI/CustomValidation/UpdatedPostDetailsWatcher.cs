@@ -16,21 +16,12 @@ namespace BingoAPI.CustomValidation
 
             updatedFields.Add("location", updatePostRequest.UserLocation != null);
             updatedFields.Add("event time", updatePostRequest.EventTime != null);
-            if(updatePostRequest.UpdatedEvent != null)
-            {
-                updatedFields.Add("requirements", updatePostRequest.UpdatedEvent.Requirements != null);
-                updatedFields.Add("entrance price", updatePostRequest.UpdatedEvent.EntrancePrice != null);
-            }
-            
+            if (updatePostRequest.UpdatedEvent == null) return updatedFields.Any(field => field.Value);
+            updatedFields.Add("requirements", updatePostRequest.UpdatedEvent.Requirements != null);
+            updatedFields.Add("entrance price", updatePostRequest.UpdatedEvent.EntrancePrice != null);
 
-            foreach(var field in updatedFields)
-            {
-                if (field.Value)
-                {
-                    return true;
-                }
-            }
-            return false;            
+
+            return updatedFields.Any(field => field.Value);
         }
 
         public UpdatedTimeValidationResult ValidateUpdatedTime(UpdatePostRequest updatePostRequest, Post post)
@@ -94,28 +85,23 @@ namespace BingoAPI.CustomValidation
             }
 
             // second case, if event started already, allow to change end time only
-            if (post.EventTime <= currentTime)
+            if (post.EventTime > currentTime) return new UpdatedTimeValidationResult {Result = true};
+            if(updatePostRequest.EventTime != null)
             {
-                if(updatePostRequest.EventTime != null)
-                {
-                    return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Can't change start time if event already started" };
-                }
-              
-                if (updatePostRequest.EndTime < post.EventTime + 900)
-                {
-                    return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event should last at least 15 min" };
-                }
-                if (updatePostRequest.EndTime > post.EventTime + 43200)
-                {
-                    return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can last at most 12h" };
-                }
-                if (updatePostRequest.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 1700)
-                {
-                    return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can be extended by at least 30 min relative to current time" };
-                }
+                return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Can't change start time if event already started" };
             }
-
-            return new UpdatedTimeValidationResult { Result = true };
+              
+            if (updatePostRequest.EndTime < post.EventTime + 900)
+            {
+                return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event should last at least 15 min" };
+            }
+            if (updatePostRequest.EndTime > post.EventTime + 43200)
+            {
+                return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can last at most 12h" };
+            }
+            return updatePostRequest.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 1700 
+                ? new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can be extended by at least 30 min relative to current time" } 
+                : new UpdatedTimeValidationResult { Result = true };
         }
     }
 }

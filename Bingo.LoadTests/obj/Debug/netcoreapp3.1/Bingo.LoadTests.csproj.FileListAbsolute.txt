@@ -1,0 +1,9 @@
+C:\HopAut\Bingo\Bingo.LoadTests\bin\Debug\netcoreapp3.1\Bingo.LoadTests.deps.json
+C:\HopAut\Bingo\Bingo.LoadTests\bin\Debug\netcoreapp3.1\Bingo.LoadTests.dll
+C:\HopAut\Bingo\Bingo.LoadTests\bin\Debug\netcoreapp3.1\Bingo.LoadTests.pdb
+C:\HopAut\Bingo\Bingo.LoadTests\obj\Debug\netcoreapp3.1\Bingo.LoadTests.csprojAssemblyReference.cache
+C:\HopAut\Bingo\Bingo.LoadTests\obj\Debug\netcoreapp3.1\Bingo.LoadTests.AssemblyInfoInputs.cache
+C:\HopAut\Bingo\Bingo.LoadTests\obj\Debug\netcoreapp3.1\Bingo.LoadTests.AssemblyInfo.cs
+C:\HopAut\Bingo\Bingo.LoadTests\obj\Debug\netcoreapp3.1\Bingo.LoadTests.csproj.CoreCompileInputs.cache
+C:\HopAut\Bingo\Bingo.LoadTests\obj\Debug\netcoreapp3.1\Bingo.LoadTests.dll
+C:\HopAut\Bingo\Bingo.LoadTests\obj\Debug\netcoreapp3.1\Bingo.LoadTests.pdb

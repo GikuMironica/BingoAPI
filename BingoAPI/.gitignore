@@ -4,4 +4,10 @@ BingoAPI/obj
 Bingo.Contracts/obj
 Bingo.Contracts/bin
 Bingo.IntegrationTests/obj/
+<<<<<<< HEAD
 Bingo.IntegrationTests/bin/
+=======
+Bingo.IntegrationTests/bin/
+Bingo.LoadTests/bin/
+Bingo.LoadTests/obj/
+>>>>>>> development

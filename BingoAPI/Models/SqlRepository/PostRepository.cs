@@ -128,34 +128,33 @@ namespace BingoAPI.Models.SqlRepository
         private List<Post> FilterByType(List<Post> posts, GetPostsFilter postsFilter)
         {
             var filteredPosts = posts;
-            if(posts.Any())
-            {
-                if (postsFilter.HouseParty == false)
-                    filteredPosts.RemoveAll(p =>p.Event.GetType().Name.ToString() == "HouseParty");
-                if (postsFilter.Bar == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Bar");
-                if (postsFilter.Club == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Club");
-                if (postsFilter.CarMeet == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "CarMeet");
-                if (postsFilter.BikerMeet == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BikerMeet");
-                if (postsFilter.BicycleMeet == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BicycleMeet");
-                if (postsFilter.StreetParty == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "StreetParty");
-                if (postsFilter.Other == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Other");
-                if (postsFilter.Marathon == false)
-                    filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Marathon");
-            }
+            if (!posts.Any()) return filteredPosts;
+            if (postsFilter.HouseParty == false)
+                filteredPosts.RemoveAll(p =>p.Event.GetType().Name.ToString() == "HouseParty");
+            if (postsFilter.Bar == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Bar");
+            if (postsFilter.Club == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Club");
+            if (postsFilter.CarMeet == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "CarMeet");
+            if (postsFilter.BikerMeet == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BikerMeet");
+            if (postsFilter.BicycleMeet == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "BicycleMeet");
+            if (postsFilter.StreetParty == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "StreetParty");
+            if (postsFilter.Other == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Other");
+            if (postsFilter.Marathon == false)
+                filteredPosts.RemoveAll(p => p.Event.GetType().Name.ToString() == "Marathon");
             return filteredPosts;
         }
 
         public async Task<bool> UpdateAsync(Post entity)
         {
-            int updated = 0;
-            bool tryAgain = true;
+            // TODO - to optimize
+            var updated = 0;
+            var tryAgain = true;
             while (tryAgain)
             {
                 try
@@ -175,8 +174,8 @@ namespace BingoAPI.Models.SqlRepository
                     // other exception which has to be logged
                     if (!isUniqueConstraintViolated)
                     {
+                        // TODO - to Log
                         tryAgain = false;
-
                     }
                 }
             }
@@ -198,24 +197,23 @@ namespace BingoAPI.Models.SqlRepository
                 return;
             post.Tags?.ForEach(pt => pt.Tag.TagName = pt.Tag.TagName.ToLower());
 
-            for(var i=0; i<post.Tags.Count; i++)
+            foreach (var tag in post.Tags)
             {
-                var tag = post.Tags[i];
-                var existingTag = await Context.Tags.SingleOrDefaultAsync(x => x.TagName == tag.Tag.TagName);
+                var tag1 = tag;
+                var existingTag = await Context.Tags.SingleOrDefaultAsync(x => x.TagName == tag1.Tag.TagName);
 
                 // if tag exists, link to it
                 if (existingTag != null)
                 {
                     tag.Tag = existingTag;
                 }
-
-                  // else
-                  //await _context.Tags.AddAsync(new Tag { Counter = 1, TagName = tag.Tag.TagName, Posts = post.Tags });
             }
         }
 
         public async Task<bool> IsPostOwnerOrAdminAsync(int postId, string userId)
         {
+
+            // TODO - to refactor
             var post = await Context.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
 
             if (post == null)
@@ -309,6 +307,8 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> IsHostIdPostOwner(string hostId, int postId)
         {
+            // TODO - to refactor
+
             var result = await Context.Posts
                 .Where(p => p.Id == postId && p.UserId == hostId)
                 .CountAsync();
@@ -404,8 +404,7 @@ namespace BingoAPI.Models.SqlRepository
         public async Task<int> GetActiveEventsNumbers(string userId)
         {
             return await Context.Posts
-                .Where(p => p.UserId == userId
-                         && p.ActiveFlag == 1)
+                .Where(p => p.UserId == userId && p.ActiveFlag == 1)
                 .CountAsync();
         }
     }

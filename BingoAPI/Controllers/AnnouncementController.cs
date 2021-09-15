@@ -78,7 +78,8 @@ namespace BingoAPI.Controllers
             }
             var requester = await _userManager.FindByIdAsync(HttpContext.GetUserId());
             var isParticipator = await _participationRepository.IsParticipatorAsync(announcement.PostId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, requester);
+            var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, requester);
+            // TODO - refactor
             var isOwner = await _participationRepository.IsPostOwnerAsync(announcement.PostId, requester.Id);
 
             if(!(isAdmin || isParticipator || isOwner))
@@ -114,10 +115,11 @@ namespace BingoAPI.Controllers
             }
 
             var isParticipator = await _participationRepository.IsParticipatorAsync(postId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, requester);
+            var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, requester);
 
             if (!(isAdmin || isParticipator))
             {
+                // TODO - refactor
                 if (!(await _participationRepository.IsPostOwnerAsync(postId, requester.Id)))
                     return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not participate in this event / You are not an Administrator / Not owner of post" });
             }
@@ -135,12 +137,12 @@ namespace BingoAPI.Controllers
        
 
         /// <summary>
-        /// This endoint is used for creating an announcement.
+        /// This endpoint is used for creating an announcement.
         /// Can be created only by event host / admin.
         /// All event attendees will get a push notification when the host creates an announcement.
         /// </summary>
         /// <param name="createAnnouncementRequest">The announcement data, the message should be not less than 10 characters</param>
-        /// <response code="201">Successfuly created</response>
+        /// <response code="201">Successfully created</response>
         /// <response code="400">Persistence error</response>
         /// <response code="403">Requester is not not an admin or host either</response>
         [ProducesResponseType(typeof(Response<CreateAnnouncementResponse>), 201)]
@@ -154,6 +156,7 @@ namespace BingoAPI.Controllers
             {
                 return BadRequest();
             }
+            // TODO - refactor
             var isOwnerOrAdmin = await _postsRepository.IsPostOwnerOrAdminAsync(createAnnouncementRequest.PostId, user.Id);
             if (!isOwnerOrAdmin)
             {
@@ -187,7 +190,7 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="announcementId">The announcement Id</param>
         /// <param name="updateRequest">Updated data, the message should be not less than 10 characters</param>
-        /// <response code="200">Successfuly updated</response>
+        /// <response code="200">Successfully updated</response>
         /// <response code="400">Update could not be persisted</response>
         /// <response code="403">Requester is not the host / admin</response>
         /// <response code="404">Announcements does not exist</response>
@@ -206,6 +209,7 @@ namespace BingoAPI.Controllers
             }
 
             var postId = announcement.PostId;
+            // TODO - refactor
             var isOwnerOrAdmin = await _postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
             if (!(isOwnerOrAdmin))
             {
@@ -227,7 +231,7 @@ namespace BingoAPI.Controllers
         /// Can be deleted only by event host / admin
         /// </summary>
         /// <param name="announcementId">The announcement id</param>
-        /// <response code="204">Successfuly deleted</response>
+        /// <response code="204">Successfully deleted</response>
         /// <response code="400">Delete failed</response>
         /// <response code="403">Requester is not the host / admin</response>
         /// <response code="404">Announcements does not exist</response>
@@ -246,8 +250,9 @@ namespace BingoAPI.Controllers
             }
 
             var postId = announcement.PostId;
+            // TODO - refactor
             var isOwner = await _postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.CheckIfAdmin(_userManager, requester);
+            var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, requester);
             if (!(isAdmin || isOwner))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });

@@ -158,7 +158,7 @@ namespace BingoAPI.Controllers
         /// <param name="userId">The account Id</param>
         /// <param name="userPictureRequest">Contains the new profile picture</param>
         /// <response code="403">User can only update his own profile</response>
-        /// <response code="400">Provided image could not be persited.</response>
+        /// <response code="400">Provided image could not be persisted.</response>
         /// <response code="200">Returns the users data.</response>
         [ProducesResponseType(typeof(Response<UserResponse>), 200)]
         [ProducesResponseType(typeof(SingleError), 400)]

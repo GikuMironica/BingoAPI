@@ -133,7 +133,7 @@ namespace BingoAPI.Controllers
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="reportId">The report Id</param>
-        /// <response code="204">Successfuly deleted</response>
+        /// <response code="204">Successfully deleted</response>
         /// <response code="400">Delete failed / Report did not exist</response>
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(SingleError), 400)]
@@ -156,7 +156,7 @@ namespace BingoAPI.Controllers
         /// Can be deleted only by admins
         /// </summary>
         /// <param name="userId">The user Id</param>
-        /// <response code="204">Successfuly deleted</response>
+        /// <response code="204">Successfully deleted</response>
         /// <response code="400">Delete failed / Reports did not exist</response>
         [ProducesResponseType(204)]
         [ProducesResponseType(typeof(SingleError), 400)]
