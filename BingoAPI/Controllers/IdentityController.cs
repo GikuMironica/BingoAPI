@@ -294,8 +294,9 @@ namespace BingoAPI.Controllers
             
             if (user != null)
             {
+                // TODO - Generate 8 symbol pass
                 var upperchar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                var pass = Guid.NewGuid().ToString() + new string(
+                var pass = Guid.NewGuid() + new string(
                     Enumerable.Repeat(upperchar, 1)
                     .Select(s => s[new Random().Next(s.Length)])
                     .ToArray());

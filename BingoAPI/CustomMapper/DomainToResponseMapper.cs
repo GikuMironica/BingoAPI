@@ -47,7 +47,7 @@ namespace BingoAPI.CustomMapper
             .Select(x => x.Id)
             .FirstOrDefault();
 
-            var lastAnnouncement = post.Announcements.OrderByDescending(a => a.Timestamp).FirstOrDefault();
+            var lastAnnouncement = post.Announcements?.OrderByDescending(a => a.Timestamp)?.FirstOrDefault();
                      
 
             return new MiniPostForAnnouncements
