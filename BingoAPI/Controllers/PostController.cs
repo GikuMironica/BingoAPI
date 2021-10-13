@@ -152,6 +152,7 @@ namespace BingoAPI.Controllers
         /// <response code="204">User did not host any event yet</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
+        [Cached(86400)]
         [HttpGet(ApiRoutes.Posts.GetAllInactive)]
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
@@ -324,22 +325,19 @@ namespace BingoAPI.Controllers
             }
 
             var updated = await _postRepository.UpdateAsync(mappedPost);
-            if (updated)
+            if (!updated) return BadRequest();
+            // notify attendee if something important got updated
+            if (_postDetailsWatcher.GetValidatedFields(postRequest))
             {
-                // notify attendee if something important got updated
-                if (_postDetailsWatcher.GetValidatedFields(postRequest))
+                var participants = await _postRepository.GetParticipantsIdAsync(post.Id);
+                if (participants.Count != 0)
                 {
-                    var participants = await _postRepository.GetParticipantsIdAsync(post.Id);
-                    if (participants.Count != 0)
-                    {
-                        await _notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title, postId);
-                    }
-                }                
+                    await _notificationService.NotifyParticipantsEventUpdatedAsync(participants, mappedPost.Event.Title, postId);
+                }
+            }                
 
-                //var locationUri = uriService.GetPostUri(post.Id.ToString());
-                return Ok(/*locationUri new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
-            }
-            return BadRequest();
+            //var locationUri = uriService.GetPostUri(post.Id.ToString());
+            return Ok(/*locationUri new Response<UpdatePostResponse>(mapper.Map<UpdatePostResponse>(mappedPost))*/);
         }
 
 

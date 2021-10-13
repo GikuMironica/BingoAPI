@@ -32,6 +32,7 @@
             public const string ChangePassword = Base + "/identity/changepassword";
 
             public const string AddPassword = Base + "/identity/addpassword";
+            // TODO - rename endpoints according to rest standarts
 
             public const string RevokePostCreateClaim = Base + "/identity/revokepostcreateclaim";
 
@@ -44,11 +45,11 @@
 
             public const string Update = Base + "/users/{userId}";
 
-            public const string UpdateProfilePicture = Base + "/users/updateprofilepic/{userId}";
+            public const string UpdateProfilePicture = Base + "/users/profilepic/{userId}";
 
             public const string Delete = Base + "/users/{userId}";
 
-            public const string DeletePicture = Base + "/users/deleteprofilepic/{userId}";
+            public const string DeletePicture = Base + "/users/profilepic/{userId}";
 
             public const string Get = Base + "/users/{userId}";
 
