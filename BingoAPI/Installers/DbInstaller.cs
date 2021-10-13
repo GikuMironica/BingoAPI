@@ -15,7 +15,8 @@ namespace BingoAPI.Installers
         {
             services.AddDbContext<DataContext>(options =>
                 //options.UseMySql(configuration.GetConnectionString("DefaultConnection")));
-                options.UseNpgsql(configuration.GetConnectionString("PostgreConnection"), x => x.UseNetTopologySuite())
+                options.UseNpgsql(configuration.GetConnectionString("PostgreConnection"), x => x.UseNetTopologySuite()),
+                ServiceLifetime.Transient
                 ); 
 
             // configure custom Identity User
