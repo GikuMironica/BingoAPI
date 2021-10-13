@@ -231,7 +231,8 @@ namespace BingoAPI.Controllers
         /// </summary>
         /// <param name="postRequest">request object</param>
         /// <response code="201">Post successfully created</response>
-        /// <response code="400">Post could not be persisted, due to missing required data or corrupt images</response>
+        /// <response code="403">Post could not be persisted, due to missing required data or corrupt images</response>
+        /// <response code="400">Post could not be persisted, due to missing required data or invalid model</response>
         /// <response code="403">User is not allowed to create post. Missing fullname or active posts limit hit</response>
         [HttpPost(ApiRoutes.Posts.Create)]
         [Authorize(Policy="CreateEditPost")]
@@ -246,7 +247,7 @@ namespace BingoAPI.Controllers
                 return StatusCode
                 (
                     StatusCodes.Status403Forbidden,
-                    new SingleError { Message = "User has set up first and last name in order to create post" }
+                    new SingleError { Message = "Reason_1, Setup first and last name before creating event." }
                 );
             }
             var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
@@ -256,7 +257,7 @@ namespace BingoAPI.Controllers
                 if(!isAdmin)
                     return StatusCode(
                         StatusCodes.Status403Forbidden,
-                        new SingleError { Message = "Basic user can't have more than 1 active event at a time" }
+                        new SingleError { Message = "Reason_2, Basic user can't have more than 1 active event at a time" }
                 );
             }
 
@@ -439,7 +440,7 @@ namespace BingoAPI.Controllers
                     var uploadResult = await _awsBucketManager.UploadFileAsync(imageProcessingResult);
                     if (!uploadResult.Result)
                     {
-                        return new ImageProcessingResult{ Result = false, ErrorMessage = "The provided images couldn't be stored. Try to upload other pictures." };
+                        return new ImageProcessingResult{ Result = false, ErrorMessage = "Reason_3, The provided images couldn't be stored. Try to upload other pictures." };
                     }
                     foreach (var uploadedPic in uploadResult.ImageNames)
                     {
