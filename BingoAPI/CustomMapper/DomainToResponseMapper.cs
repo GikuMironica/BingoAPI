@@ -1,7 +1,5 @@
-﻿
-using Bingo.Contracts.V1.Responses.AttendedEvent;
+﻿using Bingo.Contracts.V1.Responses.AttendedEvent;
 using Bingo.Contracts.V1.Responses.Post;
-using BingoAPI.Domain;
 using BingoAPI.Models;
 using System;
 using System.Linq;
@@ -13,7 +11,7 @@ namespace BingoAPI.CustomMapper
     {
         public Posts MapPostForGetAllPostsResponse(Post post, EventTypes eventTypes)
         {
-            string eventType = post.Event.GetType().Name.ToString();
+            string eventType = post.Event.GetType().Name;
 
             var eventTypeNumber = eventTypes.Types 
             .Where(y => y.Type == eventType)
@@ -41,7 +39,7 @@ namespace BingoAPI.CustomMapper
 
         public MiniPostForAnnouncements MapMiniPostForAnnouncementsList(Post post, EventTypes eventTypes)
         {
-            string eventType = post.Event.GetType().Name.ToString();
+            string eventType = post.Event.GetType().Name;
             var eventTypeNumber = eventTypes.Types
             .Where(y => y.Type == eventType)
             .Select(x => x.Id)
@@ -53,7 +51,7 @@ namespace BingoAPI.CustomMapper
             return new MiniPostForAnnouncements
             {
                 PostId = post.Id,               
-                Thumbnail = post.Pictures.FirstOrDefault()?.Url,
+                Thumbnail = post.Pictures?.FirstOrDefault()?.Url,
                 PostType = eventTypeNumber,
                 Title = post.Event.Title,
                 LastMessage = lastAnnouncement?.Message,

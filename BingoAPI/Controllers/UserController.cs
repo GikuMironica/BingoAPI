@@ -116,7 +116,7 @@ namespace BingoAPI.Controllers
         /// <response code="404">User not found</response>
         /// <response code="403">User can only update his own profile</response>
         /// <response code="400">Attempt to input invalid data</response>
-        /// <response code="406">Unable to update user due to system requirements of the application user</response>
+        /// <response code="406">Unable to update user</response>
         [ProducesResponseType(typeof(Response<UserResponse>), 200)]
         [ProducesResponseType(406)]
         [ProducesResponseType(404)]
@@ -224,7 +224,7 @@ namespace BingoAPI.Controllers
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User can only update his own profile" });
             }
-
+            // TODO - delete all S3 data
             var deleted = await _userManager.DeleteAsync(verificationResult.User);
             if (deleted.Succeeded)
             {
@@ -237,7 +237,7 @@ namespace BingoAPI.Controllers
 
 
         /// <summary>
-        /// This endpoint allows user to delete his profile picture 
+        /// This endpoint allows user/admin to delete profile pictures 
         /// </summary>
         /// <param name="userId">The user id</param>
         /// <response code="204">Success</response>
@@ -256,7 +256,10 @@ namespace BingoAPI.Controllers
             }
 
             await DeletePicturesAsync(verificationResult.User);
-            return NoContent();
+            verificationResult.User.ProfilePicture = "";
+            var result = await _userManager.UpdateAsync(verificationResult.User);
+
+            return result.Succeeded ? NoContent() : BadRequest();
         }
 
 
@@ -277,28 +280,31 @@ namespace BingoAPI.Controllers
 
         public async Task<ProfileOwnershipState> IsProfileOwnerOrAdminAsync(string requesterId, string userId)
         {
+
+            var getSubjectTask =  _userManager.FindByIdAsync(userId);
+            var getRequesterTask =  _userManager.FindByIdAsync(requesterId);
+
+            await Task.WhenAll(getSubjectTask, getRequesterTask);
+
+            var subject =  getSubjectTask.Result;
+            var requester =  getRequesterTask.Result;
+
+            var userRoles = await _userManager.GetRolesAsync(requester);
             if (requesterId == userId)
                 return new ProfileOwnershipState
                 {
                     Result = true,
-                    User = await _userManager.FindByIdAsync(userId)
+                    User = subject
                 };
-            var user = await _userManager.FindByIdAsync(userId);
-            var requester = await _userManager.FindByIdAsync(requesterId);
-            if(user == null || requester == null)
+            if(subject == null || requester == null)
             {
                 return new ProfileOwnershipState { Result = false };
             }
-            var userRoles = await _userManager.GetRolesAsync(requester);
-            var isAdmin = false;
-
-            foreach (var role in userRoles)
+            return new ProfileOwnershipState
             {
-                if (role == "Admin" || role == "SuperAdmin")
-                    isAdmin = true;
-            }
-
-            return new ProfileOwnershipState { Result = isAdmin, User = user };
+                Result = userRoles.Any(r => r.Equals("Admin" ) || r.Equals("SuperAdmin")), 
+                User = subject
+            };
         }
 
 

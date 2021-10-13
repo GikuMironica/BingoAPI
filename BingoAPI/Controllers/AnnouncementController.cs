@@ -251,9 +251,8 @@ namespace BingoAPI.Controllers
 
             var postId = announcement.PostId;
             // TODO - refactor
-            var isOwner = await _postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
-            var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, requester);
-            if (!(isAdmin || isOwner))
+            var isOwnerOrAdmin = await _postsRepository.IsPostOwnerOrAdminAsync(postId, requester.Id);
+            if (!(isOwnerOrAdmin))
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not own this post / You are not an Administrator" });
             }
