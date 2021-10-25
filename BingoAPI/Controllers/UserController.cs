@@ -256,7 +256,7 @@ namespace BingoAPI.Controllers
             }
 
             await DeletePicturesAsync(verificationResult.User);
-            verificationResult.User.ProfilePicture = "";
+            verificationResult.User.ProfilePicture = null;
             var result = await _userManager.UpdateAsync(verificationResult.User);
 
             return result.Succeeded ? NoContent() : BadRequest();

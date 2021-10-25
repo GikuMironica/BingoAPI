@@ -62,7 +62,11 @@ namespace BingoAPI.Models.SqlRepository
             }
             else
             {
-                await _context.Participations.AddAsync(new Participation { Accepted = 1, Post = post, User = user });
+                var participation = new Participation {Accepted = 1, Post = post, User = user};
+                await _context.Participations.AddAsync(participation);
+                /*
+                _context.Entry(participation.User).State = EntityState.Unchanged;
+                _context.Entry(participation.Post).State = EntityState.Unchanged;*/
             }
 
             await _context.Database.BeginTransactionAsync();
