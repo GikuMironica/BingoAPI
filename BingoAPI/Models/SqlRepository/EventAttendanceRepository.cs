@@ -87,6 +87,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<Post>> GetActiveAttendedPostsByUserId(string userId)
         {
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             return await _context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
@@ -96,12 +97,13 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 1 || p.EndTime > DateTimeOffset.UtcNow.ToUnixTimeSeconds())                
+                .Where(p => p.ActiveFlag == 1 || p.EndTime > now)                
                 .ToListAsync();
         }
 
         public async Task<List<Post>> GetOldAttendedPostsByUserId(string userId)
         {
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             return await _context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
@@ -111,7 +113,7 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 0 || p.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                .Where(p => p.ActiveFlag == 0 || p.EndTime < now)
                 .Take(30)
                 .ToListAsync();
         }
