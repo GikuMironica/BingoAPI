@@ -47,9 +47,7 @@ namespace BingoAPI.Models
 
        
         public List<Report> Reports { get; set; }
-
-        //todo
-        public DrinkVoucher Voucher { get; set; }
+        
     }
     
 }
