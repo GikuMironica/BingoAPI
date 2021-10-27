@@ -356,11 +356,11 @@ namespace BingoAPI.Models.SqlRepository
             paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
-            
 
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             return await Context.Posts
-                .Where(p => p.UserId == userId && p.ActiveFlag == 1 && p.EndTime > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+                .Where(p => p.UserId == userId && p.ActiveFlag == 1 && p.EndTime > now)
                 .OrderByDescending(p => p.EventTime)
                 .Include(p => p.Location)
                 .Include(p => p.Pictures)
@@ -376,9 +376,9 @@ namespace BingoAPI.Models.SqlRepository
             paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
-
+            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             return await Context.Posts
-               .Where(p => p.UserId == userId && p.ActiveFlag == 0 || p.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+               .Where(p => p.UserId == userId && p.ActiveFlag == 0 || p.EndTime < now)
                .OrderByDescending(p => p.EventTime)
                .Include(p => p.Location)
                .Include(p => p.Pictures)
