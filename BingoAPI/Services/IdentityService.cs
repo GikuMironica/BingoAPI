@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Bingo.Contracts.V1.Requests.Identity;
+﻿using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
@@ -17,6 +10,13 @@ using Microsoft.EntityFrameworkCore;
 //using Flurl;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace BingoAPI.Services
 {
@@ -34,7 +34,7 @@ namespace BingoAPI.Services
         private readonly IFacebookAuthService _facebookAuthService;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
-        private readonly int _enOptions;
+        private readonly int _envOptions;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -56,7 +56,7 @@ namespace BingoAPI.Services
             _urlHelper = urlHelper;
             _httpContext = httpContext;
             _errorService = errorService;
-            this._enOptions = enOptions.Value.Environment;
+            this._envOptions = enOptions.Value.Environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
@@ -134,12 +134,12 @@ namespace BingoAPI.Services
             }
 
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
-                new { userId = newUser.Id, token = token }, _httpContext.HttpContext.Request.Scheme);
+                new { userId = newUser.Id, token = token, lang=lang }, _httpContext.HttpContext.Request.Scheme);
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
 
             // If Development Environment, don't send email
-            // if (_enOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
+            if (_envOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
 
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
             return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address" } };
@@ -438,7 +438,7 @@ namespace BingoAPI.Services
             }
 
             var confirmationLink = _urlHelper.Action("ResetPassword", "Identity",
-                new { email = appUser.Email, token = token }, _httpContext.HttpContext.Request.Scheme);
+                new { email = appUser.Email, token = token, lang = lang }, _httpContext.HttpContext.Request.Scheme);
 
             // Format email message
             var emailFormattedResult = _emailFormatter.FormatForgotPassword(confirmationLink, lang);
