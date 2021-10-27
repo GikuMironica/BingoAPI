@@ -30,7 +30,7 @@ namespace BingoAPI.Services
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
         private readonly int _enOptions;
-        private const string WebServerRelativeUrl = "https://www.hopaut.com/account";
+        private const string WebServerRelativeUrl = "https://www.hop-out.com/api/v1/identity";
         private const string ConfirmEmailPath = "confirmemail";
         private const string ResetPassPath = "resetpassword";
 

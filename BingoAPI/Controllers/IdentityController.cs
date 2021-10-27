@@ -207,8 +207,8 @@ namespace BingoAPI.Controllers
                 return BadRequest();
             }
 
-            await _userManager.ConfirmEmailAsync(user, token);
-            return Ok();
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            return Redirect("https://hopaut.com/confirmemail");
         }
 
 
