@@ -35,7 +35,6 @@ namespace BingoAPI.Models.SqlRepository
         {
             var result = 0;
             var tryAgain = true;
-            entity.Voucher = new DrinkVoucher();
             entity.Repeatable = new RepeatableProperty();
             while (tryAgain)
             {
@@ -95,7 +94,6 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Event)
                 .Include(p => p.Pictures)
                 .Include(p => p.Repeatable)
-                .Include(p => p.Voucher)
                 .Include(p => p.Tags)
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
@@ -111,7 +109,6 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Event)
                 .Include(p => p.Pictures)
                 .Include(p => p.Repeatable)
-                .Include(p => p.Voucher)
                 .Include(p => p.Tags)
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
@@ -245,7 +242,6 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Include(p => p.Participators)
-                .Include(p => p.Voucher)
                 .Include(p => p.Repeatable)
                 .SingleOrDefaultAsync(x => x.Id == postId);
         }
@@ -367,7 +363,6 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Location)
                 .Include(p => p.Pictures)
                 .Include(p => p.Event)
-                .Include(p => p.Voucher)
                 .Include(p => p.Repeatable)
                 .AsQueryable()
                 .Skip(skip)
@@ -386,7 +381,6 @@ namespace BingoAPI.Models.SqlRepository
                .Include(p => p.Location)
                .Include(p => p.Pictures)
                .Include(p => p.Event)
-               .Include(p => p.Voucher)
                .Include(p => p.Repeatable)
                .AsQueryable()
                .Skip(skip)

@@ -33,7 +33,6 @@ namespace BingoAPI.CustomMapper
                 EndTime = post.EndTime.GetValueOrDefault(DateTimeOffset.UtcNow.ToUnixTimeSeconds()+21600),
                 PostTime = post.PostTime,
                 RepteatableEnabled = post.Repeatable.Enabled,
-                VouchersEnabled = post.Voucher.Enabled
             };
         }
 
