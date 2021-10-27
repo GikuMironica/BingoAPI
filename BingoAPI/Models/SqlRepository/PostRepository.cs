@@ -356,9 +356,11 @@ namespace BingoAPI.Models.SqlRepository
             paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+            
+
 
             return await Context.Posts
-                .Where(p => p.UserId == userId && p.ActiveFlag == 1)
+                .Where(p => p.UserId == userId && p.ActiveFlag == 1 && p.EndTime > DateTimeOffset.UtcNow.ToUnixTimeSeconds())
                 .OrderByDescending(p => p.EventTime)
                 .Include(p => p.Location)
                 .Include(p => p.Pictures)
