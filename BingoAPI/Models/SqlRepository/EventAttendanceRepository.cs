@@ -96,7 +96,7 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 1)                
+                .Where(p => p.ActiveFlag == 1 || p.EndTime > DateTimeOffset.UtcNow.ToUnixTimeSeconds())                
                 .ToListAsync();
         }
 
@@ -111,7 +111,7 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 0)
+                .Where(p => p.ActiveFlag == 0 || p.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
                 .Take(30)
                 .ToListAsync();
         }

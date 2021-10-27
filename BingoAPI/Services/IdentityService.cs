@@ -1,20 +1,22 @@
-﻿using System;
+﻿using Bingo.Contracts.V1.Requests.Identity;
+using BingoAPI.Data;
+using BingoAPI.Domain;
+using BingoAPI.Models;
+using BingoAPI.Options;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+//using Flurl;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using Bingo.Contracts.V1.Requests.Identity;
-using BingoAPI.Data;
-using BingoAPI.Domain;
-using BingoAPI.Models;
-using BingoAPI.Options;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Flurl;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BingoAPI.Services
 {
@@ -24,15 +26,15 @@ namespace BingoAPI.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IUrlHelper _urlHelper;
+        private readonly IHttpContextAccessor _httpContext;
+        private readonly IErrorService _errorService;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService _facebookAuthService;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
-        private readonly int _enOptions;
-        private const string WebServerRelativeUrl = "https://www.hopaut.com/account";
-        private const string ConfirmEmailPath = "confirmemail";
-        private const string ResetPassPath = "resetpassword";
+        private readonly int _envOptions;
 
         public IdentityService(UserManager<AppUser> userManager,
                                JwtSettings jwtSettings,
@@ -43,12 +45,18 @@ namespace BingoAPI.Services
                                IEmailService emailService,
                                IEmailFormatter emailFormatter,
                                IOptions<EnvironmentOptions> enOptions, 
-                               SignInManager<AppUser> signInManager)
+                               SignInManager<AppUser> signInManager, 
+                               IUrlHelper urlHelper,
+                               IHttpContextAccessor httpContext,
+                               IErrorService errorService)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
             _signInManager = signInManager;
-            this._enOptions = enOptions.Value.Environment;
+            _urlHelper = urlHelper;
+            _httpContext = httpContext;
+            _errorService = errorService;
+            this._envOptions = enOptions.Value.Environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
             this._tokenValidationParameters = tokenValidationParameters;
@@ -103,9 +111,9 @@ namespace BingoAPI.Services
 
             // force user to confirm email, generate token
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            
+
             // generate email confirmation url
-            var url = WebServerRelativeUrl
+            /*var url = WebServerRelativeUrl
                 .AppendPathSegment(ConfirmEmailPath)
                 .SetQueryParams(new
                 {
@@ -114,12 +122,24 @@ namespace BingoAPI.Services
                     token = token,
                     // ReSharper disable once RedundantAnonymousTypePropertyName
                     lang = lang
+                });*/
+            if (_httpContext.HttpContext == null)
+            {
+                await _errorService.AddErrorAsync(new ErrorLog
+                {
+                    Controller = "Identity",
+                    Url = "Register",
+                    Message = "Check register method in identity service, null context"
                 });
+            }
 
-            var content = _emailFormatter.FormatRegisterConfirmation(email, url, lang);
+            var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
+                new { userId = newUser.Id, token = token, lang=lang }, _httpContext.HttpContext.Request.Scheme);
+
+            var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
 
             // If Development Environment, don't send email
-            if (_enOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
+            if (_envOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
 
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
             return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address" } };
@@ -396,7 +416,7 @@ namespace BingoAPI.Services
             //var passwordResetLink = _urlHelper.Action("ResetPassword", "identity",
             //    new { email = appUser.Email, token, lang }, _httpRequest.HttpContext.Request.Scheme);
 
-            var url = WebServerRelativeUrl
+            /*var url = WebServerRelativeUrl
                 .AppendPathSegment(ResetPassPath)
                 .SetQueryParams(new
                 {
@@ -405,10 +425,23 @@ namespace BingoAPI.Services
                     token = token,
                     // ReSharper disable once RedundantAnonymousTypePropertyName
                     lang = lang
+                });*/
+
+            if (_httpContext.HttpContext == null)
+            {
+                await _errorService.AddErrorAsync(new ErrorLog
+                {
+                    Controller = "Identity",
+                    Url = "Register",
+                    Message = "Check register method in identity service, null context"
                 });
-            
+            }
+
+            var confirmationLink = _urlHelper.Action("ResetPassword", "Identity",
+                new { email = appUser.Email, token = token, lang = lang }, _httpContext.HttpContext.Request.Scheme);
+
             // Format email message
-            var emailFormattedResult = _emailFormatter.FormatForgotPassword(url, lang);
+            var emailFormattedResult = _emailFormatter.FormatForgotPassword(confirmationLink, lang);
 
             // Send link over email
             var result = await _emailService.SendEmail(appUser.Email, emailFormattedResult.EmailSubject, emailFormattedResult.EmailContent);
