@@ -30,6 +30,10 @@ namespace BingoAPI.Controllers
         private readonly IErrorService _errorService;
         private readonly String _createEditPostClaim = "post.add";
 
+        public const string WebPortalRelativeUrl = "https://localhost:3000";
+        public const string WebPortalResetPasswordConfirmationPage = WebPortalRelativeUrl + "/account/resetpassword";
+        private const string WebPortalEmailConfirmationPage = WebPortalRelativeUrl + "/account/confirmemail";
+
         public IdentityController(IIdentityService identityService,
                                   UserManager<AppUser> userManager,
                                   SignInManager<AppUser> signInManager,
@@ -208,7 +212,7 @@ namespace BingoAPI.Controllers
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
-            return Redirect("https://hopaut.com/confirmemail");
+            return Redirect(WebPortalResetPasswordConfirmationPage);
         }
 
 
@@ -295,10 +299,10 @@ namespace BingoAPI.Controllers
             if (user != null)
             {
                 // TODO - Generate 8 symbol pass
-                var upperchar = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                var pass = Guid.NewGuid() + new string(
-                    Enumerable.Repeat(upperchar, 1)
-                    .Select(s => s[new Random().Next(s.Length)])
+                var upperchar = "ABCDEFGHIJKLMNOPQRSTUVWXYZqwertyuiopasdfghjklzxcvbnm1234567890";
+                var pass = new string(
+                    Enumerable.Repeat(upperchar, 8)
+                    .Select(s => s[new Random().Next(upperchar.Length)])
                     .ToArray());
 
                 var passResult = await _userManager.ResetPasswordAsync(user, request.token, pass);
@@ -310,7 +314,7 @@ namespace BingoAPI.Controllers
                 }                               
             }
 
-            return Ok();
+            return Redirect(WebPortalResetPasswordConfirmationPage);
         }
 
 
