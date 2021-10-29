@@ -19,7 +19,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> AddAsync(Announcement entity)
         {
-            entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            entity.Timestamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             await _context.Announcements.AddAsync(entity);
             var result = await _context.SaveChangesAsync();
             return result > 0;
@@ -50,7 +50,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> UpdateAsync(Announcement entity)
         {
-            entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            entity.Timestamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             _context.Announcements.Update(entity);
             return await _context.SaveChangesAsync() > 0;
         }

@@ -19,7 +19,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> AddAsync(UserReport entity)
         {
-            entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            entity.Timestamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             await _context.UserReports.AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
         }
@@ -57,7 +57,7 @@ namespace BingoAPI.Models.SqlRepository
                 .FirstOrDefaultAsync();                
                 
 
-            var elapsedTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds() - time;
+            var elapsedTime = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() - time;
             return elapsedTime >= OneWeekSeconds;
         }
 

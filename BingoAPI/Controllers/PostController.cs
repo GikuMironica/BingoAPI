@@ -197,13 +197,15 @@ namespace BingoAPI.Controllers
         {
             Point userLocation = new Point(getAllRequest.UserLocation.Longitude, getAllRequest.UserLocation.Latitude);
             var filter = _requestToDomainMapper.MapPostFilterRequestToDomain(_mapper, filteredGetAll);
-            Int64 today = 15778476 + DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            Int64 secondsSinceMidnight = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() % 86400;
+            Int64 timeAtMidnight =
+                DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() + 86400 - secondsSinceMidnight;
             if (filteredGetAll.Today.GetValueOrDefault(false))
             {
-                today = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
+                timeAtMidnight = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 57600;
             }
 
-            var posts = await _postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, today, filteredGetAll.Tag ?? "%");
+            var posts = await _postRepository.GetAllAsync(userLocation, getAllRequest.UserLocation.RadiusRange, filter, timeAtMidnight, filteredGetAll.Tag ?? "%");
             if (posts == null || !posts.Any())
             {
                 return NoContent();

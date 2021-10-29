@@ -18,7 +18,7 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<bool> AddAsync(Report entity)
         {
-            entity.Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            entity.Timestamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             await _context.Reports.AddAsync(entity);
             return await _context.SaveChangesAsync() > 0;
         }
