@@ -86,7 +86,7 @@ namespace BingoAPI.Models.SqlRepository
             
             location.SRID = 4326;
             List<Post> posts;
-
+            var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             if (tag.Equals("%"))
             {
                 posts = await Context.Posts
@@ -96,9 +96,10 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Repeatable)
                 .Include(p => p.Tags)
                 .ThenInclude(pt => pt.Tag)
-                .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
-                       p.EventTime < today)
+                .Where(p => p.ActiveFlag == 1 && 
+                    p.EndTime > now &&
+                    p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                    p.EventTime < today)
                 .AsNoTracking().ToListAsync();
             }
             else
@@ -112,10 +113,11 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Tags)
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
-                       p.EventTime < today &&
-                       p.Tags.Count > 0 &&
-                       p.Tags.Any(pt => pt.Tag.TagName.Contains(tag)))
+                    p.EndTime > now &&
+                    p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                    p.EventTime < today &&
+                    p.Tags.Count > 0 &&
+                    p.Tags.Any(pt => pt.Tag.TagName.Contains(tag)))
                 .AsNoTracking().ToListAsync();
             }          
            
