@@ -15,7 +15,7 @@ namespace BingoAPI.Validators
             this.CascadeMode = CascadeMode.Stop;
                       
             RuleFor(x => x.EventTime)
-                 .GreaterThan(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 1800)
+                 .GreaterThan(DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() - 1800)
                  .WithMessage("Event starting time can't be in the past");
 
             RuleFor(x => x.EndTime)

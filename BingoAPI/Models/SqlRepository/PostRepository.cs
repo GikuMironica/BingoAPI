@@ -86,7 +86,7 @@ namespace BingoAPI.Models.SqlRepository
             
             location.SRID = 4326;
             List<Post> posts;
-
+            var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             if (tag.Equals("%"))
             {
                 posts = await Context.Posts
@@ -96,14 +96,15 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Repeatable)
                 .Include(p => p.Tags)
                 .ThenInclude(pt => pt.Tag)
-                .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
-                       p.EndTime < today)
+                .Where(p => p.ActiveFlag == 1 && 
+                    p.EndTime > now &&
+                    p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                    p.EventTime < today)
                 .AsNoTracking().ToListAsync();
             }
             else
             {
-                tag = tag.ToLower();
+                tag = tag.ToLower().Trim();
                 posts = await Context.Posts
                 .Include(p => p.Location)
                 .Include(p => p.Event)
@@ -112,10 +113,11 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Tags)
                 .ThenInclude(pt => pt.Tag)
                 .Where(p => p.ActiveFlag == 1 &&
-                       p.Location.Location.IsWithinDistance(location, radius * 1000) &&
-                       p.EndTime < today &&
-                       p.Tags.Count > 0 &&
-                       p.Tags.Any(pt => pt.Tag.TagName.Contains(tag)))
+                    p.EndTime > now &&
+                    p.Location.Location.IsWithinDistance(location, radius * 1000) &&
+                    p.EventTime < today &&
+                    p.Tags.Count > 0 &&
+                    p.Tags.Any(pt => pt.Tag.TagName.Contains(tag)))
                 .AsNoTracking().ToListAsync();
             }          
            
@@ -357,7 +359,7 @@ namespace BingoAPI.Models.SqlRepository
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
 
-            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
 
             return await Context.Posts
                 .Where(p => p.UserId == userId && p.ActiveFlag == 1 && p.EndTime > now)
@@ -376,7 +378,7 @@ namespace BingoAPI.Models.SqlRepository
             paginationFilter ??= new PaginationFilter {PageNumber = 1, PageSize = 50};
 
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
-            var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             return await Context.Posts
                .Where(p => p.UserId == userId && p.ActiveFlag == 0 || p.EndTime < now)
                .OrderByDescending(p => p.EventTime)

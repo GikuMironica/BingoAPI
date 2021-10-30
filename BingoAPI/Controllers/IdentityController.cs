@@ -417,7 +417,7 @@ namespace BingoAPI.Controllers
             // find the post add/edit claim
             var postClaim = claims.FirstOrDefault(c => c.Type == _createEditPostClaim);
 
-            var disabledClaim = new Claim(_createEditPostClaim, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
+            var disabledClaim = new Claim(_createEditPostClaim, DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds().ToString());
 
             // replace the claim with another one, with the removal date timestamp as value
             var replaceClaimResult = await _userManager.ReplaceClaimAsync(user, postClaim, disabledClaim);

@@ -89,7 +89,7 @@ namespace BingoAPI.Services
             {
                 Email = email,
                 UserName = email,
-                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds()
             };
 
             // register user in system
@@ -387,7 +387,7 @@ namespace BingoAPI.Services
                 FirstName = userInfo.FirstName,
                 LastName = userInfo.LastName,
                 ProfilePicture = userInfo.Picture.Data.Url.ToString(),
-                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds(),
                 EmailConfirmed = true
             };
             // no password
