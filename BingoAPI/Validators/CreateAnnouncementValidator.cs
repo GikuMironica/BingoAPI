@@ -13,7 +13,7 @@ namespace BingoAPI.Validators
         {
             // this.CascadeMode = CascadeMode.StopOnFirstFailure;
             RuleFor(x => x.Message)
-                 .MinimumLength(10)
+                 .MinimumLength(1)
                  .MaximumLength(500);
         }
     }

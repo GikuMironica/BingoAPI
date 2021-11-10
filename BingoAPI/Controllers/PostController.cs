@@ -84,7 +84,7 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Get([FromRoute] int postId)
         {            
             var post = await _postRepository.GetByIdAsync(postId);
-            if (post == null)
+            if (post?.Event == null)
                 return NotFound();
 
             var response = new Response<PostResponse>(_mapper.Map<PostResponse>(post));

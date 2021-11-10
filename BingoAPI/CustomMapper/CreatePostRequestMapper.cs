@@ -93,7 +93,7 @@ namespace BingoAPI.CustomMapper
                     Requirements = containedEvent.Requirements,
                     Title = containedEvent.Title
                 },
-                8 => new Marathon
+                8 => new Sport
                 {
                     Description = containedEvent.Description,
                     Requirements = containedEvent.Requirements,
