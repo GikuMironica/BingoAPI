@@ -29,7 +29,7 @@ namespace BingoAPI.Data
         public DbSet<CarMeet> CarMeets { get; set; }
         public DbSet<BicycleMeet> BicycleMeets { get; set; }
         public DbSet<BikerMeet> BikerMeets { get; set; }
-        public DbSet<Marathon> Marathons { get; set; }
+        public DbSet<Sport> Marathons { get; set; }
         public DbSet<StreetParty> StreetParties { get; set; }
         public DbSet<Other> Others { get; set; }
         public DbSet<PostTags> PostTags { get; set; }
@@ -61,7 +61,7 @@ namespace BingoAPI.Data
                 .HasValue<CarMeet>("carmeet_type")
                 .HasValue<BikerMeet>("bikermeet_type")
                 .HasValue<BicycleMeet>("bicyclemeet_type")
-                .HasValue<Marathon>("marathon_type")
+                .HasValue<Sport>("sport_type")
                 .HasValue<StreetParty>("streetparty_type")
                 .HasValue<Other>("other_type");
 
@@ -70,6 +70,8 @@ namespace BingoAPI.Data
                 .HasIndex(t => t.TagName)
                 .IsUnique();
 
+            modelBuilder.Entity<Post>().HasIndex(p => p.EventTime);
+            modelBuilder.Entity<Post>().HasIndex(p => p.EndTime);
 
             // One - to Many relationship between AppUser <-> Post
             modelBuilder.Entity<AppUser>()
@@ -139,7 +141,7 @@ namespace BingoAPI.Data
                 .HasOne(pr => pr.Post)
                 .WithMany(p => p.Reports)
                 .HasForeignKey(pr => pr.PostId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Many - One between Ratings - User ( Host )
             modelBuilder.Entity<Rating>()
@@ -163,8 +165,5 @@ namespace BingoAPI.Data
                 .HasForeignKey(r => r.ReportedUserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
-
-        
-
     }
 }

@@ -3,6 +3,7 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20211110193516_AddIndexOnEventTime")]
+    partial class AddIndexOnEventTime
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -644,6 +646,15 @@ namespace BingoAPI.Migrations
                     b.HasDiscriminator().HasValue("house_type");
                 });
 
+            modelBuilder.Entity("BingoAPI.Models.Marathon", b =>
+                {
+                    b.HasBaseType("BingoAPI.Models.Event");
+
+                    b.ToTable("Events");
+
+                    b.HasDiscriminator().HasValue("marathon_type");
+                });
+
             modelBuilder.Entity("BingoAPI.Models.Other", b =>
                 {
                     b.HasBaseType("BingoAPI.Models.Event");
@@ -651,15 +662,6 @@ namespace BingoAPI.Migrations
                     b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("other_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Sport", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("sport_type");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.StreetParty", b =>
@@ -835,7 +837,7 @@ namespace BingoAPI.Migrations
                     b.HasOne("BingoAPI.Models.Post", "Post")
                         .WithMany("Reports")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("BingoAPI.Models.AppUser", "ReportedHost")

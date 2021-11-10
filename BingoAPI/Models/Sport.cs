@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BingoAPI.Models
 {
-    public class Marathon : Event
+    public class Sport : Event
     {
     }
 }
