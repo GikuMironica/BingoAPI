@@ -11,6 +11,12 @@
         {
             public const string ErrorRoute = "/Error";
         }
+
+        public static class BugReports
+        {
+            public const string Create = Base + "/bugs";
+        }
+
         public static class Identity
         {
             public const string Login = Base + "/identity/login";
