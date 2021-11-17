@@ -24,7 +24,6 @@ namespace BingoAPI.Models
        
         public List<Rating> Ratings { get; set; }
         //todo
-        public List<UserVoucher> Vouchers { get; set; }
 
         public List<UserReport> Reports { get; set; }
     }

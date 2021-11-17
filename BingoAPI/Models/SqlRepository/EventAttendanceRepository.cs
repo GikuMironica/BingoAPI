@@ -30,7 +30,7 @@ namespace BingoAPI.Models.SqlRepository
                 return new AttendedEventResult { Result = false };
             }
             // if event in past
-            if(post.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds())
+            if(post.EndTime < DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds())
             {
                 return new AttendedEventResult { Result = false };
             }
@@ -62,7 +62,11 @@ namespace BingoAPI.Models.SqlRepository
             }
             else
             {
-                await _context.Participations.AddAsync(new Participation { Accepted = 1, Post = post, User = user });
+                var participation = new Participation {Accepted = 1, Post = post, User = user};
+                await _context.Participations.AddAsync(participation);
+                /*
+                _context.Entry(participation.User).State = EntityState.Unchanged;
+                _context.Entry(participation.Post).State = EntityState.Unchanged;*/
             }
 
             await _context.Database.BeginTransactionAsync();
@@ -83,33 +87,33 @@ namespace BingoAPI.Models.SqlRepository
 
         public async Task<List<Post>> GetActiveAttendedPostsByUserId(string userId)
         {
+            var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             return await _context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
                 .Include(p => p.Post.Location)
                 .Include(p => p.Post.Event)
                 .Include(p => p.Post.Repeatable)
-                .Include(p => p.Post.Voucher)
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 1)                
+                .Where(p => p.ActiveFlag == 1 && p.EndTime > now)                
                 .ToListAsync();
         }
 
         public async Task<List<Post>> GetOldAttendedPostsByUserId(string userId)
         {
+            var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             return await _context.Participations
                 .Where(p => p.UserId == userId && p.Accepted == 1)
                 .Include(p => p.Post)
                 .Include(p => p.Post.Location)
                 .Include(p => p.Post.Event)
                 .Include(p => p.Post.Repeatable)
-                .Include(p => p.Post.Voucher)
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 0)
+                .Where(p => p.ActiveFlag == 0 || p.EndTime < now)
                 .Take(30)
                 .ToListAsync();
         }

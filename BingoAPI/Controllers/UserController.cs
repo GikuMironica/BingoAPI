@@ -256,7 +256,7 @@ namespace BingoAPI.Controllers
             }
 
             await DeletePicturesAsync(verificationResult.User);
-            verificationResult.User.ProfilePicture = "";
+            verificationResult.User.ProfilePicture = null;
             var result = await _userManager.UpdateAsync(verificationResult.User);
 
             return result.Succeeded ? NoContent() : BadRequest();
@@ -280,15 +280,8 @@ namespace BingoAPI.Controllers
 
         public async Task<ProfileOwnershipState> IsProfileOwnerOrAdminAsync(string requesterId, string userId)
         {
-
-            var getSubjectTask =  _userManager.FindByIdAsync(userId);
-            var getRequesterTask =  _userManager.FindByIdAsync(requesterId);
-
-            await Task.WhenAll(getSubjectTask, getRequesterTask);
-
-            var subject =  getSubjectTask.Result;
-            var requester =  getRequesterTask.Result;
-
+            var subject = await _userManager.FindByIdAsync(userId);
+            var requester =  await _userManager.FindByIdAsync(requesterId);
             var userRoles = await _userManager.GetRolesAsync(requester);
             if (requesterId == userId)
                 return new ProfileOwnershipState

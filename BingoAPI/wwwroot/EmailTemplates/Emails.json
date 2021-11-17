@@ -12,7 +12,15 @@
           "ConfirmationBtnText": "Confirm",
           "MessagePart4": "If the confirmation button doesn't work, click the link below:",
           "Warning": "Please ignore this email if you did not register."
-        }
+        },
+        "German": {
+          "Subject": "",
+          "EmailRegistered": "",
+          "MessagePart2": "",
+          "ConfirmationBtnText": "",
+          "MessagePart4": "",
+          "Warning": ""
+        } 
       }
     },
 
@@ -27,6 +35,13 @@
           "ResetPasswordMessage": "Click the button below to generate a new password for your HopAut account. You will receive it in a few moments by email.",
           "GeneratePasswordBtn": "Generate Password",
           "Warning": "Ignore this message if you did not try to reset your password."
+        },
+        "German": {
+          "Subject": "",
+          "ResetPasswordTitle": "",
+          "ResetPasswordMessage": "",
+          "GeneratePasswordBtn": "",
+          "Warning": ""
         }
       }
     },
@@ -41,6 +56,11 @@
           "Subject": "Password Reset!",
           "PasswordResetTitle": "Your password has been reset!",
           "UsageText": "This is an auto-generated password. Please reset your password as soon as you log back into your account."
+        },
+        "German": {
+          "Subject": "",
+          "PasswordResetTitle": "",
+          "UsageText": ""
         }
       }
     }

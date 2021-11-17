@@ -31,7 +31,7 @@ namespace BingoAPI.CustomValidation
 
                 return new UpdatedTimeValidationResult { Result = true };
 
-            long currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long currentTime = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
 
             // first case, if event didn't start yet, allow to change both end-start time
             if (post.EventTime > currentTime)
@@ -39,7 +39,7 @@ namespace BingoAPI.CustomValidation
                 // both updated
                 if(updatePostRequest.EventTime != null && updatePostRequest.EndTime != null)
                 {
-                    if (updatePostRequest.EventTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 300)
+                    if (updatePostRequest.EventTime < DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() - 300)
                     {
                         return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Can't postpone event to the past" };
                     }
@@ -56,7 +56,7 @@ namespace BingoAPI.CustomValidation
                 // start time only provided
                 if(updatePostRequest.EventTime != null && updatePostRequest.EndTime == null)
                 {
-                    if (updatePostRequest.EventTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 300)
+                    if (updatePostRequest.EventTime < DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() - 300)
                     {
                         return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Can't postpone event to the past" };
                     }
@@ -99,7 +99,7 @@ namespace BingoAPI.CustomValidation
             {
                 return new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can last at most 12h" };
             }
-            return updatePostRequest.EndTime < DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 1700 
+            return updatePostRequest.EndTime < DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds() + 1700 
                 ? new UpdatedTimeValidationResult { Result = false, ErrorMessage = "Event can be extended by at least 30 min relative to current time" } 
                 : new UpdatedTimeValidationResult { Result = true };
         }

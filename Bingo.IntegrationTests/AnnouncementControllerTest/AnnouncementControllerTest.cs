@@ -51,7 +51,6 @@ namespace Bingo.IntegrationTests.AnnouncementControllerTest
             Assert.Equal("This is a sample Announcement 😋😎😎😶😴🤔😃🤗😢😍🍣🥗☪💫🔯🈚🆑🆎🆎㊗ for a sample post", announcement.Data.Message);
             Assert.NotEqual(0, announcement.Data.Timestamp);
             Assert.Equal(createPostResult.PostId, announcement.Data.PostId);
-
         }
 
 

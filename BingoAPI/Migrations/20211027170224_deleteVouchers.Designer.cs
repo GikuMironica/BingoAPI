@@ -3,6 +3,7 @@ using System;
 using BingoAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BingoAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20211027170224_deleteVouchers")]
+    partial class deleteVouchers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,49 +44,6 @@ namespace BingoAPI.Migrations
                     b.HasIndex("PostId");
 
                     b.ToTable("Announcements");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Bug", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ReporterId")
-                        .HasColumnType("text");
-
-                    b.Property<long>("Timestamp")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReporterId");
-
-                    b.ToTable("Bugs");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.BugScreenshot", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("BugId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BugId");
-
-                    b.ToTable("BugScreenshots");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Event", b =>
@@ -224,10 +183,6 @@ namespace BingoAPI.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EndTime");
-
-                    b.HasIndex("EventTime");
 
                     b.HasIndex("UserId");
 
@@ -687,6 +642,15 @@ namespace BingoAPI.Migrations
                     b.HasDiscriminator().HasValue("house_type");
                 });
 
+            modelBuilder.Entity("BingoAPI.Models.Marathon", b =>
+                {
+                    b.HasBaseType("BingoAPI.Models.Event");
+
+                    b.ToTable("Events");
+
+                    b.HasDiscriminator().HasValue("marathon_type");
+                });
+
             modelBuilder.Entity("BingoAPI.Models.Other", b =>
                 {
                     b.HasBaseType("BingoAPI.Models.Event");
@@ -694,15 +658,6 @@ namespace BingoAPI.Migrations
                     b.ToTable("Events");
 
                     b.HasDiscriminator().HasValue("other_type");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Sport", b =>
-                {
-                    b.HasBaseType("BingoAPI.Models.Event");
-
-                    b.ToTable("Events");
-
-                    b.HasDiscriminator().HasValue("sport_type");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.StreetParty", b =>
@@ -745,26 +700,6 @@ namespace BingoAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Bug", b =>
-                {
-                    b.HasOne("BingoAPI.Models.AppUser", "Reporter")
-                        .WithMany()
-                        .HasForeignKey("ReporterId");
-
-                    b.Navigation("Reporter");
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.BugScreenshot", b =>
-                {
-                    b.HasOne("BingoAPI.Models.Bug", "Bug")
-                        .WithMany("BugScreenshots")
-                        .HasForeignKey("BugId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bug");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Event", b =>
@@ -898,7 +833,7 @@ namespace BingoAPI.Migrations
                     b.HasOne("BingoAPI.Models.Post", "Post")
                         .WithMany("Reports")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.HasOne("BingoAPI.Models.AppUser", "ReportedHost")
@@ -981,11 +916,6 @@ namespace BingoAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("BingoAPI.Models.Bug", b =>
-                {
-                    b.Navigation("BugScreenshots");
                 });
 
             modelBuilder.Entity("BingoAPI.Models.Post", b =>
