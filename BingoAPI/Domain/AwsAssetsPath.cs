@@ -10,5 +10,7 @@ namespace BingoAPI.Domain
         public const string PostPictures = "images";
 
         public const string ProfilePictures = "profile";
+
+        public const string BugScreenshots = "bugs";
     }
 }

@@ -16,8 +16,8 @@ namespace BingoAPI.Services
 
             foreach (var image in images)
             {
-                // validate image format
-                string[] allowedImageTypes = new string[] { "image/jpeg", "image/png", "image/jpg", "image/webp" };
+                // TODO accept webponly
+                string[] allowedImageTypes = new string[] {/* "image/jpeg", "image/png", "image/jpg",*/ "image/webp" };
                 if (!allowedImageTypes.Contains(image.ContentType.ToLower()))
                 {
                     resultList.Result = false;
