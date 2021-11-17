@@ -35,7 +35,8 @@ namespace BingoAPI.Data
         public DbSet<PostTags> PostTags { get; set; }
         public DbSet<EventLocation> EventLocations { get; set; }
         public DbSet<RepeatableProperty> RepeatableProperties { get; set; }
-
+        public DbSet<Bug> Bugs { get; set; }
+        public DbSet<BugScreenshot> BugScreenshots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -72,6 +73,13 @@ namespace BingoAPI.Data
 
             modelBuilder.Entity<Post>().HasIndex(p => p.EventTime);
             modelBuilder.Entity<Post>().HasIndex(p => p.EndTime);
+
+            // One - to Many between bug and screenshots
+            modelBuilder.Entity<Bug>()
+                .HasMany(b => b.BugScreenshots)
+                .WithOne(bs => bs.Bug)
+                .HasForeignKey(bs => bs.BugId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // One - to Many relationship between AppUser <-> Post
             modelBuilder.Entity<AppUser>()

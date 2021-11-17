@@ -97,7 +97,7 @@ namespace BingoAPI.Models.SqlRepository
                 .Include(p => p.Post.Tags)
                     .ThenInclude(pt => pt.Tag)
                 .Select(p => p.Post)
-                .Where(p => p.ActiveFlag == 1 || p.EndTime > now)                
+                .Where(p => p.ActiveFlag == 1 && p.EndTime > now)                
                 .ToListAsync();
         }
 
