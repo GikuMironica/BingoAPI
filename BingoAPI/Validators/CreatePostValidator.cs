@@ -1,11 +1,6 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
 using FluentValidation;
-using FluentValidation.Results;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace BingoAPI.Validators
 {
     public class CreatePostValidator : AbstractValidator<CreatePostRequest>
@@ -31,7 +26,6 @@ namespace BingoAPI.Validators
             RuleFor(x => x.UserLocation.Latitude)
                 .GreaterThanOrEqualTo(-90)
                 .LessThanOrEqualTo(90);
-                        
 
             RuleFor(x => x.Event.Description)
                 .MinimumLength(10)
