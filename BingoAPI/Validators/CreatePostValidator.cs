@@ -1,11 +1,6 @@
 ﻿using Bingo.Contracts.V1.Requests.Post;
 using FluentValidation;
-using FluentValidation.Results;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace BingoAPI.Validators
 {
     public class CreatePostValidator : AbstractValidator<CreatePostRequest>
@@ -31,7 +26,6 @@ namespace BingoAPI.Validators
             RuleFor(x => x.UserLocation.Latitude)
                 .GreaterThanOrEqualTo(-90)
                 .LessThanOrEqualTo(90);
-                        
 
             RuleFor(x => x.Event.Description)
                 .MinimumLength(10)
@@ -43,7 +37,13 @@ namespace BingoAPI.Validators
                  .LessThanOrEqualTo(9)
                  .GreaterThanOrEqualTo(1);
 
-            RuleFor(x => x.Tags.All(x => x.Length < 20));                                    
+            RuleForEach(x => x.Tags)
+                .MaximumLength(20)
+                .WithMessage("A tag can be at most 20 characters");
+
+            RuleFor(p => p.Tags.Count)
+                .LessThanOrEqualTo(20)
+                .WithMessage("Can't post more than 20 tags");
         }
                 
     }
