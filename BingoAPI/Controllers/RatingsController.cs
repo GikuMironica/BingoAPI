@@ -25,15 +25,17 @@ namespace BingoAPI.Controllers
         private readonly IUriService _uriService;
         private readonly IEventAttendanceRepository _attendanceRepository;
         private readonly IMapper _mapper;
+        private readonly IPostsRepository _iPostsRepository;
 
         public RatingsController(IRatingRepository ratingRepository, IUriService uriService,
                                  IEventAttendanceRepository attendanceRepository,
-                                 IMapper mapper)
+                                 IMapper mapper, IPostsRepository iPostsRepository)
         {
             this._ratingRepository = ratingRepository;
             this._uriService = uriService;
             this._attendanceRepository = attendanceRepository;
             this._mapper = mapper;
+            _iPostsRepository = iPostsRepository;
         }
 
 
@@ -110,8 +112,13 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User already rated Host for this event" });
             }
 
+            var hostId = await _iPostsRepository.GetHostId(createRequest.PostId);
+
+
             Rating rating = _mapper.Map<Rating>(createRequest);
             rating.RaterId = requesterId;
+            rating.UserId = hostId;
+
             var result = await _ratingRepository.AddAsync(rating);
             if (!result)
             {
