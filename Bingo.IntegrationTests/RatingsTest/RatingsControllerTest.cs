@@ -35,7 +35,6 @@ namespace Bingo.IntegrationTests.RatingsTest
             {
                 Feedback = "Good event 👨‍🦰🧑",
                 PostId = createEvent.PostId,
-                UserId = hostAuthResult.UserId,
                 Rate = 4
             };
 
@@ -69,7 +68,6 @@ namespace Bingo.IntegrationTests.RatingsTest
             var rating = new CreateRatingRequest
             {
                 Feedback = "Good event 👨‍🦰🧑",
-                UserId = hostAuthResult.UserId,
                 Rate = 4
             };
 
@@ -120,7 +118,6 @@ namespace Bingo.IntegrationTests.RatingsTest
             {
                 Feedback = "Good event 👨‍🦰🧑",
                 PostId = createEvent.PostId,
-                UserId = hostAuthResult.UserId,
                 Rate = 4
             };
 
@@ -155,7 +152,6 @@ namespace Bingo.IntegrationTests.RatingsTest
             {
                 Feedback = "Good event 👨‍🦰🧑",
                 PostId = createEvent.PostId,
-                UserId = hostAuthResult.UserId,
                 Rate = 4
             };
 
@@ -234,7 +230,6 @@ namespace Bingo.IntegrationTests.RatingsTest
             {
                 Feedback = "Good event 👨‍🦰🧑",
                 PostId = createEvent.PostId,
-                UserId = host.UserId,
                 Rate = 4
             };
             var guest1AuthResult = await AuthenticateAsync(); 
