@@ -49,10 +49,10 @@ namespace BingoAPI.Models.SqlRepository
                 .SingleOrDefaultAsync();
         }
 
-        public async Task<bool> HasAlreadyRatedAsync(string requesterId, string hostId, int postId)
+        public async Task<bool> HasAlreadyRatedAsync(string requesterId, int postId)
         {
             var result = await _context.Rating
-                .Where(r => r.UserId == hostId && r.RaterId == requesterId && r.PostId == postId)
+                .Where(r => r.RaterId == requesterId && r.PostId == postId)
                 .CountAsync();
 
             return result > 0;

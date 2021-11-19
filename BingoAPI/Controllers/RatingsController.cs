@@ -5,18 +5,14 @@ using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Rating;
 using BingoAPI.Cache;
 using BingoAPI.Extensions;
-using BingoAPI.Helpers;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -28,20 +24,16 @@ namespace BingoAPI.Controllers
         private readonly IRatingRepository _ratingRepository;
         private readonly IUriService _uriService;
         private readonly IEventAttendanceRepository _attendanceRepository;
-        private readonly IPostsRepository _postsRepository;
         private readonly IMapper _mapper;
-        private readonly UserManager<AppUser> _userManager;
 
         public RatingsController(IRatingRepository ratingRepository, IUriService uriService,
-                                 IEventAttendanceRepository attendanceRepository, IPostsRepository postsRepository,
-                                 IMapper mapper, UserManager<AppUser> userManager)
+                                 IEventAttendanceRepository attendanceRepository,
+                                 IMapper mapper)
         {
             this._ratingRepository = ratingRepository;
             this._uriService = uriService;
             this._attendanceRepository = attendanceRepository;
-            this._postsRepository = postsRepository;
             this._mapper = mapper;
-            this._userManager = userManager;
         }
 
 
@@ -112,7 +104,7 @@ namespace BingoAPI.Controllers
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not attend this event/ not accepted" });
             }
            
-            var hasAlreadyRated = await _ratingRepository.HasAlreadyRatedAsync(requesterId, createRequest.UserId, createRequest.PostId);
+            var hasAlreadyRated = await _ratingRepository.HasAlreadyRatedAsync(requesterId, createRequest.PostId);
             if (hasAlreadyRated)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User already rated Host for this event" });
