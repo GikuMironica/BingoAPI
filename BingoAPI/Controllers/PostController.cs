@@ -45,13 +45,14 @@ namespace BingoAPI.Controllers
         private readonly IUpdatedPostDetailsWatcher _postDetailsWatcher;
         private readonly IRatingRepository _ratingRepository;
         private readonly IEventAttendanceRepository _attendanceRepository;
+        private readonly IEventParticipantsRepository _eventParticipants;
         private readonly IRequestToDomainMapper _requestToDomainMapper;
 
         public PostController(IOptions<EventTypes> eventTypes, IMapper mapper, ICreatePostRequestMapper createPostRequestMapper
                               , UserManager<AppUser> userManager, IPostsRepository postRepository, IAwsBucketManager awsBucketManager, 
                               IUriService uriService, IUpdatePostToDomain updatePostToDomain, IImageLoader imageLoader, IDomainToResponseMapper domainToResponseMapper
                               , INotificationService notificationService, IUpdatedPostDetailsWatcher postDetailsWatcher
-                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper)
+                              , IRatingRepository ratingRepository, IEventAttendanceRepository attendanceRepository, IRequestToDomainMapper requestToDomainMapper, IEventParticipantsRepository eventParticipants)
         {
             this._eventTypes = eventTypes.Value;
             this._mapper = mapper;
@@ -68,6 +69,7 @@ namespace BingoAPI.Controllers
             this._ratingRepository = ratingRepository;
             this._attendanceRepository = attendanceRepository;
             this._requestToDomainMapper = requestToDomainMapper;
+            _eventParticipants = eventParticipants;
         }
 
         /// <summary>
@@ -314,6 +316,17 @@ namespace BingoAPI.Controllers
             if (!validatedTime.Result)
             {
                 return BadRequest(new SingleError { Message = validatedTime.ErrorMessage });
+            }
+
+            // can't make slots less then participants
+            if (postRequest?.UpdatedEvent?.Slots != null)
+            {
+                var guests = await _eventParticipants.CountAccepted(post.Id);
+                if (postRequest.UpdatedEvent.Slots < guests)
+                {
+                    return BadRequest(new SingleError
+                        {Message = "Can't make avaialable slots less than participants number"});
+                }
             }
 
             Post mappedPost = _updatePostToDomain.Map(postRequest, post);
