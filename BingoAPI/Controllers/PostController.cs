@@ -252,7 +252,8 @@ namespace BingoAPI.Controllers
                     new SingleError { Message = "Reason_1, Setup first and last name before creating event." }
                 );
             }
-            var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
+            // allow users to create many posts
+            /*var activePosts = await _postRepository.GetActiveEventsNumbers(HttpContext.GetUserId());
             if(activePosts != 0)
             {
                 var isAdmin = await RoleCheckingHelper.IsUserAdmin(_userManager, user);
@@ -261,7 +262,7 @@ namespace BingoAPI.Controllers
                         StatusCodes.Status403Forbidden,
                         new SingleError { Message = "Reason_2, Basic user can't have more than 1 active event at a time" }
                 );
-            }
+            }*/
 
             var post = _createPostRequestMapper.MapRequestToDomain(postRequest, user);
             post.ActiveFlag = 1;
