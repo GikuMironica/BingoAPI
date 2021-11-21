@@ -154,7 +154,6 @@ namespace BingoAPI.Controllers
         /// <response code="204">User did not host any event yet</response>
         [ProducesResponseType(typeof(PagedResponse<Posts>), 200)]
         [ProducesResponseType(204)]
-        [Cached(86400)]
         [HttpGet(ApiRoutes.Posts.GetAllInactive)]
         public async Task<IActionResult> GetMyInactiveEvents([FromQuery] PostsPaginationQuery paginationQuery)
         {
