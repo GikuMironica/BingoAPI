@@ -401,6 +401,8 @@ namespace BingoAPI.Services
             }
             // when registering user, assign him user role, also need to be added in the JWT!!!
             await _userManager.AddToRoleAsync(appUser, "User");
+            // Give user basic claims ( create/edit post )
+            await _userManager.AddClaimAsync(appUser, new Claim("post.add", "true"));
             await _userManager.UpdateAsync(appUser);
             return await GenerateAuthenticationResultForUserAsync(appUser);
 
