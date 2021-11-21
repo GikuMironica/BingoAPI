@@ -36,7 +36,6 @@ namespace BingoAPI.Services
         }
 
 
-
         public async Task NotifyAttendEventRequestAcceptedAsync(List<string> usersId, string eventTitle, int postId)
         {
             //var list = new List<string> { "d150bc2e-b5ac-4787-b4ed-20e421b24d9d" };

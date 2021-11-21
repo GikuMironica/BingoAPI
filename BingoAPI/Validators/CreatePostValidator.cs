@@ -41,9 +41,9 @@ namespace BingoAPI.Validators
                 .MaximumLength(20)
                 .WithMessage("A tag can be at most 20 characters");
 
-            RuleFor(p => p.Tags.Count)
+            /*RuleFor(p => p.Tags.Count)
                 .LessThanOrEqualTo(20)
-                .WithMessage("Can't post more than 20 tags");
+                .WithMessage("Can't post more than 20 tags");*/
         }
                 
     }

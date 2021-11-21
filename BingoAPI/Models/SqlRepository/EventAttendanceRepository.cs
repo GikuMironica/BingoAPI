@@ -89,7 +89,7 @@ namespace BingoAPI.Models.SqlRepository
         {
             var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             return await _context.Participations
-                .Where(p => p.UserId == userId && p.Accepted == 1)
+                .Where(p => p.UserId == userId && p.Accepted == 1 )
                 .Include(p => p.Post)
                 .Include(p => p.Post.Location)
                 .Include(p => p.Post.Event)
