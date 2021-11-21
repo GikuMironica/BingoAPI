@@ -21,11 +21,11 @@ namespace BingoAPI.Controllers
         private readonly IMapper _mapper;
         private readonly IRatingRepository _ratingRepository;
 
-        public ProfileController(UserManager<AppUser> userManager, IMapper mapper, IRatingRepository _ratingRepository)
+        public ProfileController(UserManager<AppUser> userManager, IMapper mapper, IRatingRepository ratingRepository)
         {
             this._userManager = userManager;
             this._mapper = mapper;
-            this._ratingRepository = _ratingRepository;
+            this._ratingRepository = ratingRepository;
         }
 
 

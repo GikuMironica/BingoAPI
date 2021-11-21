@@ -5,18 +5,14 @@ using Bingo.Contracts.V1.Responses;
 using Bingo.Contracts.V1.Responses.Rating;
 using BingoAPI.Cache;
 using BingoAPI.Extensions;
-using BingoAPI.Helpers;
 using BingoAPI.Models;
 using BingoAPI.Models.SqlRepository;
 using BingoAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BingoAPI.Controllers
@@ -25,23 +21,21 @@ namespace BingoAPI.Controllers
     [Produces("application/json")]
     public class RatingsController : Controller
     {
-        private readonly IRatingRepository ratingRepository;
-        private readonly IUriService uriService;
-        private readonly IEventAttendanceRepository attendanceRepository;
-        private readonly IPostsRepository postsRepository;
-        private readonly IMapper mapper;
-        private readonly UserManager<AppUser> userManager;
+        private readonly IRatingRepository _ratingRepository;
+        private readonly IUriService _uriService;
+        private readonly IEventAttendanceRepository _attendanceRepository;
+        private readonly IMapper _mapper;
+        private readonly IPostsRepository _iPostsRepository;
 
         public RatingsController(IRatingRepository ratingRepository, IUriService uriService,
-                                 IEventAttendanceRepository attendanceRepository, IPostsRepository postsRepository,
-                                 IMapper mapper, UserManager<AppUser> userManager)
+                                 IEventAttendanceRepository attendanceRepository,
+                                 IMapper mapper, IPostsRepository iPostsRepository)
         {
-            this.ratingRepository = ratingRepository;
-            this.uriService = uriService;
-            this.attendanceRepository = attendanceRepository;
-            this.postsRepository = postsRepository;
-            this.mapper = mapper;
-            this.userManager = userManager;
+            this._ratingRepository = ratingRepository;
+            this._uriService = uriService;
+            this._attendanceRepository = attendanceRepository;
+            this._mapper = mapper;
+            _iPostsRepository = iPostsRepository;
         }
 
 
@@ -56,12 +50,12 @@ namespace BingoAPI.Controllers
         [HttpGet(ApiRoutes.Ratings.Get)]
         public async Task<IActionResult> GetRating(int ratingId)
         {           
-            var rating = await ratingRepository.GetByIdAsync(ratingId);
+            var rating = await _ratingRepository.GetByIdAsync(ratingId);
             if (rating == null)
             {
                 return NotFound(new SingleError { Message = "Rating not found" });
             }
-            return Ok(new Response<GetRating>(mapper.Map<GetRating>(rating)));
+            return Ok(new Response<GetRating>(_mapper.Map<GetRating>(rating)));
         }
 
 
@@ -74,16 +68,16 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<List<GetRating>>), 200)]
         [ProducesResponseType(204)]
         [HttpGet(ApiRoutes.Ratings.GetAll)]
-        [Cached(36000)]
+        [Cached(3600)]
         public async Task<IActionResult> GetRatings(string userId)
         {
-            var result = await ratingRepository.GetAllAsync(userId);
+            var result = await _ratingRepository.GetAllAsync(userId);
             if(result.Count == 0)
             {
                 return NoContent();
             }
 
-            return Ok(new Response<List<GetRating>>(mapper.Map<List<GetRating>>(result)));
+            return Ok(new Response<List<GetRating>>(_mapper.Map<List<GetRating>>(result)));
         }
 
 
@@ -106,34 +100,34 @@ namespace BingoAPI.Controllers
         {
             // check if user is attending this event & accepted
             var requesterId = HttpContext.GetUserId();
-            var isAttending = await attendanceRepository.IsUserAttendingEvent(requesterId, createRequest.PostId);
+            var isAttending = await _attendanceRepository.IsUserAttendingEvent(requesterId, createRequest.PostId);
             if (!isAttending)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "You do not attend this event/ not accepted" });
             }
-            // TODO - refactor
-            var isHostIdPostOwner = await postsRepository.IsHostIdPostOwner(createRequest.UserId, createRequest.PostId);
-            if (!isHostIdPostOwner)
-            {
-                return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User is not the host of this event" });
-            }
-            var hasAlreadyRated = await ratingRepository.HasAlreadyRatedAsync(requesterId, createRequest.UserId, createRequest.PostId);
+           
+            var hasAlreadyRated = await _ratingRepository.HasAlreadyRatedAsync(requesterId, createRequest.PostId);
             if (hasAlreadyRated)
             {
                 return StatusCode(StatusCodes.Status403Forbidden, new SingleError { Message = "User already rated Host for this event" });
             }
 
-            Rating rating = mapper.Map<Rating>(createRequest);
+            var hostId = await _iPostsRepository.GetHostId(createRequest.PostId);
+
+
+            Rating rating = _mapper.Map<Rating>(createRequest);
             rating.RaterId = requesterId;
-            var result = await ratingRepository.AddAsync(rating);
+            rating.UserId = hostId;
+
+            var result = await _ratingRepository.AddAsync(rating);
             if (!result)
             {
                 return BadRequest(new SingleError { Message = "Rating could not be persisted" });
             }
 
             // TODO UriRatings
-            var locationUri = uriService.GetRatingUri(rating.Id.ToString());
-            return Created(locationUri, new Response<CreateRatingResponse>(mapper.Map<CreateRatingResponse>(rating)));
+            var locationUri = _uriService.GetRatingUri(rating.Id.ToString());
+            return Created(locationUri, new Response<CreateRatingResponse>(_mapper.Map<CreateRatingResponse>(rating)));
         }
 
 
@@ -151,7 +145,7 @@ namespace BingoAPI.Controllers
         [Authorize(Roles ="Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteRating([FromRoute]int ratingId)
         {
-            var result = await ratingRepository.DeleteAsync(ratingId);
+            var result = await _ratingRepository.DeleteAsync(ratingId);
             if (!result)
             {
                 return BadRequest(new SingleError { Message = "Rating could not be deleted / Did not exist" });
