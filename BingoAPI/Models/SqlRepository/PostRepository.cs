@@ -380,7 +380,7 @@ namespace BingoAPI.Models.SqlRepository
             var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
             var now = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
             return await Context.Posts
-               .Where(p => p.UserId == userId && p.ActiveFlag == 0 || p.EndTime < now)
+               .Where(p => p.User.Id == userId && (p.ActiveFlag == 0 || p.EndTime < now))
                .OrderByDescending(p => p.EventTime)
                .Include(p => p.Location)
                .Include(p => p.Pictures)
