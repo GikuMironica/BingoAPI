@@ -12,6 +12,8 @@ namespace Bingo.Contracts.V1.Responses.Profile
 
         public string? Description { get; set; }
 
+        public string? PhoneNumber { get; set; }
+
         public Double? Rating { get; set; }
     }
 }
