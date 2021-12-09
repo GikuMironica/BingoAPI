@@ -2,27 +2,33 @@
   "Message": {
     "Heading": {
       "en": "HopAut",
+      "de": "HopAut",
       "ru": "HopAut"
     },
     "AttendEventRequestAccepted": {
       "en": "Your request to attend \"{0}\" has been accepted",
+      "de": "Ihre Anfrage zur Teilnahme an \"{0}\" wurde angenommen",
       "ru": "Ваш запрос принять участие в \"{0}\" был принят"
     },
     "HousePartyAttendRequest": {
       "en": "{0} requested to join one of your events",
+      "de": "{0} möchte an einer Ihrer Veranstaltungen teilnehmen",
       "ru": "{0} запросил принять участие в одной из ваших мероприятий"
     },
     "EventUpdated": {
       "en": "The event \"{0}\" got updated",
+      "de": "Das Veranstaltung \"{0}\" wurde aktualisiert",
       "ru": "Мероприятие \"{0}\" было обновлено"
     },
     "EventDeleted": {
       "en": "The event \"{0}\" has been canceled",
+      "de": "Das Veranstaltung \"{0}\" wurde abgesagt",
       "ru": "Мероприятие \"{0}\" было отменено"
     },
     "NewAnnouncement": {
       "en": "There is a new message from \"{0}\"",
-      "ru": "Новое сообшение от \"{0}\"" 
+      "de": "Es gibt eine neue Nachricht von \"{0}\"",
+      "ru": "Новое сообшение от \"{0}\""
     }
   }
 }

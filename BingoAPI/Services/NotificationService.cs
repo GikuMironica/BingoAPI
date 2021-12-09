@@ -45,6 +45,7 @@ namespace BingoAPI.Services
                 contents = new
                 {
                     en = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.en, eventTitle),
+                    de = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.de, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.AttendEventRequestAccepted.ru, eventTitle)
                 },
                 data = new
@@ -55,6 +56,7 @@ namespace BingoAPI.Services
                 headings = new 
                 {
                     en = _notificationTemplates.Value.Heading.en,
+                    de = _notificationTemplates.Value.Heading.de,
                     ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId/*list*/
@@ -73,6 +75,7 @@ namespace BingoAPI.Services
                 contents = new
                 {
                     en = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.en, fullname),
+                    de = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.de, fullname),
                     ru = string.Format(_notificationTemplates.Value.HousePartyAttendRequest.ru, fullname)
                 },
                 data = new
@@ -83,6 +86,7 @@ namespace BingoAPI.Services
                 headings = new
                 {
                     en = _notificationTemplates.Value.Heading.en,
+                    de = _notificationTemplates.Value.Heading.en,
                     ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId
@@ -100,6 +104,7 @@ namespace BingoAPI.Services
                 contents = new
                 {
                     en = string.Format(_notificationTemplates.Value.EventUpdated.en, eventTitle),
+                    de = string.Format(_notificationTemplates.Value.EventUpdated.de, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.EventUpdated.ru, eventTitle)
                 },
                 data = new
@@ -110,6 +115,7 @@ namespace BingoAPI.Services
                 headings = new
                 {
                     en = _notificationTemplates.Value.Heading.en,
+                    de = _notificationTemplates.Value.Heading.de,
                     ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId
@@ -125,6 +131,7 @@ namespace BingoAPI.Services
                 contents = new
                 {
                     en = string.Format(_notificationTemplates.Value.EventDeleted.en, eventTitle),
+                    de = string.Format(_notificationTemplates.Value.EventDeleted.de, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.EventDeleted.ru, eventTitle)
                 },
                 data = new
@@ -135,6 +142,7 @@ namespace BingoAPI.Services
                 headings = new
                 {
                     en = _notificationTemplates.Value.Heading.en,
+                    de = _notificationTemplates.Value.Heading.de,
                     ru = _notificationTemplates.Value.Heading.ru
                     
                 },
@@ -151,6 +159,7 @@ namespace BingoAPI.Services
                 contents = new
                 {
                     en = string.Format(_notificationTemplates.Value.NewAnnouncement.en, eventTitle),
+                    de = string.Format(_notificationTemplates.Value.NewAnnouncement.de, eventTitle),
                     ru = string.Format(_notificationTemplates.Value.NewAnnouncement.ru, eventTitle)
                     
                 },
@@ -162,6 +171,7 @@ namespace BingoAPI.Services
                 headings = new
                 {
                     en = _notificationTemplates.Value.Heading.en,
+                    de = _notificationTemplates.Value.Heading.de,
                     ru = _notificationTemplates.Value.Heading.ru
                 },
                 include_external_user_ids = usersId

@@ -7,19 +7,19 @@
       "Languages": {
         "English": {
           "Subject": "Email Confirmation",
-          "EmailRegistered": "Welcome to HopAut! \n Please confirm your email to complete the registration.",
+          "EmailRegistered": "Welcome to Hopaut! Please confirm your email to complete the registration.",
           "MessagePart2": "Click the button bellow to confirm your email",
           "ConfirmationBtnText": "Confirm",
           "MessagePart4": "If the confirmation button doesn't work, click the link below:",
           "Warning": "Please ignore this email if you did not register."
         },
         "German": {
-          "Subject": "",
-          "EmailRegistered": "",
-          "MessagePart2": "",
-          "ConfirmationBtnText": "",
-          "MessagePart4": "",
-          "Warning": ""
+          "Subject": "E-Mail Bestätigung",
+          "EmailRegistered": "Willkommen bei Hopaut! Bitte bestätigen Sie Ihre E-Mail, um die Registrierung abzuschließen.",
+          "MessagePart2": "Klicken Sie auf die Schaltfläche unten, um Ihre E-Mail zu bestätigen",
+          "ConfirmationBtnText": "Bestätigen",
+          "MessagePart4": "Wenn die Bestätigungsschaltfläche nicht funktioniert, klicken Sie auf den unten stehenden Link:",
+          "Warning": "Bitte ignorieren Sie diese E-Mail, wenn Sie sich nicht registriert haben."
         } 
       }
     },
@@ -34,14 +34,14 @@
           "ResetPasswordTitle": "Did you forget your password?",
           "ResetPasswordMessage": "Click the button below to generate a new password for your HopAut account. You will receive it in a few moments by email.",
           "GeneratePasswordBtn": "Generate Password",
-          "Warning": "Ignore this message if you did not try to reset your password."
+          "Warning": "Ignore this message if you did not request to reset your password."
         },
         "German": {
-          "Subject": "",
-          "ResetPasswordTitle": "",
-          "ResetPasswordMessage": "",
-          "GeneratePasswordBtn": "",
-          "Warning": ""
+          "Subject": "Passwort vergessen",
+          "ResetPasswordTitle": "Haben Sie Ihr Passwort vergessen?",
+          "ResetPasswordMessage": "Klicken Sie auf die Schaltfläche unten, um ein neues Passwort für Ihr Hopaut-Konto zu generieren. Sie werden es in wenigen Augenblicken per E-Mail erhalten.",
+          "GeneratePasswordBtn": "Passwort generieren",
+          "Warning": "Ignorieren Sie diese Meldung, wenn Sie keine Rücksetzung Ihres Passworts beantragt haben."
         }
       }
     },
@@ -58,9 +58,9 @@
           "UsageText": "This is an auto-generated password. Please reset your password as soon as you log back into your account."
         },
         "German": {
-          "Subject": "",
-          "PasswordResetTitle": "",
-          "UsageText": ""
+          "Subject": "Passwort zurücksetzen!",
+          "PasswordResetTitle": "Ihr Passwort wurde zurückgesetzt!",
+          "UsageText": "Dies ist ein automatisch generiertes Passwort. Bitte setzen Sie Ihr Passwort zurück, sobald Sie sich wieder bei Ihrem Konto anmelden."
         }
       }
     }

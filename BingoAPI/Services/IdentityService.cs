@@ -84,12 +84,20 @@ namespace BingoAPI.Services
                 return new AuthenticationResult { Errors = new[] { "User with this email address exists" } };
             }
 
+            // parse lang or assign english as default
+            lang = lang?.ToLower() ?? "en";
+            if (lang != "en" && lang != "de")
+            {
+                lang = "en";
+            }
+
             // generate user
             var newUser = new AppUser
             {
                 Email = email,
                 UserName = email,
-                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds()
+                RegistrationTimeStamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds(),
+                Language = lang
             };
 
             // register user in system
@@ -134,12 +142,12 @@ namespace BingoAPI.Services
             }
 
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
-                new { userId = newUser.Id, token = token, lang=lang }, _httpContext.HttpContext.Request.Scheme);
+                new { userId = newUser.Id, token = token }, _httpContext.HttpContext.Request.Scheme);
 
             var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
 
             // If Development Environment, don't send email
-            if (_envOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
+            //if (_envOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
 
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
             return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address" } };
@@ -362,7 +370,7 @@ namespace BingoAPI.Services
             };
         }
 
-        public async Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken)
+        public async Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken, String? lang)
         {
             var validatedTokenResult = await _facebookAuthService.ValidateAccessTokenAsync(accessToken);
 
@@ -378,6 +386,13 @@ namespace BingoAPI.Services
 
             if (user != null) return await GenerateAuthenticationResultForUserAsync(user);
 
+            // parse lang or assign english as default
+            lang = lang?.ToLower() ?? "en";
+            if (lang != "en" && lang != "de")
+            {
+                lang = "en";
+            }
+
             // if email not in the system register user with his FB email
             var appUser = new AppUser
             {
@@ -388,8 +403,10 @@ namespace BingoAPI.Services
                 LastName = userInfo.LastName,
                 ProfilePicture = userInfo.Picture.Data.Url.ToString(),
                 RegistrationTimeStamp = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds(),
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Language = lang
             };
+
             // no password
             var createdResult = await _userManager.CreateAsync(appUser);
             if (!createdResult.Succeeded)
@@ -409,7 +426,7 @@ namespace BingoAPI.Services
             // if user already registered with this email, generate jwt for him
         }
 
-        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? lang= null)
+        public async Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser)
         {
             // generate the reset password token
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
@@ -440,10 +457,10 @@ namespace BingoAPI.Services
             }
 
             var confirmationLink = _urlHelper.Action("ResetPassword", "Identity",
-                new { email = appUser.Email, token = token, lang = lang }, _httpContext.HttpContext.Request.Scheme);
+                new { email = appUser.Email, token = token }, _httpContext.HttpContext.Request.Scheme);
 
             // Format email message
-            var emailFormattedResult = _emailFormatter.FormatForgotPassword(confirmationLink, lang);
+            var emailFormattedResult = _emailFormatter.FormatForgotPassword(confirmationLink, appUser.Language);
 
             // Send link over email
             var result = await _emailService.SendEmail(appUser.Email, emailFormattedResult.EmailSubject, emailFormattedResult.EmailContent);
