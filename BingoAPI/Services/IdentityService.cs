@@ -147,7 +147,7 @@ namespace BingoAPI.Services
             var content = _emailFormatter.FormatRegisterConfirmation(email, confirmationLink, lang);
 
             // If Development Environment, don't send email
-            //if (_envOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
+            if (_envOptions == 0) return new AuthenticationResult {Success = true, UserId = newUser.Id};
 
             var mailResult = await _emailService.SendEmail(email, content.EmailSubject, content.EmailContent);
             return mailResult ? new AuthenticationResult { Success = true, UserId = newUser.Id } : new AuthenticationResult { Success = false, Errors = new List<string> { "Invalid Email Address" } };
