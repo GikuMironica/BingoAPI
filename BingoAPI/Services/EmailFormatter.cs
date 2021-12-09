@@ -35,6 +35,9 @@ namespace BingoAPI.Services
                 case "en":
                     formattedEmail = _formattedEmail.RegisterHtmlTemplate.English;
                     break;
+                case "de":
+                    formattedEmail = _formattedEmail.RegisterHtmlTemplate.German;
+                    break;
                 default:
                     formattedEmail = _formattedEmail.RegisterHtmlTemplate.English;
                     break;
@@ -64,6 +67,9 @@ namespace BingoAPI.Services
                 case "en":
                     formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.English;
                     break;
+                case "de":
+                    formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.German;
+                    break;
                 default:
                     formattedEmail = _formattedEmail.ForgotPasswordHtmlTemplate.English;
                     break;
@@ -92,6 +98,9 @@ namespace BingoAPI.Services
                     break;
                 case "en":
                     formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.English;
+                    break;
+                case "de":
+                    formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.German;
                     break;
                 default:
                     formattedEmail = _formattedEmail.ResetPasswordHtmlTemplate.English;

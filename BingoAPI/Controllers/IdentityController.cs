@@ -29,7 +29,7 @@ namespace BingoAPI.Controllers
         private readonly IErrorService _errorService;
         private readonly String _createEditPostClaim = "post.add";
 
-        public const string WebPortalRelativeUrl = "https://localhost:3000";
+        public const string WebPortalRelativeUrl = "https://hopaut.com";
         public const string WebPortalResetPasswordConfirmationPage = WebPortalRelativeUrl + "/account/resetpassword";
         private const string WebPortalEmailConfirmationPage = WebPortalRelativeUrl + "/account/confirmemail";
 
@@ -138,7 +138,7 @@ namespace BingoAPI.Controllers
         public async Task<IActionResult> Login([FromBody] UserFacebookAuthRequest request)
         {
             // authenticate the access token
-            var authResponse = await _identityService.LoginWithFacebookAsync(request.AccessToken);
+            var authResponse = await _identityService.LoginWithFacebookAsync(request.AccessToken, request.Language);
 
             if (!authResponse.Success)
             {
@@ -267,7 +267,7 @@ namespace BingoAPI.Controllers
             }
 
             // if user valid, generate token, send per email
-            var authResponse = await _identityService.RequestNewPasswordAsync(user, request.Language);
+            var authResponse = await _identityService.RequestNewPasswordAsync(user);
 
             if (!authResponse.Success)
             {
@@ -308,7 +308,7 @@ namespace BingoAPI.Controllers
 
                 if (passResult.Succeeded)
                 {
-                    var content = _emailFormatter.FormatResetPassword(request.language);
+                    var content = _emailFormatter.FormatResetPassword(user.Language);
                     await _emailService.SendEmail(user.Email, content.EmailSubject, content.EmailContent.Replace("{GeneratedPassword}", pass));
                 }                               
             }

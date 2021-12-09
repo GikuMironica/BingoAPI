@@ -23,6 +23,7 @@ namespace BingoAPI.Options
     public abstract class Base
     {
         public string en { get; set; }
+        public string de { get; set; }
         public string ru { get; set; }
     }
 

@@ -12,12 +12,12 @@ namespace BingoAPI.Services
 
         Task<AuthenticationResult> LoginAsync(string email, string requestPassword);
 
-        Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser, String? language = null);
+        Task<AuthenticationResult> RequestNewPasswordAsync(AppUser appUser);
 
         Task<AuthenticationResult> ChangePasswordAsync(AppUser appUser, ChangePasswordRequest request);
 
         Task<AuthenticationResult> RefreshTokenAsync(string token, string requestToken);
 
-        Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken);
+        Task<AuthenticationResult> LoginWithFacebookAsync(string accessToken, String? lang);
     }
 }

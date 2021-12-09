@@ -12,7 +12,5 @@ namespace Bingo.Contracts.V1.Requests.Identity
 
         [Required]
         public string token { get; set; }
-
-        public String? language { get; set; }
     }
 }

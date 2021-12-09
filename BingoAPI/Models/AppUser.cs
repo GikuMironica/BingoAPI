@@ -26,5 +26,7 @@ namespace BingoAPI.Models
         //todo
 
         public List<UserReport> Reports { get; set; }
+
+        public string Language { get; set; }
     }
 }
