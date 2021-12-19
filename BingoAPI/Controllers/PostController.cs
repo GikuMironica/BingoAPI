@@ -319,7 +319,7 @@ namespace BingoAPI.Controllers
             }
 
             // can't make slots less then participants
-            if (postRequest?.UpdatedEvent?.Slots != null)
+            if (postRequest?.UpdatedEvent?.Slots != null && post.Event is HouseParty)
             {
                 var guests = await _eventParticipants.CountAccepted(post.Id);
                 if (postRequest.UpdatedEvent.Slots < guests)
