@@ -211,7 +211,7 @@ namespace BingoAPI.Controllers
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
-            return Redirect(WebPortalResetPasswordConfirmationPage);
+            return Redirect(WebPortalEmailConfirmationPage);
         }
 
 

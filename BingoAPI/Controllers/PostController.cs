@@ -192,7 +192,7 @@ namespace BingoAPI.Controllers
         [ProducesResponseType(typeof(Response<List<Posts>>), 200)]
         [ProducesResponseType(204)]
         // TODO - check if cache works
-        [Cached(300)]
+        // [Cached(300)]
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll(GetAllRequest getAllRequest, FilteredGetAllPostsRequest filteredGetAll)
         {
