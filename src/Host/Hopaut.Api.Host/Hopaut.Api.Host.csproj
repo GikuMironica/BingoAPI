@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.Api.Host</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BuildingBlocks\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Hopaut.BuildingBlocks.Infrastructure\Hopaut.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Hopaut.BuildingBlocks.Api\Hopaut.BuildingBlocks.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Identity\Hopaut.Modules.Identity.Api\Hopaut.Modules.Identity.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Users\Hopaut.Modules.Users.Api\Hopaut.Modules.Users.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Media\Hopaut.Modules.Media.Api\Hopaut.Modules.Media.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Posts\Hopaut.Modules.Posts.Api\Hopaut.Modules.Posts.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Attendance\Hopaut.Modules.Attendance.Api\Hopaut.Modules.Attendance.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Announcements\Hopaut.Modules.Announcements.Api\Hopaut.Modules.Announcements.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Ratings\Hopaut.Modules.Ratings.Api\Hopaut.Modules.Ratings.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Hopaut.Modules.Notifications.Api\Hopaut.Modules.Notifications.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Moderation\Hopaut.Modules.Moderation.Api\Hopaut.Modules.Moderation.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\BugReports\Hopaut.Modules.BugReports.Api\Hopaut.Modules.BugReports.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\Hopaut.Modules.Payments.Api\Hopaut.Modules.Payments.Api.csproj" />
+  </ItemGroup>
+
+</Project>

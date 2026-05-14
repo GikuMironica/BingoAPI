@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.Modules.BugReports.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hopaut.Modules.BugReports.Application\Hopaut.Modules.BugReports.Application.csproj" />
+    <ProjectReference Include="..\Hopaut.Modules.BugReports.Infrastructure\Hopaut.Modules.BugReports.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Api\Hopaut.BuildingBlocks.Api.csproj" />
+  </ItemGroup>
+
+</Project>

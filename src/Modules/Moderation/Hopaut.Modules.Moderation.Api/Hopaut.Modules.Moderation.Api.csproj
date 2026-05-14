@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.Modules.Moderation.Api</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hopaut.Modules.Moderation.Application\Hopaut.Modules.Moderation.Application.csproj" />
+    <ProjectReference Include="..\Hopaut.Modules.Moderation.Infrastructure\Hopaut.Modules.Moderation.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Api\Hopaut.BuildingBlocks.Api.csproj" />
+  </ItemGroup>
+
+</Project>

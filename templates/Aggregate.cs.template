@@ -1,0 +1,49 @@
+// =============================================================================
+// Aggregate Template — copy and rename for each new aggregate root.
+// Replace "MyAggregate" / "MyAggregateId" with your actual names.
+// =============================================================================
+
+using Hopaut.SharedKernel.Domain;
+
+namespace Modules.MODULENAME.Domain.Aggregates;
+
+/// <summary>
+/// Strongly-typed identifier for <see cref="MyAggregate"/>.
+/// </summary>
+public readonly record struct MyAggregateId(Guid Value)
+{
+    public static MyAggregateId New() => new(Guid.NewGuid());
+}
+
+/// <summary>
+/// Aggregate root. Use the static <see cref="Create"/> factory; keep constructors private.
+/// </summary>
+public sealed class MyAggregate : AggregateRoot<MyAggregateId>
+{
+    // ── Properties ──
+    public string Name { get; private set; } = default!;
+
+    // ── Private constructor (EF + rehydration) ──
+    private MyAggregate() { }
+
+    // ── Factory ──
+    public static MyAggregate Create(string name)
+    {
+        var aggregate = new MyAggregate
+        {
+            Id = MyAggregateId.New(),
+            Name = name
+        };
+
+        // aggregate.AddDomainEvent(new MyAggregateCreatedEvent(aggregate.Id));
+
+        return aggregate;
+    }
+
+    // ── Behavior methods ──
+    public void Rename(string newName)
+    {
+        Name = newName;
+        // AddDomainEvent(new MyAggregateRenamedEvent(Id, newName));
+    }
+}

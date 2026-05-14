@@ -14,7 +14,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BingoAPI\BingoAPI.csproj" />
+    <ProjectReference Include="..\..\src\Legacy\BingoAPI\BingoAPI.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

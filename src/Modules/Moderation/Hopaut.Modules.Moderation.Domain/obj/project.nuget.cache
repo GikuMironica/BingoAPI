@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "2qSmr/R9uQQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ghmi\\personal\\BingoAPI\\src\\Modules\\Moderation\\Hopaut.Modules.Moderation.Domain\\Hopaut.Modules.Moderation.Domain.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ghmi\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
+    "C:\\Users\\ghmi\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
+    "C:\\Users\\ghmi\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

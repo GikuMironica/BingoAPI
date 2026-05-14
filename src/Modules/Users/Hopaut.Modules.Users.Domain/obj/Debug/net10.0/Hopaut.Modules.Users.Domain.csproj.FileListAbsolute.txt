@@ -1,0 +1,16 @@
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\bin\Debug\net10.0\Hopaut.Modules.Users.Domain.deps.json
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\bin\Debug\net10.0\Hopaut.Modules.Users.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\bin\Debug\net10.0\Hopaut.Modules.Users.Domain.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\bin\Debug\net10.0\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\bin\Debug\net10.0\Hopaut.SharedKernel.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.csproj.AssemblyReference.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.AssemblyInfoInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.AssemblyInfo.cs
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.csproj.CoreCompileInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.sourcelink.json
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.M.FA306852.Up2Date
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\refint\Hopaut.Modules.Users.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\Hopaut.Modules.Users.Domain.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Users\Hopaut.Modules.Users.Domain\obj\Debug\net10.0\ref\Hopaut.Modules.Users.Domain.dll

@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "s498ICr+xQs=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\ghmi\\personal\\BingoAPI\\src\\BuildingBlocks\\Hopaut.BuildingBlocks.Api\\Hopaut.BuildingBlocks.Api.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ghmi\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
+    "C:\\Users\\ghmi\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

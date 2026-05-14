@@ -1,0 +1,16 @@
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\bin\Debug\net10.0\Hopaut.Modules.Attendance.Domain.deps.json
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\bin\Debug\net10.0\Hopaut.Modules.Attendance.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\bin\Debug\net10.0\Hopaut.Modules.Attendance.Domain.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\bin\Debug\net10.0\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\bin\Debug\net10.0\Hopaut.SharedKernel.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.csproj.AssemblyReference.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.AssemblyInfoInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.AssemblyInfo.cs
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.csproj.CoreCompileInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.sourcelink.json
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.M.FA6D1CA7.Up2Date
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\refint\Hopaut.Modules.Attendance.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\Hopaut.Modules.Attendance.Domain.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Attendance\Hopaut.Modules.Attendance.Domain\obj\Debug\net10.0\ref\Hopaut.Modules.Attendance.Domain.dll

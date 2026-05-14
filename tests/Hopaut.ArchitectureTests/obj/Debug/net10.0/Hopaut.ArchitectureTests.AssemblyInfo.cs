@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Hopaut.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+56b91bf1c383b73da2da08490cd8d4eeedc0543a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cde3dbd5e833de312238ecb98abbe73c340bad98")]
 [assembly: System.Reflection.AssemblyProductAttribute("Hopaut.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Hopaut.ArchitectureTests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

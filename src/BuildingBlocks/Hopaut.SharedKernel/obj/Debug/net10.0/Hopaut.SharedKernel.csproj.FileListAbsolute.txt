@@ -1,0 +1,13 @@
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\bin\Debug\net10.0\Hopaut.SharedKernel.deps.json
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\bin\Debug\net10.0\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\bin\Debug\net10.0\Hopaut.SharedKernel.pdb
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.csproj.AssemblyReference.cache
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.AssemblyInfoInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.AssemblyInfo.cs
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.csproj.CoreCompileInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.sourcelink.json
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\refint\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\Hopaut.SharedKernel.pdb
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.SharedKernel\obj\Debug\net10.0\ref\Hopaut.SharedKernel.dll

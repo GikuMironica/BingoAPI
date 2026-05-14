@@ -1,0 +1,16 @@
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\bin\Debug\net10.0\Hopaut.Modules.Announcements.Domain.deps.json
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\bin\Debug\net10.0\Hopaut.Modules.Announcements.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\bin\Debug\net10.0\Hopaut.Modules.Announcements.Domain.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\bin\Debug\net10.0\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\bin\Debug\net10.0\Hopaut.SharedKernel.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.csproj.AssemblyReference.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.AssemblyInfoInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.AssemblyInfo.cs
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.csproj.CoreCompileInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.sourcelink.json
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.M.2AA63AA1.Up2Date
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\refint\Hopaut.Modules.Announcements.Domain.dll
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\Hopaut.Modules.Announcements.Domain.pdb
+C:\Users\ghmi\personal\BingoAPI\src\Modules\Announcements\Hopaut.Modules.Announcements.Domain\obj\Debug\net10.0\ref\Hopaut.Modules.Announcements.Domain.dll

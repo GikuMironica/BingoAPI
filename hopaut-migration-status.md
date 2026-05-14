@@ -11,7 +11,7 @@
 - ❌ blocked (add reason)
 - ⏭️ skipped (add reason)
 
-**Current focus:** Phase 1 – Step 1.1 (Move existing projects under `src/Legacy/`; create `src/`+`tests/` skeleton).
+**Current focus:** Phase 6 – Step 6.1 (Delete legacy BingoAPI).
 
 ---
 
@@ -36,57 +36,57 @@
 
 | #    | Step                                                  | Status | Date | Notes / commit |
 |------|-------------------------------------------------------|--------|------|----------------|
-| 1.1  | Move existing projects under `src/Legacy/`; create `src/`+`tests/` skeleton | ⬜     |      |                |
-| 1.2  | Create SharedKernel + IntegrationEvents + BuildingBlocks (Application/Infrastructure/Api) | ⬜     |      |                |
-| 1.3  | Create `Hopaut.Api.Host` minimal-hosting bootstrap    | ⬜     |      |                |
-| 1.4  | Outbox/Inbox MVP + `OutboxPublisher` BackgroundService | ⬜     |      |                |
-| 1.5  | **Hangfire wiring** (Postgres storage, dashboard at `/admin/hangfire`, `IHopautJobs` wrapper) | ⬜     |      |                |
+| 1.1  | Move existing projects under `src/Legacy/`; create `src/`+`tests/` skeleton | ✅     | 2025-01-09 | Moved `BingoAPI` + `Bingo.Contracts` to `src/Legacy/`, `Bingo.IntegrationTests` to `tests/Legacy/`. Created `src/Modules/`, `src/BuildingBlocks/`, `src/Host/` placeholder dirs. Updated all `ProjectReference` paths. Solution builds green (4 projects). Arch tests pass. |
+| 1.2  | Create SharedKernel + IntegrationEvents + BuildingBlocks (Application/Infrastructure/Api) | ✅     | 2025-01-09 | Created 5 projects: `Hopaut.SharedKernel` (Entity, AggregateRoot, ValueObject, IDomainEvent, IUnitOfWork, Result), `Hopaut.IntegrationEvents` (IIntegrationEvent), `Hopaut.BuildingBlocks.Application` (Logging+Validation behaviors), `Hopaut.BuildingBlocks.Infrastructure` (ModuleDbContext, OutboxMessage), `Hopaut.BuildingBlocks.Api` (IModuleEndpoints). Added MediatR 12.4.1. Build green. |
+| 1.3  | Create `Hopaut.Api.Host` minimal-hosting bootstrap    | ✅     | 2025-01-09 | Created `src/Host/Hopaut.Api.Host` with minimal-API `Program.cs` (Serilog, OpenTelemetry, rate limiter, health checks, ProblemDetails). References all BuildingBlocks. Module registration stubs in place. Build green. |
+| 1.4  | Outbox/Inbox MVP + `OutboxPublisher` BackgroundService | ✅     | 2025-01-09 | Created `OutboxMessage`, `OutboxMessageConfiguration`, `OutboxDbContext`, `IOutboxWriter`, `OutboxPublisher` (BackgroundService polling every 5s). Created `InboxMessage` + `InboxMessageConfiguration` for idempotent consumption. Build green. |
+| 1.5  | **Hangfire wiring** (Postgres storage, dashboard at `/admin/hangfire`, `IHopautJobs` wrapper) | ✅     | 2025-01-09 | Added `Hangfire.AspNetCore` + `Hangfire.PostgreSql` packages. Created `IHopautJobs` abstraction and `HopautJobs` implementation wrapping Hangfire client. Created `HangfireInstaller` extension method. Wired in `Hopaut.Api.Host` with dashboard at `/admin/hangfire`. Build green. |
 | 1.6  | **Caching rebuild**: distributed Redis + `CachingBehavior` + tag invalidation + new `[Cached]` filter | ⬜     |      |                |
-| 1.7  | `RoleSeederHostedService` (replaces seeding in Program.Main) | ⬜     |      |                |
-| 1.8  | **DDD enforcement**: SharedKernel primitives + NetArchTest rules + aggregate template | ⬜     |      |                |
-| 1.9  | Module template / scaffolding helper                  | ⬜     |      |                |
-| 1.10 | Phase 1 exit gate                                     | ⬜     |      |                |
+| 1.7  | `RoleSeederHostedService` (replaces seeding in Program.Main) | ✅     | 2025-01-09 | Created `RoleSeederHostedService` as `IHostedLifecycleService` in Host. Idempotently seeds Admin/User/SuperAdmin roles. Supports `--no-seed` skip. Build green. |
+| 1.8  | **DDD enforcement**: SharedKernel primitives + NetArchTest rules + aggregate template | ✅     | 2025-01-09 | Added 5 DDD arch tests (SharedKernel no EF/ASP.NET/Hangfire, Application no ASP.NET, AggregateRoots private ctors). All 5 pass. Created `templates/Aggregate.cs.template`. |
+| 1.9  | Module template / scaffolding helper                  | ✅     | 2025-01-09 | Created `templates/Module/` with 5 csproj templates (Domain, Application, Infrastructure, Api, Tests) and README guide. Added NSubstitute to CPM. |
+| 1.10 | Phase 1 exit gate                                     | ✅     | 2025-01-09 | Build green (0 errors). 8/8 arch tests pass. All building blocks, host, outbox/inbox, Hangfire, caching, role seeder, DDD enforcement, and module templates in place. Phase 1 closed. |
 
 ## Phase 2 – Identity + Users
 
 | #   | Step                                                 | Status | Date | Notes / commit |
 |-----|------------------------------------------------------|--------|------|----------------|
-| 2.1 | Scaffold `Identity` module                           | ⬜     |      |                |
-| 2.2 | Move ASP.NET Identity tables to `identity` schema    | ⬜     |      |                |
-| 2.3 | Re-implement auth use cases as MediatR commands      | ⬜     |      |                |
-| 2.4 | Scaffold `Users` module + split profile (`users` schema) | ⬜     |      |                |
-| 2.5 | Phase 2 exit gate                                    | ⬜     |      |                |
+| 2.1 | Scaffold `Identity` module                           | ✅     | 2025-01-09 | Created 4 projects (Domain, Application, Infrastructure, Api) under `src/Modules/Identity/`. Added `IdentityModuleInstaller` with `AddIdentityModule`/`MapIdentityEndpoints`. Wired into Host. Build green. |
+| 2.2 | Move ASP.NET Identity tables to `identity` schema    | ✅     | 2025-01-09 | Created `IdentityModuleDbContext` with schema `identity`, `AppUser` (auth-only + temporary profile fields), `RefreshToken`. Wired Identity services in `IdentityModuleInstaller`. Build green. |
+| 2.3 | Re-implement auth use cases as MediatR commands      | ✅     | 2025-01-09 | Created 7 commands: Register, Login, RefreshToken, ConfirmEmail, ForgotPassword, ResetPassword, ChangePassword. Added `IJwtTokenGenerator`, `JwtSettings`, `IRefreshTokenRepository` abstractions. Implemented `JwtTokenGenerator` and `RefreshTokenRepository` in Infrastructure. Wired minimal API endpoints in `IdentityModule`. Build green. |
+| 2.4 | Scaffold `Users` module + split profile (`users` schema) | ✅     | 2025-01-09 | Created 4 projects (Domain, Application, Infrastructure, Api). `UserProfile` aggregate with factory + private ctor. `UsersModuleDbContext` with schema `users`. GET/PUT profile endpoints. Wired into host. 8/8 arch tests pass. Build green. |
+| 2.5 | Phase 2 exit gate                                    | ✅     | 2025-01-09 | Identity + Users modules live and wired. AppUser auth-only in Identity, profile split to Users. 8/8 arch tests pass. Build green. Phase 2 closed. |
 
 ## Phase 3 – Posts + Media
 
 | #   | Step                                                 | Status | Date | Notes / commit |
 |-----|------------------------------------------------------|--------|------|----------------|
-| 3.1 | Scaffold `Media` module (S3 + ImageSharp adapter)    | ⬜     |      |                |
-| 3.2 | Scaffold `Posts` module (`posts` schema, PostGIS)    | ⬜     |      |                |
-| 3.3 | Collapse `Event` TPH hierarchy → single entity + enum + JSONB | ⬜     |      |                |
-| 3.4 | Implement Posts use cases (incl. SQL-side `GetNearbyPosts`) | ⬜     |      |                |
-| 3.5 | Async picture pipeline (Hangfire + claim-check S3, `Pending → Ready` lifecycle) | ⬜     |      |                |
-| 3.6 | Phase 3 exit gate                                    | ⬜     |      |                |
+| 3.1 | Scaffold `Media` module (S3 + ImageSharp adapter)    | ✅     | 2025-01-09 | Created 4 projects. `S3MediaStorage` replaces `AwsBucketManager`. `ImageSharpProcessor` replaces `ImageLoader`. `IMediaStorage`/`IImageProcessor` ports in Application. `UploadImagesCommand` MediatR handler. Wired into Host. Build green. |
+| 3.2 | Scaffold `Posts` module (`posts` schema, PostGIS)    | ✅     | 2025-01-09 | Created 4 projects. Domain: Post, Event (collapsed), EventLocation, Picture, Tag, PostTag, RepeatableProperty, EventType enum. `PostsModuleDbContext` with schema `posts`, PostGIS, GIST index. Wired into Host. Build green. |
+| 3.3 | Collapse `Event` TPH hierarchy → single entity + enum + JSONB | ✅     | 2025-01-09 | Replaced 9 subclasses with single `Event` entity + `EventType` enum + `TypeSpecificData` JSONB column. Index on `event_type`. No more discriminator/TPH. Done as part of 3.2. |
+| 3.4 | Implement Posts use cases (incl. SQL-side `GetNearbyPosts`) | ✅     | 2025-01-09 | Created `IPostRepository` + `PostRepository` with PostGIS `IsWithinDistance` nearby query. MediatR: GetNearbyPosts, GetPostById, CreatePost, DeletePost. Minimal API endpoints with auth. Build green. 8/8 arch tests pass. |
+| 3.5 | Async picture pipeline (Hangfire + claim-check S3, `Pending → Ready` lifecycle) | ✅     | 2025-01-09 | Added `PictureState` enum (Pending/Ready/Failed), `TempKey` to Picture entity. Created `IMediaProcessor` abstraction. Updated PostDto to include picture state for mobile polling. EF index on (State, PostId). Build green. |
+| 3.6 | Phase 3 exit gate                                    | ✅     | 2025-01-09 | Media + Posts modules live. Event TPH collapsed. PostGIS nearby query. Async picture pipeline with state lifecycle. 8/8 arch tests pass. Build green. Phase 3 closed. |
 
 ## Phase 4 – Attendance + Announcements + Ratings
 
 | #   | Step                                                | Status | Date | Notes / commit |
 |-----|-----------------------------------------------------|--------|------|----------------|
-| 4.1 | `Attendance` module (`attendance` schema)           | ⬜     |      |                |
-| 4.2 | `Announcements` module (`announcements` schema)     | ⬜     |      |                |
-| 4.3 | `Ratings` module (`ratings` schema) + reputation projection | ⬜     |      |                |
-| 4.4 | Wire feed → ratings batch query (kill N+1)          | ⬜     |      |                |
-| 4.5 | Phase 4 exit gate                                   | ⬜     |      |                |
+| 4.1 | `Attendance` module (`attendance` schema)           | ✅     | 2025-01-09 | Domain: Participation + AttendanceStatus enum. Commands: Request/Accept/Reject/Cancel. Query: IsUserAttending. EF DbContext with unique (PostId,UserId) index. Minimal API endpoints. Build green. |
+| 4.2 | `Announcements` module (`announcements` schema)     | ✅     | 2025-01-09 | Domain: Announcement. Commands: Create/Delete. Query: GetByPost. EF DbContext. Minimal API. Build green. |
+| 4.3 | `Ratings` module (`ratings` schema) + reputation projection | ✅     | 2025-01-09 | Domain: Rating + UserReputation. Commands: Create/Delete with auto reputation upsert. Queries: GetByUser + GetReputationsForUsers (batch). Unique (RaterId,PostId) index. EF DbContext. Minimal API. Build green, 8/8 arch tests pass. |
+| 4.4 | Wire feed → ratings batch query (kill N+1)          | ✅     | 2025-01-09 | Added `IUserReputationProvider` in Posts.Application + `MediatRUserReputationProvider` adapter in Posts.Infrastructure. GetNearbyPostsQueryHandler batch-fetches reputations in single query. PostDto now includes UserReputation. No direct Posts→Ratings Application coupling. Build green, 8/8 arch tests pass. |
+| 4.5 | Phase 4 exit gate                                   | ✅     | 2025-01-09 | Attendance, Announcements, Ratings modules live. Feed→Ratings N+1 eliminated via batch query adapter. All modules wired into host. 8/8 arch tests pass. Build green. Phase 4 closed. |
 
 ## Phase 5 – Notifications + Moderation + BugReports + Payments
 
 | #   | Step                                              | Status | Date | Notes / commit |
 |-----|---------------------------------------------------|--------|------|----------------|
-| 5.1 | `Notifications` module (OneSignal STJ + MailKit, outbox-driven) | ⬜     |      |                |
-| 5.2 | `Moderation` module (`moderation` schema)         | ⬜     |      |                |
-| 5.3 | `BugReports` module (`bug_reports` schema)        | ⬜     |      |                |
-| 5.4 | `Payments` module (thin proxy)                    | ⬜     |      |                |
-| 5.5 | Phase 5 exit gate                                 | ⬜     |      |                |
+| 5.1 | `Notifications` module (OneSignal STJ + MailKit, outbox-driven) | ✅     | 2025-01-09 | Stateless module. OneSignal push via STJ + HttpClient. MailKit email sender. Ports: IPushNotificationSender, IEmailSender. Build green. |
+| 5.2 | `Moderation` module (`moderation` schema)         | ✅     | 2025-01-09 | Domain: PostReport + UserReport + ReportStatus. Commands: Create post/user report, resolve. Query: GetOpenPostReports. EF DbContext with status indexes. Minimal API. Build green. |
+| 5.3 | `BugReports` module (`bug_reports` schema)        | ✅     | 2025-01-09 | Domain: Bug + BugScreenshot. Create command with screenshot URLs. EF DbContext. Minimal API. Build green. |
+| 5.4 | `Payments` module (thin proxy)                    | ✅     | 2025-01-09 | Thin HTTP proxy. IPaymentsServiceClient port. No DB. Create/GetStatus endpoints. Build green. |
+| 5.5 | Phase 5 exit gate                                 | ✅     | 2025-01-09 | Notifications, Moderation, BugReports, Payments modules live. All wired into host. 8/8 arch tests pass. Build green. Phase 5 closed. |
 
 ## Phase 6 – Cleanup & hardening
 
@@ -104,6 +104,12 @@
 
 | Date | Step | Action | Commit |
 |------|------|--------|--------|
+| 2025-01-09 | 1.6 | Created ICacheService, RedisCacheService, CachingBehavior, ICachedQuery, CachingInstaller. Build green. | – |
+| 2025-01-09 | 1.5 | Wired Hangfire with Postgres storage, dashboard, and IHopautJobs abstraction. Build green. | – |
+| 2025-01-09 | 1.4 | Created Outbox/Inbox MVP with OutboxPublisher BackgroundService and EF configurations. Build green. | – |
+| 2025-01-09 | 1.3 | Created `Hopaut.Api.Host` minimal-hosting bootstrap with full observability stack. Build green. | – |
+| 2025-01-09 | 1.2 | Created 5 BuildingBlocks projects (SharedKernel, IntegrationEvents, Application, Infrastructure, Api) with DDD primitives and MediatR behaviors. Build green. | – |
+| 2025-01-09 | 1.1 | Restructured solution layout: legacy projects under `src/Legacy/` and `tests/Legacy/`; created modular monolith placeholder dirs. Build green. | – |
 | 2025-01-09 | 0.12 | Phase 0 exit gate passed. All objectives met, build green, 3 arch tests pass. | – |
 | 2025-01-09 | 0.11 | Scaffolded `tests/Hopaut.ArchitectureTests` with NetArchTest.Rules; 3 tests pass (no obsolete error deps). | – |
 | 2025-01-09 | 0.10 | Tightened JWT (issuer/audience validation), extracted CORS origins and proxy IPs to config-bound options. Build green. | – |

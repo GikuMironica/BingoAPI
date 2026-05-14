@@ -1,0 +1,14 @@
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\EmailTemplates\ResetPassword.html
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\Configurations\EventTypes.json
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\Configurations\Currencies.json
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\EmailTemplates\Emails.json
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\NotificationTemplates\NotificationLangTemplates.json
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\EmailTemplates\EmailConfirm.html
+C:\Users\ghmi\personal\BingoAPI\src\Legacy\BingoAPI\wwwroot\EmailTemplates\ForgotPassword.html
+wwwroot\Configurations\Currencies.json
+wwwroot\Configurations\EventTypes.json
+wwwroot\EmailTemplates\EmailConfirm.html
+wwwroot\EmailTemplates\Emails.json
+wwwroot\EmailTemplates\ForgotPassword.html
+wwwroot\EmailTemplates\ResetPassword.html
+wwwroot\NotificationTemplates\NotificationLangTemplates.json

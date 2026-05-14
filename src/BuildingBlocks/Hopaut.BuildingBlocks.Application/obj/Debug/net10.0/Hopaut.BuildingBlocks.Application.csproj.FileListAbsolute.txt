@@ -1,0 +1,16 @@
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.csproj.AssemblyReference.cache
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.AssemblyInfoInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.AssemblyInfo.cs
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.csproj.CoreCompileInputs.cache
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.sourcelink.json
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\bin\Debug\net10.0\Hopaut.BuildingBlocks.Application.deps.json
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\bin\Debug\net10.0\Hopaut.BuildingBlocks.Application.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\bin\Debug\net10.0\Hopaut.BuildingBlocks.Application.pdb
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\bin\Debug\net10.0\Hopaut.SharedKernel.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\bin\Debug\net10.0\Hopaut.SharedKernel.pdb
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.B.EBFCEAE7.Up2Date
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\refint\Hopaut.BuildingBlocks.Application.dll
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\Hopaut.BuildingBlocks.Application.pdb
+C:\Users\ghmi\personal\BingoAPI\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\obj\Debug\net10.0\ref\Hopaut.BuildingBlocks.Application.dll

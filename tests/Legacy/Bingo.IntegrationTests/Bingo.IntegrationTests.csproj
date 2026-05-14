@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="EventAttendeesControllerTest\EventAttendeesControllerTest.cs~RF13efa34.TMP" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="System.Net.Http.Json" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="Xunit.Priority" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Legacy\BingoAPI\BingoAPI.csproj" />
+    <ProjectReference Include="..\..\..\src\Legacy\Bingo.Contracts\Bingo.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>
