@@ -8,7 +8,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
 namespace BingoAPI
 {
     public class Program
@@ -51,23 +54,32 @@ namespace BingoAPI
             await host.RunAsync();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-         WebHost.CreateDefaultBuilder(args)
-             //attach additional JSON files
-             .ConfigureAppConfiguration((hostingContext, config) =>
+        public static IHostBuilder CreateWebHostBuilder(string[] args) =>
+         Host.CreateDefaultBuilder(args)
+             .ConfigureWebHostDefaults(webBuilder =>
              {
-                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Configurations", "EventTypes.json"), optional: false, reloadOnChange: true);
-                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "NotificationTemplates", "NotificationLangTemplates.json"), optional: false, reloadOnChange: true);
-                 config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "EmailTemplates", "Emails.json"), optional: false, reloadOnChange: true);
-                 config.AddEnvironmentVariables();
+                 webBuilder
+                     .ConfigureAppConfiguration((hostingContext, config) =>
+                     {
+                         config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "Configurations", "EventTypes.json"), optional: false, reloadOnChange: true);
+                         config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "NotificationTemplates", "NotificationLangTemplates.json"), optional: false, reloadOnChange: true);
+                         config.AddJsonFile(Path.Combine(Environment.CurrentDirectory, "wwwroot", "EmailTemplates", "Emails.json"), optional: false, reloadOnChange: true);
+                         config.AddEnvironmentVariables();
+                     })
+                     .ConfigureLogging((context, logging) =>
+                     {
+                         logging.ClearProviders();
+                     })
+                     .UseStartup<Startup>();
              })
-            .ConfigureLogging((context, logging) =>
-            {
-                logging.ClearProviders();
-                logging.AddConfiguration(context.Configuration.GetSection("Logging"));
-                logging.AddDebug();
-                logging.AddConsole();  // eventSourec , eventlog , trace source, azureAppServiceFile, azureAppServiceBlob, Insight
-            })
-            .UseStartup<Startup>();
+             .UseSerilog((context, configuration) =>
+             {
+                 configuration
+                     .ReadFrom.Configuration(context.Configuration)
+                     .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                     .MinimumLevel.Override("Microsoft.Hosting.Lifetime", LogEventLevel.Information)
+                     .Enrich.FromLogContext()
+                     .WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}");
+             });
     }
 }

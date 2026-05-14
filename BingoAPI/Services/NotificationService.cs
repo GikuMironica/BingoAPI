@@ -1,7 +1,7 @@
-﻿using BingoAPI.Extensions;
-using BingoAPI.Models;
+using BingoAPI.Extensions;
 using BingoAPI.Options;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System;
@@ -17,17 +17,17 @@ namespace BingoAPI.Services
         private readonly IOptions<OneSignalNotificationSettigs> _oneSignalSettings;
         private readonly IOptions<NotificationTemplates> _notificationTemplates;
         private readonly IHttpContextAccessor _httpContext;
-        private readonly IErrorService _errorService;
+        private readonly ILogger<NotificationService> _logger;
         private readonly HttpRequestMessage _request;
         private readonly HttpClient _httpClient;
 
         public NotificationService(IOptions<OneSignalNotificationSettigs> oneSignalSettings, IOptions<NotificationTemplates> notificationTemplates,
-                                   IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, IErrorService errorService)
+                                   IHttpClientFactory clientFactory, IHttpContextAccessor httpContext, ILogger<NotificationService> logger)
         {
             this._oneSignalSettings = oneSignalSettings;
             this._notificationTemplates = notificationTemplates;
             this._httpContext = httpContext;
-            this._errorService = errorService;
+            this._logger = logger;
 
             // request configuration
             _httpClient = clientFactory.CreateClient();
@@ -184,15 +184,8 @@ namespace BingoAPI.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                // logg error
-                var errorObj = new ErrorLog
-                {
-                    Date = DateTime.UtcNow,
-                    ExtraData = "Sending notification failed...",
-                    UserId = _httpContext.HttpContext.GetUserId(),
-                    Message = await response.Content.ReadAsStringAsync()
-                };
-                var ok = await _errorService.AddErrorAsync(errorObj);               
+                var responseBody = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Sending notification failed for user {UserId}: {ResponseBody}", _httpContext.HttpContext?.GetUserId(), responseBody);
             }
         }
                 

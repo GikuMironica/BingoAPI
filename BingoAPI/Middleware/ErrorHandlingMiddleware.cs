@@ -1,76 +1,44 @@
-﻿using System;
-using System.Net;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
-using BingoAPI.Extensions;
-using BingoAPI.Models;
-using BingoAPI.Options;
-using BingoAPI.Services;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Logging;
 
 namespace BingoAPI.Middleware
 {
-    public class ErrorHandlingMiddleware
+    public class GlobalExceptionHandler : IExceptionHandler
     {
-        private readonly RequestDelegate _next;
-        private readonly IErrorService _errorService;
-        private readonly EnvironmentOptions _eOptions;
+        private readonly ILogger<GlobalExceptionHandler> _logger;
+        private readonly IHostEnvironment _env;
 
-        public ErrorHandlingMiddleware(RequestDelegate next, IErrorService errorService, IOptions<EnvironmentOptions> eOptions)
+        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger, IHostEnvironment env)
         {
-            _next = next;
-            _errorService = errorService;
-            _eOptions = eOptions.Value;
+            _logger = logger;
+            _env = env;
         }
 
-        public async Task Invoke(HttpContext context, IWebHostEnvironment env)
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
-            try
-            {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                var error = await HandleExceptionAsync(context, ex, env);
-            }
-        }
+            _logger.LogError(exception, "Unhandled exception on {Method} {Path}", httpContext.Request.Method, httpContext.Request.Path);
 
-        private async Task<ErrorLog> HandleExceptionAsync(HttpContext context, Exception exception, IWebHostEnvironment env)
-        {
-            var stackTrace = String.Empty;
-            var status = HttpStatusCode.InternalServerError;
-            string message = "Server-side error";
-            var exceptionPath = context.Request.Path;
-
-            if (env.IsEnvironment("Development"))
+            var problemDetails = new ProblemDetails
             {
-                stackTrace = exception.StackTrace;
-                message = exception.Message;
-            }
-
-            ErrorLog errorLog = new ErrorLog
-            {
-                UserId = context?.GetUserId(),
-                Server = _eOptions.Server,
-                ActionMethod = exceptionPath,
-                Controller = exceptionPath,
-                Message = exception.Message,
-                Date = DateTime.Now,
-                ExtraData = exception.StackTrace
+                Status = StatusCodes.Status500InternalServerError,
+                Title = "An error occurred while processing your request.",
+                Type = "https://tools.ietf.org/html/rfc7807"
             };
 
-          
-            await _errorService.AddErrorAsync(errorLog);
-            var result = JsonConvert.SerializeObject(new { error = message});
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)status;
-            await context.Response.WriteAsync(result);
+            if (_env.IsDevelopment())
+            {
+                problemDetails.Detail = exception.ToString();
+            }
 
-            return errorLog;
+            httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+            return true;
         }
     }
 }
-    

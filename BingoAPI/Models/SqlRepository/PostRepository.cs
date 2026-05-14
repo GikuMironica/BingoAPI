@@ -1,4 +1,4 @@
-﻿using BingoAPI.Data;
+using BingoAPI.Data;
 using BingoAPI.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BingoAPI.Options;
 using BingoAPI.Services;
+using Microsoft.Extensions.Logging;
 
 namespace BingoAPI.Models.SqlRepository
 {
@@ -17,15 +18,15 @@ namespace BingoAPI.Models.SqlRepository
     {
         protected readonly DataContext Context;
         private readonly UserManager<AppUser> _userManager;
-        private readonly IErrorService _errorService;
+        private readonly ILogger<PostRepository> _logger;
         private readonly EventTypes _eventTypes;
 
         public PostRepository(DataContext context, UserManager<AppUser> userManager,
-                              IOptions<EventTypes> eventTypes, IErrorService errorService)
+                              IOptions<EventTypes> eventTypes, ILogger<PostRepository> logger)
         {
             Context = context;
             this._userManager = userManager;
-            _errorService = errorService;
+            _logger = logger;
             this._eventTypes = eventTypes.Value;
         }
 
@@ -261,25 +262,19 @@ namespace BingoAPI.Models.SqlRepository
                         return false;
                     }
 
-                    await LogError(dbUpdateEx.InnerException.Message, dbUpdateEx.InnerException.StackTrace);
+                    LogError(dbUpdateEx.InnerException.Message, dbUpdateEx.InnerException.StackTrace);
                     return false;
                 }
             }
-            await LogError(exception.Message+" \n Notice: Most probably someone uses PostMan to test the endpoint.", exception.StackTrace);
+            LogError(exception.Message+" \n Notice: Most probably someone uses PostMan to test the endpoint.", exception.StackTrace);
             return false;
         }
 
 
 
-        private async Task LogError(string message, string stacktrace)
+        private void LogError(string message, string stacktrace)
         {
-            var log = new ErrorLog
-            {
-                Message = message,
-                ExtraData = stacktrace,
-                Date = DateTime.Now
-            };
-            await _errorService.AddErrorAsync(log);
+            _logger.LogError("PostRepository error: {Message} StackTrace: {StackTrace}", message, stacktrace);
         }
 
 

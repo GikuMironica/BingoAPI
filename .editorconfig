@@ -1,7 +1,62 @@
-﻿[*.cs]
+﻿# EditorConfig – Hopaut Backend
+# https://editorconfig.org
+root = true
 
-# CS8632: The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = crlf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{json,yml,yaml}]
+indent_size = 2
+
+[*.{csproj,props,targets}]
+indent_size = 2
+
+[*.cs]
+# Sort System.* usings first
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# No 'this.' qualifier
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+dotnet_style_qualification_for_method = false:warning
+dotnet_style_qualification_for_event = false:warning
+
+# Prefer language keywords over framework type names
+dotnet_style_predefined_type_for_locals_parameters_members = true:warning
+dotnet_style_predefined_type_for_member_access = true:warning
+
+# Expression-level preferences
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_elsewhere = true:suggestion
+csharp_prefer_simple_using_statement = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_accessors = true:suggestion
+
+# Namespace
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Nullable – temporarily relaxed for legacy code (will tighten in steps 0.3–0.5)
+dotnet_diagnostic.CS8600.severity = warning
+dotnet_diagnostic.CS8601.severity = warning
+dotnet_diagnostic.CS8602.severity = warning
+dotnet_diagnostic.CS8603.severity = warning
+dotnet_diagnostic.CS8604.severity = warning
+dotnet_diagnostic.CS8618.severity = none
 dotnet_diagnostic.CS8632.severity = none
 
-# CS8618: Non-nullable field is uninitialized. Consider declaring as nullable.
-dotnet_diagnostic.CS8618.severity = none
+# Treat CS4014 (non-awaited async call) as error
+dotnet_diagnostic.CS4014.severity = error
+
+# New-line preferences
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true

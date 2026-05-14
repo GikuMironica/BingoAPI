@@ -1,4 +1,4 @@
-﻿using Bingo.Contracts.V1.Responses.Identity;
+using Bingo.Contracts.V1.Responses.Identity;
 using Bingo.Contracts.V1.Requests.Identity;
 using Bingo.Contracts.V1;
 using BingoAPI.Services;
@@ -16,6 +16,7 @@ using BingoAPI.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using BingoAPI.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace BingoAPI.Controllers
 {
@@ -27,7 +28,7 @@ namespace BingoAPI.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IEmailService _emailService;
         private readonly IEmailFormatter _emailFormatter;
-        private readonly IErrorService _errorService;
+        private readonly ILogger<IdentityController> _logger;
         private readonly String _createEditPostClaim = "post.add";
 
         public const string WebPortalRelativeUrl = "https://localhost:3000";
@@ -39,14 +40,14 @@ namespace BingoAPI.Controllers
                                   SignInManager<AppUser> signInManager,
                                   IEmailService emailService,
                                   IEmailFormatter emailFormatter,
-                                  IErrorService errorService)
+                                  ILogger<IdentityController> logger)
         {
             this._identityService = identityService;
             this._userManager = userManager;
             this._signInManager = signInManager;
             this._emailService = emailService;
             _emailFormatter = emailFormatter;
-            _errorService = errorService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -423,15 +424,8 @@ namespace BingoAPI.Controllers
             var replaceClaimResult = await _userManager.ReplaceClaimAsync(user, postClaim, disabledClaim);
             if (!replaceClaimResult.Succeeded)
             {
-                // logg
-                var errorObj = new ErrorLog
-                {
-                    Date = DateTime.Now,
-                    ExtraData = "Could not disable user's post add/edit claim. User email: "+user.Email,
-                    Message = string.Join(">>next error>>", replaceClaimResult.Errors),
-                    Controller = ControllerContext.ActionDescriptor.ControllerName
-                };
-                await _errorService.AddErrorAsync(errorObj);
+                _logger.LogError("Could not disable user's post add/edit claim. User email: {Email}, Errors: {Errors}",
+                    user.Email, string.Join(">>next error>>", replaceClaimResult.Errors));
 
                 return BadRequest(new SingleError
                 {
@@ -475,15 +469,8 @@ namespace BingoAPI.Controllers
             var replaceClaimResult = await _userManager.ReplaceClaimAsync(user, postClaim, enabledClaim);
             if (!replaceClaimResult.Succeeded)
             {
-                // loggs
-                var errorObj = new ErrorLog
-                {
-                    Date = DateTime.Now,
-                    ExtraData = "Could not enable user's post add/edit claim. User email: " + user.Email,
-                    Message = string.Join(">>next error>>", replaceClaimResult.Errors),
-                    Controller = ControllerContext.ActionDescriptor.ControllerName
-                };
-                await _errorService.AddErrorAsync(errorObj);
+                _logger.LogError("Could not enable user's post add/edit claim. User email: {Email}, Errors: {Errors}",
+                    user.Email, string.Join(">>next error>>", replaceClaimResult.Errors));
 
                 return BadRequest(new SingleError
                 {

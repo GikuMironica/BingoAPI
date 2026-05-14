@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -16,8 +16,9 @@ namespace Bingo.Contracts.Attributes
             _maxValue = maxValue;
         }
 
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
+            if (value is null) return false;
             return (int)value <= _maxValue;
         }
     }

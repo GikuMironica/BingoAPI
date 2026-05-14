@@ -1,0 +1,657 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BingoAPI</name>
+    </assembly>
+    <members>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.GetAnnouncement(System.Int32)">
+            <summary>
+            This endpoint returns an announcement by Id.
+            Can be viewed by an event participator / admin / host
+            </summary>
+            <param name="announcementId">The announcement Id</param>
+            <response code="200">Success</response>
+            <response code="400">Not Found</response>
+            <response code="403">Requester is not participating in the event / not an admin or host either</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.GetAllAnnouncements(System.Int32)">
+            <summary>
+            This endpoint returns all announcements related to a post. The newest come on top of the list.
+            Can be viewed by event participator / admin / host
+            </summary>
+            <param name="postId">The post Id</param>
+            <response code="200">Success</response>
+            <response code="204">No announcements for this post</response>
+            <response code="404">Post with such id was not found</response>
+            <response code="403">Requester is not participating in the event / not an admin or host either</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.CreateAnnouncement(Bingo.Contracts.V1.Requests.Announcement.CreateAnnouncementRequest)">
+            <summary>
+            This endpoint is used for creating an announcement.
+            Can be created only by event host / admin.
+            All event attendees will get a push notification when the host creates an announcement.
+            </summary>
+            <param name="createAnnouncementRequest">The announcement data, the message should be not less than 10 characters</param>
+            <response code="201">Successfully created</response>
+            <response code="400">Persistence error</response>
+            <response code="403">Requester is not not an admin or host either</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.UpdateAnnouncement(System.Int32,Bingo.Contracts.V1.Requests.Announcement.UpdateAnnouncementRequest)">
+            <summary>
+            This endpoint is used for updating an announcement.
+            Can be updated only by event host / admin
+            </summary>
+            <param name="announcementId">The announcement Id</param>
+            <param name="updateRequest">Updated data, the message should be not less than 10 characters</param>
+            <response code="200">Successfully updated</response>
+            <response code="400">Update could not be persisted</response>
+            <response code="403">Requester is not the host / admin</response>
+            <response code="404">Announcements does not exist</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.DeleteAnnouncement(System.Int32)">
+            <summary>
+            This endpoint is used for deleting an announcement.
+            Can be deleted only by event host / admin
+            </summary>
+            <param name="announcementId">The announcement id</param>
+            <response code="204">Successfully deleted</response>
+            <response code="400">Delete failed</response>
+            <response code="403">Requester is not the host / admin</response>
+            <response code="404">Announcements does not exist</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.GetAllWithOutbox">
+            <summary>
+            This endpoint returns miniposts of user's posts that have any announcements.
+            The returned list of posts is sorted descending by the timestamp of their last announcement.
+            I.e miniposts for the outbox.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:BingoAPI.Controllers.AnnouncementController.GetAllWithAnnouncements">
+            <summary>
+            This endpoint returns all events that the user will attend or has attended already, and that contains any announcements.
+            The returned list of posts is sorted descending by the timestamp of their last announcement. 
+            i.e the post with the most recent announcement comes on top of the list.
+            </summary>
+            <response code="200">Returns a custom mini post for announcement data.</response>
+            <response code="204">No announcements to display</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AttendedEventsController.AttendEvent(System.Int32)">
+            <summary>
+            This endpoint adds the requester to the event participators list.
+            If the event is a house party, it is added to the pending requests list.
+            The host will get a push notification about a new request.
+            </summary>
+            <param name="postId">The post Id</param>
+            <response code="200">User successfully added to the list</response>
+            <response code="400">Post does not exist or no more slots available for this event or user already applied to this event</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AttendedEventsController.GetAllActiveAttendedEvents">
+            <summary>
+            This endpoint returns all events that the requester is going to participate in.
+            The user data is retrieved from the JWT
+            </summary>
+            <response code="200">List of attended events or null if there are none</response>
+            <response code="204">User is not attending any events.</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AttendedEventsController.GetAllOldAttendedEvents">
+            <summary>
+            This endpoint returns all events, that the requester attended in the past.
+            The user data is retrieved from the JWT.
+            </summary>
+            <response code="200">Returns the list of events or null</response>
+            <response code="204">User didn't attend any event so far.</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.AttendedEventsController.UnAttendEvent(System.Int32)">
+            <summary>
+            This endpoint removes the requester from the participation list of an event
+            The user data is retrieved from the JWT.
+            </summary>
+            <param name="postId">The post id</param>
+            <response code="200">Removed</response>
+            <response code="404">Post not found</response>
+            <response code="400">Post does not exists/ user did not subscribe to this event</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.BugReportController.CreateReport(Bingo.Contracts.V1.Requests.Bug.CreateBugReport)">
+            <summary>
+            This endpoint is used for reporting a post.
+            Everyone can report a post.
+            </summary>
+            <param name="reportRequest">The report data. The message maximum length is 300 characters with at most 3 pictures.</param>
+            <response code="200">Success</response>
+            <response code="400">Report could not be submitted</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.EventAttendeesController.AcceptAttendee(Bingo.Contracts.V1.Requests.EventAttendee.AttendeeRequest)">
+            <summary>
+            This endpoint enables the host to accept participants at his house party.
+            Once an user is accepted, he will receive a push notification with the confirmation message.
+            </summary>
+            <param name="attendeeRequest">This object contains the post id and the requester id</param>
+            <response code="200">Accepted</response>
+            <response code="400">No slots available / user did not request to attent this party</response>
+            <response code="403">The requester is not the event host</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.EventAttendeesController.RejectAttendee(Bingo.Contracts.V1.Requests.EventAttendee.AttendeeRequest)">
+            <summary>
+            This endpoint rejects an user request to join a house party / removes a user from participators list.
+            This endpoint is only accesible for the event hosts.
+            </summary>
+            <param name="attendeeRequest">This object contains the attendee Id, post id containing the event</param>
+            <response code="200">Success</response>
+            <response code="400">User is not in the participators list</response>
+            <response code="403">Requester is not the event host</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.EventAttendeesController.DisplayAll(Bingo.Contracts.V1.Requests.User.PaginationQuery)">
+            <summary>
+            This endpoint fetches data about all event attendees regardless of whether they are accepted or in the pending list.
+            This information is private and only accessible for the event host
+            </summary>
+            <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the default is page 1, 50 results per page</param>
+            <response code="200">Returns paginated result with the list of users.</response>
+            <response code="204">Nobody attends this event or requested to attend it.</response>
+            <response code="403">Requester is not the event host.</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.EventAttendeesController.FetchAccepted(Bingo.Contracts.V1.Requests.User.PaginationQuery)">
+            <summary>
+            This endpoint returns data about all users which are accepted in an event.
+            This information is private and only accessible for the event host.
+            </summary>
+            <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the default is page 1, 50 results per page</param>
+            <response code="200">Returns paginated result with the list of users</response>
+            <response code="204">No users are accepted to this event yet.</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.EventAttendeesController.FetchAcceptedShort(Bingo.Contracts.V1.Requests.EventAttendee.FetchAttendeesRequest)">
+            <summary>
+            This endpoint returns brief data about first 3 event attendees.
+            </summary>
+            <param name="fetchAttendees">Specifies the id of the post</param>
+            <response code="200">Returns the data about first 3 attendees and total ammount of users</response>
+            <response code="204">No users are accepted to this event yet.</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.EventAttendeesController.FetchPending(Bingo.Contracts.V1.Requests.User.PaginationQuery)">
+            <summary>
+            This endpoint fetches the data about every user who requested to join this event.
+            </summary>
+            <param name="paginationQuery">Specifies the post id, pagination parameters, if not provided, the defaulti is page 1, 50 results per page</param>
+            <response code="200">Returns paginated result with the list of users</response>
+            <response code="204">No pending requests to join this event yet</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.Register(Bingo.Contracts.V1.Requests.Identity.UserRegistrationRequest)">
+            <summary>
+            Registers user in the system. User will be able to use the app only upon email confirmation.
+            An email with a confirmation link will be sent to the user.
+            </summary>
+            <param name="request">Request object containing user email , password</param>
+            <response code="200">If user registered, email confirmation link is sent to user over email, 200 ok returned with userId</response>
+            <response code="400">List of errors</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.Login(Bingo.Contracts.V1.Requests.Identity.UserLoginRequest)">
+            <summary>
+            Logs in the user in the system
+            Fail reasons: 0, 1, 2
+                0: Email not confirmed
+                1: Too many invalid attempts, account temporarly locked
+                2: Invalid password
+            </summary>
+            <param name="request">Request containing user email and password</param>
+            <response code="200">Authentication result containing the jwt token and http response code</response>
+            <response code="400">List of errors</response>
+            <response code="403">Email not confirmed</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.Login(Bingo.Contracts.V1.Requests.Identity.UserFacebookAuthRequest)">
+            <summary>
+            This method registers/logs user in with facebook credentials
+            </summary>
+            <param name="request">Generated on client side with facebook sdk</param>
+            <response code="200">Token validated, AuthenticationResponse returned with the jwt and refresh token</response>
+            <response code="403">Email not confirmed yet</response>
+            <response code="400">Invalid token</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.Refresh(Bingo.Contracts.V1.Requests.Identity.RefreshTokenRequest)">
+            <summary>
+            Generates a new JWT, Refresh token combination and stores it 
+            in the system database
+            </summary>
+            <param name="request">Contains the JWT and the refresh token</param>
+            <response code="200">New JWT, Refresh token combination</response>
+            <response code="400">List of errors</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.ConfirmEmail(System.String,System.String)">
+            <summary>
+            This method handles the user email confirmation upon registration,
+            when the user hits the confirmation link, the user's email is marked as confirmed in the system 
+            and confirmation email is sent
+            </summary>
+            <param name="userId">The registered user Id</param>
+            <param name="token">The generated token - lifespan 1 day</param>
+            <response code="200">Confirmed</response>
+            <response code="400">Denied, token invalid or user does not exist</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.ConfirmEmail(Bingo.Contracts.V1.Requests.Identity.ConfirmEmailRequest)">
+            <summary>
+            This endpoint can be used by admins only, to confirm users email
+            in case of system failure
+            </summary>
+            <param name="confirmEmailRequest">Email to be confirmed</param>
+            <response code="200">Success</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.ForgotPassword(Bingo.Contracts.V1.Requests.Identity.ForgotPasswordRequest)">
+            <summary>
+            This endpoint send instructions to reset the password to the provided email address
+            </summary>
+            <param name="request">Contains the email of the account</param>
+            <response code="200">The instructions have been successfully sent if the user is registered in the system</response>
+            <response code="400">The provided email is not valid</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.ResetPassword(Bingo.Contracts.V1.Requests.Identity.ResetPasswordRequest)">
+            <summary>
+            When the user clicks the link in the email, new temporary password is set and send back to user's email
+            </summary>
+            <param name="request">Contains the email and the token</param>
+            <response code="200"></response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.ChangePassword(Bingo.Contracts.V1.Requests.Identity.ChangePasswordRequest)">
+            <summary>
+            This end point changes the user's password
+            </summary>
+            <param name="request">Contains the old and the new password</param>
+            <response code="200">Success confirmation</response>
+            <response code="400">Provided password might not meet the security requirements</response>
+            <response code="403">Email / Old password combination doesn't match</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.AddPassword(Bingo.Contracts.V1.Requests.Identity.AddPasswordRequest)">
+            <summary>
+            This end point adds new password for current user if he has none ( in case he registered with facebook )
+            </summary>
+            <param name="request">Contains the new password</param>
+            <response code="200">Success confirmation</response>
+            <response code="400">Provided password might not meet the security requirements</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.RevokeCreatePostClaim(Bingo.Contracts.V1.Requests.Identity.RevokePostClaimRequest)">
+            <summary>
+            This endpoint disables the specified user's claim for creating posts. A time stamp is added in the claim value with the timestamp.
+            </summary>
+            <param name="request">The target user email</param>
+            <response code="200">Action has been completed successfully</response>
+            <response code="400">Action could not be completed. Check error logs</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.IdentityController.GrantCreatePostClaim(Bingo.Contracts.V1.Requests.Identity.GrantPostClaimRequest)">
+            <summary>
+            This endpoint enables the specified user's claim for creating events. 
+            </summary>
+            <param name="request"></param>
+            <response code="200">Action has been completed successfully</response>
+            <response code="400">Action could not be completed. Check error logs</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.Get(System.Int32)">
+            <summary>
+            This endpoint returns relevant data about a post.
+            It includes the host id, the location, pictures, tags and other details.
+            </summary>
+            <param name="postId">The post Id</param>
+            <response code="200">The post was found and returned</response>
+            <response code="404">The post was not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.GetMyActiveEvents(BingoAPI.Domain.PostsPaginationQuery)">
+            <summary>
+            This endpoint is used to fetch all currently active events hosted by the requester.
+            The user data is retrieved from the JWT.
+            </summary>
+            <param name="paginationQuery">Contains the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
+            <response code="200">Returns the standard mini post</response>
+            <response code="204">User has no active posts</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.GetMyInactiveEvents(BingoAPI.Domain.PostsPaginationQuery)">
+            <summary>
+            This end point is used to fetch all inactive events hosted by the requester.
+            The user data is retrieved from the JWT.
+            </summary>
+            <param name="paginationQuery">Contains the pagination details, like page number and page size. Default values are 1 for the page number and 50 for page size</param>
+            <response code="200">Returns the standard mini post</response>
+            <response code="204">User did not host any event yet</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.GetAll(Bingo.Contracts.V1.Requests.Post.GetAllRequest,Bingo.Contracts.V1.Requests.Post.FilteredGetAllPostsRequest)">
+            <summary>
+            This endpoint returns all active events based on the requester's location.
+            By default it returns the events within 15km range
+            </summary>
+            <param name="getAllRequest">Contains users Longitude,Latitude and search range</param>
+            <param name="filteredGetAll">Event types to be included in the search result. If all are null or false, all of them will be included in the result. 
+            It also contains an option to returns the events which will occur today. And lastly, Tag, will return posts containing this tag.</param>
+            <response code="200">Returns the standard mini post</response>
+            <response code="204">No active events in this area</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.Create(Bingo.Contracts.V1.Requests.Post.CreatePostRequest)">
+            <summary>
+            This endpoint is used for creating posts.
+            A post includes location, event, pictures, tags and other details.
+            </summary>
+            <param name="postRequest">request object</param>
+            <response code="201">Post successfully created</response>
+            <response code="403">Post could not be persisted, due to missing required data or corrupt images</response>
+            <response code="400">Post could not be persisted, due to missing required data or invalid model</response>
+            <response code="403">User is not allowed to create post. Missing fullname or active posts limit hit</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.Update(System.Int32,Bingo.Contracts.V1.Requests.Post.UpdatePostRequest)">
+            <summary>
+            This endpoint is used to update a post with it's related data which are all optional.
+            Event Location, The contained Event, The Post itself, Tags and Pictures can be updated here by the even host or admin only.
+            </summary>
+            <param name="postId">The post id</param>
+            <param name="postRequest">The request object, all attributes are optional</param>
+            <response code="200">Update successful</response>
+            <response code="400">Attempt to input invalid data</response>
+            <response code="403">Not authorized for this action</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.Delete(System.Int32)">
+            <summary>
+            This endpoint is used for deleting posts.
+            A post can only be deleted by it's owner or by Admin
+            It will delete all related data, like Event, Location but, it will leave the created tags.
+            </summary>
+            <param name="postId">The post id</param>
+            <response code="204">Post was successfully deleted</response>
+            <response code="403">You do not own this post / You are not an Administrator</response>
+            <response code="404">Post was not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.PostController.Disable(Bingo.Contracts.V1.Requests.Post.DisablePostRequest)">
+            <summary>
+            This endpoint is used by admins to disable posts
+            </summary>
+            <param name="disableRequest">Contains the post id</param>
+            <response code="200">Success</response>
+            <response code="404">Post not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.ProfileController.GetProfile(System.String)">
+            <summary>
+            This endpoint returns the profile data of a user by his Id.
+            Can be viewed by any authenticated app user.
+            </summary>
+            <param name="userId">The user Id</param>
+            <response code="200">Success</response>
+            <response code="404">User not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.RatingsController.GetRating(System.Int32)">
+            <summary>
+            This endpoint returns a rating by Id.
+            </summary>
+            <param name="ratingId">The rating Id</param>
+            <response code="200">Success</response>
+            <response code="404">Rating not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.RatingsController.GetRatings(System.String)">
+            <summary>
+            This endpoint returns all ratings of an user by his Id.
+            </summary>
+            <param name="userId">The user Id</param>
+            <response code="200">Success</response>
+            <response code="204">No ratings for this user yet</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.RatingsController.CreateRating(Bingo.Contracts.V1.Requests.Rating.CreateRatingRequest)">
+            <summary>
+            This endpoint is used for rating the host based on his event specified in the request. The rating is assigned to the host.
+            The average rating of the host will be displayed in his events data.
+            Ratings can be given only by users attending the event.
+            </summary>
+            <param name="createRequest">The rating data, the host id, the event id</param>
+            <response code="201">Success</response>
+            <response code="403">Requester is not attending this event / Provided user id is not the event host /
+            Requester already rated this event</response>
+            <response code="400">Rating could not be submitted</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.RatingsController.DeleteRating(System.Int32)">
+            <summary>
+            This endpoint is used for deleting a rating.
+            Can be deleted only by admins
+            </summary>
+            <param name="ratingId">The rating Id</param>
+            <response code="204">Successfully deleted</response>
+            <response code="400">Delete failed / Rating did not exist</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.ReportController.GetReport(System.Int32)">
+            <summary>
+            This endpoint returns a report on a post by Id.
+            Can be viewed by administration only.
+            </summary>
+            <param name="reportId">The report Id</param>
+            <response code="200">Success</response>
+            <response code="404">Report not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.ReportController.GetReports(System.String)">
+            <summary>
+            This endpoint returns all reports on users posts by his Id.
+            Can be viewed by administration only.
+            </summary>
+            <param name="userId">The user Id</param>
+            <response code="200">Success</response>
+            <response code="204">No reports on this user yet</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.ReportController.CreateReport(Bingo.Contracts.V1.Requests.Report.CreateReportRequest)">
+            <summary>
+            This endpoint is used for reporting a post.
+            Everyone can report a post.
+            </summary>
+            <param name="reportRequest">The report data. The message minimum length is 10 characters.</param>
+            <response code="201">Success</response>
+            <response code="403">User already reported this event</response>
+            <response code="400">Report could not be submitted</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.ReportController.DeleteReport(System.Int32)">
+            <summary>
+            This endpoint is used for deleting a report on a post.
+            Can be deleted only by admins
+            </summary>
+            <param name="reportId">The report Id</param>
+            <response code="204">Successfully deleted</response>
+            <response code="400">Delete failed / Report did not exist</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.ReportController.DeleteAllReportForUser(System.String)">
+            <summary>
+            This endpoint is used for deleting all reports on a users posts.
+            Can be deleted only by admins
+            </summary>
+            <param name="userId">The user Id</param>
+            <response code="204">Successfully deleted</response>
+            <response code="400">Delete failed / Reports did not exist</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserController.GetAll(BingoAPI.Domain.UsersPaginationQuery)">
+            <summary>
+            Returns relevant data about all the users in the system.
+            Only administration has access to this resource.
+            </summary>
+            <param name="paginationQuery">Contains the pagination configuration like page nr, page size. Default values are 1 and 50.</param>
+            <response code="200">Returns paginated response with all users</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserController.Get(System.String)">
+            <summary>
+            Returns relevant data about a system user by Id.
+            This data is only available to admins and the account owner.
+            </summary>
+            <param name="userId">Id of the user</param>
+            <response code="200">Returns the data</response>
+            <response code="404">User not found </response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserController.Update(System.String,Bingo.Contracts.V1.Requests.User.UpdateUserRequest)">
+            <summary>
+            Updates a user in the system.
+            The data can be updated only by the account owner or an admin.
+            </summary>
+            <param name="userId">Id of the user</param>
+            <param name="request">All attributes that are not null, will be updated</param>
+            <response code="200">Returns the updated user</response>
+            <response code="404">User not found</response>
+            <response code="403">User can only update his own profile</response>
+            <response code="400">Attempt to input invalid data</response>
+            <response code="406">Unable to update user</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserController.UpdatePicture(System.String,Bingo.Contracts.V1.Requests.User.UpdateUserPictureRequest)">
+            <summary>
+            This endpoint is used for updating the profile picture of an user.
+            This data can only be updated by the account owner or an admin.
+            </summary>
+            <param name="userId">The account Id</param>
+            <param name="userPictureRequest">Contains the new profile picture</param>
+            <response code="403">User can only update his own profile</response>
+            <response code="400">Provided image could not be persisted.</response>
+            <response code="200">Returns the users data.</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserController.Delete(System.String)">
+            <summary>
+            This endpoint allows users to delete their account 
+            </summary>
+            <param name="userId">The user id to be deleted</param>
+            <response code="204">User successfully deleted</response>
+            <response code="403">Unauthorized access</response>
+            <response code="406">Unable to update user</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserController.DeletePicture(System.String)">
+            <summary>
+            This endpoint allows user/admin to delete profile pictures 
+            </summary>
+            <param name="userId">The user id</param>
+            <response code="204">Success</response>
+            <response code="403">Unauthorized</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserReportController.GetReport(System.Int32)">
+            <summary>
+            This endpoint returns the report on an user, by the report Id.
+            Can be viewed by administration only.
+            </summary>
+            <param name="reportId">The report Id</param>
+            <response code="200">Success</response>
+            <response code="404">Report not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserReportController.GetReports(System.String)">
+            <summary>
+            This endpoint returns all reports on an user by his Id.
+            Can be viewed by event administration only.
+            </summary>
+            <param name="userId">The user Id</param>
+            <response code="200">Success</response>
+            <response code="204">No reports on this user yet</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserReportController.CreateReport(Bingo.Contracts.V1.Requests.UserReport.ReportUserRequest)">
+            <summary>
+            This endpoint is used for reporting an user.
+            Everyone can report a user.
+            </summary>
+            <param name="reportUser">The report data</param>
+            <response code="201">Success</response>
+            <response code="403">Requester already reported this user, cooldown 1 week</response>
+            <response code="400">Report could not be submitted</response>
+            <response code="404">User not found</response>
+        </member>
+        <member name="M:BingoAPI.Controllers.UserReportController.DeleteReport(System.Int32)">
+            <summary>
+            This endpoint is used for deleting a report on an user.
+            Can be deleted only by admins.
+            </summary>
+            <param name="reportId">The report Id</param>
+            <response code="204">Successfully deleted</response>
+            <response code="400">Delete failed / Report did not exist</response>
+        </member>
+        <member name="T:BingoAPI.Domain.EmailFormatResult">
+            <summary>
+            This class contains two components for sending an email with HTML body.
+            The content, and the subject.
+            </summary>
+        </member>
+        <member name="M:BingoAPI.Extensions.GeneralExtensions.GetUserId(Microsoft.AspNetCore.Http.HttpContext)">
+            Method which reads the value from "id" claim passed in the JWT
+        </member>
+        <member name="M:BingoAPI.Extensions.GeneralExtensions.GetUserEmail(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            This method retrieves the user's email from the JWT
+            </summary>
+            <param name="httpContext"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BingoAPI.Extensions.GeneralExtensions.IsHeaderAdded(System.Net.Http.HttpClient)">
+            <summary>
+            This method checks whether a specific header is already added to the httpClient for the next request
+            </summary>
+            <param name="httpClient"></param>
+        </member>
+        <member name="T:BingoAPI.Filters.ValidationFilter">
+            <summary>
+            Filter middleware, checks the modelstate of the incoming request objects
+            </summary>
+        </member>
+        <member name="M:BingoAPI.Models.SqlRepository.PostRepository.AddNewTagsAsync(BingoAPI.Models.Post)">
+            <summary>
+            This method checks if tag already exit or not,
+            if exists increment counter
+            if not, add it, initialize counter
+            </summary>
+            <param name="post">The post which references the tag</param>
+            <returns></returns>
+        </member>
+        <member name="T:BingoAPI.Services.EmailFormatter">
+            <summary>
+            This class fetches the email HTML templates preloaded in the desired language from the FormatEmailSingleton class.
+            Therefore, these templates are interpolated, missing "links", "email subject" and other stuff is added. Finally, all components for an email are here assembled,
+            and returned.
+            </summary>
+        </member>
+        <member name="T:BingoAPI.Services.FormattedEmailSingleton">
+            <summary>
+            This class, at application start, parses all JSON files related to email templates, and interpolates them with every language that is defined in EmailOptions class.
+            Thereafter, these templates are used by IEmailFormatter service, that interpolates it again and adds missing links or tokens etc.
+            Why? For performance reasons. This interpolation is done once at startup, then the templates are available in every language in memory. 
+            </summary>
+        </member>
+        <member name="M:BingoAPI.Services.IdentityService.RegisterAsync(System.String,System.String,System.String)">
+            <summary>
+            This method registers a user in the system,
+            with the given email and password which is then hashed.
+            </summary>
+            <param name="email">User registration email</param>
+            <param name="password">User password</param>
+            <param name="lang">User's phone language</param>
+            <returns>This method returns the generated Jwt token
+            if operation was successful</returns>
+        </member>
+        <member name="M:BingoAPI.Services.IdentityService.LoginAsync(System.String,System.String)">
+            <summary>
+            This method Logs in existing user in the system
+            </summary>
+            <param name="email">User email</param>
+            <param name="requestPassword">User password</param>
+            <returns>Return AuthenticationResult</returns>
+        </member>
+        <member name="M:BingoAPI.Services.IdentityService.GenerateAuthenticationResultForUserAsync(BingoAPI.Models.AppUser)">
+            <summary>
+            Generates jwt , refresh token for <paramref name="user"/> 
+            </summary>
+            <param name="user">An identity user</param>
+            <returns></returns>
+        </member>
+        <member name="M:BingoAPI.Services.IEmailFormatter.FormatRegisterConfirmation(System.String,System.String,System.String)">
+            <summary>
+            This method selects the desired language HTML template for Email Confirmation messages
+            and adds the missing details to it. Like tokens that are generated at runtime
+            </summary>
+            <param name="emailAddress">Email address of the user that just registered</param>
+            <param name="confirmationLink">Confirmation link generated</param>
+            <param name="language">User's device language</param>
+            <returns>All components for sending an HTML content email</returns>
+        </member>
+        <member name="M:BingoAPI.Services.IEmailFormatter.FormatForgotPassword(System.String,System.String)">
+            <summary>
+            This email selects the desired HTML template for Forgot Password requests.
+            It adds to the template a confirmation link that is generated at runtime.
+            </summary>
+            <param name="generateLink">Confirmation Link that will generate a new password for the user</param>
+            <param name="language">User's device language</param>
+            <returns>All components required for sending and HTML content email</returns>
+        </member>
+        <member name="M:BingoAPI.Services.IEmailFormatter.FormatResetPassword(System.String)">
+            <summary>
+            This method selects a specific HTML template based on user's device language.
+            It will display the reset password html view in the email.
+            </summary>
+            <param name="language">user's device language</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

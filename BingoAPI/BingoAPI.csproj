@@ -1,87 +1,90 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <UserSecretsId>a06b5412-04cc-4d2e-9e0a-57a89fecd4d5</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<UserSecretsId>a06b5412-04cc-4d2e-9e0a-57a89fecd4d5</UserSecretsId>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-  </PropertyGroup>
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Migrations\20200514154420_ExtendModels-AddTags.cs" />
-    <Compile Remove="Migrations\20200514154420_ExtendModels-AddTags.Designer.cs" />
-    <Compile Remove="Migrations\20200522095023_ExtendModel23.cs" />
-    <Compile Remove="Migrations\20200522095023_ExtendModel23.Designer.cs" />
-    <Compile Remove="Migrations\20200524080100_CreateSpacialTable.cs" />
-    <Compile Remove="Migrations\20200524080100_CreateSpacialTable.Designer.cs" />
-    <Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.cs" />
-    <Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.Designer.cs" />
-    <Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.cs" />
-    <Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.Designer.cs" />
-    <Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.cs" />
-    <Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.Designer.cs" />
-    <Compile Remove="Migrations\20200619123001_addTagIndexesOnMigration.cs" />
-    <Compile Remove="Migrations\20200619123001_addTagIndexesOnMigration.Designer.cs" />
-    <Compile Remove="Migrations\20200811230437_ReportChange.cs" />
-    <Compile Remove="Migrations\20200811230437_ReportChange.Designer.cs" />
-    <Compile Remove="Migrations\20201115200137_updateReason.cs" />
-    <Compile Remove="Migrations\20201115200137_updateReason.Designer.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Migrations\20200514154420_ExtendModels-AddTags.cs" />
+		<Compile Remove="Migrations\20200514154420_ExtendModels-AddTags.Designer.cs" />
+		<Compile Remove="Migrations\20200522095023_ExtendModel23.cs" />
+		<Compile Remove="Migrations\20200522095023_ExtendModel23.Designer.cs" />
+		<Compile Remove="Migrations\20200524080100_CreateSpacialTable.cs" />
+		<Compile Remove="Migrations\20200524080100_CreateSpacialTable.Designer.cs" />
+		<Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.cs" />
+		<Compile Remove="Migrations\20200524190458_DeleteRedundantLocation.Designer.cs" />
+		<Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.cs" />
+		<Compile Remove="Migrations\20200524195219_UpdateModelDropCountryName.Designer.cs" />
+		<Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.cs" />
+		<Compile Remove="Migrations\20200530204032_AddedRepeatableVouchersRatings.Designer.cs" />
+		<Compile Remove="Migrations\20200619123001_addTagIndexesOnMigration.cs" />
+		<Compile Remove="Migrations\20200619123001_addTagIndexesOnMigration.Designer.cs" />
+		<Compile Remove="Migrations\20200811230437_ReportChange.cs" />
+		<Compile Remove="Migrations\20200811230437_ReportChange.Designer.cs" />
+		<Compile Remove="Migrations\20201115200137_updateReason.cs" />
+		<Compile Remove="Migrations\20201115200137_updateReason.Designer.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="AspNetCoreRateLimit" Version="3.2.2" />
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
-    <PackageReference Include="AWSSDK.S3" Version="3.5.9.3" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.1" />
-    <PackageReference Include="Flurl.Http" Version="3.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="5.0.1" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.2" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="5.0.2" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="6.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.1" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" />
+		<PackageReference Include="AWSSDK.S3" />
+		<PackageReference Include="FluentValidation.AspNetCore" />
+		<PackageReference Include="Flurl.Http" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+		<PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+		<PackageReference Include="OpenTelemetry.Exporter.Console" />
+		<PackageReference Include="Serilog.AspNetCore" />
+		<PackageReference Include="Serilog.Sinks.Console" />
+		<PackageReference Include="Newtonsoft.Json" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" />
+		<PackageReference Include="Swashbuckle.AspNetCore" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Filters" />
+		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
+		<PackageReference Include="System.Data.SqlClient" />
+		<PackageReference Include="System.Drawing.Common" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Bingo.Contracts\Bingo.Contracts.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Bingo.Contracts\Bingo.Contracts.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\EventPics\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="wwwroot\Configurations\EventTypes.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="wwwroot\NotificationTemplates\NotificationLangTemplates.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="wwwroot\EventPics\" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="wwwroot\Configurations\EventTypes.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Update="wwwroot\NotificationTemplates\NotificationLangTemplates.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
 	<ItemGroup>
 		<Content Update="wwwroot\EmailTemplates\Emails.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
+
 </Project>

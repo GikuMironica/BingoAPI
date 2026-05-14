@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
@@ -15,8 +15,9 @@ namespace Bingo.Contracts.V1.Attributes
             _minValue = minValue;
         }
 
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
+            if (value is null) return false;
             return (int)value >= _minValue;
         }
     }

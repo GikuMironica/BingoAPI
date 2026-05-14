@@ -1,0 +1,15 @@
+<Project>
+
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<LangVersion>latest</LangVersion>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- TreatWarningsAsErrors opt-in: new projects set <HopautStrictWarnings>true</HopautStrictWarnings> -->
+  <PropertyGroup Condition="'$(HopautStrictWarnings)' == 'true'">
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

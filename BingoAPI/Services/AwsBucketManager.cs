@@ -1,4 +1,4 @@
-﻿using Amazon.S3;
+using Amazon.S3;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Amazon.S3.Model;
 using BingoAPI.Models;
 using BingoAPI.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace BingoAPI.Services
 {
@@ -17,15 +18,15 @@ namespace BingoAPI.Services
     {
         private readonly AwsBucketSettings _awsBucketSettings;
         private readonly IHttpContextAccessor _httpContext;
-        private readonly IErrorService _errorService;
+        private readonly ILogger<AwsBucketManager> _logger;
         private static readonly RegionEndpoint BucketRegion = RegionEndpoint.EUCentral1;
         private static IAmazonS3 _s3Client;
         public AwsBucketManager(IOptions<AwsBucketSettings> awsBucketSettings, IHttpContextAccessor httpContext,
-                                IErrorService errorService)
+                                ILogger<AwsBucketManager> logger)
         {
             this._awsBucketSettings = awsBucketSettings.Value;
             this._httpContext = httpContext;
-            this._errorService = errorService;
+            this._logger = logger;
             _s3Client = new AmazonS3Client(this._awsBucketSettings.aws_access_key_id, this._awsBucketSettings.aws_secret_access_key, BucketRegion);
         }
 
@@ -55,15 +56,7 @@ namespace BingoAPI.Services
             }
             catch (Exception e)
             {
-                // logg
-                var errorObj = new ErrorLog
-                {
-                    Date = DateTime.Now,
-                    ExtraData = "Image could not be uploaded to AWS Bucket",
-                    Message = e.Message,
-                    UserId = _httpContext.HttpContext.GetUserId()
-                };
-                await _errorService.AddErrorAsync(errorObj);
+                _logger.LogError(e, "Image could not be uploaded to AWS Bucket for user {UserId}", _httpContext.HttpContext?.GetUserId());
                 imageUploadResult.Result = false;
             }
             return imageUploadResult;
@@ -92,15 +85,7 @@ namespace BingoAPI.Services
             }
             catch (DeleteObjectsException e)
             {
-                // logg
-                var errorObj = new ErrorLog
-                {
-                    Date = DateTime.Now,
-                    ExtraData = "Image could not be deleted",
-                    Message = e.Message,
-                    UserId = _httpContext.HttpContext.GetUserId()
-                };
-                await _errorService.AddErrorAsync(errorObj);
+                _logger.LogError(e, "Image could not be deleted for user {UserId}", _httpContext.HttpContext?.GetUserId());
                 return new ImageDeleteResult { Result = false, ErrorMessages = e.Response.DeleteErrors };
             }
         }

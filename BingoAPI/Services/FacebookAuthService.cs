@@ -1,32 +1,32 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BingoAPI.ExternalLogin;
-using BingoAPI.Models;
 using BingoAPI.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace BingoAPI.Services
 {
     public class FacebookAuthService : IFacebookAuthService
     {
-        
+
         private const string TokenValidationUrl = "https://graph.facebook.com/debug_token?input_token={0}&access_token={1}|{2}";
         private const string UserInfoUrl = "https://graph.facebook.com/me?fields=first_name,last_name,picture.height(128),email&access_token={0}";
         private readonly FacebookAuthSettings facebookAuthSettings;
         private readonly IHttpClientFactory httpClientFactory;
         private readonly IConfiguration configuration;
-        private readonly IErrorService errorService;
+        private readonly ILogger<FacebookAuthService> _logger;
 
-        public FacebookAuthService(FacebookAuthSettings facebookAuthSettings, IHttpClientFactory httpClientFactory , IConfiguration configuration, IErrorService errorService)
+        public FacebookAuthService(FacebookAuthSettings facebookAuthSettings, IHttpClientFactory httpClientFactory , IConfiguration configuration, ILogger<FacebookAuthService> logger)
         {
             this.facebookAuthSettings = facebookAuthSettings;
             this.httpClientFactory = httpClientFactory;
             this.configuration = configuration;
-            this.errorService = errorService;
+            _logger = logger;
         }
 
         public async Task<FacebookUserInfoResult> GetUserInfoAsync(string accessToken)
@@ -58,13 +58,7 @@ namespace BingoAPI.Services
                 result.EnsureSuccessStatusCode();
             }catch(Exception e)
             {
-                var errorObj = new ErrorLog
-                {
-                    Date = DateTime.Now,
-                    ExtraData = "Error in Facebook auhentication",
-                    Message = e.Message
-                };
-                await errorService.AddErrorAsync(errorObj);
+                _logger.LogError(e, "Error in Facebook authentication");
             }
 
             var responseAsString = await result.Content.ReadAsStringAsync();

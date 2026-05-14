@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "A/XZ3+1Q4t5hAWMmTKMalRaCwNfk+gW6ApcEAx1EIuVfWxC+5oG54x00D9nXaBhDzb0IWarfrFO0HLtUKll75A==",
+  "dgSpecHash": "w/X7bVcd3ZU=",
   "success": true,
-  "projectFilePath": "C:\\HopAut\\Bingo\\Bingo.LoadTests\\Bingo.LoadTests.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\ghmi\\personal\\BingoAPI\\Bingo.LoadTests\\Bingo.LoadTests.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\ghmi\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\3.1.0\\microsoft.windowsdesktop.app.ref.3.1.0.nupkg.sha512",
+    "C:\\Users\\ghmi\\.nuget\\packages\\microsoft.netcore.app.ref\\3.1.0\\microsoft.netcore.app.ref.3.1.0.nupkg.sha512",
+    "C:\\Users\\ghmi\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\3.1.10\\microsoft.aspnetcore.app.ref.3.1.10.nupkg.sha512"
+  ],
   "logs": []
 }

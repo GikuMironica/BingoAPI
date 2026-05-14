@@ -1,4 +1,4 @@
-﻿using Bingo.Contracts.V1.Requests.Identity;
+using Bingo.Contracts.V1.Requests.Identity;
 using BingoAPI.Data;
 using BingoAPI.Domain;
 using BingoAPI.Models;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 //using Flurl;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace BingoAPI.Services
         private readonly SignInManager<AppUser> _signInManager;
         private readonly IUrlHelper _urlHelper;
         private readonly IHttpContextAccessor _httpContext;
-        private readonly IErrorService _errorService;
+        private readonly ILogger<IdentityService> _logger;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly DataContext _dataContext;
         private readonly IFacebookAuthService _facebookAuthService;
@@ -48,14 +49,14 @@ namespace BingoAPI.Services
                                SignInManager<AppUser> signInManager, 
                                IUrlHelper urlHelper,
                                IHttpContextAccessor httpContext,
-                               IErrorService errorService)
+                               ILogger<IdentityService> logger)
         {
             this._emailService = emailService;
             this._emailFormatter = emailFormatter;
             _signInManager = signInManager;
             _urlHelper = urlHelper;
             _httpContext = httpContext;
-            _errorService = errorService;
+            _logger = logger;
             this._envOptions = enOptions.Value.Environment;
             this._userManager = userManager;
             this._jwtSettings = jwtSettings;
@@ -125,12 +126,7 @@ namespace BingoAPI.Services
                 });*/
             if (_httpContext.HttpContext == null)
             {
-                await _errorService.AddErrorAsync(new ErrorLog
-                {
-                    Controller = "Identity",
-                    Url = "Register",
-                    Message = "Check register method in identity service, null context"
-                });
+                _logger.LogError("Check register method in identity service, null context (Controller=Identity, Url=Register)");
             }
 
             var confirmationLink = _urlHelper.Action("ConfirmEmail", "Identity",
@@ -335,7 +331,9 @@ namespace BingoAPI.Services
             // add this claims in the payload of the token
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(claims),                
+                Subject = new ClaimsIdentity(claims),
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience,
                 Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),                
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -429,12 +427,7 @@ namespace BingoAPI.Services
 
             if (_httpContext.HttpContext == null)
             {
-                await _errorService.AddErrorAsync(new ErrorLog
-                {
-                    Controller = "Identity",
-                    Url = "Register",
-                    Message = "Check register method in identity service, null context"
-                });
+                _logger.LogError("Check register method in identity service, null context (Controller=Identity, Url=Register)");
             }
 
             var confirmationLink = _urlHelper.Action("ResetPassword", "Identity",
