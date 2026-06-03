@@ -1,13 +1,15 @@
+using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Attendance.Domain;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Attendance.Infrastructure;
 
-public class AttendanceModuleDbContext : DbContext
+public class AttendanceModuleDbContext : ModuleDbContext
 {
     public const string SchemaName = "attendance";
 
-    public AttendanceModuleDbContext(DbContextOptions<AttendanceModuleDbContext> options) : base(options) { }
+    public AttendanceModuleDbContext(DbContextOptions<AttendanceModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     public DbSet<Participation> Participations => Set<Participation>();
 

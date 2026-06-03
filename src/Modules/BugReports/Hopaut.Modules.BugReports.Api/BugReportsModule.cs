@@ -18,7 +18,7 @@ public sealed class BugReportsModule : IModuleEndpoints
         group.MapPost("/", async (CreateBugReportCommand command, ISender sender) =>
         {
             var id = await sender.Send(command);
-            return Results.Created($"/api/v1/bugs/{id}", new { id });
+            return Results.Created($"/api/v1/bugs/{id.Value}", new { id = id.Value });
         });
     }
 }

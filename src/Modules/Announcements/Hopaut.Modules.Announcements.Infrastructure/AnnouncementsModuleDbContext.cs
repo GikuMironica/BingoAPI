@@ -1,13 +1,15 @@
+using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Announcements.Domain;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Announcements.Infrastructure;
 
-public class AnnouncementsModuleDbContext : DbContext
+public class AnnouncementsModuleDbContext : ModuleDbContext
 {
     public const string SchemaName = "announcements";
 
-    public AnnouncementsModuleDbContext(DbContextOptions<AnnouncementsModuleDbContext> options) : base(options) { }
+    public AnnouncementsModuleDbContext(DbContextOptions<AnnouncementsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     public DbSet<Announcement> Announcements => Set<Announcement>();
 

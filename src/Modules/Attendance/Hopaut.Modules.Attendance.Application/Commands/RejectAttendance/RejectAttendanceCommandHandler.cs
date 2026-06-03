@@ -12,10 +12,9 @@ public sealed class RejectAttendanceCommandHandler : IRequestHandler<RejectAtten
     public async Task<bool> Handle(RejectAttendanceCommand request, CancellationToken cancellationToken)
     {
         var participation = await _repo.GetAsync(request.PostId, request.UserId, cancellationToken);
-        if (participation is null || participation.Status != AttendanceStatus.Pending) return false;
+        if (participation is null) return false;
 
-        participation.Status = AttendanceStatus.Rejected;
-        participation.RespondedAt = DateTime.UtcNow;
+        if (!participation.Reject()) return false;
 
         await _repo.SaveChangesAsync(cancellationToken);
         return true;

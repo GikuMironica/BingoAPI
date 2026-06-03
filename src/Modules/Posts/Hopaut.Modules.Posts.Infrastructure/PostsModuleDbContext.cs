@@ -1,13 +1,16 @@
+using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Posts.Domain;
+using Hopaut.SharedKernel;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Posts.Infrastructure;
 
-public class PostsModuleDbContext : DbContext
+public class PostsModuleDbContext : ModuleDbContext
 {
     public const string SchemaName = "posts";
 
-    public PostsModuleDbContext(DbContextOptions<PostsModuleDbContext> options) : base(options) { }
+    public PostsModuleDbContext(DbContextOptions<PostsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<Event> Events => Set<Event>();
@@ -26,8 +29,8 @@ public class PostsModuleDbContext : DbContext
         {
             entity.ToTable("posts");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
             entity.HasOne(e => e.Location).WithOne(l => l.Post).HasForeignKey<EventLocation>(l => l.PostId);
             entity.HasOne(e => e.Event).WithOne(ev => ev.Post).HasForeignKey<Event>(ev => ev.PostId);
             entity.HasOne(e => e.Repeatable).WithOne(r => r.Post).HasForeignKey<RepeatableProperty>(r => r.PostId);
@@ -39,6 +42,7 @@ public class PostsModuleDbContext : DbContext
             entity.ToTable("events");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
             entity.Property(e => e.EventType).HasConversion<int>();
             entity.Property(e => e.Description).IsRequired();
             entity.Property(e => e.TypeSpecificData).HasColumnType("jsonb");
@@ -50,6 +54,7 @@ public class PostsModuleDbContext : DbContext
             entity.ToTable("event_locations");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
             entity.Property(e => e.Location).HasColumnType("geography (point)");
             entity.HasIndex(e => e.Location).HasMethod("gist");
         });
@@ -58,7 +63,8 @@ public class PostsModuleDbContext : DbContext
         {
             entity.ToTable("pictures");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PictureId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
             entity.Property(e => e.State).HasConversion<int>();
             entity.HasIndex(e => new { e.State, e.PostId });
         });
@@ -67,7 +73,7 @@ public class PostsModuleDbContext : DbContext
         {
             entity.ToTable("tags");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<TagId>>().ValueGeneratedOnAdd();
             entity.Property(e => e.TagName).IsRequired();
         });
 
@@ -75,6 +81,8 @@ public class PostsModuleDbContext : DbContext
         {
             entity.ToTable("post_tags");
             entity.HasKey(e => new { e.PostId, e.TagId });
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.TagId).HasConversion<StronglyTypedIdConverter<TagId>>();
         });
 
         modelBuilder.Entity<RepeatableProperty>(entity =>
@@ -82,6 +90,7 @@ public class PostsModuleDbContext : DbContext
             entity.ToTable("repeatable_properties");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
         });
     }
 }

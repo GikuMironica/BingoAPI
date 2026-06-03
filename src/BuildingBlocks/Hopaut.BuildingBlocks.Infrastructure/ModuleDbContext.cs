@@ -1,4 +1,5 @@
 using Hopaut.SharedKernel;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.BuildingBlocks.Infrastructure;
@@ -9,5 +10,33 @@ namespace Hopaut.BuildingBlocks.Infrastructure;
 /// </summary>
 public abstract class ModuleDbContext : DbContext, IUnitOfWork
 {
-    protected ModuleDbContext(DbContextOptions options) : base(options) { }
+    private readonly IPublisher _publisher;
+
+    protected ModuleDbContext(DbContextOptions options, IPublisher publisher) : base(options)
+    {
+        _publisher = publisher;
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var result = await base.SaveChangesAsync(cancellationToken);
+        await DispatchDomainEventsAsync(cancellationToken);
+        return result;
+    }
+
+    private async Task DispatchDomainEventsAsync(CancellationToken cancellationToken)
+    {
+        var entities = ChangeTracker.Entries<IHasDomainEvents>()
+            .Where(e => e.Entity.DomainEvents.Count > 0)
+            .Select(e => e.Entity)
+            .ToList();
+
+        var events = entities.SelectMany(e => e.DomainEvents).ToList();
+        entities.ForEach(e => e.ClearDomainEvents());
+
+        foreach (var domainEvent in events)
+        {
+            await _publisher.Publish(domainEvent, cancellationToken);
+        }
+    }
 }

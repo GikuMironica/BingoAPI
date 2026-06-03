@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Hangfire;
 using Hopaut.BuildingBlocks.Infrastructure.Hangfire;
 using Hopaut.BuildingBlocks.Infrastructure.Caching;
+using Hopaut.SharedKernel;
 using Hopaut.Modules.Identity.Api;
 using Hopaut.Modules.Users.Api;
 using Hopaut.Modules.Media.Api;
@@ -18,6 +19,8 @@ using Hopaut.Modules.Notifications.Api;
 using Hopaut.Modules.Moderation.Api;
 using Hopaut.Modules.BugReports.Api;
 using Hopaut.Modules.Payments.Api;
+using Hopaut.BuildingBlocks.Application;
+using Hopaut.BuildingBlocks.Infrastructure.Outbox;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,11 +57,17 @@ builder.Services.AddRateLimiter(options =>
 // ── Health Checks ──
 builder.Services.AddHealthChecks();
 
+// ── Shared Kernel ──
+builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+
 // ── ProblemDetails ──
 builder.Services.AddProblemDetails();
 
 // ── Caching ──
 builder.Services.AddHopautCaching(builder.Configuration);
+
+// ── Integration Event Publishing (outbox) ──
+builder.Services.AddScoped<IIntegrationEventPublisher, OutboxIntegrationEventPublisher>();
 
 // ── Hangfire ──
 builder.Services.AddHopautHangfire(builder.Configuration);

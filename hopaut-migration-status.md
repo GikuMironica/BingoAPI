@@ -11,7 +11,7 @@
 - ❌ blocked (add reason)
 - ⏭️ skipped (add reason)
 
-**Current focus:** Phase 6 – Step 6.1 (Delete legacy BingoAPI).
+**Current focus:** Phase 6 – Step 6.6 (Contracts projects per module).
 
 ---
 
@@ -90,13 +90,21 @@
 
 ## Phase 6 – Cleanup & hardening
 
-| #   | Step                                              | Status | Date | Notes / commit |
-|-----|---------------------------------------------------|--------|------|----------------|
-| 6.1 | Delete legacy `BingoAPI` project                  | ⬜     |      |                |
-| 6.2 | Tighten NetArchTest rules                         | ⬜     |      |                |
-| 6.3 | Performance pass + index additions                | ⬜     |      |                |
-| 6.4 | Decide on worker extraction (Notifications/Media) | ⬜     |      |                |
-| 6.5 | Definition-of-Done check                          | ⬜     |      |                |
+| #    | Step                                                       | Status | Date | Notes / commit |
+|------|------------------------------------------------------------|--------|------|----------------|
+| 6.1  | Delete legacy `BingoAPI` project                           | ✅     | 2025-01-10 | Removed BingoAPI, Bingo.Contracts, Bingo.IntegrationTests from sln & disk. Deleted obsolete LayerDependencyTests.cs referencing legacy. Build green (0 errors). |
+| 6.2  | Strongly-typed IDs across all modules                      | ✅     | 2025-01-10 | Added `StronglyTypedIds.cs` (UserId, PostId, RatingId, ParticipationId, AnnouncementId, BugReportId, PostReportId, UserReportId, PictureId, TagId, BugScreenshotId) to SharedKernel. Added generic EF converters in BuildingBlocks.Infrastructure. Updated all module Domain/Application/Infrastructure/API layers. Build green. |
+| 6.3  | Value objects in SharedKernel + module domains             | ✅     | 2025-01-10 | Added `Coordinates`, `RatingValue`, `Money` VOs + `IDateTimeProvider`. Replaced all `long Timestamp` with `DateTimeOffset CreatedAt`, `int Rate` with `RatingValue`, `DateTime` with `DateTimeOffset`. EF conversions added. Build green. |
+| 6.4  | Aggregate root factories + private constructors            | ✅     | 2025-01-10 | All aggregates (Post, Rating, Participation, Announcement, Bug, PostReport, UserReport) now extend `AggregateRoot<TId>` with private ctors + static `Create(...)` factories. Participation gets `Accept()/Reject()/Cancel()` domain methods; PostReport gets `Resolve()`. All command handlers updated. Build green, 0 warnings. |
+| 6.5  | Domain events raised from aggregates                       | ✅     | 2025-01-10 | All aggregates raise domain events via `AddDomainEvent`; `ModuleDbContext` dispatches after SaveChanges; domain event handlers in Infrastructure translate to integration events via `IIntegrationEventPublisher` → outbox. Build green, 5/5 arch tests pass. |
+| 6.6  | Contracts projects per module (cross-module isolation)      | ⬜     |      |                |
+| 6.7  | Tighten NetArchTest rules                                  | ⬜     |      |                |
+| 6.8  | Replace AutoMapper with Mapperly                           | ⬜     |      |                |
+| 6.9  | Resource-based authorization                               | ⬜     |      |                |
+| 6.10 | API versioning formalization                               | ⬜     |      |                |
+| 6.11 | Performance pass + index additions                         | ⬜     |      |                |
+| 6.12 | Decide on worker extraction (Notifications/Media)          | ⬜     |      |                |
+| 6.13 | Definition-of-Done check                                   | ⬜     |      |                |
 
 ---
 
@@ -104,6 +112,7 @@
 
 | Date | Step | Action | Commit |
 |------|------|--------|--------|
+| 2025-01-10 | 6.5 | Created `IIntegrationEventPublisher` + `OutboxIntegrationEventPublisher`; added integration event records in Posts/Attendance/Ratings/Announcements Application layers; created domain event handlers in each module's Infrastructure layer. Registered publisher in Host DI. Build green, 5/5 arch tests pass. | – |
 | 2025-01-09 | 1.6 | Created ICacheService, RedisCacheService, CachingBehavior, ICachedQuery, CachingInstaller. Build green. | – |
 | 2025-01-09 | 1.5 | Wired Hangfire with Postgres storage, dashboard, and IHopautJobs abstraction. Build green. | – |
 | 2025-01-09 | 1.4 | Created Outbox/Inbox MVP with OutboxPublisher BackgroundService and EF configurations. Build green. | – |

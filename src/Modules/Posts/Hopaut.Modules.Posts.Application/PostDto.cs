@@ -4,9 +4,9 @@ namespace Hopaut.Modules.Posts.Application;
 
 public sealed record PostDto(
     int Id,
-    long PostTime,
-    long EventTime,
-    long? EndTime,
+    DateTimeOffset PostTime,
+    DateTimeOffset EventTime,
+    DateTimeOffset? EndTime,
     int ActiveFlag,
     string UserId,
     EventLocationDto Location,

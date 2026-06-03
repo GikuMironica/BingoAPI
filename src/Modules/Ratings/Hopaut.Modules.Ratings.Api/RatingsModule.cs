@@ -2,6 +2,7 @@ using Hopaut.BuildingBlocks.Api;
 using Hopaut.Modules.Ratings.Application.Commands.CreateRating;
 using Hopaut.Modules.Ratings.Application.Commands.DeleteRating;
 using Hopaut.Modules.Ratings.Application.Queries.GetRatingsByUser;
+using Hopaut.SharedKernel;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -18,19 +19,19 @@ public sealed class RatingsModule : IModuleEndpoints
 
         group.MapGet("/user/{userId}", async (string userId, ISender sender) =>
         {
-            var result = await sender.Send(new GetRatingsByUserQuery(userId));
+            var result = await sender.Send(new GetRatingsByUserQuery(UserId.From(userId)));
             return Results.Ok(result);
         }).RequireAuthorization();
 
         group.MapPost("/", async (CreateRatingCommand command, ISender sender) =>
         {
             var id = await sender.Send(command);
-            return Results.Created($"/api/v1/ratings/{id}", new { id });
+            return Results.Created($"/api/v1/ratings/{id.Value}", new { id = id.Value });
         }).RequireAuthorization();
 
         group.MapDelete("/{id:int}", async (int id, ISender sender) =>
         {
-            var result = await sender.Send(new DeleteRatingCommand(id));
+            var result = await sender.Send(new DeleteRatingCommand(RatingId.From(id)));
             return result ? Results.NoContent() : Results.NotFound();
         }).RequireAuthorization();
     }

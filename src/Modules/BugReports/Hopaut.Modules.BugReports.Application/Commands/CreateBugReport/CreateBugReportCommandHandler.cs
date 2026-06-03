@@ -1,27 +1,18 @@
 using Hopaut.Modules.BugReports.Domain;
+using Hopaut.SharedKernel;
 using MediatR;
 
 namespace Hopaut.Modules.BugReports.Application.Commands.CreateBugReport;
 
-public sealed class CreateBugReportCommandHandler : IRequestHandler<CreateBugReportCommand, int>
+public sealed class CreateBugReportCommandHandler : IRequestHandler<CreateBugReportCommand, BugReportId>
 {
     private readonly IBugReportRepository _repo;
 
     public CreateBugReportCommandHandler(IBugReportRepository repo) => _repo = repo;
 
-    public async Task<int> Handle(CreateBugReportCommand request, CancellationToken cancellationToken)
+    public async Task<BugReportId> Handle(CreateBugReportCommand request, CancellationToken cancellationToken)
     {
-        var bug = new Bug
-        {
-            Timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
-            Message = request.Message,
-            ReporterId = request.ReporterId
-        };
-
-        if (request.ScreenshotUrls is { Count: > 0 })
-        {
-            bug.Screenshots = request.ScreenshotUrls.Select(url => new BugScreenshot { Url = url }).ToList();
-        }
+        var bug = Bug.Create(request.Message, request.ReporterId, request.ScreenshotUrls);
 
         await _repo.AddAsync(bug, cancellationToken);
         await _repo.SaveChangesAsync(cancellationToken);

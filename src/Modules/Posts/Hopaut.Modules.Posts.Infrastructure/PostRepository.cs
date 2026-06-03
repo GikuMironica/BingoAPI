@@ -1,5 +1,6 @@
 using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Posts.Domain;
+using Hopaut.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 
@@ -11,7 +12,7 @@ public sealed class PostRepository : IPostRepository
 
     public PostRepository(PostsModuleDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<Post?> GetByIdAsync(int id, CancellationToken ct = default) =>
+    public async Task<Post?> GetByIdAsync(PostId id, CancellationToken ct = default) =>
         await _dbContext.Posts
             .Include(p => p.Location)
             .Include(p => p.Event)

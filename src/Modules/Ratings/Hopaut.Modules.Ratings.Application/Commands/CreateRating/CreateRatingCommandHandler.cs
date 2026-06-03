@@ -1,9 +1,10 @@
 using Hopaut.Modules.Ratings.Domain;
+using Hopaut.SharedKernel;
 using MediatR;
 
 namespace Hopaut.Modules.Ratings.Application.Commands.CreateRating;
 
-public sealed class CreateRatingCommandHandler : IRequestHandler<CreateRatingCommand, int>
+public sealed class CreateRatingCommandHandler : IRequestHandler<CreateRatingCommand, RatingId>
 {
     private readonly IRatingRepository _ratingRepo;
     private readonly IUserReputationRepository _reputationRepo;
@@ -14,16 +15,14 @@ public sealed class CreateRatingCommandHandler : IRequestHandler<CreateRatingCom
         _reputationRepo = reputationRepo;
     }
 
-    public async Task<int> Handle(CreateRatingCommand request, CancellationToken cancellationToken)
+    public async Task<RatingId> Handle(CreateRatingCommand request, CancellationToken cancellationToken)
     {
-        var rating = new Rating
-        {
-            Rate = request.Rate,
-            UserId = request.UserId,
-            RaterId = request.RaterId,
-            PostId = request.PostId,
-            Feedback = request.Feedback
-        };
+        var rating = Rating.Create(
+            RatingValue.From(request.Rate),
+            request.UserId,
+            request.RaterId,
+            request.PostId,
+            request.Feedback);
 
         await _ratingRepo.AddAsync(rating, cancellationToken);
         await _ratingRepo.SaveChangesAsync(cancellationToken);

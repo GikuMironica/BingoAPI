@@ -1,13 +1,15 @@
+using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.BugReports.Domain;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.BugReports.Infrastructure;
 
-public class BugReportsModuleDbContext : DbContext
+public class BugReportsModuleDbContext : ModuleDbContext
 {
     public const string SchemaName = "bug_reports";
 
-    public BugReportsModuleDbContext(DbContextOptions<BugReportsModuleDbContext> options) : base(options) { }
+    public BugReportsModuleDbContext(DbContextOptions<BugReportsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     public DbSet<Bug> Bugs => Set<Bug>();
     public DbSet<BugScreenshot> BugScreenshots => Set<BugScreenshot>();

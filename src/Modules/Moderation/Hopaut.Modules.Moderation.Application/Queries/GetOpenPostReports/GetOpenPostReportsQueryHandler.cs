@@ -11,6 +11,6 @@ public sealed class GetOpenPostReportsQueryHandler : IRequestHandler<GetOpenPost
     public async Task<IReadOnlyList<PostReportDto>> Handle(GetOpenPostReportsQuery request, CancellationToken cancellationToken)
     {
         var reports = await _repo.GetOpenPostReportsAsync(cancellationToken);
-        return reports.Select(r => new PostReportDto(r.Id, r.Timestamp, r.Reason, r.Message, r.ReporterId, r.ReportedHostId, r.PostId)).ToList();
+        return reports.Select(r => new PostReportDto(r.Id.Value, r.CreatedAt, r.Reason, r.Message, r.ReporterId.Value, r.ReportedHostId.Value, r.PostId.Value)).ToList();
     }
 }

@@ -12,9 +12,10 @@ public sealed class ResolvePostReportCommandHandler : IRequestHandler<ResolvePos
     public async Task<bool> Handle(ResolvePostReportCommand request, CancellationToken cancellationToken)
     {
         var report = await _repo.GetPostReportByIdAsync(request.ReportId, cancellationToken);
-        if (report is null || report.Status != ReportStatus.Open) return false;
+        if (report is null) return false;
 
-        report.Status = ReportStatus.Resolved;
+        if (!report.Resolve()) return false;
+
         await _repo.SaveChangesAsync(cancellationToken);
         return true;
     }

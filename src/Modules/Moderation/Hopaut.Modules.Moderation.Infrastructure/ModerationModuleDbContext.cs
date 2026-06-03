@@ -1,13 +1,15 @@
+using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Moderation.Domain;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Moderation.Infrastructure;
 
-public class ModerationModuleDbContext : DbContext
+public class ModerationModuleDbContext : ModuleDbContext
 {
     public const string SchemaName = "moderation";
 
-    public ModerationModuleDbContext(DbContextOptions<ModerationModuleDbContext> options) : base(options) { }
+    public ModerationModuleDbContext(DbContextOptions<ModerationModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     public DbSet<PostReport> PostReports => Set<PostReport>();
     public DbSet<UserReport> UserReports => Set<UserReport>();

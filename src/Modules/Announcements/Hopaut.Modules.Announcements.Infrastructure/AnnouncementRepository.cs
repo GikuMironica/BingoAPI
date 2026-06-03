@@ -1,5 +1,6 @@
 using Hopaut.Modules.Announcements.Application;
 using Hopaut.Modules.Announcements.Domain;
+using Hopaut.SharedKernel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Announcements.Infrastructure;
@@ -10,11 +11,11 @@ public sealed class AnnouncementRepository : IAnnouncementRepository
 
     public AnnouncementRepository(AnnouncementsModuleDbContext db) => _db = db;
 
-    public Task<Announcement?> GetByIdAsync(int id, CancellationToken ct = default)
+    public Task<Announcement?> GetByIdAsync(AnnouncementId id, CancellationToken ct = default)
         => _db.Announcements.FirstOrDefaultAsync(a => a.Id == id, ct);
 
-    public Task<List<Announcement>> GetByPostAsync(int postId, CancellationToken ct = default)
-        => _db.Announcements.Where(a => a.PostId == postId).OrderByDescending(a => a.Timestamp).ToListAsync(ct);
+    public Task<List<Announcement>> GetByPostAsync(PostId postId, CancellationToken ct = default)
+        => _db.Announcements.Where(a => a.PostId == postId).OrderByDescending(a => a.CreatedAt).ToListAsync(ct);
 
     public async Task AddAsync(Announcement announcement, CancellationToken ct = default)
         => await _db.Announcements.AddAsync(announcement, ct);

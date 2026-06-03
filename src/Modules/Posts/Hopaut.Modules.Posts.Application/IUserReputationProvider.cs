@@ -1,3 +1,5 @@
+using Hopaut.SharedKernel;
+
 namespace Hopaut.Modules.Posts.Application;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Hopaut.Modules.Posts.Application;
 /// </summary>
 public interface IUserReputationProvider
 {
-    Task<Dictionary<string, UserReputationInfo>> GetBatchAsync(IEnumerable<string> userIds, CancellationToken ct = default);
+    Task<Dictionary<UserId, UserReputationInfo>> GetBatchAsync(IEnumerable<UserId> userIds, CancellationToken ct = default);
 }
 
 public sealed record UserReputationInfo(int TotalRatings, double AverageRating);

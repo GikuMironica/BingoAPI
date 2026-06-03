@@ -1,6 +1,12 @@
 namespace Hopaut.SharedKernel;
 
-public abstract class Entity<TId> where TId : notnull
+public interface IHasDomainEvents
+{
+    IReadOnlyList<IDomainEvent> DomainEvents { get; }
+    void ClearDomainEvents();
+}
+
+public abstract class Entity<TId> : IHasDomainEvents where TId : notnull
 {
     public TId Id { get; protected set; } = default!;
 

@@ -11,6 +11,6 @@ public sealed class GetRatingsByUserQueryHandler : IRequestHandler<GetRatingsByU
     public async Task<IReadOnlyList<RatingDto>> Handle(GetRatingsByUserQuery request, CancellationToken cancellationToken)
     {
         var ratings = await _repo.GetByUserAsync(request.UserId, cancellationToken);
-        return ratings.Select(r => new RatingDto(r.Id, r.Rate, r.RaterId, r.PostId, r.Feedback, r.CreatedAt)).ToList();
+        return ratings.Select(r => new RatingDto(r.Id.Value, r.Rate.Value, r.RaterId.Value, r.PostId.Value, r.Feedback, r.CreatedAt)).ToList();
     }
 }

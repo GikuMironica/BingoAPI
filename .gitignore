@@ -1,10 +1,6 @@
 .idea/
 .vs/
-BingoAPI/bin
-BingoAPI/obj
-Bingo.Contracts/obj
-Bingo.Contracts/bin
-Bingo.IntegrationTests/bin
-Bingo.IntegrationTests/obj
-Bingo.LoadTests/bin/
-Bingo.LoadTests/obj/
+
+# Build output
+**/bin/
+**/obj/

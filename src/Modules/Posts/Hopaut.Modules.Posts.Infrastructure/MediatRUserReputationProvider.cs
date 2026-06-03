@@ -1,5 +1,6 @@
 using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Ratings.Application.Queries.GetReputationsForUsers;
+using Hopaut.SharedKernel;
 using MediatR;
 
 namespace Hopaut.Modules.Posts.Infrastructure;
@@ -14,7 +15,7 @@ public sealed class MediatRUserReputationProvider : IUserReputationProvider
 
     public MediatRUserReputationProvider(ISender sender) => _sender = sender;
 
-    public async Task<Dictionary<string, UserReputationInfo>> GetBatchAsync(IEnumerable<string> userIds, CancellationToken ct = default)
+    public async Task<Dictionary<UserId, UserReputationInfo>> GetBatchAsync(IEnumerable<UserId> userIds, CancellationToken ct = default)
     {
         var ids = userIds.ToList();
         if (ids.Count == 0) return new();

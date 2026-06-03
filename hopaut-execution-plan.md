@@ -323,21 +323,128 @@
 * **Actions:** verify zero traffic to legacy endpoints (logs); delete the project and its installers, mappers, repositories, services, models, migrations.
 * **Status field:** `6.1`.
 
-### Step 6.2 – Tighten NetArchTest rules
-* **Actions:** add `NoModuleReferencesAnotherModuleNonContracts` rule. Add `DomainHasNoEfReferences`, `ApplicationHasNoAspNetCoreReferences`, `ContractsHasNoInfrastructureReferences`. Make CI fail on violation.
+### Step 6.2 – Strongly-typed IDs across all modules
+* **Goal:** eliminate primitive obsession for identifiers (§6.12.1: strongly-typed ids kill accidental `int → int` parameter swaps).
+* **Actions:**
+  * In `Hopaut.SharedKernel` add: `record struct PostId(int Value)`, `record struct UserId(string Value)`, `record struct RatingId(int Value)`, `record struct ParticipationId(int Value)`, `record struct AnnouncementId(int Value)`, `record struct BugReportId(int Value)`, `record struct PostReportId(int Value)`, `record struct UserReportId(int Value)`, `record struct PictureId(int Value)`.
+  * Add an EF Core `ValueConverter<TId, TPrimitive>` generic helper in `Hopaut.BuildingBlocks.Infrastructure` for seamless DB mapping.
+  * Replace raw `int Id` / `string UserId` in every module's Domain entities with their strongly-typed equivalents.
+  * Update EF configurations, repositories, command/query handlers, and DTOs to use the new types.
+  * Update API endpoints where primitives are bound from route parameters (add custom `TryParse` on the record structs for minimal API binding).
+* **Acceptance:** no raw `int`/`string` used as an entity identifier in any `*.Domain` project; build green; all arch tests pass.
 * **Status field:** `6.2`.
 
-### Step 6.3 – Performance pass
-* **Actions:** profile `GetNearbyPostsQuery`, `CreatePostCommand`, `LoginCommand`, `GetMyActivePostsQuery`. Add missing indexes (use the `// TODO: add index` comments produced during the migration).
+### Step 6.3 – Value objects in SharedKernel + module domains
+* **Goal:** replace remaining primitive obsession with immutable value objects (§3.1, §6.12.1).
+* **Actions:**
+  * In `Hopaut.SharedKernel` add value objects: `Coordinates` (Latitude, Longitude – replaces raw `double` pairs), `TimeRange` (Start, End – `DateTimeOffset`), `Money` (Amount, Currency).
+  * In Posts.Domain: replace `double Longitude/Latitude` in `EventLocation` with `Coordinates`; replace `long PostTime/EventTime/EndTime` with `DateTimeOffset` properties (backed by `TimeRange` where applicable).
+  * In Ratings.Domain: replace `int Rate` with a `RatingValue` value object (1–5 range enforced in constructor).
+  * In Attendance.Domain: ensure `AttendanceStatus` is treated as a value object (already an enum, but validate transitions via a domain method).
+  * In all modules: replace `long Timestamp` with `DateTimeOffset` (UTC). Add `IDateTimeProvider` usage in factories/handlers.
+  * Update EF configurations with `HasConversion` for each value object.
+* **Acceptance:** no `Int64` timestamp fields remain in any Domain project; `Coordinates` is used everywhere instead of raw doubles; build green.
 * **Status field:** `6.3`.
 
-### Step 6.4 – Decide worker extraction
-* **Actions:** decide whether to extract `Notifications` and `Media` into separate worker processes (`Hopaut.Worker.Outbox`, `Hopaut.Worker.Media`) or keep them in-process. Document the decision; if extracted, swap `IIntegrationEventBus` from `InProcess` to MassTransit/SQS in `Hopaut.Api.Host` only.
+### Step 6.4 – Aggregate root factories + private constructors
+* **Goal:** enforce aggregate invariants at creation time (§6.12.1: "public constructors on aggregates are forbidden").
+* **Actions:**
+  * For each aggregate root (`Post`, `Participation`, `Announcement`, `Rating`, `Bug`, `PostReport`, `UserReport`):
+    * Make constructor(s) `private` (or `internal` for EF).
+    * Add a static `Create(...)` factory method that validates invariants and raises a domain event (e.g. `PostCreatedDomainEvent`).
+  * Update all command handlers to call `Xxx.Create(...)` instead of `new Xxx { ... }`.
+  * Update EF configurations: use `HasNoKey()` or configure parameterless private constructor access via `entity.HasConstructorBinding(...)` or `UsePropertyAccessMode`.
+  * Tighten the existing NetArchTest rule `AggregateRoots_Should_Have_Private_Constructors` to scan all module assemblies (not just empty ones).
+* **Acceptance:** NetArchTest rule passes; no `new Post()` or `new Rating()` outside the aggregate; build green.
 * **Status field:** `6.4`.
 
-### Step 6.5 – Definition-of-Done check
-* **Actions:** walk every bullet of `hopaut-solution-fix.md` §13 and tick it off in `hopaut-migration-status.md`.
-* **Status field:** `6.5 – Project complete`.
+### Step 6.5 – Domain events raised from aggregates
+* **Goal:** aggregates raise `IDomainEvent` on state changes; `UnitOfWorkBehavior` dispatches them after commit (§6.12.1).
+* **Actions:**
+  * Make all aggregates inherit `AggregateRoot<TId>` (which provides `AddDomainEvent`).
+  * Define domain events per module:
+    * Posts: `PostCreatedDomainEvent`, `PostDeletedDomainEvent`, `PictureStateChangedDomainEvent`.
+    * Attendance: `AttendanceRequestedDomainEvent`, `AttendanceAcceptedDomainEvent`, `AttendanceRejectedDomainEvent`.
+    * Ratings: `RatingCreatedDomainEvent`, `RatingDeletedDomainEvent`.
+    * Announcements: `AnnouncementCreatedDomainEvent`.
+  * In each module's `Infrastructure` `DbContext.SaveChangesAsync` override (or via a MediatR `UnitOfWorkBehavior`): dispatch domain events after commit, then clear.
+  * Domain events that must cross module boundaries are translated into integration events (e.g. `PostCreatedDomainEvent` → `PostCreatedIntegrationEvent` via an event handler in the same module).
+* **Acceptance:** domain events are raised and dispatched in at least Posts + Attendance + Ratings; integration tests verify side-effects triggered by domain events; build green.
+* **Status field:** `6.5`.
+
+### Step 6.6 – Contracts projects per module
+* **Goal:** formalize cross-module public surface (§1 layout: `Hopaut.Modules.<X>.Contracts`).
+* **Actions:**
+  * For each module, create a `Hopaut.Modules.<X>.Contracts` project containing:
+    * Public DTOs consumed by other modules (e.g. `UserSummaryDto`, `PostSummaryDto`).
+    * Integration event records (move from inline definitions to dedicated Contracts project).
+    * Query interfaces for cross-module reads (e.g. `IGetReputationsForUsersQuery`).
+  * Update cross-module references: other modules reference only `*.Contracts`, never `*.Application` or `*.Domain`.
+  * Remove the current `Posts.Infrastructure → Ratings.Application` reference; replace with `Posts.Infrastructure → Ratings.Contracts`.
+  * Add NetArchTest rule: `NoModuleReferencesAnotherModuleNonContracts`.
+* **Acceptance:** no module references another module's Domain/Application/Infrastructure directly; only Contracts; NetArchTest enforces this; build green.
+* **Status field:** `6.6`.
+
+### Step 6.7 – Tighten NetArchTest rules
+* **Actions:** add `NoModuleReferencesAnotherModuleNonContracts` rule (enforced after 6.6). Add `DomainHasNoEfReferences`, `ApplicationHasNoAspNetCoreReferences`, `ContractsHasNoInfrastructureReferences`. Make CI fail on violation.
+* **Status field:** `6.7`.
+
+### Step 6.8 – Replace AutoMapper with Mapperly
+* **Goal:** source-generated, compile-time-checked mapping (§6.9).
+* **Actions:**
+  * Add `Riok.Mapperly` to `Directory.Packages.props`.
+  * In each module's `Api` or `Application` layer, create a `[Mapper]` partial class that maps Domain entities → DTOs and command requests → domain objects.
+  * Remove AutoMapper package references and all `Profile` classes.
+  * Verify no reflection-based mapping remains.
+* **Acceptance:** `AutoMapper` package removed from `Directory.Packages.props`; all mapping is compile-time generated; build green.
+* **Status field:** `6.8`.
+
+### Step 6.9 – Resource-based authorization
+* **Goal:** replace ad-hoc `IsPostOwnerOrAdminAsync` with proper policy-based auth (§6.8).
+* **Actions:**
+  * Define authorization requirements: `PostOwnerOrAdminRequirement`, `AnnouncementOwnerRequirement`, `RatingOwnerRequirement`.
+  * Implement `IAuthorizationHandler<TRequirement, TResource>` for each.
+  * Register policies: `MustOwnPost`, `MustOwnAnnouncement`, `MustOwnRating`.
+  * Replace manual ownership checks in command handlers / endpoints with `[Authorize(Policy = "...")]` or `AuthorizationService.AuthorizeAsync(...)`.
+* **Acceptance:** no manual `if (post.UserId != currentUser)` checks in handlers; policies are unit-testable; build green.
+* **Status field:** `6.9`.
+
+### Step 6.10 – API versioning formalization
+* **Goal:** the URL already says `/api/v1` – formalize it (§7).
+* **Actions:**
+  * Add `Asp.Versioning.Http` + `Asp.Versioning.Mvc.ApiExplorer` to `Directory.Packages.props`.
+  * Configure API versioning in the host: default version 1.0, URL segment strategy.
+  * Tag all endpoint groups with `ApiVersion(1, 0)`.
+  * Swagger generates per-version docs.
+* **Acceptance:** Swagger shows v1 doc; adding a v2 endpoint in the future requires only a new group + version attribute; build green.
+* **Status field:** `6.10`.
+
+### Step 6.11 – Performance pass
+* **Actions:** profile `GetNearbyPostsQuery`, `CreatePostCommand`, `LoginCommand`, `GetMyActivePostsQuery`. Add missing indexes (use the `// TODO: add index` comments produced during the migration).
+* **Status field:** `6.11`.
+
+### Step 6.12 – Decide worker extraction
+* **Actions:** decide whether to extract `Notifications` and `Media` into separate worker processes (`Hopaut.Worker.Outbox`, `Hopaut.Worker.Media`) or keep them in-process. Document the decision; if extracted, swap `IIntegrationEventBus` from `InProcess` to MassTransit/SQS in `Hopaut.Api.Host` only.
+* **Status field:** `6.12`.
+
+### Step 6.13 – Definition-of-Done check
+* **Actions:** walk every bullet of `hopaut-solution-fix.md` §13 and tick it off in `hopaut-migration-status.md`:
+  * All projects target the same supported .NET LTS. ✓
+  * No project named `BingoAPI` exists. ✓
+  * Each module has Domain / Application / Infrastructure / Api / Contracts and ≥ 70% Domain+Application unit-test coverage.
+  * No cross-module reference except to `*.Contracts`. Verified by NetArchTest in CI.
+  * All write endpoints go through MediatR commands with the standard pipeline.
+  * Outbox is the only path for integration events.
+  * No `Int64` time fields in the domain.
+  * No `ErrorLog` table.
+  * Logs are structured JSON with correlation id; traces visible in OTLP backend.
+  * Health endpoints `/health/live`, `/health/ready` are green in production.
+  * The mobile app continues to work against `/api/v1` without changes.
+  * Strongly-typed IDs everywhere; no primitive obsession for identifiers.
+  * All aggregates use factories; no public constructors.
+  * Domain events dispatched after commit.
+  * Value objects for coordinates, time, money, rating values.
+* **Status field:** `6.13 – Project complete`.
 
 ---
 

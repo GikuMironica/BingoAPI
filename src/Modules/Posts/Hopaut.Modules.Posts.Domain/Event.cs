@@ -1,3 +1,5 @@
+using Hopaut.SharedKernel;
+
 namespace Hopaut.Modules.Posts.Domain;
 
 /// <summary>
@@ -20,6 +22,6 @@ public sealed class Event
     /// </summary>
     public string? TypeSpecificData { get; set; }
 
-    public int PostId { get; set; }
+    public PostId PostId { get; set; }
     public Post? Post { get; set; }
 }

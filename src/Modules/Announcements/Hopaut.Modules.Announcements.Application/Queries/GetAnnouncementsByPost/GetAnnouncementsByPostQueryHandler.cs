@@ -11,6 +11,6 @@ public sealed class GetAnnouncementsByPostQueryHandler : IRequestHandler<GetAnno
     public async Task<IReadOnlyList<AnnouncementDto>> Handle(GetAnnouncementsByPostQuery request, CancellationToken cancellationToken)
     {
         var announcements = await _repo.GetByPostAsync(request.PostId, cancellationToken);
-        return announcements.Select(a => new AnnouncementDto(a.Id, a.PostId, a.Message, a.Timestamp)).ToList();
+        return announcements.Select(a => new AnnouncementDto(a.Id.Value, a.PostId.Value, a.Message, a.CreatedAt)).ToList();
     }
 }

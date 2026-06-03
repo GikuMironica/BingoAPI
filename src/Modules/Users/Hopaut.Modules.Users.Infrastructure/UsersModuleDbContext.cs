@@ -1,13 +1,15 @@
+using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Users.Domain;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Users.Infrastructure;
 
-public class UsersModuleDbContext : DbContext
+public class UsersModuleDbContext : ModuleDbContext
 {
     public const string SchemaName = "users";
 
-    public UsersModuleDbContext(DbContextOptions<UsersModuleDbContext> options) : base(options) { }
+    public UsersModuleDbContext(DbContextOptions<UsersModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 

@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\Hopaut.IntegrationEvents\Hopaut.IntegrationEvents.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,3 +1,5 @@
+using Hopaut.SharedKernel;
+
 namespace Hopaut.Modules.Ratings.Domain;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace Hopaut.Modules.Ratings.Domain;
 /// </summary>
 public sealed class UserReputation
 {
-    public string UserId { get; set; } = default!;
+    public UserId UserId { get; set; }
     public int TotalRatings { get; set; }
     public int SumRatings { get; set; }
     public double AverageRating { get; set; }

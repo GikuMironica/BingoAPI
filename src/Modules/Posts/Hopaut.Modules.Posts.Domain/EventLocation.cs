@@ -1,3 +1,4 @@
+using Hopaut.SharedKernel;
 using NetTopologySuite.Geometries;
 
 namespace Hopaut.Modules.Posts.Domain;
@@ -12,6 +13,6 @@ public sealed class EventLocation
     public string? Country { get; set; }
     public Point Location { get; set; } = default!;
 
-    public int PostId { get; set; }
+    public PostId PostId { get; set; }
     public Post? Post { get; set; }
 }
