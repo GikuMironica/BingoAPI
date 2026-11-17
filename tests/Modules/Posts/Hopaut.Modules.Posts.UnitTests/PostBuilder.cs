@@ -1,4 +1,5 @@
 using System.Reflection;
+using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
 
@@ -51,6 +52,12 @@ internal sealed class PostBuilder
         Now);
 
     public Post Build() => TryBuild().Value;
+
+    /// <summary>Today's wire shape of a built post, as the read model would project it (tag names are not joined).</summary>
+    public PostDto BuildDto() => ToDto(Build());
+
+    public static PostDto ToDto(Post post) => PostDto.Create(
+        post.Id, post.PostTime, post.Schedule.Start, post.Schedule.End, post.Status, post.UserId, post.Location, post.Event, post.Pictures, []);
 
     /// <summary>Gives a picture the ID the database would assign when the post is saved.</summary>
     public static void AssignId(Picture picture, int id) =>

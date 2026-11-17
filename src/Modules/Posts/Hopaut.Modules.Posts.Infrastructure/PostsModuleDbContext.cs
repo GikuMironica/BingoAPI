@@ -113,7 +113,7 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.HasKey(e => new { e.PostId, e.TagId });
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.TagId).HasConversion<StronglyTypedIdConverter<TagId, int>>();
-            entity.HasOne(e => e.Tag).WithMany().HasForeignKey(e => e.TagId);
+            entity.HasOne<Tag>().WithMany().HasForeignKey(e => e.TagId);
         });
 
         modelBuilder.Entity<RepeatableProperty>(entity =>

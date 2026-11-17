@@ -25,10 +25,11 @@ public sealed class PostsModule : IModuleEndpoints
         var group = endpoints.MapGroup("/api/v1/posts")
             .WithTags("Posts");
 
+        // Today's response is the list (D-007); the page cursor is exposed with the feed's sync in plan Step 10.4.
         group.MapGet("/nearby", async (double longitude, double latitude, double? radius, int? limit, ISender sender, CancellationToken cancellationToken) =>
         {
             var result = await sender.Send(new GetNearbyPostsQuery(longitude, latitude, radius ?? 10000, limit ?? 50), cancellationToken);
-            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
+            return result.IsSuccess ? Results.Ok(result.Value.Items) : result.ToProblem();
         });
 
         group.MapGet("/{postId:int}", async (int postId, ISender sender, CancellationToken cancellationToken) =>

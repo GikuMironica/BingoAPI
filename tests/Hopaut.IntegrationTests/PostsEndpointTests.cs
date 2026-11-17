@@ -5,9 +5,12 @@ using System.Text.Json;
 using AwesomeAssertions.Execution;
 using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.IntegrationTests.Infrastructure;
+using Hopaut.Modules.Posts.Application.Queries;
+using Hopaut.Modules.Posts.Application.Queries.GetNearbyPosts;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.Modules.Posts.Infrastructure;
 using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -282,6 +285,61 @@ public sealed class PostsEndpointTests(HopautApiFactory factory)
         }
     }
 
+    [Fact]
+    public async Task GivenPostsAroundAPoint_WhenTheFeedIsRead_ThenOnlyListedRunningPostsInsideTheRadiusComeNearestFirst()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var hostId = "posts-feed-" + Guid.NewGuid().ToString("N");
+        using var host = ClientFor(hostId);
+        using var admin = ClientFor("posts-feed-admin", HopautRoles.Admin);
+        var (longitude, latitude) = (151.21, -33.86); // far from every other test's posts
+        var center = await CreateAsync(host, Body(hostId, "Center", longitude: longitude, latitude: latitude), ct);
+        var near = await CreateAsync(host, Body(hostId, "Near", longitude: longitude, latitude: latitude + 0.0045), ct);
+        var far = await CreateAsync(host, Body(hostId, "Two km", longitude: longitude, latitude: latitude + 0.018), ct);
+        await CreateAsync(host, Body(hostId, "Outside", longitude: longitude, latitude: latitude + 0.18), ct);
+        var justStarted = DateTimeOffset.UtcNow.AddMinutes(-29);
+        await CreateAsync(host, Body(hostId, "Ended", start: justStarted, end: justStarted.AddMinutes(15), longitude: longitude, latitude: latitude), ct);
+        var disabled = await CreateAsync(host, Body(hostId, "Disabled", longitude: longitude, latitude: latitude), ct);
+        using var disabling = await admin.PatchAsJsonAsync($"/api/v1/posts/{disabled}/status", new { status = "disabled" }, ct);
+        var feed = FormattableString.Invariant($"/api/v1/posts/nearby?longitude={longitude}&latitude={latitude}");
+
+        // Act
+        var all = await GetIdsAsync(host, feed + "&radius=5000", ct);
+        var firstTwo = await GetIdsAsync(host, feed + "&radius=5000&limit=2", ct);
+        using var tooWide = await host.GetAsync(feed + "&radius=15001", ct);
+        using var tooMany = await host.GetAsync(feed + "&limit=101", ct);
+        var firstPage = await SendAsync(new GetNearbyPostsQuery(longitude, latitude, 5000, Limit: 2), ct);
+        var secondPage = await SendAsync(new GetNearbyPostsQuery(longitude, latitude, 5000, Limit: 2, Cursor: firstPage.NextCursor), ct);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            all.Should().Equal(center, near, far);
+            firstTwo.Should().Equal(center, near);
+            tooWide.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            tooMany.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            firstPage.Items.Select(post => post.Id).Should().Equal(center, near);
+            secondPage.Items.Select(post => post.Id).Should().Equal(far);
+            secondPage.NextCursor.Should().BeNull();
+        }
+    }
+
+    private async Task<PostPage> SendAsync(GetNearbyPostsQuery query, CancellationToken ct)
+    {
+        await using var scope = factory.Services.CreateAsyncScope();
+        var result = await scope.ServiceProvider.GetRequiredService<ISender>().Send(query, ct);
+        return result.Value;
+    }
+
+    private static async Task<List<int>> GetIdsAsync(HttpClient client, string url, CancellationToken ct)
+    {
+        using var response = await client.GetAsync(url, ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var posts = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        return posts.RootElement.EnumerateArray().Select(post => post.GetProperty("id").GetInt32()).ToList();
+    }
+
     private static async Task<(List<int> Ids, string? NextCursor)> GetPageAsync(HttpClient client, string url, CancellationToken ct)
     {
         using var response = await client.GetAsync(url, ct);
@@ -316,12 +374,14 @@ public sealed class PostsEndpointTests(HopautApiFactory factory)
         int? currency = null,
         string[]? tagNames = null,
         DateTimeOffset? start = null,
-        DateTimeOffset? end = null) => new
+        DateTimeOffset? end = null,
+        double longitude = 13.405,
+        double latitude = 52.52) => new
         {
             eventTime = start ?? new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
             endTime = end ?? (start ?? new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero)).AddHours(5),
             userId = new { value = userId },
-            location = new { entityName = "Venue", city = "Berlin", region = (string?)null, address = "Main St 1", country = "DE", longitude = 13.405, latitude = 52.52 },
+            location = new { entityName = "Venue", city = "Berlin", region = (string?)null, address = "Main St 1", country = "DE", longitude, latitude },
             @event = new { eventType = (int)EventType.HouseParty, entrancePrice, currency, title, description, requirements = (string?)null, slots = 25, typeSpecificData = (string?)null },
             tagNames,
         };

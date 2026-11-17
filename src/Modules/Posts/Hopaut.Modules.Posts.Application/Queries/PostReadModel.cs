@@ -37,9 +37,42 @@ public sealed record PostKeyset(DateTimeOffset EventTime, PostId PostId)
     }
 }
 
+/// <summary>Keyset position in a feed ordered by distance then ID, both ascending: the last item already returned.</summary>
+public sealed record NearbyKeyset(double DistanceMeters, PostId PostId)
+{
+    public Cursor Encode() =>
+        Cursor.Encode(string.Create(CultureInfo.InvariantCulture, $"{DistanceMeters:R}:{PostId.Value}"));
+
+    public static Result<NearbyKeyset> Decode(string? value)
+    {
+        var cursor = Cursor.Create(value);
+        if (cursor.IsFailure)
+            return cursor.Error;
+
+        var parts = cursor.Value.Decode().Split(':');
+        return parts.Length == 2
+            && double.TryParse(parts[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var distance)
+            && double.IsFinite(distance)
+            && distance >= 0
+            && int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var id)
+            && id > 0
+                ? new NearbyKeyset(distance, PostId.From(id))
+                : PagingErrors.InvalidCursor;
+    }
+}
+
+/// <summary>A post of the feed and its distance from the searched point.</summary>
+public sealed record NearbyPost(PostDto Post, double DistanceMeters);
+
 /// <summary>Post reads served by no-tracking projections, filtered and paged in SQL (never loading aggregates).</summary>
 public interface IPostReadModel
 {
+    Task<PostDto?> GetByIdAsync(PostId postId, CancellationToken ct);
+
+    /// <summary>Up to <paramref name="count"/> active, not yet ended posts within the radius, nearest first, after the given position.</summary>
+    Task<IReadOnlyList<NearbyPost>> GetNearbyAsync(
+        Coordinates center, RadiusMeters radius, DateTimeOffset now, NearbyKeyset? after, int count, CancellationToken ct);
+
     /// <summary>Up to <paramref name="count"/> posts of the host matching the filter, newest start first, after the given position.</summary>
     Task<IReadOnlyList<PostDto>> GetHostedAsync(
         UserId host, HostedPostsFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct);

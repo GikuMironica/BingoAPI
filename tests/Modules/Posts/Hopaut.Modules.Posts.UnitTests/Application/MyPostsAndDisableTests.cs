@@ -155,5 +155,5 @@ public sealed class MyPostsAndDisableTests
         }
     }
 
-    private static PostDto Dto(int id, DateTimeOffset start) => PostDto.From(new PostBuilder().WithId(id).Build()) with { EventTime = start };
+    private static PostDto Dto(int id, DateTimeOffset start) => new PostBuilder().WithId(id).BuildDto() with { EventTime = start };
 }

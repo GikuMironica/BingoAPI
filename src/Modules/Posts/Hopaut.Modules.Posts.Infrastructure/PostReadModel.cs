@@ -14,6 +14,34 @@ namespace Hopaut.Modules.Posts.Infrastructure;
 /// </summary>
 public sealed class PostReadModel(PostsModuleDbContext db) : IPostReadModel
 {
+    public async Task<PostDto?> GetByIdAsync(PostId postId, CancellationToken ct) =>
+        (await LoadAsync([postId], ct)).SingleOrDefault();
+
+    // The GIST index on event_locations."Location" serves ST_DWithin; distances are meters on the geography type.
+    public async Task<IReadOnlyList<NearbyPost>> GetNearbyAsync(
+        Coordinates center, RadiusMeters radius, DateTimeOffset now, NearbyKeyset? after, int count, CancellationToken ct)
+    {
+        var keys = await db.Database.SqlQuery<NearbyKey>($"""
+            SELECT nearby."Id", nearby."Distance"
+            FROM (
+                SELECT p."Id",
+                       ST_Distance(l."Location", ST_SetSRID(ST_MakePoint({center.Longitude}, {center.Latitude}), 4326)::geography) AS "Distance"
+                FROM posts.posts AS p
+                JOIN posts.event_locations AS l ON l."PostId" = p."Id"
+                WHERE p."Status" = {(int)PostStatus.Active}
+                  AND p."EndTime" > {now}
+                  AND ST_DWithin(l."Location", ST_SetSRID(ST_MakePoint({center.Longitude}, {center.Latitude}), 4326)::geography, {radius.Value})
+            ) AS nearby
+            WHERE {after is null} OR (nearby."Distance", nearby."Id") > ({after?.DistanceMeters ?? 0}, {after?.PostId.Value ?? 0})
+            ORDER BY nearby."Distance", nearby."Id"
+            LIMIT {count}
+            """).ToListAsync(ct);
+
+        var distances = keys.ToDictionary(key => key.Id, key => key.Distance);
+        var posts = await LoadAsync(keys.ConvertAll(key => PostId.From(key.Id)), ct);
+        return posts.Select(post => new NearbyPost(post, distances[post.Id])).ToList();
+    }
+
     // TODO: add index — CREATE INDEX IX_posts_UserId_EventTime_Id ON posts.posts ("UserId", "EventTime" DESC, "Id" DESC);
     public async Task<IReadOnlyList<PostDto>> GetHostedAsync(
         UserId host, HostedPostsFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct)
@@ -86,6 +114,13 @@ public sealed class PostReadModel(PostsModuleDbContext db) : IPostReadModel
         public int Id { get; init; }
 
         public DateTimeOffset EventTime { get; init; }
+    }
+
+    private sealed class NearbyKey
+    {
+        public int Id { get; init; }
+
+        public double Distance { get; init; }
     }
 
     private sealed record PostRow(

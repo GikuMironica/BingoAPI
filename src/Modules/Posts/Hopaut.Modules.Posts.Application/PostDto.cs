@@ -17,19 +17,6 @@ public sealed record PostDto(
     IReadOnlyList<string> Tags,
     UserReputationInfo? UserReputation = null)
 {
-    public static PostDto From(Post post, UserReputationInfo? reputation = null) => Create(
-        post.Id,
-        post.PostTime,
-        post.Schedule.Start,
-        post.Schedule.End,
-        post.Status,
-        post.UserId,
-        post.Location,
-        post.Event,
-        post.Pictures,
-        post.Tags.Select(tag => tag.Tag!.Name.Value).ToList(),
-        reputation);
-
     /// <summary>Maps the parts a read model projects (the aggregate's children, read without tracking) to the wire shape.</summary>
     public static PostDto Create(
         PostId id,
