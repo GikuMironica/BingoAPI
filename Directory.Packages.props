@@ -35,7 +35,7 @@
 	<!-- MediatR (Apache-2.0 up to 12.x; replaced by Mediator in plan step 7.6) -->
 	<PackageVersion Include="MediatR" Version="12.4.1" />
 
-	<!-- Hangfire (LGPL-3.0 / commercial: do not upgrade without the license confirmation recorded in TODO.md) -->
+	<!-- Hangfire (LGPL-3.0 with a commercial option; use confirmed by the user 2026-11-17, D-010) -->
 	<PackageVersion Include="Hangfire.AspNetCore" Version="1.8.17" />
 	<PackageVersion Include="Hangfire.PostgreSql" Version="1.20.10" />
 
@@ -45,8 +45,8 @@
 	<!-- Email (4.16.0+ / MimeKit 4.15.1+ fix GHSA-9j88-vvj5-vhgr and GHSA-g7hc-96xr-gvvx; brings System.Security.Cryptography.Pkcs 10.0.13) -->
 	<PackageVersion Include="MailKit" Version="4.18.2" />
 
-	<!-- Image processing (vulnerable 3.1.7 kept until blocker B-001 in TODO.md is resolved) -->
-	<PackageVersion Include="SixLabors.ImageSharp" Version="3.1.7" />
+	<!-- Image processing: Six Labors Split License v1.0 → Apache-2.0 because Hopaut is a non-profit (user, 2026-11-17, D-014). 3.2.0 fixes all seven GHSA advisories against 3.1.7. -->
+	<PackageVersion Include="SixLabors.ImageSharp" Version="3.2.0" />
 
 	<!-- Validation (FluentValidation.AspNetCore is replaced in plan step 7.6) -->
 	<PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />

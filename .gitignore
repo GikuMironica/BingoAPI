@@ -7,3 +7,6 @@
 
 # Local container secrets (docker-compose)
 .env
+
+# Six Labors license key for ImageSharp Release builds (blocker B-002) – never commit
+sixlabors.lic
