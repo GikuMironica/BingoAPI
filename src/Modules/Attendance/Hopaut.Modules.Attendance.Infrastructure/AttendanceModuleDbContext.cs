@@ -1,5 +1,6 @@
 using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Attendance.Domain;
+using Hopaut.SharedKernel;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,8 +22,9 @@ public class AttendanceModuleDbContext : ModuleDbContext
         {
             entity.ToTable("participations");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<ParticipationId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.Status).HasConversion<int>();
             entity.HasIndex(e => new { e.PostId, e.UserId }).IsUnique();
             entity.HasIndex(e => e.UserId);

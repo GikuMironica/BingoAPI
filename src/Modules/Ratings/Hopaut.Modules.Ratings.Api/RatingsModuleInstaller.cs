@@ -14,9 +14,7 @@ public static class RatingsModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<RatingsModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", RatingsModuleDbContext.SchemaName)));
+        services.AddRatingsPersistence(connectionString);
 
         services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IUserReputationRepository, UserReputationRepository>();

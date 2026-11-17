@@ -14,9 +14,7 @@ public static class ModerationModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<ModerationModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", ModerationModuleDbContext.SchemaName)));
+        services.AddModerationPersistence(connectionString);
 
         services.AddScoped<IModerationRepository, ModerationRepository>();
 

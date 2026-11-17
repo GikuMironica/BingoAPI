@@ -14,12 +14,7 @@ public static class PostsModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<PostsModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-            {
-                npgsql.UseNetTopologySuite();
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", PostsModuleDbContext.SchemaName);
-            }));
+        services.AddPostsPersistence(connectionString);
 
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<IUserReputationProvider, MediatRUserReputationProvider>();

@@ -14,9 +14,7 @@ public static class AnnouncementsModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<AnnouncementsModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", AnnouncementsModuleDbContext.SchemaName)));
+        services.AddAnnouncementsPersistence(connectionString);
 
         services.AddScoped<IAnnouncementRepository, AnnouncementRepository>();
 

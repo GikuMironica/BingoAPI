@@ -14,9 +14,7 @@ public static class BugReportsModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<BugReportsModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", BugReportsModuleDbContext.SchemaName)));
+        services.AddBugReportsPersistence(connectionString);
 
         services.AddScoped<IBugReportRepository, BugReportRepository>();
 

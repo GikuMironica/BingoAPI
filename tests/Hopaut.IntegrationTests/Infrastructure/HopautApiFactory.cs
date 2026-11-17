@@ -1,15 +1,12 @@
-using Hopaut.Api.Host;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Testcontainers.PostgreSql;
 
 namespace Hopaut.IntegrationTests.Infrastructure;
 
 /// <summary>
-/// Boots the real Host against a disposable PostGIS container. Needs a Docker-compatible endpoint (see tests/README.md).
+/// Boots the real Host against a disposable PostGIS container and applies every module migration on startup.
+/// Needs a Docker-compatible endpoint (see tests/README.md).
 /// </summary>
 public sealed class HopautApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
@@ -26,13 +23,7 @@ public sealed class HopautApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:DefaultConnection", ConnectionString);
         builder.UseSetting("ConnectionStrings:HangfireConnection", ConnectionString);
-        builder.ConfigureTestServices(services =>
-        {
-            // The Identity tables only exist once the module migrations land (plan Step 7.3); until then the seeder cannot run.
-            var seeder = services.Single(d =>
-                d.ServiceType == typeof(IHostedService) && !d.IsKeyedService && d.ImplementationType == typeof(RoleSeederHostedService));
-            services.Remove(seeder);
-        });
+        builder.UseSetting("Database:MigrateOnStartup", "true");
     }
 
     public override async ValueTask DisposeAsync()
@@ -40,4 +31,11 @@ public sealed class HopautApiFactory : WebApplicationFactory<Program>, IAsyncLif
         await base.DisposeAsync();
         await _database.DisposeAsync();
     }
+}
+
+/// <summary>One Host and one database for all integration test classes.</summary>
+[CollectionDefinition(Name)]
+public sealed class HostCollection : ICollectionFixture<HopautApiFactory>
+{
+    public const string Name = "Host";
 }

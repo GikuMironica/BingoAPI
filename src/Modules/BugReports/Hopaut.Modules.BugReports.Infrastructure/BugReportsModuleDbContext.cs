@@ -1,5 +1,6 @@
 using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.BugReports.Domain;
+using Hopaut.SharedKernel;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +23,9 @@ public class BugReportsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("bugs");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<BugReportId>>().ValueGeneratedOnAdd();
             entity.Property(e => e.Message).IsRequired();
-            entity.Property(e => e.ReporterId).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.ReporterId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
             entity.HasMany(e => e.Screenshots).WithOne(s => s.Bug).HasForeignKey(s => s.BugId);
         });
 
@@ -32,7 +33,8 @@ public class BugReportsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("bug_screenshots");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<BugScreenshotId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.BugId).HasConversion<StronglyTypedIdConverter<BugReportId>>();
         });
     }
 }

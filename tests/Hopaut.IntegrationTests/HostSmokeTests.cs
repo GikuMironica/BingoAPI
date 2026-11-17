@@ -3,7 +3,8 @@ using System.Net;
 
 namespace Hopaut.IntegrationTests;
 
-public sealed class HostSmokeTests(HopautApiFactory factory) : IClassFixture<HopautApiFactory>
+[Collection(HostCollection.Name)]
+public sealed class HostSmokeTests(HopautApiFactory factory)
 {
     [Fact]
     public async Task GivenAPostGisDatabase_WhenTheHostStarts_ThenTheHealthEndpointReturnsOk()

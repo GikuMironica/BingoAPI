@@ -14,9 +14,7 @@ public static class UsersModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<UsersModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", UsersModuleDbContext.SchemaName)));
+        services.AddUsersPersistence(connectionString);
 
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 

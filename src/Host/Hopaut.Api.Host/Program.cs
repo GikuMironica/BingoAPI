@@ -21,6 +21,7 @@ using Hopaut.Modules.BugReports.Api;
 using Hopaut.Modules.Payments.Api;
 using Hopaut.BuildingBlocks.Application;
 using Hopaut.BuildingBlocks.Infrastructure.Outbox;
+using Hopaut.BuildingBlocks.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,8 +70,8 @@ builder.Services.AddAuthorization();
 // ── Caching ──
 builder.Services.AddHopautCaching(builder.Configuration);
 
-// ── Integration Event Publishing (outbox) ──
-builder.Services.AddScoped<IIntegrationEventPublisher, OutboxIntegrationEventPublisher>();
+// ── Integration Event Publishing (transitional shared outbox, replaced in plan Step 9.1) ──
+builder.Services.AddHopautOutbox(builder.Configuration);
 
 // ── Hangfire ──
 builder.Services.AddHopautHangfire(builder.Configuration);
@@ -91,7 +92,15 @@ builder.Services.AddModerationModule(builder.Configuration);
 builder.Services.AddBugReportsModule(builder.Configuration);
 builder.Services.AddPaymentsModule(builder.Configuration);
 
+var moduleDbContexts = DatabaseMigrator.RegisteredDbContexts(builder.Services);
+
 var app = builder.Build();
+
+// ── Database migrations: opt-in for Development and tests; production applies reviewed scripts ──
+if (app.Configuration.GetValue<bool>("Database:MigrateOnStartup"))
+{
+    await DatabaseMigrator.MigrateAsync(app.Services, moduleDbContexts, app.Logger, CancellationToken.None);
+}
 
 // ── Middleware pipeline ──
 app.UseSerilogRequestLogging();

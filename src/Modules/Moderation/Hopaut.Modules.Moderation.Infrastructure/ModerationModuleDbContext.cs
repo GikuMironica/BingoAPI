@@ -1,5 +1,6 @@
 using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Moderation.Domain;
+using Hopaut.SharedKernel;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +23,10 @@ public class ModerationModuleDbContext : ModuleDbContext
         {
             entity.ToTable("post_reports");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.ReporterId).IsRequired().HasMaxLength(450);
-            entity.Property(e => e.ReportedHostId).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostReportId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.ReporterId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.ReportedHostId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
             entity.Property(e => e.Status).HasConversion<int>();
             entity.HasIndex(e => e.Status);
             entity.HasIndex(e => e.PostId);
@@ -34,9 +36,9 @@ public class ModerationModuleDbContext : ModuleDbContext
         {
             entity.ToTable("user_reports");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.ReporterId).IsRequired().HasMaxLength(450);
-            entity.Property(e => e.ReportedUserId).IsRequired().HasMaxLength(450);
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<UserReportId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.ReporterId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.ReportedUserId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.Status).HasConversion<int>();
             entity.HasIndex(e => e.Status);
         });

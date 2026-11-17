@@ -3,6 +3,7 @@ using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace Hopaut.Modules.Posts.Infrastructure;
 
@@ -11,6 +12,9 @@ public class PostsModuleDbContext : ModuleDbContext
     public const string SchemaName = "posts";
 
     public PostsModuleDbContext(DbContextOptions<PostsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
+
+    /// <summary>Provider options shared by the runtime registration and the design-time factory (PostGIS types).</summary>
+    public static void ConfigureNpgsql(NpgsqlDbContextOptionsBuilder npgsql) => npgsql.UseNetTopologySuite();
 
     public DbSet<Post> Posts => Set<Post>();
     public DbSet<Event> Events => Set<Event>();

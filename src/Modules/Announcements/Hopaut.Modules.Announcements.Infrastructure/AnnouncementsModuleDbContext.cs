@@ -1,5 +1,6 @@
 using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Announcements.Domain;
+using Hopaut.SharedKernel;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,8 @@ public class AnnouncementsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("announcements");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<AnnouncementId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
             entity.Property(e => e.Message).IsRequired();
             entity.HasIndex(e => e.PostId);
         });

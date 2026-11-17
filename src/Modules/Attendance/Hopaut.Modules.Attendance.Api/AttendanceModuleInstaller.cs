@@ -14,9 +14,7 @@ public static class AttendanceModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<AttendanceModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", AttendanceModuleDbContext.SchemaName)));
+        services.AddAttendancePersistence(connectionString);
 
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
 

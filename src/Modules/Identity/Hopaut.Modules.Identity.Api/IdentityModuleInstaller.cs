@@ -15,9 +15,7 @@ public static class IdentityModuleInstaller
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-        services.AddDbContext<IdentityModuleDbContext>(options =>
-            options.UseNpgsql(connectionString, npgsql =>
-                npgsql.MigrationsHistoryTable("__EFMigrationsHistory", IdentityModuleDbContext.SchemaName)));
+        services.AddIdentityPersistence(connectionString);
 
         services.AddIdentity<AppUser, IdentityRole>(options =>
             {
