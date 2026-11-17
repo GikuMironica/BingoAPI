@@ -2,6 +2,7 @@ using FluentValidation;
 using Hopaut.BuildingBlocks.Infrastructure.Authorization;
 using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Posts.Application.Authorization;
+using Hopaut.Modules.Posts.Application.Queries;
 using Hopaut.Modules.Posts.Contracts;
 using Hopaut.Modules.Posts.Domain;
 using Microsoft.Extensions.Configuration;
@@ -18,6 +19,7 @@ public static class PostsModuleInstaller
 
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<ITagRepository, TagRepository>();
+        services.AddScoped<IPostReadModel, PostReadModel>();
         services.AddScoped<IUserReputationProvider, RatingsUserReputationProvider>();
         services.AddScoped<IPostHostQueries, PostHostQueries>();
 

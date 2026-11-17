@@ -4,7 +4,9 @@ using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Posts.Api.Contracts.V1;
 using Hopaut.Modules.Posts.Application.Commands.CreatePost;
 using Hopaut.Modules.Posts.Application.Commands.DeletePost;
+using Hopaut.Modules.Posts.Application.Commands.DisablePost;
 using Hopaut.Modules.Posts.Application.Commands.UpdatePost;
+using Hopaut.Modules.Posts.Application.Queries.GetMyPosts;
 using Hopaut.Modules.Posts.Application.Queries.GetNearbyPosts;
 using Hopaut.Modules.Posts.Application.Queries.GetPostById;
 using Hopaut.SharedKernel;
@@ -59,7 +61,33 @@ public sealed class PostsModule : IModuleEndpoints
             .RequireAuthorization()
             .WithName("Posts_UpdatePost")
             .WithSummary("Partially updates a post. Host or administrator only.");
+
+        // Additive (plan Step 8.2): the legacy admin "disable" (PUT /posts/disable with { id }) as a status transition.
+        group.MapPatch("/{postId:int}/status", async (int postId, UpdatePostStatusRequest request, ISender sender, CancellationToken cancellationToken) =>
+        {
+            if (!string.Equals(request.Status, DisabledStatus, StringComparison.OrdinalIgnoreCase))
+                return new ValidationError(new Dictionary<string, string[]> { ["status"] = [$"The only supported status is \"{DisabledStatus}\"."] }).ToProblem();
+
+            var result = await sender.Send(new DisablePostCommand(PostId.From(postId)), cancellationToken);
+            return result.IsSuccess ? Results.NoContent() : result.ToProblem();
+        })
+            .RequireAuthorization(HopautPolicies.Admin)
+            .WithName("Posts_UpdatePostStatus")
+            .WithSummary("Disables a post. Administrators only.");
+
+        // Additive (plan Step 8.2): replaces the legacy GET /posts/myactive and /posts/myinactive, scoped to the caller (F-067).
+        endpoints.MapGet("/api/v1/users/me/posts", async (string? status, string? cursor, int? limit, ISender sender, CancellationToken cancellationToken) =>
+        {
+            var result = await sender.Send(new GetMyPostsQuery(status, cursor, limit), cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
+        })
+            .RequireAuthorization()
+            .WithTags("Posts")
+            .WithName("Posts_GetMyPosts")
+            .WithSummary("Lists the caller's posts: status=active (default) or inactive, newest start first, cursor-paged.");
     }
+
+    private const string DisabledStatus = "disabled";
 
     private static UpdatePostCommand ToCommand(PostId postId, UpdatePostRequest request) => new(
         postId,

@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions.Execution;
+using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.IntegrationTests.Infrastructure;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.Modules.Posts.Infrastructure;
@@ -217,10 +218,84 @@ public sealed class PostsEndpointTests(HopautApiFactory factory)
         }
     }
 
-    private HttpClient ClientFor(string userId)
+    [Fact]
+    public async Task GivenActiveEndedAndDisabledPosts_WhenTheHostListsThem_ThenPagesAreNewestFirstAndScopedToTheCaller()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var hostId = "posts-mine-" + Guid.NewGuid().ToString("N");
+        var otherId = "posts-other-" + Guid.NewGuid().ToString("N");
+        using var host = ClientFor(hostId);
+        using var other = ClientFor(otherId);
+        using var admin = ClientFor("posts-admin", HopautRoles.Admin);
+        var start = new DateTimeOffset(2031, 3, 1, 18, 0, 0, TimeSpan.Zero);
+        var soon = await CreateAsync(host, Body(hostId, "Soon", start: start), ct);
+        var later = await CreateAsync(host, Body(hostId, "Later", start: start.AddDays(1)), ct);
+        var latest = await CreateAsync(host, Body(hostId, "Latest", start: start.AddDays(2)), ct);
+        var disabled = await CreateAsync(host, Body(hostId, "Disabled", start: start.AddDays(3)), ct);
+        var justStarted = DateTimeOffset.UtcNow.AddMinutes(-29);
+        var ended = await CreateAsync(host, Body(hostId, "Ended", start: justStarted, end: justStarted.AddMinutes(15)), ct);
+        await CreateAsync(other, Body(otherId, "Not mine", start: justStarted, end: justStarted.AddMinutes(15)), ct);
+        using var disabling = await admin.PatchAsJsonAsync($"/api/v1/posts/{disabled}/status", new { status = "disabled" }, ct);
+
+        // Act
+        var firstPage = await GetPageAsync(host, "/api/v1/users/me/posts?limit=2", ct);
+        var secondPage = await GetPageAsync(host, $"/api/v1/users/me/posts?limit=2&cursor={firstPage.NextCursor}", ct);
+        var inactive = await GetPageAsync(host, "/api/v1/users/me/posts?status=inactive", ct);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            disabling.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            firstPage.Ids.Should().Equal(latest, later);
+            firstPage.NextCursor.Should().NotBeNull();
+            secondPage.Ids.Should().Equal(soon);
+            secondPage.NextCursor.Should().BeNull();
+            inactive.Ids.Should().Equal(disabled, ended);
+        }
+    }
+
+    [Fact]
+    public async Task GivenAPost_WhenItsStatusIsPatched_ThenOnlyAdministratorsDisableItAndOnlyOnce()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        using var host = ClientFor("posts-status-host");
+        using var admin = ClientFor("posts-status-admin", HopautRoles.Admin);
+        var postId = await CreateAsync(host, Body("posts-status-host", "Moderated"), ct);
+
+        // Act
+        using var byHost = await host.PatchAsJsonAsync($"/api/v1/posts/{postId}/status", new { status = "disabled" }, ct);
+        using var unknown = await admin.PatchAsJsonAsync($"/api/v1/posts/{postId}/status", new { status = "active" }, ct);
+        using var first = await admin.PatchAsJsonAsync($"/api/v1/posts/{postId}/status", new { status = "disabled" }, ct);
+        using var second = await admin.PatchAsJsonAsync($"/api/v1/posts/{postId}/status", new { status = "disabled" }, ct);
+
+        // Assert
+        using var conflict = JsonDocument.Parse(await second.Content.ReadAsStringAsync(ct));
+        using (new AssertionScope())
+        {
+            byHost.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            unknown.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            first.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            second.StatusCode.Should().Be(HttpStatusCode.Conflict);
+            conflict.RootElement.GetProperty("errorCode").GetString().Should().Be("posts.post.already_disabled");
+        }
+    }
+
+    private static async Task<(List<int> Ids, string? NextCursor)> GetPageAsync(HttpClient client, string url, CancellationToken ct)
+    {
+        using var response = await client.GetAsync(url, ct);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        using var page = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        var ids = page.RootElement.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("id").GetInt32()).ToList();
+        var next = page.RootElement.GetProperty("nextCursor");
+        return (ids, next.ValueKind == JsonValueKind.Null ? null : next.GetString());
+    }
+
+    private HttpClient ClientFor(string userId, params string[] roles)
     {
         var client = factory.CreateClient();
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TestJwt.Create(userId));
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TestJwt.Create(userId, roles));
         return client;
     }
 
@@ -234,10 +309,17 @@ public sealed class PostsEndpointTests(HopautApiFactory factory)
 
     // Today's request shape: the command itself, with strongly-typed IDs as { "value": … } (D-016, plan Step 10.4).
     private static object Body(
-        string userId, string title, string description = "Bring snacks and good vibes", double? entrancePrice = null, int? currency = null, string[]? tagNames = null) => new
+        string userId,
+        string title,
+        string description = "Bring snacks and good vibes",
+        double? entrancePrice = null,
+        int? currency = null,
+        string[]? tagNames = null,
+        DateTimeOffset? start = null,
+        DateTimeOffset? end = null) => new
         {
-            eventTime = new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
-            endTime = new DateTimeOffset(2030, 1, 9, 23, 0, 0, TimeSpan.Zero),
+            eventTime = start ?? new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
+            endTime = end ?? (start ?? new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero)).AddHours(5),
             userId = new { value = userId },
             location = new { entityName = "Venue", city = "Berlin", region = (string?)null, address = "Main St 1", country = "DE", longitude = 13.405, latitude = 52.52 },
             @event = new { eventType = (int)EventType.HouseParty, entrancePrice, currency, title, description, requirements = (string?)null, slots = 25, typeSpecificData = (string?)null },
