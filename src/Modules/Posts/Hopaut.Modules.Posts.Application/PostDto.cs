@@ -40,7 +40,7 @@ public sealed record PostDto(
             post.Event.Requirements,
             post.Event.Slots?.Value),
         post.Pictures.Select(picture => new PictureDto(picture.Id.Value, picture.Url, picture.State.ToString())).ToList(),
-        post.Tags.Select(tag => tag.Tag!.TagName).ToList(),
+        post.Tags.Select(tag => tag.Tag!.Name.Value).ToList(),
         reputation);
 }
 

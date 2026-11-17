@@ -36,4 +36,7 @@ public static class PostErrors
 
     public static Error PictureNotPending(PictureId pictureId) =>
         Error.Conflict("posts.picture.not_pending", $"Picture {pictureId} has already been processed.");
+
+    public static readonly Error TooManyTags =
+        Error.Validation("posts.post.too_many_tags", $"A post can have at most {Post.MaxTags} tags.");
 }

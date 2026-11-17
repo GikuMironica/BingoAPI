@@ -17,6 +17,7 @@ public static class PostsModuleInstaller
         services.AddPostsPersistence(configuration.GetConnectionString("DefaultConnection"));
 
         services.AddScoped<IPostRepository, PostRepository>();
+        services.AddScoped<ITagRepository, TagRepository>();
         services.AddScoped<IUserReputationProvider, RatingsUserReputationProvider>();
         services.AddScoped<IPostHostQueries, PostHostQueries>();
 

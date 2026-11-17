@@ -13,6 +13,7 @@ public sealed class Post : AggregateRoot<PostId>
     public static readonly TimeSpan MinimumDuration = TimeSpan.FromMinutes(15);
     public static readonly TimeSpan MaximumDuration = TimeSpan.FromHours(12);
     public static readonly TimeSpan StartTolerance = TimeSpan.FromMinutes(30);
+    public const int MaxTags = 20;
 
     private readonly List<Picture> _pictures = [];
     private readonly List<PostTag> _tags = [];
@@ -40,7 +41,10 @@ public sealed class Post : AggregateRoot<PostId>
     /// <summary>Optimistic-concurrency token (PostgreSQL <c>xmin</c>): the host and administrators may edit a post at the same time.</summary>
     public uint Version { get; private set; }
 
-    /// <summary>Creates a post with an ID taken from the posts sequence, so <see cref="PostCreatedDomainEvent"/> carries it.</summary>
+    /// <summary>
+    /// Creates a post with an ID taken from the posts sequence, so <see cref="PostCreatedDomainEvent"/> carries it. Tags are
+    /// referenced by ID (duplicates collapse, at most <see cref="MaxTags"/>).
+    /// </summary>
     public static Result<Post> Create(
         PostId id,
         UserId host,
@@ -49,6 +53,7 @@ public sealed class Post : AggregateRoot<PostId>
         PostPlace place,
         EventDetails details,
         IEnumerable<string>? pictureUrls,
+        IEnumerable<TagId>? tags,
         DateTimeOffset now)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, default);
@@ -61,6 +66,10 @@ public sealed class Post : AggregateRoot<PostId>
 
         if (details.Requirements?.Length > PostErrors.MaxRequirementsLength)
             return PostErrors.RequirementsTooLong;
+
+        var tagIds = (tags ?? []).Distinct().ToList();
+        if (tagIds.Count > MaxTags)
+            return PostErrors.TooManyTags;
 
         var post = new Post
         {
@@ -78,8 +87,27 @@ public sealed class Post : AggregateRoot<PostId>
             post._pictures.Add(Picture.Create(id, url));
         }
 
+        post._tags.AddRange(tagIds.Select(tagId => PostTag.Create(id, tagId)));
+
         post.Raise(new PostCreatedDomainEvent(now, id, host));
         return post;
+    }
+
+    /// <summary>Replaces the post's tags: links the new ones and unlinks the rest (duplicates collapse, at most <see cref="MaxTags"/>).</summary>
+    public Result Retag(IEnumerable<TagId> tags)
+    {
+        ArgumentNullException.ThrowIfNull(tags);
+
+        var tagIds = tags.Distinct().ToList();
+        if (tagIds.Count > MaxTags)
+            return PostErrors.TooManyTags;
+
+        _tags.RemoveAll(link => !tagIds.Contains(link.TagId));
+        _tags.AddRange(tagIds
+            .Where(tagId => _tags.TrueForAll(link => link.TagId != tagId))
+            .Select(tagId => PostTag.Create(Id, tagId))
+            .ToList());
+        return Result.Success();
     }
 
     public Result Reschedule(TimeRange schedule, DateTimeOffset now)

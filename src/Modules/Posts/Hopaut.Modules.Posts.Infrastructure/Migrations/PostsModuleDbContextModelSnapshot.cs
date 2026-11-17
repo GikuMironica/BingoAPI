@@ -28,6 +28,8 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
 
             modelBuilder.HasSequence<int>("post_ids");
 
+            modelBuilder.HasSequence<int>("tag_ids");
+
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -233,16 +235,18 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.Tag", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("TagName")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("TagName");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("tags", "posts");
                 });

@@ -13,12 +13,15 @@ public sealed class CreatePostCommandHandlerTests
     private static readonly DateTimeOffset Now = PostBuilder.Now;
 
     private readonly IPostRepository _posts = Substitute.For<IPostRepository>();
+    private readonly ITagRepository _tags = Substitute.For<ITagRepository>();
     private readonly CreatePostCommandHandler _handler;
 
     public CreatePostCommandHandlerTests()
     {
         _posts.NextIdAsync(Arg.Any<CancellationToken>()).Returns(PostId.From(11));
-        _handler = new CreatePostCommandHandler(_posts, new FakeTimeProvider(Now));
+        _tags.GetOrCreateAsync(Arg.Any<IReadOnlyCollection<TagName>>(), Arg.Any<CancellationToken>())
+            .Returns(call => call.Arg<IReadOnlyCollection<TagName>>().Select((name, index) => Tag.Create(TagId.From(index + 1), name)).ToList());
+        _handler = new CreatePostCommandHandler(_posts, _tags, new FakeTimeProvider(Now));
     }
 
     [Fact]
@@ -81,15 +84,48 @@ public sealed class CreatePostCommandHandlerTests
         result.Error.Should().BeOfType<ValidationError>().Which.Errors.Keys.Should().Equal("endTime");
     }
 
+    [Fact]
+    public async Task Handle_WithTagNames_LinksTheNormalisedDistinctTags()
+    {
+        // Act
+        var result = await _handler.Handle(Command(tags: ["Jazz", "jazz ", "Rooftop"]), TestContext.Current.CancellationToken);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.IsSuccess.Should().BeTrue();
+            await _tags.Received(1).GetOrCreateAsync(
+                Arg.Is<IReadOnlyCollection<TagName>>(names => names.Select(n => n.Value).SequenceEqual(new[] { "jazz", "rooftop" })),
+                Arg.Any<CancellationToken>());
+            _posts.Received(1).Add(Arg.Is<Post>(p => p.Tags.Select(t => t.TagId.Value).SequenceEqual(new[] { 1, 2 })));
+        }
+    }
+
+    [Fact]
+    public async Task Handle_WithAnInvalidTag_ReportsTheTagNamesFieldAndCreatesNoTag()
+    {
+        // Act
+        var result = await _handler.Handle(Command(tags: ["jazz", new string('x', TagName.MaxLength + 1)]), TestContext.Current.CancellationToken);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Error.Should().BeOfType<ValidationError>().Which.Errors.Keys.Should().Equal("tagNames");
+            await _tags.DidNotReceive().GetOrCreateAsync(Arg.Any<IReadOnlyCollection<TagName>>(), Arg.Any<CancellationToken>());
+        }
+    }
+
     private static CreatePostCommand Command(
         string? title = "Garden party",
         string description = "Bring snacks and good vibes",
         int? slots = 20,
         double latitude = 52.52,
-        DateTimeOffset? end = null) => new(
+        DateTimeOffset? end = null,
+        List<string>? tags = null) => new(
         Now.AddDays(1),
         end ?? Now.AddDays(1).AddHours(4),
         UserId.From("host-1"),
         new CreatePostLocationInput("Venue", "Berlin", null, "Main St 1", "DE", 13.405, latitude),
-        new CreatePostEventInput(EventType.HouseParty, null, null, title, description, null, slots, null));
+        new CreatePostEventInput(EventType.HouseParty, null, null, title, description, null, slots, null),
+        TagNames: tags);
 }

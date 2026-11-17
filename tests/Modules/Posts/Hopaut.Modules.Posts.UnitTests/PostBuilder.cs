@@ -15,6 +15,7 @@ internal sealed class PostBuilder
     private DateTimeOffset? _end = Now.AddDays(1).AddHours(4);
     private string? _requirements;
     private IEnumerable<string>? _pictures;
+    private IEnumerable<TagId>? _tags;
     private Money? _entranceFee;
 
     public PostBuilder WithId(int id) { _id = PostId.From(id); return this; }
@@ -26,6 +27,8 @@ internal sealed class PostBuilder
     public PostBuilder WithRequirements(string requirements) { _requirements = requirements; return this; }
 
     public PostBuilder WithPictures(params string[] urls) { _pictures = urls; return this; }
+
+    public PostBuilder WithTags(params int[] tagIds) { _tags = tagIds.Select(TagId.From).ToList(); return this; }
 
     public PostBuilder Charging(Money fee) { _entranceFee = fee; return this; }
 
@@ -44,6 +47,7 @@ internal sealed class PostBuilder
             _entranceFee,
             TypeSpecificData: null),
         _pictures,
+        _tags,
         Now);
 
     public Post Build() => TryBuild().Value;

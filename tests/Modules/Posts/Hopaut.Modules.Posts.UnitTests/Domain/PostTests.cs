@@ -89,6 +89,62 @@ public sealed class PostTests
     }
 
     [Fact]
+    public void Create_WithRepeatedTags_LinksEachTagOnce()
+    {
+        // Act
+        var post = new PostBuilder().WithId(9).WithTags(3, 5, 3).Build();
+
+        // Assert
+        post.Tags.Select(link => (link.PostId.Value, link.TagId.Value)).Should().Equal((9, 3), (9, 5));
+    }
+
+    [Fact]
+    public void Create_WithMoreThanTwentyTags_FailsWithTooManyTags()
+    {
+        // Act
+        var result = new PostBuilder().WithTags([.. Enumerable.Range(1, Post.MaxTags + 1)]).TryBuild();
+
+        // Assert
+        result.Error.Code.Should().Be("posts.post.too_many_tags");
+    }
+
+    [Fact]
+    public void Retag_KeepsSharedTagsUnlinksDroppedOnesAndLinksNewOnes()
+    {
+        // Arrange
+        var post = new PostBuilder().WithTags(1, 2).Build();
+        var kept = post.Tags[1];
+
+        // Act
+        var result = post.Retag([TagId.From(2), TagId.From(3), TagId.From(3)]);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.IsSuccess.Should().BeTrue();
+            post.Tags.Select(link => link.TagId.Value).Should().Equal(2, 3);
+            post.Tags[0].Should().BeSameAs(kept);
+        }
+    }
+
+    [Fact]
+    public void Retag_WithMoreThanTwentyTags_FailsAndKeepsTheTags()
+    {
+        // Arrange
+        var post = new PostBuilder().WithTags(1).Build();
+
+        // Act
+        var result = post.Retag(Enumerable.Range(1, Post.MaxTags + 1).Select(TagId.From));
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Error.Code.Should().Be("posts.post.too_many_tags");
+            post.Tags.Select(link => link.TagId.Value).Should().Equal(1);
+        }
+    }
+
+    [Fact]
     public void Reschedule_WithAValidSchedule_ReplacesIt()
     {
         // Arrange

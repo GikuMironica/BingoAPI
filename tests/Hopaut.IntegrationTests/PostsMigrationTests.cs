@@ -15,6 +15,51 @@ namespace Hopaut.IntegrationTests;
 public sealed class PostsMigrationTests(HopautApiFactory factory)
 {
     private const string BeforeMoney = "20261117195201_PostStatusAndRequiredTitle";
+    private const string BeforeTags = "20261117204341_PostVersion";
+
+    [Fact]
+    public async Task GivenLegacyTags_WhenTagNamesAndIdSequenceRunsUpAndDown_ThenNamesAreNormalisedDuplicatesMergedAndIdsContinue()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var database = new NpgsqlConnectionStringBuilder(factory.ConnectionString) { Database = "posts_tags_" + Guid.NewGuid().ToString("N") };
+        var builder = new DbContextOptionsBuilder<PostsModuleDbContext>();
+        builder.UseModuleNpgsql(database.ConnectionString, PostsModuleDbContext.SchemaName, PostsModuleDbContext.ConfigureNpgsql);
+        await using var context = new PostsModuleDbContext(builder.Options, new NoPublisher());
+        var migrator = context.GetService<IMigrator>();
+        await migrator.MigrateAsync(BeforeTags, ct);
+        await context.Database.ExecuteSqlRawAsync("""
+            INSERT INTO posts.posts ("Id", "PostTime", "EventTime", "EndTime", "Status", "UserId")
+            SELECT id, now(), now(), now() + interval '2 hours', 1, 'host' FROM generate_series(1, 2) AS id;
+            INSERT INTO posts.tags ("Id", "TagName") VALUES
+                (1, ' Jazz '), (2, 'jazz'), (3, '   '), (4, 'ROCK'), (5, 'abcdefghijklmnopqrstuvwxyz');
+            INSERT INTO posts.post_tags ("PostId", "TagId") VALUES (1, 1), (1, 2), (2, 2), (2, 3), (2, 4), (2, 5);
+            """, ct);
+
+        try
+        {
+            // Act
+            await migrator.MigrateAsync(cancellationToken: ct);
+            var tags = await RowsAsync(database.ConnectionString, """SELECT "Id"::text, "TagName" FROM posts.tags ORDER BY "Id" """, ct);
+            var links = await RowsAsync(database.ConnectionString, """SELECT "PostId"::text, "TagId"::text FROM posts.post_tags ORDER BY 1, 2""", ct);
+            var nextId = await RowsAsync(database.ConnectionString, "SELECT nextval('posts.tag_ids')::text, NULL", ct);
+            await migrator.MigrateAsync(BeforeTags, ct);
+            var restoredIdentity = await RowsAsync(database.ConnectionString, """INSERT INTO posts.tags ("TagName") VALUES ('after down') RETURNING "Id"::text, "TagName" """, ct);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                tags.Should().Equal(("1", "jazz"), ("4", "rock"), ("5", "abcdefghijklmnopqrst"));
+                links.Should().Equal(("1", "1"), ("2", "1"), ("2", "4"), ("2", "5"));
+                nextId.Should().Equal(("6", null));
+                restoredIdentity.Should().Equal(("6", "after down"));
+            }
+        }
+        finally
+        {
+            await context.Database.EnsureDeletedAsync(ct);
+        }
+    }
 
     [Fact]
     public async Task GivenLegacyEntrancePrices_WhenEntranceFeeMoneyRunsUpAndDown_ThenFeesConvertBothWays()

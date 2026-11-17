@@ -16,6 +16,9 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
     /// <summary>Source of post IDs; <see cref="IPostRepository.NextIdAsync"/> reads it before a post is created.</summary>
     public const string PostIdSequence = "post_ids";
 
+    /// <summary>Source of tag IDs; <see cref="ITagRepository.GetOrCreateAsync"/> reads it before a tag is created.</summary>
+    public const string TagIdSequence = "tag_ids";
+
     public PostsModuleDbContext(DbContextOptions<PostsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
     /// <summary>Provider options shared by the runtime registration and the design-time factory (PostGIS types).</summary>
@@ -34,6 +37,7 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
         modelBuilder.HasDefaultSchema(SchemaName);
         modelBuilder.HasPostgresExtension("postgis");
         modelBuilder.HasSequence<int>(PostIdSequence);
+        modelBuilder.HasSequence<int>(TagIdSequence);
 
         modelBuilder.Entity<Post>(entity =>
         {
@@ -94,8 +98,13 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
         {
             entity.ToTable("tags");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<TagId, int>>().ValueGeneratedOnAdd();
-            entity.Property(e => e.TagName).IsRequired();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<TagId, int>>().ValueGeneratedNever();
+            entity.Property(e => e.Name)
+                .HasColumnName("TagName")
+                .HasConversion<ValueObjectConverter<TagName, string>>()
+                .HasMaxLength(TagName.MaxLength)
+                .IsRequired();
+            entity.HasIndex(e => e.Name).IsUnique();
         });
 
         modelBuilder.Entity<PostTag>(entity =>
