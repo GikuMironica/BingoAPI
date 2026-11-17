@@ -63,6 +63,9 @@ builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 // ── ProblemDetails ──
 builder.Services.AddProblemDetails();
 
+// ── Authorization (required by UseAuthorization and RequireAuthorization; JWT bearer authentication is plan Step 7.7) ──
+builder.Services.AddAuthorization();
+
 // ── Caching ──
 builder.Services.AddHopautCaching(builder.Configuration);
 
@@ -113,3 +116,6 @@ app.MapBugReportsEndpoints();
 app.MapPaymentsEndpoints();
 
 app.Run();
+
+// Exposes the implicit top-level Program class to WebApplicationFactory<Program> in tests/Hopaut.IntegrationTests.
+public partial class Program;

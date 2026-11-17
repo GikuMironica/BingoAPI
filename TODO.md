@@ -2,14 +2,13 @@
 
 > Owned by the HopautArchitect agent. Step status lives only in `hopaut-migration-status.md`; this file holds the working queue, audit findings, contract inventory, decisions and blockers.
 
-**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 7.2
+**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 7.3
 
 ## Now
-- [ ] 7.2 – Test pyramid scaffolding: xUnit v3, AwesomeAssertions, NSubstitute, Testcontainers via Podman (skills: dotnet-10-migration, architect-handoff)
+- [ ] 7.3 – Baseline EF Core migrations per module (skills: dotnet-10-migration, architect-handoff)
 
 ## Next
 Order and dependencies: `hopaut-execution-plan.md` Phase 7 header (D-005).
-- [ ] 7.3 – Baseline EF Core migrations per module (dotnet-10-migration)
 - [ ] 7.4 – `Result`/`Error`, problem details, `ICurrentUser` (clean-architecture-ddd, rest-api-standards)
 - [ ] 7.5 – `TimeProvider`, Guid v7, SharedKernel base types, ID parsing/JSON (clean-architecture-ddd, dotnet-10-migration)
 - [ ] 7.6 – MediatR → Mediator, pipeline, module unit of work (messaging-integration)
@@ -50,7 +49,7 @@ Types: bug · smell · primitive-obsession · anemic-model · layering · messag
 | F-023 | layering | `src/Modules/Posts/Hopaut.Modules.Posts.Infrastructure/Hopaut.Modules.Posts.Infrastructure.csproj:16` | Posts.Infrastructure references Ratings.Application | csproj | 6.6 | open |
 | F-024 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Domain/Hopaut.Modules.Identity.Domain.csproj:8` | Identity.Domain references `Microsoft.Extensions.Identity.Stores` (`AppUser : IdentityUser`) | csproj | 8.9 | open |
 | F-025 | test-gap | `tests/Hopaut.ArchitectureTests/DddEnforcementTests.cs:13-17,72-86` | Architecture tests load only SharedKernel + BuildingBlocks.Application; the aggregate-constructor rule scans an assembly without aggregates (vacuous); no module rules | file content | 6.7 | fixed 2026-11-17 (6.7: ratchet suite, 33 tests) |
-| F-026 | test-gap | `tests/` | No unit, integration or endpoint tests for any module or building block | `dotnet test Bingo.sln` → 5 tests | 7.2, 8.x, 10.x | open |
+| F-026 | test-gap | `tests/` | No unit, integration or endpoint tests for any module or building block | `dotnet test Bingo.sln` → 5 tests | 7.2, 8.x, 10.x | partly fixed 2026-11-17 (7.2: harness + BuildingBlocks unit tests + Host smoke test); module tests → 8.x, endpoint tests → 10.x |
 | F-027 | bug | all module `*.Infrastructure` projects | No EF Core migrations for any of the 8 module DbContexts or `OutboxDbContext` | audit: no `Migrations` folder, `Migration` or `ModelSnapshot` class under `src` | 7.3, 11.1 | open |
 | F-028 | rest | `src/Modules/*/Hopaut.Modules.*.Api/*Module.cs` | Inline route literals; no `WithName`/`WithSummary`/`Produces`; untyped `Results.*` and anonymous objects; `AuthResult` serialized directly; verbs in paths (`/nearby`, `/request`, `/accept`, `/reject`, `/cancel`, `/check`, `/resolve`); 200 on create (Payments); plain-string 409; unbounded lists; one global rate-limit policy | audit report | 10.x | open |
 | F-029 | rest | BingoMobile vs module endpoints | BingoMobile calls legacy routes; ~25 calls have no backend endpoint and it expects PascalCase, a `Data` envelope and Unix seconds | Contract inventory below | 10.2–10.8 | open |
@@ -78,6 +77,7 @@ Types: bug · smell · primitive-obsession · anemic-model · layering · messag
 | F-051 | smell | `tests/load/sample_test.js:20`, `tests/load/stress_test.js:19-25` | Legacy k6 samples: one posts to the production login URL, the other targets dummy routes on `localhost:44375` | file content | 6.11 | open |
 | F-052 | layering | `src/Modules/*/Hopaut.Modules.*.Api/*ModuleInstaller.cs` (all 11 modules) | Module installers (`AddXxxModule`) live in `*.Api` and reference `*.Infrastructure` and EF Core; `Identity.Api` also references `Identity.Domain` (layer-table row "Api") | `tests/Hopaut.ArchitectureTests` rule `ARCH-LAYER-API` (19 baselined violations) | 6.6 | open |
 | F-053 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Application/Commands/**` | Identity command handlers use ASP.NET Core Identity types (`UserManager<AppUser>` etc., namespace `Microsoft.AspNetCore.Identity`) instead of an Application port | rule `ARCH-LAYER-APPLICATION` | 8.9 | open |
+| F-054 | bug | `src/Host/Hopaut.Api.Host/Program.cs` | The Host could not start: `UseAuthorization()` without `AddAuthorization()` throws `InvalidOperationException` at startup, so no endpoint was ever reachable | `HostSmokeTests` failed with "Unable to find the required services … AddAuthorization" | 7.2 | fixed 2026-11-17 (7.2: `AddAuthorization()`; JWT bearer stays F-004 → 7.7) |
 
 ## Contract inventory
 
@@ -145,6 +145,8 @@ Backend endpoints without a mobile consumer (admin, web portal or internal): `GE
 | D-008 | 2026-11-17 | Skill defaults adopted without override: D-MSG-1 (Mediator 3.x), D-MSG-2 (`IIntegrationEventBus`, in-process transport), D-MSG-3 (hand-rolled per-module outbox), D-API-1 (breaking `/api/v1` changes allowed when BingoMobile `dev` is updated in the same batch) | Confirmed by the user on 2026-11-17 (skills) | – |
 | D-009 | 2026-11-17 | Stay on the .NET 10 LTS package lines (10.0.x, EF Core 10, Npgsql 10); .NET 11 / 11.0.x packages are not adopted; upgrade a package only to fix a vulnerability or a restore conflict, choosing the smallest patched version line (e.g. MailKit 4.18.2, not 5.0.0) | nuget.org on 2026-11-17 lists 11.0.0 packages and MailKit 5.0.0; advisories' patched versions: MailKit ≥ 4.16.0, MimeKit ≥ 4.15.1, OpenTelemetry.Api ≥ 1.15.3, Pkcs 10.0.13 (GitHub advisory API) | jumping to latest majors (breaking changes, runtime mismatch with the installed 10.0.9 ASP.NET runtime) |
 | D-010 | 2026-11-17 | Hangfire.AspNetCore 1.8.17 / Hangfire.PostgreSql 1.20.10 (file-based license: LGPL-3.0 with a commercial option) stay as introduced in Step 1.5; they are not upgraded without the user's license confirmation (license gate: dual/unclear) | nuspec `<license type="file">LICENSE.md</license>`; no advisory against the current versions | silent upgrade; replacing Hangfire now (not needed) |
+| D-011 | 2026-11-17 | Test runner: xunit.v3 3.2.x (`xunit.v3.mtp-v1`) with `xunit.runner.visualstudio` 3.1.x on classic VSTest `dotnet test`, coverage via coverlet.collector | nuget.org: `xunit.v3` 4.x depends only on `xunit.v3.mtp-v2` (Microsoft Testing Platform v2, no VSTest mode); the mtp-v1 line ends at 3.2.2. Keeps `dotnet test --filter "FullyQualifiedName~…"` (repository rules) and coverlet working | xunit.v3 4.x + `global.json` `"test": { "runner": "Microsoft.Testing.Platform" }` (changes every filter command and the coverage tooling; revisit as its own step) |
+| D-012 | 2026-11-17 | Integration tests fail (never skip) when no Docker-compatible endpoint is reachable; setup per machine is documented in `tests/README.md` | Agent rule: never report a pass that did not run | runtime skip when Docker is missing |
 
 ## Blockers
 - **B-001** SixLabors.ImageSharp 3.1.7 has high-severity advisories (GHSA-j3p4-wp97-rph4, GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w, GHSA-v76p-62qx-wwq2) and moderate ones (GHSA-rxmq-m78w-7wmc, GHSA-gwg2-r3hj-4w44, GHSA-wmxv-xphr-5c9g). Upgrading means accepting the Six Labors Split License v1.0: Apache-2.0 only for open-source / source-available software, transitive use, for-profit entities under 1 M USD annual gross revenue, or non-profits; otherwise a commercial license is required. → **Unblock:** the user confirms Hopaut qualifies (then upgrade to the latest patched 3.1.x) or approves replacing ImageSharp with SkiaSharp (MIT) in 8.10 / 9.5. Until then, strict-warning builds fail on NU1902/NU1903 for the Media projects (affects the 7.8 gate).
@@ -153,11 +155,13 @@ Backend endpoints without a mobile consumer (admin, web portal or internal): `GE
 - Build: `dotnet build Bingo.sln` → succeeded, 0 errors, 116 warnings, all NU1902/NU1903 package advisories; 0 compiler warnings (2026-11-17).
 - Tests: `dotnet test Bingo.sln` → 5 passed / 0 failed / 0 skipped; only `tests/Hopaut.ArchitectureTests` exists (2026-11-17).
 - Vulnerable packages: `dotnet list Bingo.sln package --vulnerable --include-transitive` → see F-039 (2026-11-17).
-- Container runtime: `docker` not on PATH; Podman 6.1.4 machine `podman-machine-default` is running (WSL, rootful) but exposes no Docker-API named pipe, so Testcontainers needs `DOCKER_HOST` set up in 7.2 (2026-11-17).
+- Container runtime: `docker` not on PATH; Podman 6.1.4 machine `podman-machine-default` (WSL, rootful). Its Docker-API pipe forwarding fails (`win-sshproxy.exe failed to start`, seen on `podman machine start` 2026-11-17), so integration tests use a transient in-VM service on localhost: `podman machine ssh "sudo systemd-run --unit=hopaut-podman-tcp podman system service --time=0 tcp://127.0.0.1:2375"` with `$env:DOCKER_HOST='tcp://127.0.0.1:2375'; $env:TESTCONTAINERS_RYUK_DISABLED='true'` (`tests/README.md`). The unit disappears when the machine restarts.
+- Tests after 7.2: `dotnet test Bingo.sln` (with the variables above) → 48 passed (33 architecture, 14 unit, 1 integration) (2026-11-17).
 - BingoMobile: `dev` @ `b20be13`, clean, 10 commits ahead of `origin/dev`; mobile Phase 0 is externally blocked at mobile Step 0.3-H (HERE SDK), so `fvm flutter analyze` / `fvm flutter test` are expected to fail on dependency resolution.
 - Foreign uncommitted work in BingoAPI (left untouched): `.github/github-copilot-instructions.md` deleted with identical content added as untracked `.github/copilot-instructions.md`; untracked `.github/agents/` and `.github/skills/`.
 
 ## Done (latest 10)
-- 2026-11-17 6.7: architecture suite rebuilt as a ratchet (layer table, Domain model rules, integrity + self-tests, 86 baselined violations → F-020/F-022/F-023/F-024/F-050/F-052/F-053); validated by `dotnet test tests/Hopaut.ArchitectureTests` (33/33) and a removed-entry run that fails as designed; closes 1.8, 6.4; commit recorded in the next ledger update.
+- 2026-11-17 7.2: xUnit v3 test stack, `Hopaut.BuildingBlocks.UnitTests`, `Hopaut.IntegrationTests` (PostGIS via Testcontainers), `tests/README.md`; fixed F-054 (Host could not start); validated by `dotnet test Bingo.sln` 48/48 and vulnerable scan (ImageSharp only); commit recorded in the next ledger update.
+- 2026-11-17 6.7: architecture suite rebuilt as a ratchet (layer table, Domain model rules, integrity + self-tests, 86 baselined violations → F-020/F-022/F-023/F-024/F-050/F-052/F-053); validated by `dotnet test tests/Hopaut.ArchitectureTests` (33/33) and a removed-entry run that fails as designed; closes 1.8, 6.4; commit `6fb7dc7`.
 - 2026-11-17 7.1: legacy stubs + netcoreapp3.1 project removed, CPM cleaned with transitive pinning, MailKit/MimeKit/Pkcs + OpenTelemetry + Newtonsoft patched, Dockerfile/compose rewritten; validated by `dotnet build Bingo.sln` (0 errors, ImageSharp-only warnings), `dotnet test Bingo.sln` (5/5), vulnerable scan (ImageSharp only), `podman build`; closes 0.6, 6.1, 6.8; commit `8614870`.
 - 2026-11-17 Phase 1 audit: baseline recorded, ledger reconciled (D-001), Phases 7–11 appended to the plan, `TODO.md` created; validated by `dotnet build Bingo.sln` and `dotnet test Bingo.sln`; commit `104e78b`.
