@@ -1,9 +1,9 @@
+using System.Text.Json;
 using AwesomeAssertions.Execution;
 using Hopaut.BuildingBlocks.Api.Http;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
 
 namespace Hopaut.BuildingBlocks.UnitTests.Api;
 

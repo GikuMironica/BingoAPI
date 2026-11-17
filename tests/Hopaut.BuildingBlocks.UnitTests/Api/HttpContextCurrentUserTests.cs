@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using AwesomeAssertions.Execution;
 using Hopaut.BuildingBlocks.Api.Security;
 using Hopaut.BuildingBlocks.Application.Security;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
 
 namespace Hopaut.BuildingBlocks.UnitTests.Api;
 

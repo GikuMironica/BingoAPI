@@ -1,6 +1,6 @@
+using System.Reflection;
 using Hopaut.ArchitectureTests.Catalog;
 using NetArchTest.Rules;
-using System.Reflection;
 
 namespace Hopaut.ArchitectureTests.Rules;
 

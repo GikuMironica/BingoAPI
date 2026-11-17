@@ -1,8 +1,8 @@
-using Hopaut.ArchitectureTests.Catalog;
-using Hopaut.SharedKernel;
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Hopaut.ArchitectureTests.Catalog;
+using Hopaut.SharedKernel;
 
 namespace Hopaut.ArchitectureTests.Rules;
 
