@@ -14,7 +14,7 @@ public sealed class Rating : AggregateRoot<RatingId>
 
     private Rating() { } // EF Core
 
-    public static Rating Create(RatingValue rate, UserId userId, UserId raterId, PostId postId, string? feedback)
+    public static Rating Create(RatingValue rate, UserId userId, UserId raterId, PostId postId, string? feedback, DateTimeOffset now)
     {
         var rating = new Rating
         {
@@ -23,10 +23,10 @@ public sealed class Rating : AggregateRoot<RatingId>
             RaterId = raterId,
             PostId = postId,
             Feedback = feedback,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = now
         };
 
-        rating.AddDomainEvent(new RatingCreatedDomainEvent(rating.Id, userId, raterId, postId));
+        rating.Raise(new RatingCreatedDomainEvent(now, rating.Id, userId, raterId, postId));
 
         return rating;
     }

@@ -11,11 +11,11 @@ public sealed class Bug : AggregateRoot<BugReportId>
 
     private Bug() { } // EF Core
 
-    public static Bug Create(string message, UserId reporterId, List<string>? screenshotUrls = null)
+    public static Bug Create(string message, UserId reporterId, List<string>? screenshotUrls, DateTimeOffset now)
     {
         var bug = new Bug
         {
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = now,
             Message = message,
             ReporterId = reporterId
         };

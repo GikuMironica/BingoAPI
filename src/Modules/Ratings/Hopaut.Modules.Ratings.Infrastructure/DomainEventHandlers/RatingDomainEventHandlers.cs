@@ -17,7 +17,7 @@ internal sealed class RatingCreatedDomainEventHandler : INotificationHandler<Rat
     public Task Handle(RatingCreatedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new RatingCreatedIntegrationEvent(notification.RatingId, notification.UserId, notification.RaterId, notification.PostId),
+            new RatingCreatedIntegrationEvent(notification.OccurredOnUtc, notification.RatingId, notification.UserId, notification.RaterId, notification.PostId),
             cancellationToken);
     }
 }
@@ -34,7 +34,7 @@ internal sealed class RatingDeletedDomainEventHandler : INotificationHandler<Rat
     public Task Handle(RatingDeletedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new RatingDeletedIntegrationEvent(notification.RatingId, notification.UserId),
+            new RatingDeletedIntegrationEvent(notification.OccurredOnUtc, notification.RatingId, notification.UserId),
             cancellationToken);
     }
 }

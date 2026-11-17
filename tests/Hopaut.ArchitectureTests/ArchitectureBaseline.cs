@@ -4,7 +4,7 @@ public sealed record BaselineEntry(string Violation, string FindingId);
 
 /// <summary>
 /// Known architecture violations at the 2026-11-17 audit (decision D-002 in TODO.md). Every entry names the open
-/// finding that fixes it (F-020 → 8.2/8.4/8.7/8.9, F-022 → 7.5, F-023 → 6.6, F-024/F-050/F-053 → 8.9, F-052 → 6.6).
+/// finding that fixes it (F-020 → 8.2/8.4/8.7/8.9, F-023 → 6.6, F-024/F-050/F-053 → 8.9, F-052 → 6.6).
 /// Entries may only be removed: a new violation must be fixed, never added here.
 /// </summary>
 public static class ArchitectureBaseline
@@ -94,8 +94,6 @@ public static class ArchitectureBaseline
         new("ARCH-LAYER-DOMAIN: Hopaut.Modules.Identity.Domain -> System.ComponentModel.DataAnnotations", "F-050"),
         // ARCH-LAYER-INFRASTRUCTURE
         new("ARCH-LAYER-INFRASTRUCTURE: Hopaut.Modules.Posts.Infrastructure -> Hopaut.Modules.Ratings.Application", "F-023"),
-        // ARCH-SHAREDKERNEL-EVENT-RAISER
-        new("ARCH-SHAREDKERNEL-EVENT-RAISER: Hopaut.SharedKernel.Entity`1.AddDomainEvent", "F-022"),
     ];
 
     public static IEnumerable<BaselineEntry> ForRule(string ruleId) =>

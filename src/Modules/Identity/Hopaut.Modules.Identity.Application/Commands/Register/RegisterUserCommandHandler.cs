@@ -9,11 +9,13 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ILogger<RegisterUserCommandHandler> _logger;
+    private readonly TimeProvider _timeProvider;
 
-    public RegisterUserCommandHandler(UserManager<AppUser> userManager, ILogger<RegisterUserCommandHandler> logger)
+    public RegisterUserCommandHandler(UserManager<AppUser> userManager, ILogger<RegisterUserCommandHandler> logger, TimeProvider timeProvider)
     {
         _userManager = userManager;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public async Task<AuthResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -26,7 +28,8 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
         {
             Email = request.Email,
             UserName = request.Email,
-            RegistrationTimeStamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            // TODO: Int64 Unix seconds → DateTimeOffset (finding F-019, plan Step 8.9).
+            RegistrationTimeStamp = _timeProvider.GetUtcNow().ToUnixTimeSeconds()
         };
 
         var result = await _userManager.CreateAsync(newUser, request.Password);

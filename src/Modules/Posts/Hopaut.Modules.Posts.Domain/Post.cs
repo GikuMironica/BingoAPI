@@ -26,11 +26,12 @@ public sealed class Post : AggregateRoot<PostId>
         DateTimeOffset? endTime,
         EventLocation location,
         Event @event,
-        List<Picture>? pictures = null)
+        List<Picture>? pictures,
+        DateTimeOffset now)
     {
         var post = new Post
         {
-            PostTime = DateTimeOffset.UtcNow,
+            PostTime = now,
             EventTime = eventTime,
             EndTime = endTime,
             ActiveFlag = 1,
@@ -40,7 +41,7 @@ public sealed class Post : AggregateRoot<PostId>
             Pictures = pictures ?? []
         };
 
-        post.AddDomainEvent(new PostCreatedDomainEvent(post.Id, userId));
+        post.Raise(new PostCreatedDomainEvent(now, post.Id, userId));
 
         return post;
     }

@@ -24,7 +24,7 @@ public sealed class OutboxIntegrationEventPublisher : IIntegrationEventPublisher
             Id = integrationEvent.EventId,
             Type = integrationEvent.GetType().AssemblyQualifiedName!,
             Payload = JsonSerializer.Serialize(integrationEvent, integrationEvent.GetType()),
-            OccurredOn = integrationEvent.OccurredOn
+            OccurredOn = integrationEvent.OccurredOnUtc.UtcDateTime
         };
 
         await _outboxDbContext.OutboxMessages.AddAsync(message, cancellationToken);

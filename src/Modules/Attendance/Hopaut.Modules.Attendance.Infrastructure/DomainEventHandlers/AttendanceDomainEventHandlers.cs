@@ -17,7 +17,7 @@ internal sealed class AttendanceRequestedDomainEventHandler : INotificationHandl
     public Task Handle(AttendanceRequestedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new AttendanceRequestedIntegrationEvent(notification.ParticipationId, notification.PostId, notification.UserId),
+            new AttendanceRequestedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
             cancellationToken);
     }
 }
@@ -34,7 +34,7 @@ internal sealed class AttendanceAcceptedDomainEventHandler : INotificationHandle
     public Task Handle(AttendanceAcceptedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new AttendanceAcceptedIntegrationEvent(notification.ParticipationId, notification.PostId, notification.UserId),
+            new AttendanceAcceptedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
             cancellationToken);
     }
 }
@@ -51,7 +51,7 @@ internal sealed class AttendanceRejectedDomainEventHandler : INotificationHandle
     public Task Handle(AttendanceRejectedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new AttendanceRejectedIntegrationEvent(notification.ParticipationId, notification.PostId, notification.UserId),
+            new AttendanceRejectedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
             cancellationToken);
     }
 }

@@ -3,8 +3,8 @@ using Hopaut.SharedKernel;
 
 namespace Hopaut.Modules.Attendance.Application.IntegrationEvents;
 
-public sealed record AttendanceRequestedIntegrationEvent(ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase;
+public sealed record AttendanceRequestedIntegrationEvent(DateTimeOffset OccurredOnUtc, ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase(OccurredOnUtc);
 
-public sealed record AttendanceAcceptedIntegrationEvent(ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase;
+public sealed record AttendanceAcceptedIntegrationEvent(DateTimeOffset OccurredOnUtc, ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase(OccurredOnUtc);
 
-public sealed record AttendanceRejectedIntegrationEvent(ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase;
+public sealed record AttendanceRejectedIntegrationEvent(DateTimeOffset OccurredOnUtc, ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase(OccurredOnUtc);

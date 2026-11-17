@@ -17,7 +17,7 @@ internal sealed class AnnouncementCreatedDomainEventHandler : INotificationHandl
     public Task Handle(AnnouncementCreatedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new AnnouncementCreatedIntegrationEvent(notification.AnnouncementId, notification.PostId),
+            new AnnouncementCreatedIntegrationEvent(notification.OccurredOnUtc, notification.AnnouncementId, notification.PostId),
             cancellationToken);
     }
 }

@@ -1,10 +1,22 @@
+using System.Diagnostics.CodeAnalysis;
 using Hopaut.SharedKernel;
 
 namespace Hopaut.Modules.Users.Domain;
 
-public readonly record struct UserProfileId(Guid Value)
+public readonly record struct UserProfileId(Guid Value) : IStronglyTypedId<UserProfileId, Guid>
 {
-    public static UserProfileId New() => new(Guid.NewGuid());
+    public static UserProfileId New(DateTimeOffset now) => new(Guid.CreateVersion7(now));
+
+    public static UserProfileId From(Guid value) => new(value);
+
+    public static UserProfileId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<UserProfileId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out UserProfileId result) =>
+        StronglyTypedId.TryParseGuid(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out UserProfileId result) => StronglyTypedId.TryParseGuid(s, out result);
+
+    public override string ToString() => Value.ToString();
 }
 
 /// <summary>
@@ -22,11 +34,11 @@ public sealed class UserProfile : AggregateRoot<UserProfileId>
 
     private UserProfile() { }
 
-    public static UserProfile Create(string identityUserId, string firstName, string lastName, long registrationTimeStamp)
+    public static UserProfile Create(string identityUserId, string firstName, string lastName, long registrationTimeStamp, DateTimeOffset now)
     {
         return new UserProfile
         {
-            Id = UserProfileId.New(),
+            Id = UserProfileId.New(now),
             IdentityUserId = identityUserId,
             FirstName = firstName,
             LastName = lastName,

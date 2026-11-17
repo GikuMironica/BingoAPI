@@ -13,44 +13,44 @@ public sealed class Participation : AggregateRoot<ParticipationId>
 
     private Participation() { } // EF Core
 
-    public static Participation Create(PostId postId, UserId userId)
+    public static Participation Create(PostId postId, UserId userId, DateTimeOffset now)
     {
         var participation = new Participation
         {
             PostId = postId,
             UserId = userId,
             Status = AttendanceStatus.Pending,
-            RequestedAt = DateTimeOffset.UtcNow
+            RequestedAt = now
         };
 
-        participation.AddDomainEvent(new AttendanceRequestedDomainEvent(participation.Id, postId, userId));
+        participation.Raise(new AttendanceRequestedDomainEvent(now, participation.Id, postId, userId));
 
         return participation;
     }
 
-    public bool Accept()
+    public bool Accept(DateTimeOffset now)
     {
         if (Status != AttendanceStatus.Pending) return false;
         Status = AttendanceStatus.Accepted;
-        RespondedAt = DateTimeOffset.UtcNow;
-        AddDomainEvent(new AttendanceAcceptedDomainEvent(Id, PostId, UserId));
+        RespondedAt = now;
+        Raise(new AttendanceAcceptedDomainEvent(now, Id, PostId, UserId));
         return true;
     }
 
-    public bool Reject()
+    public bool Reject(DateTimeOffset now)
     {
         if (Status != AttendanceStatus.Pending) return false;
         Status = AttendanceStatus.Rejected;
-        RespondedAt = DateTimeOffset.UtcNow;
-        AddDomainEvent(new AttendanceRejectedDomainEvent(Id, PostId, UserId));
+        RespondedAt = now;
+        Raise(new AttendanceRejectedDomainEvent(now, Id, PostId, UserId));
         return true;
     }
 
-    public bool Cancel()
+    public bool Cancel(DateTimeOffset now)
     {
         if (Status == AttendanceStatus.Cancelled) return false;
         Status = AttendanceStatus.Cancelled;
-        RespondedAt = DateTimeOffset.UtcNow;
+        RespondedAt = now;
         return true;
     }
 }

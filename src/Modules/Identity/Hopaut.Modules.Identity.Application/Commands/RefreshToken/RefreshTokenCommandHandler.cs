@@ -1,9 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Hopaut.Modules.Identity.Domain;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Hopaut.Modules.Identity.Application.Commands.RefreshToken;
 
@@ -13,17 +13,20 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
     private readonly UserManager<AppUser> _userManager;
     private readonly TokenValidationParameters _tokenValidationParameters;
     private readonly IJwtTokenGenerator _tokenGenerator;
+    private readonly TimeProvider _timeProvider;
 
     public RefreshTokenCommandHandler(
         IRefreshTokenRepository refreshTokenRepo,
         UserManager<AppUser> userManager,
         TokenValidationParameters tokenValidationParameters,
-        IJwtTokenGenerator tokenGenerator)
+        IJwtTokenGenerator tokenGenerator,
+        TimeProvider timeProvider)
     {
         _refreshTokenRepo = refreshTokenRepo;
         _userManager = userManager;
         _tokenValidationParameters = tokenValidationParameters;
         _tokenGenerator = tokenGenerator;
+        _timeProvider = timeProvider;
     }
 
     public async Task<AuthResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
@@ -32,10 +35,11 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         if (principal is null)
             return AuthResult.Fail(FailReason.InvalidToken, "Invalid Token");
 
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
         var expiryDateUnix = long.Parse(principal.Claims.Single(c => c.Type == JwtRegisteredClaimNames.Exp).Value);
         var expiryDate = DateTimeOffset.FromUnixTimeSeconds(expiryDateUnix).UtcDateTime;
 
-        if (expiryDate > DateTime.UtcNow)
+        if (expiryDate > now)
             return AuthResult.Fail(FailReason.InvalidToken, "This token hasn't expired yet");
 
         var jti = principal.Claims.Single(c => c.Type == JwtRegisteredClaimNames.Jti).Value;
@@ -45,7 +49,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         if (storedRefreshToken is null)
             return AuthResult.Fail(FailReason.InvalidToken, "This refresh token does not exist");
 
-        if (DateTime.UtcNow > storedRefreshToken.ExpiryDate)
+        if (now > storedRefreshToken.ExpiryDate)
             return AuthResult.Fail(FailReason.InvalidToken, "This refresh token has expired");
 
         if (storedRefreshToken.Invalidated)

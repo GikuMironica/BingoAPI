@@ -4,49 +4,13 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hopaut.BuildingBlocks.Infrastructure;
 
 /// <summary>
-/// Generic EF Core value converter for strongly-typed IDs backed by int.
+/// EF Core value converter between a strongly-typed ID and its primitive column. Stored keys are wrapped as is
+/// (<see cref="IStronglyTypedId{TSelf, TValue}.From"/>); validation applies only at the API and serialization edges.
 /// </summary>
-public sealed class StronglyTypedIdConverter<TId> : ValueConverter<TId, int>
-    where TId : struct
+public sealed class StronglyTypedIdConverter<TId, TValue>() : ValueConverter<TId, TValue>(id => id.Value, value => Wrap(value))
+    where TId : struct, IStronglyTypedId<TId, TValue>
+    where TValue : notnull
 {
-    public StronglyTypedIdConverter()
-        : base(
-            id => GetValue(id),
-            value => Create(value))
-    { }
-
-    private static int GetValue(TId id) => ((dynamic)id).Value;
-    private static TId Create(int value) => (TId)Activator.CreateInstance(typeof(TId), value)!;
-}
-
-/// <summary>
-/// Generic EF Core value converter for strongly-typed IDs backed by string.
-/// </summary>
-public sealed class StronglyTypedStringIdConverter<TId> : ValueConverter<TId, string>
-    where TId : struct
-{
-    public StronglyTypedStringIdConverter()
-        : base(
-            id => GetValue(id),
-            value => Create(value))
-    { }
-
-    private static string GetValue(TId id) => ((dynamic)id).Value;
-    private static TId Create(string value) => (TId)Activator.CreateInstance(typeof(TId), value)!;
-}
-
-/// <summary>
-/// Generic EF Core value converter for strongly-typed IDs backed by Guid.
-/// </summary>
-public sealed class StronglyTypedGuidIdConverter<TId> : ValueConverter<TId, Guid>
-    where TId : struct
-{
-    public StronglyTypedGuidIdConverter()
-        : base(
-            id => GetValue(id),
-            value => Create(value))
-    { }
-
-    private static Guid GetValue(TId id) => ((dynamic)id).Value;
-    private static TId Create(Guid value) => (TId)Activator.CreateInstance(typeof(TId), value)!;
+    // Static abstract members cannot appear in expression trees (CS8927), so the conversion calls through this method.
+    private static TId Wrap(TValue value) => TId.From(value);
 }

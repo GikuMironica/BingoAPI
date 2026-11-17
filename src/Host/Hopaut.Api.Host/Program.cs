@@ -1,29 +1,28 @@
-using Serilog;
-using OpenTelemetry.Resources;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.RateLimiting;
 using Hangfire;
-using Hopaut.BuildingBlocks.Infrastructure.Hangfire;
-using Hopaut.BuildingBlocks.Infrastructure.Caching;
-using Hopaut.SharedKernel;
-using Hopaut.Modules.Identity.Api;
-using Hopaut.Modules.Users.Api;
-using Hopaut.Modules.Media.Api;
-using Hopaut.Modules.Posts.Api;
-using Hopaut.Modules.Attendance.Api;
-using Hopaut.Modules.Announcements.Api;
-using Hopaut.Modules.Ratings.Api;
-using Hopaut.Modules.Notifications.Api;
-using Hopaut.Modules.Moderation.Api;
-using Hopaut.Modules.BugReports.Api;
-using Hopaut.Modules.Payments.Api;
 using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.BuildingBlocks.Api.Security;
 using Hopaut.BuildingBlocks.Application;
+using Hopaut.BuildingBlocks.Infrastructure.Caching;
+using Hopaut.BuildingBlocks.Infrastructure.Hangfire;
 using Hopaut.BuildingBlocks.Infrastructure.Outbox;
 using Hopaut.BuildingBlocks.Infrastructure.Persistence;
+using Hopaut.Modules.Announcements.Api;
+using Hopaut.Modules.Attendance.Api;
+using Hopaut.Modules.BugReports.Api;
+using Hopaut.Modules.Identity.Api;
+using Hopaut.Modules.Media.Api;
+using Hopaut.Modules.Moderation.Api;
+using Hopaut.Modules.Notifications.Api;
+using Hopaut.Modules.Payments.Api;
+using Hopaut.Modules.Posts.Api;
+using Hopaut.Modules.Ratings.Api;
+using Hopaut.Modules.Users.Api;
+using Microsoft.AspNetCore.RateLimiting;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,8 +59,8 @@ builder.Services.AddRateLimiter(options =>
 // ── Health Checks ──
 builder.Services.AddHealthChecks();
 
-// ── Shared Kernel ──
-builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
+// ── Time (handlers take now from TimeProvider; tests substitute FakeTimeProvider) ──
+builder.Services.AddSingleton(TimeProvider.System);
 
 // ── ProblemDetails (errorCode + traceId on every problem; unhandled exceptions → 500 without internals) ──
 builder.Services.AddHopautProblemDetails();

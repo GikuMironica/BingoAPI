@@ -1,11 +1,11 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Hopaut.Modules.Identity.Infrastructure;
 
@@ -15,27 +15,31 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
     private readonly UserManager<AppUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IRefreshTokenRepository _refreshTokenRepo;
+    private readonly TimeProvider _timeProvider;
 
     public JwtTokenGenerator(
         JwtSettings jwtSettings,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        IRefreshTokenRepository refreshTokenRepo)
+        IRefreshTokenRepository refreshTokenRepo,
+        TimeProvider timeProvider)
     {
         _jwtSettings = jwtSettings;
         _userManager = userManager;
         _roleManager = roleManager;
         _refreshTokenRepo = refreshTokenRepo;
+        _timeProvider = timeProvider;
     }
 
     public async Task<AuthResult> GenerateForUserAsync(AppUser user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+        var now = _timeProvider.GetUtcNow();
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.CreateVersion7(now).ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email!),
             new(HopautClaimTypes.UserId, user.Id)
         };
@@ -65,7 +69,9 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             Subject = new ClaimsIdentity(claims),
             Issuer = _jwtSettings.Issuer,
             Audience = _jwtSettings.Audience,
-            Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
+            IssuedAt = now.UtcDateTime,
+            NotBefore = now.UtcDateTime,
+            Expires = now.UtcDateTime.Add(_jwtSettings.TokenLifetime),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
@@ -76,8 +82,8 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         {
             JwtId = token.Id,
             UserId = user.Id,
-            CreationDate = DateTime.UtcNow,
-            ExpiryDate = DateTime.UtcNow.AddMonths(6)
+            CreationDate = now.UtcDateTime,
+            ExpiryDate = now.UtcDateTime.AddMonths(6)
         };
 
         await _refreshTokenRepo.AddAsync(refreshToken);

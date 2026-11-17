@@ -7,14 +7,20 @@ namespace Hopaut.Modules.Moderation.Application.Commands.CreateUserReport;
 public sealed class CreateUserReportCommandHandler : IRequestHandler<CreateUserReportCommand, UserReportId>
 {
     private readonly IModerationRepository _repo;
+    private readonly TimeProvider _timeProvider;
 
-    public CreateUserReportCommandHandler(IModerationRepository repo) => _repo = repo;
+    public CreateUserReportCommandHandler(IModerationRepository repo, TimeProvider timeProvider)
+    {
+        _repo = repo;
+        _timeProvider = timeProvider;
+    }
 
     public async Task<UserReportId> Handle(CreateUserReportCommand request, CancellationToken cancellationToken)
     {
         var report = UserReport.Create(
             request.Reason, request.Message,
-            request.ReporterId, request.ReportedUserId);
+            request.ReporterId, request.ReportedUserId,
+            _timeProvider.GetUtcNow());
 
         await _repo.AddUserReportAsync(report, cancellationToken);
         await _repo.SaveChangesAsync(cancellationToken);

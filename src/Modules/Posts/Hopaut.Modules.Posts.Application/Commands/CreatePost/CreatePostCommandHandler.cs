@@ -8,8 +8,13 @@ namespace Hopaut.Modules.Posts.Application.Commands.CreatePost;
 public sealed class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostId>
 {
     private readonly IPostRepository _repo;
+    private readonly TimeProvider _timeProvider;
 
-    public CreatePostCommandHandler(IPostRepository repo) => _repo = repo;
+    public CreatePostCommandHandler(IPostRepository repo, TimeProvider timeProvider)
+    {
+        _repo = repo;
+        _timeProvider = timeProvider;
+    }
 
     public async Task<PostId> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
@@ -37,7 +42,8 @@ public sealed class CreatePostCommandHandler : IRequestHandler<CreatePostCommand
                 Slots = request.Event.Slots,
                 TypeSpecificData = request.Event.TypeSpecificData
             },
-            request.PictureUrls?.Select(url => new Picture { Url = url }).ToList()
+            request.PictureUrls?.Select(url => new Picture { Url = url }).ToList(),
+            _timeProvider.GetUtcNow()
         );
 
         await _repo.AddAsync(post, cancellationToken);

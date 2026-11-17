@@ -17,7 +17,7 @@ internal sealed class PostCreatedDomainEventHandler : INotificationHandler<PostC
     public Task Handle(PostCreatedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new PostCreatedIntegrationEvent(notification.PostId, notification.UserId),
+            new PostCreatedIntegrationEvent(notification.OccurredOnUtc, notification.PostId, notification.UserId),
             cancellationToken);
     }
 }
@@ -34,7 +34,7 @@ internal sealed class PostDeletedDomainEventHandler : INotificationHandler<PostD
     public Task Handle(PostDeletedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new PostDeletedIntegrationEvent(notification.PostId),
+            new PostDeletedIntegrationEvent(notification.OccurredOnUtc, notification.PostId),
             cancellationToken);
     }
 }
@@ -51,7 +51,7 @@ internal sealed class PictureStateChangedDomainEventHandler : INotificationHandl
     public Task Handle(PictureStateChangedDomainEvent notification, CancellationToken cancellationToken)
     {
         return _publisher.PublishAsync(
-            new PictureStateChangedIntegrationEvent(notification.PictureId, notification.PostId, notification.NewState.ToString()),
+            new PictureStateChangedIntegrationEvent(notification.OccurredOnUtc, notification.PictureId, notification.PostId, notification.NewState.ToString()),
             cancellationToken);
     }
 }

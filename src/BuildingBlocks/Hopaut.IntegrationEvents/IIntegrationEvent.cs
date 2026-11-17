@@ -7,11 +7,23 @@ namespace Hopaut.IntegrationEvents;
 public interface IIntegrationEvent
 {
     Guid EventId { get; }
-    DateTime OccurredOn { get; }
+
+    DateTimeOffset OccurredOnUtc { get; }
 }
 
+/// <summary>
+/// Base record for integration events. The occurrence time comes from the domain event that caused it; the identifier is a
+/// version-7 Guid and stays init-settable, so a deserialized event keeps the identifier consumers deduplicate on.
+/// </summary>
 public abstract record IntegrationEventBase : IIntegrationEvent
 {
-    public Guid EventId { get; init; } = Guid.NewGuid();
-    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+    protected IntegrationEventBase(DateTimeOffset occurredOnUtc)
+    {
+        OccurredOnUtc = occurredOnUtc.ToUniversalTime();
+        EventId = Guid.CreateVersion7(OccurredOnUtc);
+    }
+
+    public Guid EventId { get; init; }
+
+    public DateTimeOffset OccurredOnUtc { get; }
 }

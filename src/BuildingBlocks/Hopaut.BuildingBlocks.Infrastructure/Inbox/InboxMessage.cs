@@ -6,6 +6,6 @@ namespace Hopaut.BuildingBlocks.Infrastructure.Inbox;
 public sealed class InboxMessage
 {
     public Guid Id { get; init; }
-    public string Type { get; init; } = default!;
-    public DateTime ProcessedOn { get; init; } = DateTime.UtcNow;
+    public required string Type { get; init; }
+    public required DateTime ProcessedOn { get; init; }
 }

@@ -1,12 +1,10 @@
-using Hopaut.IntegrationEvents;
-
 namespace Hopaut.BuildingBlocks.Infrastructure.Outbox;
 
 public sealed class OutboxMessage
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-    public string Type { get; init; } = default!;
-    public string Payload { get; init; } = default!;
-    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
+    public required Guid Id { get; init; }
+    public required string Type { get; init; }
+    public required string Payload { get; init; }
+    public required DateTime OccurredOn { get; init; }
     public DateTime? ProcessedOn { get; set; }
 }

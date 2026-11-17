@@ -23,13 +23,13 @@ public class RatingsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("ratings");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<RatingId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<RatingId, int>>().ValueGeneratedOnAdd();
             entity.Property(e => e.Rate).HasConversion(
                 v => v.Value,
                 v => RatingValue.From(v));
-            entity.Property(e => e.UserId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
-            entity.Property(e => e.RaterId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.RaterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => e.PostId);
             entity.HasIndex(e => new { e.RaterId, e.PostId }).IsUnique();
@@ -39,7 +39,7 @@ public class RatingsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("user_reputations");
             entity.HasKey(e => e.UserId);
-            entity.Property(e => e.UserId).HasConversion<StronglyTypedStringIdConverter<UserId>>().HasMaxLength(450);
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().HasMaxLength(450);
         });
     }
 }

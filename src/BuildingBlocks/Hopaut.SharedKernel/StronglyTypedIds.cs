@@ -1,156 +1,191 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+
 namespace Hopaut.SharedKernel;
 
 /// <summary>
 /// Strongly-typed identifier for User entities (string-backed, from ASP.NET Identity).
 /// </summary>
-public readonly record struct UserId(string Value)
+public readonly record struct UserId(string Value) : IStronglyTypedId<UserId, string>
 {
     public static UserId From(string value) => new(value);
-    public static bool TryParse(string? input, out UserId result)
-    {
-        if (string.IsNullOrWhiteSpace(input)) { result = default; return false; }
-        result = new UserId(input);
-        return true;
-    }
+
+    public static UserId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<UserId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out UserId result) =>
+        StronglyTypedId.TryParseString(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out UserId result) => StronglyTypedId.TryParseString(s, out result);
+
     public override string ToString() => Value;
 }
 
 /// <summary>
 /// Strongly-typed identifier for Post entities (int-backed).
 /// </summary>
-public readonly record struct PostId(int Value)
+public readonly record struct PostId(int Value) : IStronglyTypedId<PostId, int>
 {
     public static PostId From(int value) => new(value);
-    public static bool TryParse(string? input, out PostId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new PostId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static PostId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<PostId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out PostId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out PostId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for Rating entities (int-backed).
 /// </summary>
-public readonly record struct RatingId(int Value)
+public readonly record struct RatingId(int Value) : IStronglyTypedId<RatingId, int>
 {
     public static RatingId From(int value) => new(value);
-    public static bool TryParse(string? input, out RatingId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new RatingId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static RatingId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<RatingId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out RatingId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out RatingId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for Participation entities (int-backed).
 /// </summary>
-public readonly record struct ParticipationId(int Value)
+public readonly record struct ParticipationId(int Value) : IStronglyTypedId<ParticipationId, int>
 {
     public static ParticipationId From(int value) => new(value);
-    public static bool TryParse(string? input, out ParticipationId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new ParticipationId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static ParticipationId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<ParticipationId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out ParticipationId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out ParticipationId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for Announcement entities (int-backed).
 /// </summary>
-public readonly record struct AnnouncementId(int Value)
+public readonly record struct AnnouncementId(int Value) : IStronglyTypedId<AnnouncementId, int>
 {
     public static AnnouncementId From(int value) => new(value);
-    public static bool TryParse(string? input, out AnnouncementId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new AnnouncementId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static AnnouncementId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<AnnouncementId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out AnnouncementId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out AnnouncementId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for Bug report entities (int-backed).
 /// </summary>
-public readonly record struct BugReportId(int Value)
+public readonly record struct BugReportId(int Value) : IStronglyTypedId<BugReportId, int>
 {
     public static BugReportId From(int value) => new(value);
-    public static bool TryParse(string? input, out BugReportId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new BugReportId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static BugReportId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<BugReportId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out BugReportId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out BugReportId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for PostReport entities (int-backed).
 /// </summary>
-public readonly record struct PostReportId(int Value)
+public readonly record struct PostReportId(int Value) : IStronglyTypedId<PostReportId, int>
 {
     public static PostReportId From(int value) => new(value);
-    public static bool TryParse(string? input, out PostReportId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new PostReportId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static PostReportId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<PostReportId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out PostReportId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out PostReportId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for UserReport entities (int-backed).
 /// </summary>
-public readonly record struct UserReportId(int Value)
+public readonly record struct UserReportId(int Value) : IStronglyTypedId<UserReportId, int>
 {
     public static UserReportId From(int value) => new(value);
-    public static bool TryParse(string? input, out UserReportId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new UserReportId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static UserReportId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<UserReportId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out UserReportId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out UserReportId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for Picture entities (int-backed).
 /// </summary>
-public readonly record struct PictureId(int Value)
+public readonly record struct PictureId(int Value) : IStronglyTypedId<PictureId, int>
 {
     public static PictureId From(int value) => new(value);
-    public static bool TryParse(string? input, out PictureId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new PictureId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static PictureId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<PictureId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out PictureId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out PictureId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for Tag entities (int-backed).
 /// </summary>
-public readonly record struct TagId(int Value)
+public readonly record struct TagId(int Value) : IStronglyTypedId<TagId, int>
 {
     public static TagId From(int value) => new(value);
-    public static bool TryParse(string? input, out TagId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new TagId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static TagId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<TagId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out TagId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out TagId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
 
 /// <summary>
 /// Strongly-typed identifier for BugScreenshot entities (int-backed).
 /// </summary>
-public readonly record struct BugScreenshotId(int Value)
+public readonly record struct BugScreenshotId(int Value) : IStronglyTypedId<BugScreenshotId, int>
 {
     public static BugScreenshotId From(int value) => new(value);
-    public static bool TryParse(string? input, out BugScreenshotId result)
-    {
-        if (int.TryParse(input, out var v)) { result = new BugScreenshotId(v); return true; }
-        result = default; return false;
-    }
-    public override string ToString() => Value.ToString();
+
+    public static BugScreenshotId Parse(string s, IFormatProvider? provider) => StronglyTypedId.Parse<BugScreenshotId>(s, provider);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, out BugScreenshotId result) =>
+        StronglyTypedId.TryParseInt32(s, out result);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, out BugScreenshotId result) => StronglyTypedId.TryParseInt32(s, out result);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }

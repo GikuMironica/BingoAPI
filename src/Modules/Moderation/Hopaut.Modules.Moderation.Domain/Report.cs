@@ -21,11 +21,11 @@ public sealed class PostReport : AggregateRoot<PostReportId>
 
     private PostReport() { } // EF Core
 
-    public static PostReport Create(int reason, string? message, UserId reporterId, UserId reportedHostId, PostId postId)
+    public static PostReport Create(int reason, string? message, UserId reporterId, UserId reportedHostId, PostId postId, DateTimeOffset now)
     {
         return new PostReport
         {
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = now,
             Reason = reason,
             Message = message,
             ReporterId = reporterId,
@@ -53,11 +53,11 @@ public sealed class UserReport : AggregateRoot<UserReportId>
 
     private UserReport() { } // EF Core
 
-    public static UserReport Create(int reason, string? message, UserId reporterId, UserId reportedUserId)
+    public static UserReport Create(int reason, string? message, UserId reporterId, UserId reportedUserId, DateTimeOffset now)
     {
         return new UserReport
         {
-            CreatedAt = DateTimeOffset.UtcNow,
+            CreatedAt = now,
             Reason = reason,
             Message = message,
             ReporterId = reporterId,

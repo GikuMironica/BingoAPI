@@ -22,8 +22,8 @@ public class AnnouncementsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("announcements");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<AnnouncementId>>().ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<AnnouncementId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.Message).IsRequired();
             entity.HasIndex(e => e.PostId);
         });

@@ -18,7 +18,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.IntegrationEvents\Hopaut.IntegrationEvents.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.BuildingBlocks.Infrastructure\Hopaut.BuildingBlocks.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.BuildingBlocks.Api\Hopaut.BuildingBlocks.Api.csproj" />
   </ItemGroup>
 

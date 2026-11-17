@@ -14,12 +14,14 @@ public sealed class OutboxPublisher : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<OutboxPublisher> _logger;
+    private readonly TimeProvider _timeProvider;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(5);
 
-    public OutboxPublisher(IServiceScopeFactory scopeFactory, ILogger<OutboxPublisher> logger)
+    public OutboxPublisher(IServiceScopeFactory scopeFactory, ILogger<OutboxPublisher> logger, TimeProvider timeProvider)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -58,7 +60,7 @@ public sealed class OutboxPublisher : BackgroundService
         {
             _logger.LogInformation("Publishing outbox message {MessageId} of type {Type}", message.Id, message.Type);
             // TODO: Deserialize and dispatch via MediatR or message broker
-            message.ProcessedOn = DateTime.UtcNow;
+            message.ProcessedOn = _timeProvider.GetUtcNow().UtcDateTime;
         }
 
         await dbContext.SaveChangesAsync(ct);

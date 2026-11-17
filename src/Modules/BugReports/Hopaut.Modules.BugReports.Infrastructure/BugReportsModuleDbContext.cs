@@ -23,9 +23,9 @@ public class BugReportsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("bugs");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<BugReportId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<BugReportId, int>>().ValueGeneratedOnAdd();
             entity.Property(e => e.Message).IsRequired();
-            entity.Property(e => e.ReporterId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.ReporterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.HasMany(e => e.Screenshots).WithOne(s => s.Bug).HasForeignKey(s => s.BugId);
         });
 
@@ -33,8 +33,8 @@ public class BugReportsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("bug_screenshots");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<BugScreenshotId>>().ValueGeneratedOnAdd();
-            entity.Property(e => e.BugId).HasConversion<StronglyTypedIdConverter<BugReportId>>();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<BugScreenshotId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.BugId).HasConversion<StronglyTypedIdConverter<BugReportId, int>>();
         });
     }
 }

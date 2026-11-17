@@ -8,11 +8,13 @@ public sealed class CreateRatingCommandHandler : IRequestHandler<CreateRatingCom
 {
     private readonly IRatingRepository _ratingRepo;
     private readonly IUserReputationRepository _reputationRepo;
+    private readonly TimeProvider _timeProvider;
 
-    public CreateRatingCommandHandler(IRatingRepository ratingRepo, IUserReputationRepository reputationRepo)
+    public CreateRatingCommandHandler(IRatingRepository ratingRepo, IUserReputationRepository reputationRepo, TimeProvider timeProvider)
     {
         _ratingRepo = ratingRepo;
         _reputationRepo = reputationRepo;
+        _timeProvider = timeProvider;
     }
 
     public async Task<RatingId> Handle(CreateRatingCommand request, CancellationToken cancellationToken)
@@ -22,7 +24,8 @@ public sealed class CreateRatingCommandHandler : IRequestHandler<CreateRatingCom
             request.UserId,
             request.RaterId,
             request.PostId,
-            request.Feedback);
+            request.Feedback,
+            _timeProvider.GetUtcNow());
 
         await _ratingRepo.AddAsync(rating, cancellationToken);
         await _ratingRepo.SaveChangesAsync(cancellationToken);

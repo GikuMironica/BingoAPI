@@ -6,11 +6,13 @@ public sealed class UploadImagesCommandHandler : IRequestHandler<UploadImagesCom
 {
     private readonly IImageProcessor _imageProcessor;
     private readonly IMediaStorage _mediaStorage;
+    private readonly TimeProvider _timeProvider;
 
-    public UploadImagesCommandHandler(IImageProcessor imageProcessor, IMediaStorage mediaStorage)
+    public UploadImagesCommandHandler(IImageProcessor imageProcessor, IMediaStorage mediaStorage, TimeProvider timeProvider)
     {
         _imageProcessor = imageProcessor;
         _mediaStorage = mediaStorage;
+        _timeProvider = timeProvider;
     }
 
     public async Task<UploadImagesResult> Handle(UploadImagesCommand request, CancellationToken cancellationToken)
@@ -23,7 +25,7 @@ public sealed class UploadImagesCommandHandler : IRequestHandler<UploadImagesCom
             if (!processResult.Success)
                 return new UploadImagesResult(false, [], processResult.Error);
 
-            var fileName = $"{Guid.NewGuid()}.webp";
+            var fileName = $"{Guid.CreateVersion7(_timeProvider.GetUtcNow())}.webp";
             var uploadResult = await _mediaStorage.UploadAsync(
                 processResult.Output!,
                 request.BucketPath,

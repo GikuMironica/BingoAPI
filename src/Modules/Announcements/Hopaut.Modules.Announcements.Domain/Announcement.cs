@@ -11,16 +11,16 @@ public sealed class Announcement : AggregateRoot<AnnouncementId>
 
     private Announcement() { } // EF Core
 
-    public static Announcement Create(PostId postId, string message)
+    public static Announcement Create(PostId postId, string message, DateTimeOffset now)
     {
         var announcement = new Announcement
         {
             PostId = postId,
             Message = message,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = now
         };
 
-        announcement.AddDomainEvent(new AnnouncementCreatedDomainEvent(announcement.Id, postId));
+        announcement.Raise(new AnnouncementCreatedDomainEvent(now, announcement.Id, postId));
 
         return announcement;
     }

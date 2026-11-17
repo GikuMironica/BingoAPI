@@ -33,8 +33,8 @@ public class PostsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("posts");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId>>().ValueGeneratedOnAdd();
-            entity.Property(e => e.UserId).HasConversion<StronglyTypedStringIdConverter<UserId>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.HasOne(e => e.Location).WithOne(l => l.Post).HasForeignKey<EventLocation>(l => l.PostId);
             entity.HasOne(e => e.Event).WithOne(ev => ev.Post).HasForeignKey<Event>(ev => ev.PostId);
             entity.HasOne(e => e.Repeatable).WithOne(r => r.Post).HasForeignKey<RepeatableProperty>(r => r.PostId);
@@ -46,7 +46,7 @@ public class PostsModuleDbContext : ModuleDbContext
             entity.ToTable("events");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.EventType).HasConversion<int>();
             entity.Property(e => e.Description).IsRequired();
             entity.Property(e => e.TypeSpecificData).HasColumnType("jsonb");
@@ -58,7 +58,7 @@ public class PostsModuleDbContext : ModuleDbContext
             entity.ToTable("event_locations");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.Location).HasColumnType("geography (point)");
             entity.HasIndex(e => e.Location).HasMethod("gist");
         });
@@ -67,8 +67,8 @@ public class PostsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("pictures");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PictureId>>().ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PictureId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.State).HasConversion<int>();
             entity.HasIndex(e => new { e.State, e.PostId });
         });
@@ -77,7 +77,7 @@ public class PostsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("tags");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<TagId>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<TagId, int>>().ValueGeneratedOnAdd();
             entity.Property(e => e.TagName).IsRequired();
         });
 
@@ -85,8 +85,8 @@ public class PostsModuleDbContext : ModuleDbContext
         {
             entity.ToTable("post_tags");
             entity.HasKey(e => new { e.PostId, e.TagId });
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
-            entity.Property(e => e.TagId).HasConversion<StronglyTypedIdConverter<TagId>>();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
+            entity.Property(e => e.TagId).HasConversion<StronglyTypedIdConverter<TagId, int>>();
         });
 
         modelBuilder.Entity<RepeatableProperty>(entity =>
@@ -94,7 +94,7 @@ public class PostsModuleDbContext : ModuleDbContext
             entity.ToTable("repeatable_properties");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId>>();
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
         });
     }
 }
