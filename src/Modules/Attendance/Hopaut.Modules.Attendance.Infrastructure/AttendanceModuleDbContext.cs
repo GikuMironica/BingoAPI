@@ -31,6 +31,7 @@ public class AttendanceModuleDbContext : ModuleDbContext, IAttendanceUnitOfWork
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.Status).HasConversion<int>();
+            entity.Property(e => e.Version).IsRowVersion();
             entity.HasIndex(e => new { e.PostId, e.UserId }).IsUnique();
             entity.HasIndex(e => e.UserId);
         });

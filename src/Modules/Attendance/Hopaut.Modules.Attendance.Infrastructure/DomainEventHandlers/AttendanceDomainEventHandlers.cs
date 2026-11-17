@@ -11,7 +11,8 @@ public sealed class AttendanceRequestedDomainEventHandler(IIntegrationEventPubli
 {
     public ValueTask Handle(AttendanceRequestedDomainEvent notification, CancellationToken cancellationToken) =>
         new(publisher.PublishAsync(
-            new AttendanceRequestedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
+            new AttendanceRequestedIntegrationEvent(
+                notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId, notification.AwaitsApproval),
             cancellationToken));
 }
 
@@ -28,5 +29,13 @@ public sealed class AttendanceRejectedDomainEventHandler(IIntegrationEventPublis
     public ValueTask Handle(AttendanceRejectedDomainEvent notification, CancellationToken cancellationToken) =>
         new(publisher.PublishAsync(
             new AttendanceRejectedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
+            cancellationToken));
+}
+
+public sealed class AttendanceCancelledDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<AttendanceCancelledDomainEvent>
+{
+    public ValueTask Handle(AttendanceCancelledDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
+            new AttendanceCancelledIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
             cancellationToken));
 }

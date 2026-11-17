@@ -3,4 +3,5 @@ using Mediator;
 
 namespace Hopaut.Modules.Attendance.Application.Commands.CancelAttendance;
 
-public sealed record CancelAttendanceCommand(PostId PostId, UserId UserId) : ICommand<Result>, IAttendanceCommand;
+/// <summary>The caller withdraws their pending request or accepted attendance.</summary>
+public sealed record CancelAttendanceCommand(PostId PostId) : ICommand<Result>, IAttendanceCommand;

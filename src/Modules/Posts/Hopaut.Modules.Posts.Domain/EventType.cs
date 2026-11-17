@@ -15,3 +15,10 @@ public enum EventType
     StreetParty = 8,
     Other = 9
 }
+
+/// <summary>Rules that depend on the kind of event.</summary>
+public static class EventTypeRules
+{
+    /// <summary>House parties are private, so their host approves each attendee; other events admit attendees on request (legacy API).</summary>
+    public static bool HostApprovesAttendees(this EventType type) => type == EventType.HouseParty;
+}

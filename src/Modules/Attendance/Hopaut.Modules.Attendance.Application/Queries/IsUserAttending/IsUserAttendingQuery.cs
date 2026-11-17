@@ -3,4 +3,5 @@ using Mediator;
 
 namespace Hopaut.Modules.Attendance.Application.Queries.IsUserAttending;
 
-public sealed record IsUserAttendingQuery(PostId PostId, UserId UserId) : IQuery<Result<bool>>;
+/// <summary>Whether the caller's participation in the post is accepted.</summary>
+public sealed record IsUserAttendingQuery(PostId PostId) : IQuery<Result<bool>>;

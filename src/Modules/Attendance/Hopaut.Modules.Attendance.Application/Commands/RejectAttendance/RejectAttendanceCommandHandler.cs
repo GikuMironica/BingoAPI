@@ -8,21 +8,19 @@ using Mediator;
 namespace Hopaut.Modules.Attendance.Application.Commands.RejectAttendance;
 
 public sealed class RejectAttendanceCommandHandler(
-    IAttendanceRepository participations, IPostHostQueries posts, IResourceAuthorizer authorizer, TimeProvider timeProvider)
+    IAttendanceRepository participations, IPostAttendanceTermsQueries posts, IResourceAuthorizer authorizer, TimeProvider timeProvider)
     : ICommandHandler<RejectAttendanceCommand, Result>
 {
     public async ValueTask<Result> Handle(RejectAttendanceCommand request, CancellationToken cancellationToken)
     {
-        var authorized = await authorizer.AuthorizePostHostAsync(posts, request.PostId, cancellationToken);
-        if (authorized.IsFailure)
-            return authorized;
+        var terms = await authorizer.GetTermsOfHostedPostAsync(posts, request.PostId, cancellationToken);
+        if (terms.IsFailure)
+            return terms;
 
         var participation = await participations.GetAsync(request.PostId, request.UserId, cancellationToken);
         if (participation is null)
             return ParticipationErrors.NotFound(request.PostId, request.UserId);
 
-        return participation.Reject(timeProvider.GetUtcNow())
-            ? Result.Success()
-            : ParticipationErrors.NotPending(participation.Id);
+        return participation.Reject(timeProvider.GetUtcNow());
     }
 }

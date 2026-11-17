@@ -127,13 +127,14 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         var bug = await SendAsync(factory.Services, new CreateBugReportCommand("uow", reporter, ["https://cdn.hopaut.app/bug.png"]), ct);
         var postReport = await SendAsync(factory.Services, new CreatePostReportCommand(post, reporter, UserId.From("host"), 1, null), ct);
         var userReport = await SendAsync(factory.Services, new CreateUserReportCommand(reporter, UserId.From("reported"), 2, null), ct);
-        var attendance = await SendAsync(factory.Services, new RequestAttendanceCommand(post, attendee), ct);
+        var attendance = await TestCaller.SendAsync(
+            factory.Services, TestCaller.For(attendee.Value), new RequestAttendanceCommand(hostedPost.Value), ct);
 
         // Assert
         await using var scope = factory.Services.CreateAsyncScope();
         var services = scope.ServiceProvider;
         var participation = await services.GetRequiredService<AttendanceModuleDbContext>().Participations
-            .SingleAsync(p => p.PostId == post && p.UserId == attendee, ct);
+            .SingleAsync(p => p.PostId == hostedPost.Value && p.UserId == attendee, ct);
         var requestedEvents = await IntegrationEventsAsync<AttendanceRequestedIntegrationEvent>(services, ct);
         using (new AssertionScope())
         {

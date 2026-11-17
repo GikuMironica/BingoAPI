@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Hopaut.Modules.Posts.Infrastructure;
 
-/// <summary>Registers the Posts module's services. Handlers, domain-event handlers and the unit-of-work behavior are registered by the Host's AddMediator; IPostHostQueries is the module's public read port (Contracts).</summary>
+/// <summary>Registers the Posts module's services. Handlers, domain-event handlers and the unit-of-work behavior are registered by the Host's AddMediator; IPostHostQueries and IPostAttendanceTermsQueries are the module's public read ports (Contracts).</summary>
 public static class PostsModuleInstaller
 {
     public static IServiceCollection AddPostsModule(this IServiceCollection services, IConfiguration configuration)
@@ -22,6 +22,7 @@ public static class PostsModuleInstaller
         services.AddScoped<IPostReadModel, PostReadModel>();
         services.AddScoped<IUserReputationProvider, RatingsUserReputationProvider>();
         services.AddScoped<IPostHostQueries, PostHostQueries>();
+        services.AddScoped<IPostAttendanceTermsQueries, PostAttendanceTermsQueries>();
 
         services.AddResourceOwnerPolicy<Post>(PostPolicies.MustOwnPost, post => post.UserId, administratorsAllowed: true);
 
