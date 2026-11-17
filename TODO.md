@@ -1,0 +1,158 @@
+# Hopaut Architecture TODO
+
+> Owned by the HopautArchitect agent. Step status lives only in `hopaut-migration-status.md`; this file holds the working queue, audit findings, contract inventory, decisions and blockers.
+
+**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 7.1
+
+## Now
+- [ ] 7.1 – Repository hygiene + supply-chain fixes; closes 0.6, 6.1, 6.8 (skills: dotnet-10-migration, architect-handoff)
+
+## Next
+Order and dependencies: `hopaut-execution-plan.md` Phase 7 header (D-005).
+- [ ] 6.7 – Architecture test suite as a ratchet (clean-architecture-ddd)
+- [ ] 7.2 – Test pyramid scaffolding: xUnit v3, AwesomeAssertions, NSubstitute, Testcontainers via Podman (dotnet-10-migration)
+- [ ] 7.3 – Baseline EF Core migrations per module (dotnet-10-migration)
+- [ ] 7.4 – `Result`/`Error`, problem details, `ICurrentUser` (clean-architecture-ddd, rest-api-standards)
+- [ ] 7.5 – `TimeProvider`, Guid v7, SharedKernel base types, ID parsing/JSON (clean-architecture-ddd, dotnet-10-migration)
+- [ ] 7.6 – MediatR → Mediator, pipeline, module unit of work (messaging-integration)
+- [ ] 7.7 – Host hardening: JWT auth, correlation id, health, OTLP, options (dotnet-10-migration, rest-api-standards)
+- [ ] 6.6 – Contracts projects per module (messaging-integration)
+- [ ] 6.9 – Resource-based authorization port (clean-architecture-ddd, rest-api-standards)
+- [ ] 7.8 – Phase 7 exit gate
+- Then Phase 8 (8.1 → 8.12), Phase 9 (9.1 → 9.5, 1.6, 9.6), Phase 10 (10.1 → 10.10), Phase 11 (11.1, 11.2), 6.11, 6.12, 6.13.
+
+## Findings
+
+Types: bug · smell · primitive-obsession · anemic-model · layering · messaging · rest · security · perf · test-gap · ledger. Evidence comes from the 2026-11-17 audit (commands below, file:line references).
+
+| ID | Type | Location | Finding | Evidence | Fix in step | Status |
+|----|------|----------|---------|----------|-------------|--------|
+| F-001 | ledger | `hopaut-migration-status.md` | 32 ✅ steps had acceptance criteria that are not demonstrated (tests, behaviour, migrations missing) | `dotnet test Bingo.sln` → 5 tests (architecture only); findings below | Phase 1 (D-001) | fixed 2026-11-17 (steps reopened) |
+| F-002 | ledger | `hopaut-migration-status.md` 1.6 | Step 1.6 was ⬜ while the activity log (2025-01-09) records caching work | `src/BuildingBlocks/Hopaut.BuildingBlocks.Application/Caching/*`, `.../Infrastructure/Caching/*` exist | Phase 1; work in 1.6 | fixed 2026-11-17 (ledger 🟡) |
+| F-003 | ledger | `hopaut-migration-status.md` activity log | No rows for 1.7–6.4, malformed rows for 0.2–0.6, no commit hashes (history: `cde3dbd`, `b4dafc1`, `42e1e09`) | file content | Phase 1 | fixed 2026-11-17 (rows repaired/annotated) |
+| F-004 | security | `src/Host/Hopaut.Api.Host/Program.cs`; `src/Modules/Identity/Hopaut.Modules.Identity.Api/IdentityModuleInstaller.cs:14-48` | JWT bearer authentication is not configured anywhere, so `RequireAuthorization()` endpoints cannot authenticate tokens | `dotnet list Bingo.sln package`: no project references `Microsoft.AspNetCore.Authentication.JwtBearer`; no `AddAuthentication` in Host | 7.7 | open |
+| F-005 | messaging | `src/BuildingBlocks/Hopaut.BuildingBlocks.Infrastructure/Outbox/OutboxPublisher.cs:43-57` | Relay marks messages processed without publishing; integration events are silently lost | audit report | 9.2 | open |
+| F-006 | messaging | `.../Infrastructure/ModuleDbContext.cs:17-24`; `.../Outbox/OutboxIntegrationEventPublisher.cs:12-30` | Domain events dispatched after `base.SaveChangesAsync`; outbox written through a separate `OutboxDbContext` with its own save (not atomic) | audit report | 7.6, 9.1 | open |
+| F-007 | bug | `Posts.Domain/Post.cs:43`, `Ratings.Domain/Rating.cs:29`, `Attendance.Domain/Participation.cs:26`, `Announcements.Domain/Announcement.cs:23` | Factories raise creation events before the database assigns the int ID, so events carry ID 0 | DB-generated keys (`ValueGeneratedOnAdd`) per DbContext configs | 8.2–8.5 | open |
+| F-008 | security | `Ratings.Application/Commands/DeleteRating/DeleteRatingCommandHandler.cs:15-16` | Any user can delete any rating (command has only `RatingId`) | audit report | 8.4 | open |
+| F-009 | security | `Attendance.Application/Commands/AcceptAttendance/AcceptAttendanceCommandHandler.cs:13` (+ Reject) | Accept/reject never check the post host; `OwnerId` in the command is unused (BOLA) | audit report | 8.3 | open |
+| F-010 | security | `Users.Api/UsersModule.cs:26-34`; `Users.Application/Commands/UpdateProfile/UpdateProfileCommandHandler.cs:12` | Profile and picture updates act on the route `{userId}` without comparing it to the caller (BOLA) | audit report | 8.8 | open |
+| F-011 | security | `Announcements.Application/Commands/DeleteAnnouncement/DeleteAnnouncementCommandHandler.cs:12-17` | Any user can delete any announcement; creation is not restricted to the post host | audit report | 8.5 | open |
+| F-012 | security | `Moderation.Application/Commands/ResolvePostReport/ResolvePostReportCommandHandler.cs:13-17` | Any authenticated user can resolve reports and list open reports (no Admin policy) | audit report | 8.6 | open |
+| F-013 | security | `Posts.Application/Commands/CreatePost/CreatePostCommand.cs:6-13`; `Ratings.Application/Commands/CreateRating/CreateRatingCommand.cs:6`; Announcements/BugReports/Moderation endpoints bind commands from the body | Caller identity (`UserId`, `RaterId`) taken from the request body | audit report | 7.4, 8.x | open |
+| F-014 | security | `Media.Api/MediaModule.cs:18-33`; `Media.Infrastructure/S3MediaStorage.cs:31-33` | Upload without size limit, content-type allow-list or sniffing; client `bucketPath` interpolated into the S3 key; `"unknown"` user fallback | audit report | 8.10 | open |
+| F-015 | security | `src/Host/Hopaut.Api.Host/Program.cs:103` | Hangfire dashboard mapped without an authorization filter (default local-only; admins cannot use it remotely) | audit report | 7.7 | open |
+| F-016 | bug | `BuildingBlocks.Application/Behaviors/ValidationBehavior.cs:28-30`; module installers | FluentValidation validators are never registered (no `AddValidatorsFromAssembly`), and the behavior throws instead of returning a failure | audit report | 7.6 | open |
+| F-017 | bug | `Ratings.Infrastructure/UserReputationRepository.cs:25-48` | Reputation recomputed synchronously without a concurrency token (lost updates) | audit report | 8.4, 9.3 | open |
+| F-018 | smell | `src/BuildingBlocks/Hopaut.SharedKernel/ValueObjects.cs:6-43` | `Coordinates` exposes `IsValid` (invalid instances constructible); `RatingValue` throws; `Money` unvalidated; `TimeRange` missing | audit report | 8.1 | open |
+| F-019 | primitive-obsession | `Post.cs:31` (`int ActiveFlag`), `Event.cs:12-13` (`double?` price, `int?` currency), `UserProfile.cs:21` + `AppUser.cs:14` (`long` timestamp), `MediaAsset.cs:13-19`, text fields | Domain concepts as primitives | audit report | 8.2, 8.8, 8.9, 8.10 | open |
+| F-020 | anemic-model | `Posts.Domain` `Event.cs:10-22`, `EventLocation.cs:7-17`, `Picture.cs:7-13`, `Tag.cs:7-10`, `PostTag.cs:7-11`, `RepeatableProperty.cs:7-10`; `Bug.cs:31-35`; `RefreshToken.cs:10-21`; `UserReputation.cs:9-12`; `AppUser.cs:10-14`; `Post.cs:17-18` | Public setters, public mutable collections (`Post.Pictures/Tags`, `Tag.Posts`), child → root back-references | audit report | 8.2, 8.4, 8.7, 8.9 | open |
+| F-021 | smell | `DateTimeOffset.UtcNow`: `Announcement.cs:20`, `Participation.cs:23,35,44,53`, `Bug.cs:18`, `Report.cs:28,60`, `Post.cs:33`, `Rating.cs:26`; `DateTime.UtcNow`: `MediaAsset.cs:33`, `RegisterUserCommandHandler.cs:29`, `RefreshTokenCommandHandler.cs:38,48`, `JwtTokenGenerator.cs:67,78-79`; `Guid.NewGuid`: `MediaAsset.cs:5`, `UserProfile.cs:7`, `UploadImagesCommandHandler.cs:26`, `IDomainEvent.cs:12`, `IIntegrationEvent.cs:12` | Clocks and random IDs inside domain, application and events | audit report | 7.5 | open |
+| F-022 | smell | `SharedKernel/Entity.cs:13-25`, `IDomainEvent.cs:3-15`, `Result.cs:3-42`, `StronglyTypedIds.cs:28-143` | Public `AddDomainEvent`; transient entities compare equal; events use `DateTime` + `Guid.NewGuid`; `Result` has no `Error`/`ErrorType` and `Value` does not throw; IDs lack `IParsable` and accept ≤ 0; no ID JSON converter | audit report | 7.4, 7.5 | open |
+| F-023 | layering | `src/Modules/Posts/Hopaut.Modules.Posts.Infrastructure/Hopaut.Modules.Posts.Infrastructure.csproj:16` | Posts.Infrastructure references Ratings.Application | csproj | 6.6 | open |
+| F-024 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Domain/Hopaut.Modules.Identity.Domain.csproj:8` | Identity.Domain references `Microsoft.Extensions.Identity.Stores` (`AppUser : IdentityUser`) | csproj | 8.9 | open |
+| F-025 | test-gap | `tests/Hopaut.ArchitectureTests/DddEnforcementTests.cs:13-17,72-86` | Architecture tests load only SharedKernel + BuildingBlocks.Application; the aggregate-constructor rule scans an assembly without aggregates (vacuous); no module rules | file content | 6.7 | open |
+| F-026 | test-gap | `tests/` | No unit, integration or endpoint tests for any module or building block | `dotnet test Bingo.sln` → 5 tests | 7.2, 8.x, 10.x | open |
+| F-027 | bug | all module `*.Infrastructure` projects | No EF Core migrations for any of the 8 module DbContexts or `OutboxDbContext` | audit: no `Migrations` folder, `Migration` or `ModelSnapshot` class under `src` | 7.3, 11.1 | open |
+| F-028 | rest | `src/Modules/*/Hopaut.Modules.*.Api/*Module.cs` | Inline route literals; no `WithName`/`WithSummary`/`Produces`; untyped `Results.*` and anonymous objects; `AuthResult` serialized directly; verbs in paths (`/nearby`, `/request`, `/accept`, `/reject`, `/cancel`, `/check`, `/resolve`); 200 on create (Payments); plain-string 409; unbounded lists; one global rate-limit policy | audit report | 10.x | open |
+| F-029 | rest | BingoMobile vs module endpoints | BingoMobile calls legacy routes; ~25 calls have no backend endpoint and it expects PascalCase, a `Data` envelope and Unix seconds | Contract inventory below | 10.2–10.8 | open |
+| F-030 | bug | `src/Modules/Notifications/**` | Nothing triggers push or e-mail: no integration-event consumers; Notifications endpoints not mapped (`Program.cs:105-114`) | audit report | 9.4 | open |
+| F-031 | bug | `OneSignalPushSender.cs:41-48`, `MailKitEmailSender.cs:38-47`, `S3MediaStorage.cs:48-53,68-72`, `PaymentsServiceClient.cs:37-43,50-54` | External adapters swallow failures; Payments returns `ex.Message` to clients; no resilience handler; options not validated on start | audit report | 8.10, 8.11 | open |
+| F-032 | messaging | all modules | No integration-event consumers or inbox usage; planned subscriptions of 2.4, 4.1, 4.2, 4.3, 5.1 and 5.2 missing | audit report | 9.3, 9.4 | open |
+| F-033 | messaging | `Outbox/OutboxMessage.cs:3-13`, `Outbox/OutboxPublisher.cs:27-39` | Outbox stores `AssemblyQualifiedName` and `DateTime`, has no retry/dead-letter fields; relay uses `Task.Delay` + catch-all without backoff | audit report | 9.1, 9.2 | open |
+| F-034 | smell | e.g. `CreatePostCommandHandler.cs:44`, `DeleteRatingCommandHandler.cs:23,26`, `IModerationRepository.cs:17`, `IBugReportRepository.cs:8-12`; all repositories | Handlers call repository `SaveChangesAsync`; no unit-of-work behavior; reads without `AsNoTracking` | audit report | 7.6, 8.x | open |
+| F-035 | smell | all `*.Application` commands/queries | Commands and queries return `bool`, IDs, `AuthResult` or DTOs instead of `Result` | audit report | 7.6 | open |
+| F-036 | perf | `Posts.Application/Queries/GetNearbyPosts/GetNearbyPostsQuery.cs:5`; `Posts.Api/PostsModule.cs:16-23` | Nearby query: radius and limit unbounded, no paging, anonymous | audit report | 8.2, 10.4 | open |
+| F-037 | smell | `src/Host/Hopaut.Api.Host/Program.cs` | Regressions after 6.1: no correlation id, no `/health/live`/`/health/ready`, console exporter only, no options validation or `ValidateScopes`, no forwarded headers/CORS, no custom exception handler | audit report | 7.4, 7.7 | open |
+| F-038 | perf | `Infrastructure/Caching/RedisCacheService.cs:30-45` | Tag tracking is a non-atomic read-modify-write; no stampede protection | audit report | 1.6 | open |
+| F-039 | security | `Directory.Packages.props` (+ transitive) | Vulnerable: MailKit/MimeKit 4.10.0 and OpenTelemetry.Api 1.12.0 (moderate); Newtonsoft.Json 11.0.1, System.Security.Cryptography.Pkcs 8.0.1 and SixLabors.ImageSharp 3.1.7 (high) | `dotnet list Bingo.sln package --vulnerable --include-transitive` | 7.1 (+ B-001) | open |
+| F-040 | smell | `Directory.Packages.props` | 21 `PackageVersion` entries unused (AutoMapper, Swashbuckle, Newtonsoft MVC, System.Drawing, SqlClient, Flurl, …); deprecated `FluentValidation.AspNetCore` referenced | `dotnet list Bingo.sln package` vs CPM | 7.1, 7.6 | open |
+| F-041 | smell | `BingoAPI/*`, `Bingo.IntegrationTests/*.csproj`, `Bingo.LoadTests/Bingo.LoadTests.csproj`, `Dockerfile`, `docker-compose.yml` | Tracked zero-byte legacy stubs; netcoreapp3.1 csproj; Dockerfile builds deleted BingoAPI on the .NET Core 3.1 SDK; compose uses Postgres 9.6 without PostGIS | `git ls-files`; file content | 7.1 | open |
+| F-042 | security | `Identity.Application/AuthResult.cs:1-28`; `Identity.Infrastructure/JwtTokenGenerator.cs:33-50,71-82` | Bespoke `AuthResult`/`FailReason`; JWT has no `sub` claim (BingoMobile parses `sub` and `id`); 6-month refresh tokens without rotation or reuse detection; LoginWithFacebook, AddPassword, Grant/RevokePostClaim missing | audit report | 8.9, 10.2 | open |
+| F-043 | bug | `src/Modules/Posts/Hopaut.Modules.Posts.Application/**` | UpdatePost, DisablePost, GetMyActivePosts, GetMyInactivePosts and `PostUpdated` (plan 3.4) missing | audit report | 8.2, 10.4 | open |
+| F-044 | bug | `src/Modules/Media/**`, `src/Modules/Posts/**` | Async picture pipeline (3.5) not implemented beyond `PictureState` + `IMediaProcessor`; `MediaUploadedIntegrationEvent` never published | audit report | 9.5 | open |
+| F-045 | smell | `Attendance.Api/AttendanceModule.cs:23-54`, `Media.Api/MediaModule.cs:20-29`, `Host/RoleSeederHostedService.cs:20-50` | Magic strings: claim `"id"` parsed inline with `""`/`"unknown"` fallback; role-name literals | audit report | 7.4, 7.7 | open |
+| F-046 | smell | `Bug.cs:8,35`, `RefreshToken.cs:10,12,18,21`, `MediaAsset.cs:14-16,18`, `Event.cs:16`, `EventLocation.cs:14`, `Picture.cs:8`, `Tag.cs:8`, `UserProfile.cs:16`, `Post.cs:15-16`, `Entity.cs:8`, `OutboxMessage.cs:7-8` | `default!` hides nullability | audit report | 8.x, 9.1 | open |
+| F-047 | smell | `BuildingBlocks.Infrastructure/StronglyTypedIdConverters.cs:10-53` | ID converters use `dynamic` + `Activator.CreateInstance` | audit report | 7.5 | open |
+| F-048 | bug | `src/Modules/Media/Hopaut.Modules.Media.Domain/MediaAsset.cs` | `MediaAsset` aggregate exists but Media has no DbContext, so assets are never persisted | audit report | 8.10 | open |
+| F-049 | ledger | `hopaut-execution-plan.md` 6.5, 6.13 | Plan says domain events are dispatched "after commit", contradicting messaging-integration §4 | plan text | Phase 1 (D-004) | fixed 2026-11-17 (supersession note) |
+| F-050 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Domain/RefreshToken.cs:7-9` | Data annotations (`[DatabaseGenerated]`) in Domain | audit report | 8.9 | open |
+
+## Contract inventory
+
+BingoMobile (`C:\Users\ghmi\personal\BingoMobile`, `dev`) base URL `https://hopout.eu/api/v1` (`lib/config/constants/api.dart:2`). Today every mobile call targets a legacy route; responses are parsed as PascalCase inside a `{ "Data": … }` envelope with Unix-second times, and errors are mapped by status code only (`lib/services/dio_service.dart:31-60`). Mobile paths below are relative to `lib/`.
+
+| Mobile constant / call | Mobile file | Backend today | Target endpoint | Breaking? | Handoff | Status |
+|------------------------|-------------|---------------|-----------------|-----------|---------|--------|
+| `LOGIN` POST `{email,password}` → `Token`, `RefreshToken`; 400 `FailReason=2`, 403 `FailReason=0/1` | `data/repositories/authentication_repository.dart:18-54` | `POST /api/v1/identity/login` → 200/400 `AuthResult` (camelCase) | `POST /api/v1/identity/login` → 200 token pair; 401/403 problem + `identity.*` code | yes | – | unsynced |
+| `REGISTER` POST `{email,password,language}`; 400 = exists | `authentication_repository.dart:58-81` | `POST /api/v1/identity/register` → 200/400 `AuthResult` | `POST /api/v1/identity/register` → 201; 409 `identity.user.email_taken` | yes | – | unsynced |
+| `FB_AUTH` `/identity/auth/fb` `{accessToken,language}` | `authentication_repository.dart:83-106` | missing (bug) | `POST /api/v1/identity/login/facebook` | yes | – | unsynced |
+| `REFRESH` `{token,refreshToken}` → `Token`, `RefreshToken`; triggered on 401 | `authentication_repository.dart:108-122`; `services/dio_service.dart:31-53` | `POST /api/v1/identity/refresh` (camelCase `AuthResult`) | `POST /api/v1/identity/refresh` | yes | – | unsynced |
+| `FORGOT_PASSWORD` `/identity/forgotpassword` `{email}` | `authentication_repository.dart:125-138` | `POST /api/v1/identity/forgot-password` | same route | yes (route) | – | unsynced |
+| `CHANGE_PASSWORD` `/identity/changepassword` `{email,oldPass,newPassword}` | `authentication_repository.dart:140-160` | `POST /api/v1/identity/change-password` | `POST /api/v1/identity/change-password` `{currentPassword,newPassword}` (caller from token) | yes | – | unsynced |
+| `ADD_PASSWORD` `/identity/addpassword` (constant only, no call) | `config/constants/api.dart` | missing | `POST /api/v1/identity/add-password` | no (unused) | – | unsynced |
+| JWT claims `sub,jti,email,id,nbf,exp,iat` | `data/models/identity.dart:22-39`; `services/authentication_service.dart:45-58` | emits `jti,email,id,role`; no `sub` | add `sub` (= user id), keep `id` | yes | – | unsynced |
+| `UserRepository.get` `GET /users/{userId}` → `User` (`RegistrationTimeStamp` Unix) | `data/repositories/user_repository.dart:20-55` | `GET /api/v1/users/{userId}` (camelCase, no envelope) | `GET /api/v1/users/me`, `GET /api/v1/users/{userId}` | yes | – | unsynced |
+| `UserRepository.update` `PUT /users/{userId}` `{FirstName,LastName,PhoneNumber,Description}` | `user_repository.dart:20-55` | `PUT /api/v1/users/{userId}/profile` `{firstName,lastName,description}` (BOLA, no phone) | `PUT /api/v1/users/me` | yes | – | unsynced |
+| `UserRepository.delete` `DELETE /users/{userId}` → 204 | `user_repository.dart:44-55` | missing | `DELETE /api/v1/users/me` → 204 | yes | – | unsynced |
+| `deletePicture` `DELETE /users/profilepic/{userId}` | `user_repository.dart:57-67` | missing | `DELETE /api/v1/users/me/profile-picture` → 204 | yes | – | unsynced |
+| `uploadPicture` `PUT /users/profilepic/{userId}` multipart `UpdatedPicture` → `User` | `user_repository.dart:69-101` | `PUT /api/v1/users/{userId}/profile-picture` JSON `{pictureUrl}` | `PUT /api/v1/users/me/profile-picture` multipart → 200 user | yes | – | unsynced |
+| `ProfileRepository.get` `GET /profile/{userId}` → `Profile` | `data/repositories/profile_repository.dart:9-21` | missing | `GET /api/v1/users/{userId}` | yes | – | unsynced |
+| `EventRepository.get` `GET /posts/{postId}` → `Post` | `data/repositories/event_repository.dart:17-29` | `GET /api/v1/posts/{postId:int}` (anonymous) | `GET /api/v1/posts/{postId}` | yes | – | unsynced |
+| `create` `POST /posts` multipart → 201 `MiniPost`; 400/403 | `event_repository.dart:31-59`; `data/models/post.dart:95-135` | `POST /api/v1/posts` JSON incl. `userId` from body | `POST /api/v1/posts` multipart → 201 + `Location` | yes | – | unsynced |
+| `update` **POST** `/posts/{id}` multipart | `event_repository.dart:62-92` | missing | `PUT /api/v1/posts/{postId}` multipart | yes | – | unsynced |
+| `delete` `DELETE /posts/{postId}` → 204; 400/403/404 | `event_repository.dart:94-119` | `DELETE /api/v1/posts/{postId:int}` → 204/404 | same + problem details | yes (errors) | – | unsynced |
+| `search` `GET /posts?{SearchQuery}` → `MiniPost[]` | `event_repository.dart:121-133`; `data/models/search_query.dart:29-51` | `GET /api/v1/posts/nearby?longitude&latitude&radius&limit` | `GET /api/v1/posts?latitude=&longitude=&radiusMeters=&cursor=&limit=` → `{items,nextCursor}` | yes | – | unsynced |
+| `getEventMiniPosts(MY_ACTIVE/MY_INACTIVE)` `GET /posts/myactive`, `/posts/myinactive` | `event_repository.dart:159-171` | missing | `GET /api/v1/users/me/posts?status=active\|inactive` | yes | – | unsynced |
+| `getEventMiniPosts(ATTENDING_ACTIVE/ATTENDED_INACTIVE)` `GET /attendedactive`, `/attendedinactive` | `event_repository.dart:159-171` | missing | `GET /api/v1/users/me/attendances?status=active\|inactive` | yes | – | unsynced |
+| `changeAttendanceStatus(ATTEND)` POST `/attend/{postId}` | `event_repository.dart:135-144` | `POST /api/v1/attendance/{postId}/request` | `PUT /api/v1/posts/{postId}/attendees/me` | yes | – | unsynced |
+| `changeAttendanceStatus(UNATTEND)` POST `/unattend/{postId}` | `event_repository.dart:135-144` | `POST /api/v1/attendance/{postId}/cancel` | `DELETE /api/v1/posts/{postId}/attendees/me` → 204 | yes | – | unsynced |
+| `getAttendees` `GET /fetchaccepteddata?PostId=` | `event_repository.dart:146-157` | missing | `GET /api/v1/posts/{postId}/attendees?status=accepted` | yes | – | unsynced |
+| `acceptAttendee` / `rejectAttendee` POST `/acceptattendee`, `/rejectattendee` `{attendeeId,postId}` | `data/repositories/participant_repository.dart:9-31` | `POST /api/v1/attendance/{postId}/accept/{userId}`, `/reject/{userId}` (no host check) | `PATCH /api/v1/posts/{postId}/attendees/{userId}` `{status}` | yes | – | unsynced |
+| `fetchAccepted` / `fetchPending` `GET /fetchallaccepted`, `/fetchallpending?Id=` | `participant_repository.dart:33-59` | missing | `GET /api/v1/posts/{postId}/attendees?status=accepted\|pending` | yes | – | unsynced |
+| `FETCH_ATTENDEES_ALL` `/fetchallattendee` (constant only) | `config/constants/api.dart` | missing | `GET /api/v1/posts/{postId}/attendees` | no (unused) | – | unsynced |
+| `Post.IsAttending` field (no call) | `data/models/post.dart` | `GET /api/v1/attendance/{postId}/check` (unused by mobile) | `isAttending` in the post response | yes | – | unsynced |
+| `TagRepository.get` `GET /tag/{pattern}` | `data/repositories/tag_repository.dart:7-20` | missing | `GET /api/v1/tags?search={pattern}&limit=` | yes | – | unsynced |
+| `AnnouncementRepository.create` `POST /announcements` `{PostId,Message}` → 201 | `data/repositories/announcement_repository.dart:20-51` | `POST /api/v1/announcements` (command bound from body) | `POST /api/v1/posts/{postId}/announcements` `{message}` → 201 | yes | – | unsynced |
+| `AnnouncementRepository.update` `PUT /announcements/{id}` `{Message}` | `announcement_repository.dart:20-51` | missing | `PUT /api/v1/announcements/{announcementId}` | yes | – | unsynced |
+| `AnnouncementRepository.get` `GET /announcements/{id}` | `announcement_repository.dart:53-78` | missing | `GET /api/v1/announcements/{announcementId}` | yes | – | unsynced |
+| `AnnouncementRepository.delete` `DELETE /announcements/{id}` → 204 | `announcement_repository.dart:53-78` | `DELETE /api/v1/announcements/{id:int}` (no ownership check) | same + ownership | yes (errors) | – | unsynced |
+| `AnnouncementRepository.getAll` `GET /announcements/postId/{postId}` | `announcement_repository.dart:80-96` | `GET /api/v1/announcements/post/{postId:int}` | `GET /api/v1/posts/{postId}/announcements` (paged) | yes | – | unsynced |
+| `getInbox` / `getOutbox` `GET /announcements/inbox`, `/announcements/outbox` | `announcement_repository.dart:98-124` | missing | `GET /api/v1/users/me/announcement-threads?box=inbox\|outbox` | yes | – | unsynced |
+| `RatingRepository.get` **POST** `/ratings/{ratingId}` (read) | `data/repositories/rating_repository.dart:12-24` | missing | `GET /api/v1/ratings/{ratingId}` | yes | – | unsynced |
+| `RatingRepository.getByUser` `GET /ratings/userId/{userId}` | `rating_repository.dart:26-39` | `GET /api/v1/ratings/user/{userId}` | `GET /api/v1/users/{userId}/ratings` (paged) | yes | – | unsynced |
+| `RatingRepository.create` `POST /ratings` (403 = already rated) | `rating_repository.dart:41-58` | `POST /api/v1/ratings` (rater from body) | `POST /api/v1/ratings` → 201; 409 duplicate | yes | – | unsynced |
+| `ReportRepository.postReport` `POST /reports` (403 = already reported) | `data/repositories/report_repository.dart:17-42` | `POST /api/v1/moderation/reports/post` | `POST /api/v1/posts/{postId}/reports` → 201; 409 duplicate | yes | – | unsynced |
+| `USER_REPORT` `/userreports` (method empty) | `report_repository.dart:44-46` | `POST /api/v1/moderation/reports/user` | `POST /api/v1/users/{userId}/reports` | no (unused) | – | unsynced |
+| `bugReportPostAsync` `POST /bugs` multipart + `Screenshots` | `report_repository.dart:48-86` | `POST /api/v1/bugs` JSON (screenshot URLs) | `POST /api/v1/bug-reports` multipart → 201 | yes | – | unsynced |
+| Push: OneSignal `setExternalUserId(userId)`; payload not parsed | `services/notifications_service.dart:53-80` | nothing sends pushes (F-030) | push by external user id; `data` schema documented by the 9.4 handoff | no | – | unsynced |
+| Errors: 401 → refresh (no replay), 429 → quota message; no body parsing | `services/dio_service.dart:31-60` | default ProblemDetails, plain strings, `AuthResult` | RFC 9457 problem + `errorCode` | yes | – | unsynced |
+
+Backend endpoints without a mobile consumer (admin, web portal or internal): `GET /api/v1/identity/confirm-email`, `POST /api/v1/identity/reset-password`, `GET /api/v1/moderation/reports/post/open`, `POST /api/v1/moderation/reports/post/{id}/resolve`, `POST` / `GET /api/v1/payments`, `POST /api/v1/media/upload`, `GET /api/v1/attendance/{postId}/check`.
+
+## Decisions
+
+| ID | Date | Decision | Why | Rejected alternatives |
+|----|------|----------|-----|-----------------------|
+| D-001 | 2026-11-17 | Reconcile the ledger by reopening (✅ → 🟡) every step whose acceptance is not demonstrated; each note names the closing Phase 7–11 step; reopened steps are closed by those steps, not worked on separately | F-001: only 5 tests exist, the relay never publishes, no migrations, auth not configured | keep ✅ (false); reset to ⬜ (loses delivered work); ❌ (nothing is blocked) |
+| D-002 | 2026-11-17 | Architecture rules land as a ratchet: a finding-tagged baseline of known violations that may only shrink; the suite fails on new violations and on stale baseline entries | Safety net before refactoring without skipping or weakening tests | `[Fact(Skip=…)]` (forbidden); waiting until the code is clean (no safety net) |
+| D-003 | 2026-11-17 | Test stack: xunit.v3, AwesomeAssertions, NSubstitute, FakeTimeProvider, Testcontainers.PostgreSql (PostGIS image), Mvc.Testing; licenses re-checked in 7.2 before adding; containers through Podman (no Docker CLI) | Repository rules (xUnit v3, AwesomeAssertions), skill (NSubstitute, FakeTimeProvider); NSubstitute already in CPM and module template | FluentAssertions ≥ 8 (commercial); Moq |
+| D-004 | 2026-11-17 | Domain events are dispatched before the module's single `SaveChangesAsync`; supersedes "after commit" in plan 6.5 / 6.13 | messaging-integration §4: atomic aggregate + outbox rows (F-006, F-049) | post-commit dispatch (lost events on crash) |
+| D-005 | 2026-11-17 | Run 6.7 (right after 7.1), 6.6 and 6.9 inside Phase 7 | Phase 8 needs the safety net, Contracts query interfaces (e.g. host checks) and the authorization port; 6.7's only 6.6 dependency (cross-module rule) is baselined (D-002) | numeric order 6.6 → 6.7 → 6.9 after Phase 8 |
+| D-006 | 2026-11-17 | Plan order: Phase 7 foundation → 8 domain → 9 messaging → 10 REST + BingoMobile → 11 release | Agent phases 2–5; wire contracts are designed once on the cleaned model; consumers need the final domain events | REST first (would be redone after the domain refactor) |
+| D-007 | 2026-11-17 | Until a module's Phase 10 step its endpoints stay "unsynced": BingoMobile does not call them (inventory), so intermediate changes keep today's HTTP behaviour and get no individual handoff; the Phase 10 handoff documents the full legacy → target diff | D-API-1 (backend and mobile `dev` ship together); avoids handoff churn for shapes that will change again | one handoff per intermediate change |
+| D-008 | 2026-11-17 | Skill defaults adopted without override: D-MSG-1 (Mediator 3.x), D-MSG-2 (`IIntegrationEventBus`, in-process transport), D-MSG-3 (hand-rolled per-module outbox), D-API-1 (breaking `/api/v1` changes allowed when BingoMobile `dev` is updated in the same batch) | Confirmed by the user on 2026-11-17 (skills) | – |
+
+## Blockers
+- **B-001** SixLabors.ImageSharp 3.1.7 has high-severity advisories (GHSA-j3p4-wp97-rph4, GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w, GHSA-v76p-62qx-wwq2) and moderate ones (GHSA-rxmq-m78w-7wmc, GHSA-gwg2-r3hj-4w44, GHSA-wmxv-xphr-5c9g). Upgrading means accepting the Six Labors Split License v1.0: Apache-2.0 only for open-source / source-available software, transitive use, for-profit entities under 1 M USD annual gross revenue, or non-profits; otherwise a commercial license is required. → **Unblock:** the user confirms Hopaut qualifies (then upgrade to the latest patched 3.1.x) or approves replacing ImageSharp with SkiaSharp (MIT) in 8.10 / 9.5. Until then, strict-warning builds fail on NU1902/NU1903 for the Media projects (affects the 7.8 gate).
+
+## Baseline
+- Build: `dotnet build Bingo.sln` → succeeded, 0 errors, 116 warnings, all NU1902/NU1903 package advisories; 0 compiler warnings (2026-11-17).
+- Tests: `dotnet test Bingo.sln` → 5 passed / 0 failed / 0 skipped; only `tests/Hopaut.ArchitectureTests` exists (2026-11-17).
+- Vulnerable packages: `dotnet list Bingo.sln package --vulnerable --include-transitive` → see F-039 (2026-11-17).
+- Container runtime: `docker` not on PATH; Podman 6.1.4 machine `podman-machine-default` is running (WSL, rootful) but exposes no Docker-API named pipe, so Testcontainers needs `DOCKER_HOST` set up in 7.2 (2026-11-17).
+- BingoMobile: `dev` @ `b20be13`, clean, 10 commits ahead of `origin/dev`; mobile Phase 0 is externally blocked at mobile Step 0.3-H (HERE SDK), so `fvm flutter analyze` / `fvm flutter test` are expected to fail on dependency resolution.
+- Foreign uncommitted work in BingoAPI (left untouched): `.github/github-copilot-instructions.md` deleted with identical content added as untracked `.github/copilot-instructions.md`; untracked `.github/agents/` and `.github/skills/`.
+
+## Done (latest 10)
+- 2026-11-17 Phase 1 audit: baseline recorded, ledger reconciled (D-001), Phases 7–11 appended to the plan, `TODO.md` created; validated by `dotnet build Bingo.sln` and `dotnet test Bingo.sln`; commit recorded in the next ledger update.

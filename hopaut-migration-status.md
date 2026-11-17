@@ -11,7 +11,7 @@
 - ❌ blocked (add reason)
 - ⏭️ skipped (add reason)
 
-**Current focus:** Phase 6 – Step 6.6 (Contracts projects per module).
+**Current focus:** Phase 7 – Step 7.1 (repository hygiene & supply chain). Ledger reconciled 2026-11-17 by the HopautArchitect audit: every reopened step (🟡) names the step that closes it; findings `F-###`, decisions `D-###`, blockers and the contract inventory live in `TODO.md`.
 
 ---
 
@@ -21,90 +21,159 @@
 |------|-----------------------------------------------------------------|--------|------|----------------|
 | 0.1  | Capture baseline (tag, package list, config inventory)          | ✅     | 2025-01-09 | tag `pre-net10-baseline` @ `56b91bf`; `docs/baseline-packages.txt`, `docs/baseline-config-inventory.md` |
 | 0.2  | Add `Directory.Build.props`, `Directory.Packages.props`, `.editorconfig`, `global.json` | ✅     | 2025-01-09 | Created `global.json` (SDK 10.0.300), `Directory.Build.props` (net10.0, nullable, implicit usings), `Directory.Packages.props` (CPM with .NET 10 versions), expanded `.editorconfig` (team conventions, CS4014=error) |
-| 0.3  | Upgrade `Bingo.Contracts` to .NET 10                            | ✅     | 2025-01-09 | Removed explicit TFM (inherits net10.0 from props), replaced `Microsoft.AspNetCore.Http.Features` pkg with `FrameworkReference`, fixed CS8765 + CS8605 nullable warnings in `MaxValueAttribute`/`MinValueAttribute`. 0 warnings. |
-| 0.4  | Upgrade `BingoAPI` to .NET 10 (ImageSharp, built-in rate limiter, minimal hosting, EF Core/Identity bumps) | ✅     | 2025-01-09 | Removed explicit TFM (inherits net10.0), stripped Version= for CPM, removed `AutoMapper.Extensions.Microsoft.DependencyInjection` (merged into AutoMapper 13.x), removed `Microsoft.Extensions.DependencyInjection` (in shared framework), removed `Microsoft.AspNetCore.Http.Features` (in shared framework). Build green, 0 errors. ImageSharp/STJ/minimal-hosting/built-in rate limiter deferred to later steps per plan. |
-| 0.5  | Upgrade `Bingo.IntegrationTests` to .NET 10                     | ✅     | 2025-01-09 | Removed explicit TFM (inherits net10.0), stripped Version= for CPM. Build green, 0 errors. |
-| 0.6  | Delete `Bingo.LoadTests` (.NET Core 3.1) from solution          | ✅     | 2025-01-09 | Removed from solution via `dotnet sln remove`. Solution now has 3 projects, no netcoreapp3.1 anywhere. Project folder left on disk (contains k6 JS test scripts). |
-| 0.7  | Replace error logging: Serilog + ProblemDetails middleware; obsolete `IErrorService` | ✅     | 2025-01-09 | Added Serilog.AspNetCore + Serilog.Sinks.Console. Created `GlobalExceptionHandler : IExceptionHandler` returning RFC-7807 ProblemDetails. Wired `AddProblemDetails()` + `AddExceptionHandler()` in Startup. Switched Program.cs from `WebHost` to `Host.CreateDefaultBuilder` + `UseSerilog()`. Marked `IErrorService`, `ErrorService`, `ErrorDataContext`, `ErrorLog`, `ErrorController` as `[Obsolete]`. Old `ErrorHandlingMiddleware` replaced with no-op stub. |
+| 0.3 | Upgrade `Bingo.Contracts` to .NET 10 | ✅ | 2025-01-09 | Removed explicit TFM (inherits net10.0 from props), replaced `Microsoft.AspNetCore.Http.Features` pkg with `FrameworkReference`, fixed CS8765 + CS8605 nullable warnings in `MaxValueAttribute`/`MinValueAttribute`. 0 warnings. · Audit 2026-11-17: acceptance not re-verifiable (legacy project deleted in 6.1). |
+| 0.4 | Upgrade `BingoAPI` to .NET 10 (ImageSharp, built-in rate limiter, minimal hosting, EF Core/Identity bumps) | ✅ | 2025-01-09 | Removed explicit TFM (inherits net10.0), stripped Version= for CPM, removed `AutoMapper.Extensions.Microsoft.DependencyInjection` (merged into AutoMapper 13.x), removed `Microsoft.Extensions.DependencyInjection` (in shared framework), removed `Microsoft.AspNetCore.Http.Features` (in shared framework). Build green, 0 errors. ImageSharp/STJ/minimal-hosting/built-in rate limiter deferred to later steps per plan. · Audit 2026-11-17: acceptance not re-verifiable (legacy project deleted in 6.1). |
+| 0.5 | Upgrade `Bingo.IntegrationTests` to .NET 10 | ✅ | 2025-01-09 | Removed explicit TFM (inherits net10.0), stripped Version= for CPM. Build green, 0 errors. · Audit 2026-11-17: acceptance not re-verifiable (legacy project deleted in 6.1). |
+| 0.6 | Delete `Bingo.LoadTests` (.NET Core 3.1) from solution | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-041):** `Bingo.LoadTests/Bingo.LoadTests.csproj` (netcoreapp3.1) is still tracked and `Dockerfile` uses the .NET Core 3.1 SDK, so 'no .NET Core 3.1 references anywhere' is unmet. Closes with 7.1. Prior note: Removed from solution via `dotnet sln remove`. Solution now has 3 projects, no netcoreapp3.1 anywhere. Project folder left on disk (contains k6 JS test scripts). |
+| 0.7 | Replace error logging: Serilog + ProblemDetails middleware; obsolete `IErrorService` | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-037):** the `GlobalExceptionHandler` was deleted with the legacy project (6.1); the Host has only the default `UseExceptionHandler` + `AddProblemDetails` and no correlation id in logs. Closes with 7.4 + 7.7. Prior note: Added Serilog.AspNetCore + Serilog.Sinks.Console. Created `GlobalExceptionHandler : IExceptionHandler` returning RFC-7807 ProblemDetails. Wired `AddProblemDetails()` + `AddExceptionHandler()` in Startup. Switched Program.cs from `WebHost` to `Host.CreateDefaultBuilder` + `UseSerilog()`. Marked `IErrorService`, `ErrorService`, `ErrorDataContext`, `ErrorLog`, `ErrorController` as `[Obsolete]`. Old `ErrorHandlingMiddleware` replaced with no-op stub. |
 | 0.8  | Remove all `IErrorService` callers + `ErrorDataContext`         | ✅     | 2025-01-09 | Replaced `_errorService` with `ILogger<T>` in PostRepository, AwsBucketManager, EmailService, NotificationService, FacebookAuthService, IdentityService, IdentityController. Deleted `IErrorService.cs`, `ErrorService.cs`, `ErrorDataContext.cs`, `ErrorLog.cs`, `ErrorController.cs`, `LoggingInstaller.cs`, `Migrations/ErrorData/`, and obsolete `ErrorHandlingMiddleware` stub. Fixed pre-existing `UrlHelper.Action` bug in `RequestNewPasswordAsync`. Build green. |
-| 0.9  | Correlation id middleware, health checks, OpenTelemetry, built-in rate limiter rollout | ✅     | 2025-01-09 | Added `CorrelationIdMiddleware` (X-Correlation-Id + Serilog LogContext). Added health checks (`/health` with EF Core DB check). Added OpenTelemetry tracing+metrics (ASP.NET Core, HttpClient, console exporter). Replaced `AspNetCoreRateLimit` with built-in `AddRateLimiter` (fixed window 7/s). Deleted `RatelimiterInstaller.cs`. Build green. |
-| 0.10 | Tighten JWT validation; move hardcoded URLs/CORS/proxy IPs to options | ✅     | 2025-01-09 | Added `Issuer`/`Audience` to `JwtSettings`; enabled `ValidateIssuer`, `ValidateAudience`, `RequireExpirationTime` in `TokenValidationParameters`; set issuer/audience in token descriptor. Created `CorsSettings`/`ProxySettings` options; moved hardcoded CORS origins and proxy IPs to `appsettings.json`. Build green. |
+| 0.9 | Correlation id middleware, health checks, OpenTelemetry, built-in rate limiter rollout | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-037):** the Host has no correlation-id middleware, only `/health` (no `/health/live` / `/health/ready`) and a console exporter only. Closes with 7.7. Prior note: Added `CorrelationIdMiddleware` (X-Correlation-Id + Serilog LogContext). Added health checks (`/health` with EF Core DB check). Added OpenTelemetry tracing+metrics (ASP.NET Core, HttpClient, console exporter). Replaced `AspNetCoreRateLimit` with built-in `AddRateLimiter` (fixed window 7/s). Deleted `RatelimiterInstaller.cs`. Build green. |
+| 0.10 | Tighten JWT validation; move hardcoded URLs/CORS/proxy IPs to options | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-004):** JWT bearer authentication is not configured in the Host (no project references `Microsoft.AspNetCore.Authentication.JwtBearer`); CORS and proxy options were deleted with the legacy project. Closes with 7.7. Prior note: Added `Issuer`/`Audience` to `JwtSettings`; enabled `ValidateIssuer`, `ValidateAudience`, `RequireExpirationTime` in `TokenValidationParameters`; set issuer/audience in token descriptor. Created `CorsSettings`/`ProxySettings` options; moved hardcoded CORS origins and proxy IPs to `appsettings.json`. Build green. |
 | 0.11 | Architecture-test scaffolding (`tests/Hopaut.ArchitectureTests`) | ✅     | 2025-01-09 | Created `tests/Hopaut.ArchitectureTests` xUnit project with NetArchTest.Rules. Added 3 arch tests (controllers/EF, services/Mvc, no IErrorService dependency). All 3 pass. Added to solution. |
-| 0.12 | Phase 0 exit gate                                                | ✅     | 2025-01-09 | All Phase 0 objectives met: .NET 10 runtime, Serilog+ProblemDetails, correlation IDs, health checks, OpenTelemetry, built-in rate limiter, JWT tightened, config extracted, arch tests passing. Build green across 4 projects. |
+| 0.12 | Phase 0 exit gate | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-039):** 0.6, 0.7, 0.9 and 0.10 reopened; vulnerable packages; no OpenAPI/Swagger in the Host; no integration tests. Closes with 7.8 + 10.1. Prior note: All Phase 0 objectives met: .NET 10 runtime, Serilog+ProblemDetails, correlation IDs, health checks, OpenTelemetry, built-in rate limiter, JWT tightened, config extracted, arch tests passing. Build green across 4 projects. |
 
 ## Phase 1 – Building blocks & composition root
 
 | #    | Step                                                  | Status | Date | Notes / commit |
 |------|-------------------------------------------------------|--------|------|----------------|
 | 1.1  | Move existing projects under `src/Legacy/`; create `src/`+`tests/` skeleton | ✅     | 2025-01-09 | Moved `BingoAPI` + `Bingo.Contracts` to `src/Legacy/`, `Bingo.IntegrationTests` to `tests/Legacy/`. Created `src/Modules/`, `src/BuildingBlocks/`, `src/Host/` placeholder dirs. Updated all `ProjectReference` paths. Solution builds green (4 projects). Arch tests pass. |
-| 1.2  | Create SharedKernel + IntegrationEvents + BuildingBlocks (Application/Infrastructure/Api) | ✅     | 2025-01-09 | Created 5 projects: `Hopaut.SharedKernel` (Entity, AggregateRoot, ValueObject, IDomainEvent, IUnitOfWork, Result), `Hopaut.IntegrationEvents` (IIntegrationEvent), `Hopaut.BuildingBlocks.Application` (Logging+Validation behaviors), `Hopaut.BuildingBlocks.Infrastructure` (ModuleDbContext, OutboxMessage), `Hopaut.BuildingBlocks.Api` (IModuleEndpoints). Added MediatR 12.4.1. Build green. |
-| 1.3  | Create `Hopaut.Api.Host` minimal-hosting bootstrap    | ✅     | 2025-01-09 | Created `src/Host/Hopaut.Api.Host` with minimal-API `Program.cs` (Serilog, OpenTelemetry, rate limiter, health checks, ProblemDetails). References all BuildingBlocks. Module registration stubs in place. Build green. |
-| 1.4  | Outbox/Inbox MVP + `OutboxPublisher` BackgroundService | ✅     | 2025-01-09 | Created `OutboxMessage`, `OutboxMessageConfiguration`, `OutboxDbContext`, `IOutboxWriter`, `OutboxPublisher` (BackgroundService polling every 5s). Created `InboxMessage` + `InboxMessageConfiguration` for idempotent consumption. Build green. |
-| 1.5  | **Hangfire wiring** (Postgres storage, dashboard at `/admin/hangfire`, `IHopautJobs` wrapper) | ✅     | 2025-01-09 | Added `Hangfire.AspNetCore` + `Hangfire.PostgreSql` packages. Created `IHopautJobs` abstraction and `HopautJobs` implementation wrapping Hangfire client. Created `HangfireInstaller` extension method. Wired in `Hopaut.Api.Host` with dashboard at `/admin/hangfire`. Build green. |
-| 1.6  | **Caching rebuild**: distributed Redis + `CachingBehavior` + tag invalidation + new `[Cached]` filter | ⬜     |      |                |
+| 1.2 | Create SharedKernel + IntegrationEvents + BuildingBlocks (Application/Infrastructure/Api) | ✅ | 2025-01-09 | Created 5 projects: `Hopaut.SharedKernel` (Entity, AggregateRoot, ValueObject, IDomainEvent, IUnitOfWork, Result), `Hopaut.IntegrationEvents` (IIntegrationEvent), `Hopaut.BuildingBlocks.Application` (Logging+Validation behaviors), `Hopaut.BuildingBlocks.Infrastructure` (ModuleDbContext, OutboxMessage), `Hopaut.BuildingBlocks.Api` (IModuleEndpoints). Added MediatR 12.4.1. Build green. · Audit 2026-11-17: acceptance met; building blocks named in Actions but missing (Error, TimeRange, ICurrentUser, IIntegrationEventBus, UnitOfWorkBehavior, PagedResult, Result -> HTTP) are F-022/F-034 -> 7.4-7.6, 9.2. |
+| 1.3 | Create `Hopaut.Api.Host` minimal-hosting bootstrap | ✅ | 2025-01-09 | Created `src/Host/Hopaut.Api.Host` with minimal-API `Program.cs` (Serilog, OpenTelemetry, rate limiter, health checks, ProblemDetails). References all BuildingBlocks. Module registration stubs in place. Build green. · Audit 2026-11-17: the legacy-forwarding acceptance is moot after 6.1; host boot will be evidenced by the 7.2 smoke test. |
+| 1.4 | Outbox/Inbox MVP + `OutboxPublisher` BackgroundService | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-005, F-033):** the relay only sets `ProcessedOn` and never publishes; no retry or dead-letter; no integration test. Closes with 9.1 + 9.2. Prior note: Created `OutboxMessage`, `OutboxMessageConfiguration`, `OutboxDbContext`, `IOutboxWriter`, `OutboxPublisher` (BackgroundService polling every 5s). Created `InboxMessage` + `InboxMessageConfiguration` for idempotent consumption. Build green. |
+| 1.5 | **Hangfire wiring** (Postgres storage, dashboard at `/admin/hangfire`, `IHopautJobs` wrapper) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-015):** the dashboard is mapped without an authorization filter (`Program.cs:103`); no smoke job; acceptance not evidenced. Closes with 7.7 + 9.5. Prior note: Added `Hangfire.AspNetCore` + `Hangfire.PostgreSql` packages. Created `IHopautJobs` abstraction and `HopautJobs` implementation wrapping Hangfire client. Created `HangfireInstaller` extension method. Wired in `Hopaut.Api.Host` with dashboard at `/admin/hangfire`. Build green. |
+| 1.6 | **Caching rebuild**: distributed Redis + `CachingBehavior` + tag invalidation + new `[Cached]` filter | 🟡 | 2026-11-17 | **Partial, reconciled 2026-11-17 (audit F-002, F-038):** `ICacheService`, `RedisCacheService`, `CachingBehavior`, `ICachedQuery` and `CachingInstaller` exist (activity 2025-01-09), but tag tracking is non-atomic and there is no stampede protection, invalidation, metrics or test. Re-scoped to `HybridCache`; runs in Phase 9 after 7.6. |
 | 1.7  | `RoleSeederHostedService` (replaces seeding in Program.Main) | ✅     | 2025-01-09 | Created `RoleSeederHostedService` as `IHostedLifecycleService` in Host. Idempotently seeds Admin/User/SuperAdmin roles. Supports `--no-seed` skip. Build green. |
-| 1.8  | **DDD enforcement**: SharedKernel primitives + NetArchTest rules + aggregate template | ✅     | 2025-01-09 | Added 5 DDD arch tests (SharedKernel no EF/ASP.NET/Hangfire, Application no ASP.NET, AggregateRoots private ctors). All 5 pass. Created `templates/Aggregate.cs.template`. |
+| 1.8 | **DDD enforcement**: SharedKernel primitives + NetArchTest rules + aggregate template | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-025):** architecture tests load only SharedKernel + BuildingBlocks.Application; the aggregate-constructor rule scans no aggregate; no module rules; no bad-sample test. Closes with 6.7. Prior note: Added 5 DDD arch tests (SharedKernel no EF/ASP.NET/Hangfire, Application no ASP.NET, AggregateRoots private ctors). All 5 pass. Created `templates/Aggregate.cs.template`. |
 | 1.9  | Module template / scaffolding helper                  | ✅     | 2025-01-09 | Created `templates/Module/` with 5 csproj templates (Domain, Application, Infrastructure, Api, Tests) and README guide. Added NSubstitute to CPM. |
-| 1.10 | Phase 1 exit gate                                     | ✅     | 2025-01-09 | Build green (0 errors). 8/8 arch tests pass. All building blocks, host, outbox/inbox, Hangfire, caching, role seeder, DDD enforcement, and module templates in place. Phase 1 closed. |
+| 1.10 | Phase 1 exit gate | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-026):** 1.4, 1.5, 1.6 and 1.8 open; zero building-block unit tests (the >= 80 % coverage criterion). Closes with 7.8 + 9.6. Prior note: Build green (0 errors). 8/8 arch tests pass. All building blocks, host, outbox/inbox, Hangfire, caching, role seeder, DDD enforcement, and module templates in place. Phase 1 closed. |
 
 ## Phase 2 – Identity + Users
 
 | #   | Step                                                 | Status | Date | Notes / commit |
 |-----|------------------------------------------------------|--------|------|----------------|
 | 2.1 | Scaffold `Identity` module                           | ✅     | 2025-01-09 | Created 4 projects (Domain, Application, Infrastructure, Api) under `src/Modules/Identity/`. Added `IdentityModuleInstaller` with `AddIdentityModule`/`MapIdentityEndpoints`. Wired into Host. Build green. |
-| 2.2 | Move ASP.NET Identity tables to `identity` schema    | ✅     | 2025-01-09 | Created `IdentityModuleDbContext` with schema `identity`, `AppUser` (auth-only + temporary profile fields), `RefreshToken`. Wired Identity services in `IdentityModuleInstaller`. Build green. |
-| 2.3 | Re-implement auth use cases as MediatR commands      | ✅     | 2025-01-09 | Created 7 commands: Register, Login, RefreshToken, ConfirmEmail, ForgotPassword, ResetPassword, ChangePassword. Added `IJwtTokenGenerator`, `JwtSettings`, `IRefreshTokenRepository` abstractions. Implemented `JwtTokenGenerator` and `RefreshTokenRepository` in Infrastructure. Wired minimal API endpoints in `IdentityModule`. Build green. |
-| 2.4 | Scaffold `Users` module + split profile (`users` schema) | ✅     | 2025-01-09 | Created 4 projects (Domain, Application, Infrastructure, Api). `UserProfile` aggregate with factory + private ctor. `UsersModuleDbContext` with schema `users`. GET/PUT profile endpoints. Wired into host. 8/8 arch tests pass. Build green. |
-| 2.5 | Phase 2 exit gate                                    | ✅     | 2025-01-09 | Identity + Users modules live and wired. AppUser auth-only in Identity, profile split to Users. 8/8 arch tests pass. Build green. Phase 2 closed. |
+| 2.2 | Move ASP.NET Identity tables to `identity` schema | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-027):** no EF migration exists for `IdentityModuleDbContext` (or any module); no data-migration script. Closes with 7.3 + 11.1. Prior note: Created `IdentityModuleDbContext` with schema `identity`, `AppUser` (auth-only + temporary profile fields), `RefreshToken`. Wired Identity services in `IdentityModuleInstaller`. Build green. |
+| 2.3 | Re-implement auth use cases as MediatR commands | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-042, F-004):** LoginWithFacebook, AddPassword and Grant/RevokePostClaim are missing; no `UserRegistered` integration event; JWT validation not configured; no tests. Closes with 7.7 + 8.9 + 10.2. Prior note: Created 7 commands: Register, Login, RefreshToken, ConfirmEmail, ForgotPassword, ResetPassword, ChangePassword. Added `IJwtTokenGenerator`, `JwtSettings`, `IRefreshTokenRepository` abstractions. Implemented `JwtTokenGenerator` and `RefreshTokenRepository` in Infrastructure. Wired minimal API endpoints in `IdentityModule`. Build green. |
+| 2.4 | Scaffold `Users` module + split profile (`users` schema) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-010, F-032):** no `UserRegistered` consumer, no profile data migration, profile updates trust the route user id (BOLA), no tests. Closes with 8.8 + 9.3 + 10.3 + 11.1. Prior note: Created 4 projects (Domain, Application, Infrastructure, Api). `UserProfile` aggregate with factory + private ctor. `UsersModuleDbContext` with schema `users`. GET/PUT profile endpoints. Wired into host. 8/8 arch tests pass. Build green. |
+| 2.5 | Phase 2 exit gate | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-025):** cross-module NetArchTest rules are missing; 2.2-2.4 reopened. Closes with 6.7 + 8.12. Prior note: Identity + Users modules live and wired. AppUser auth-only in Identity, profile split to Users. 8/8 arch tests pass. Build green. Phase 2 closed. |
 
 ## Phase 3 – Posts + Media
 
 | #   | Step                                                 | Status | Date | Notes / commit |
 |-----|------------------------------------------------------|--------|------|----------------|
-| 3.1 | Scaffold `Media` module (S3 + ImageSharp adapter)    | ✅     | 2025-01-09 | Created 4 projects. `S3MediaStorage` replaces `AwsBucketManager`. `ImageSharpProcessor` replaces `ImageLoader`. `IMediaStorage`/`IImageProcessor` ports in Application. `UploadImagesCommand` MediatR handler. Wired into Host. Build green. |
-| 3.2 | Scaffold `Posts` module (`posts` schema, PostGIS)    | ✅     | 2025-01-09 | Created 4 projects. Domain: Post, Event (collapsed), EventLocation, Picture, Tag, PostTag, RepeatableProperty, EventType enum. `PostsModuleDbContext` with schema `posts`, PostGIS, GIST index. Wired into Host. Build green. |
-| 3.3 | Collapse `Event` TPH hierarchy → single entity + enum + JSONB | ✅     | 2025-01-09 | Replaced 9 subclasses with single `Event` entity + `EventType` enum + `TypeSpecificData` JSONB column. Index on `event_type`. No more discriminator/TPH. Done as part of 3.2. |
-| 3.4 | Implement Posts use cases (incl. SQL-side `GetNearbyPosts`) | ✅     | 2025-01-09 | Created `IPostRepository` + `PostRepository` with PostGIS `IsWithinDistance` nearby query. MediatR: GetNearbyPosts, GetPostById, CreatePost, DeletePost. Minimal API endpoints with auth. Build green. 8/8 arch tests pass. |
-| 3.5 | Async picture pipeline (Hangfire + claim-check S3, `Pending → Ready` lifecycle) | ✅     | 2025-01-09 | Added `PictureState` enum (Pending/Ready/Failed), `TempKey` to Picture entity. Created `IMediaProcessor` abstraction. Updated PostDto to include picture state for mobile polling. EF index on (State, PostId). Build green. |
-| 3.6 | Phase 3 exit gate                                    | ✅     | 2025-01-09 | Media + Posts modules live. Event TPH collapsed. PostGIS nearby query. Async picture pipeline with state lifecycle. 8/8 arch tests pass. Build green. Phase 3 closed. |
+| 3.1 | Scaffold `Media` module (S3 + ImageSharp adapter) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-044, F-014):** `MediaUploadedIntegrationEvent` is not published; the upload endpoint is unvalidated. Closes with 8.10 + 9.5. Prior note: Created 4 projects. `S3MediaStorage` replaces `AwsBucketManager`. `ImageSharpProcessor` replaces `ImageLoader`. `IMediaStorage`/`IImageProcessor` ports in Application. `UploadImagesCommand` MediatR handler. Wired into Host. Build green. |
+| 3.2 | Scaffold `Posts` module (`posts` schema, PostGIS) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-027):** no EF migration for `PostsModuleDbContext`. Closes with 7.3. Prior note: Created 4 projects. Domain: Post, Event (collapsed), EventLocation, Picture, Tag, PostTag, RepeatableProperty, EventType enum. `PostsModuleDbContext` with schema `posts`, PostGIS, GIST index. Wired into Host. Build green. |
+| 3.3 | Collapse `Event` TPH hierarchy → single entity + enum + JSONB | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-027):** no data-conversion migration from the legacy TPH tables; no integration-test or EXPLAIN evidence. Closes with 7.3 + 11.1 + 6.11. Prior note: Replaced 9 subclasses with single `Event` entity + `EventType` enum + `TypeSpecificData` JSONB column. Index on `event_type`. No more discriminator/TPH. Done as part of 3.2. |
+| 3.4 | Implement Posts use cases (incl. SQL-side `GetNearbyPosts`) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-043, F-026):** UpdatePost, DisablePost, GetMyActivePosts, GetMyInactivePosts and `PostUpdated` are missing; no tests; no Unix-seconds data conversion. Closes with 8.2 + 10.4 + 11.1. Prior note: Created `IPostRepository` + `PostRepository` with PostGIS `IsWithinDistance` nearby query. MediatR: GetNearbyPosts, GetPostById, CreatePost, DeletePost. Minimal API endpoints with auth. Build green. 8/8 arch tests pass. |
+| 3.5 | Async picture pipeline (Hangfire + claim-check S3, `Pending → Ready` lifecycle) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-044):** only `PictureState` + `IMediaProcessor` exist; no Hangfire claim-check pipeline, jobs or media events. Closes with 9.5. Prior note: Added `PictureState` enum (Pending/Ready/Failed), `TempKey` to Picture entity. Created `IMediaProcessor` abstraction. Updated PostDto to include picture state for mobile polling. EF index on (State, PostId). Build green. |
+| 3.6 | Phase 3 exit gate | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-026):** 3.1-3.5 reopened. Closes with 9.6 + 10.10. Prior note: Media + Posts modules live. Event TPH collapsed. PostGIS nearby query. Async picture pipeline with state lifecycle. 8/8 arch tests pass. Build green. Phase 3 closed. |
 
 ## Phase 4 – Attendance + Announcements + Ratings
 
 | #   | Step                                                | Status | Date | Notes / commit |
 |-----|-----------------------------------------------------|--------|------|----------------|
-| 4.1 | `Attendance` module (`attendance` schema)           | ✅     | 2025-01-09 | Domain: Participation + AttendanceStatus enum. Commands: Request/Accept/Reject/Cancel. Query: IsUserAttending. EF DbContext with unique (PostId,UserId) index. Minimal API endpoints. Build green. |
-| 4.2 | `Announcements` module (`announcements` schema)     | ✅     | 2025-01-09 | Domain: Announcement. Commands: Create/Delete. Query: GetByPost. EF DbContext. Minimal API. Build green. |
-| 4.3 | `Ratings` module (`ratings` schema) + reputation projection | ✅     | 2025-01-09 | Domain: Rating + UserReputation. Commands: Create/Delete with auto reputation upsert. Queries: GetByUser + GetReputationsForUsers (batch). Unique (RaterId,PostId) index. EF DbContext. Minimal API. Build green, 8/8 arch tests pass. |
-| 4.4 | Wire feed → ratings batch query (kill N+1)          | ✅     | 2025-01-09 | Added `IUserReputationProvider` in Posts.Application + `MediatRUserReputationProvider` adapter in Posts.Infrastructure. GetNearbyPostsQueryHandler batch-fetches reputations in single query. PostDto now includes UserReputation. No direct Posts→Ratings Application coupling. Build green, 8/8 arch tests pass. |
-| 4.5 | Phase 4 exit gate                                   | ✅     | 2025-01-09 | Attendance, Announcements, Ratings modules live. Feed→Ratings N+1 eliminated via batch query adapter. All modules wired into host. 8/8 arch tests pass. Build green. Phase 4 closed. |
+| 4.1 | `Attendance` module (`attendance` schema) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-009, F-032):** no PostDeleted/PostUpdated subscriptions; accept/reject without a host check (BOLA); no tests. Closes with 8.3 + 9.3 + 10.5. Prior note: Domain: Participation + AttendanceStatus enum. Commands: Request/Accept/Reject/Cancel. Query: IsUserAttending. EF DbContext with unique (PostId,UserId) index. Minimal API endpoints. Build green. |
+| 4.2 | `Announcements` module (`announcements` schema) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-011, F-032):** update and get-by-id use cases missing; no `AttendanceAccepted` subscription; delete without an ownership check; no tests. Closes with 8.5 + 9.3 + 10.6. Prior note: Domain: Announcement. Commands: Create/Delete. Query: GetByPost. EF DbContext. Minimal API. Build green. |
+| 4.3 | `Ratings` module (`ratings` schema) + reputation projection | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-017, F-032):** reputation is recomputed synchronously in the repository (lost-update race) instead of a `RatingCreated` projection; no tests. Closes with 8.4 + 9.3. Prior note: Domain: Rating + UserReputation. Commands: Create/Delete with auto reputation upsert. Queries: GetByUser + GetReputationsForUsers (batch). Unique (RaterId,PostId) index. EF DbContext. Minimal API. Build green, 8/8 arch tests pass. |
+| 4.4 | Wire feed → ratings batch query (kill N+1) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-023):** the adapter references `Ratings.Application` (module-boundary violation); '<= 2 queries per feed call' is not evidenced. Closes with 6.6 + 6.11. Prior note: Added `IUserReputationProvider` in Posts.Application + `MediatRUserReputationProvider` adapter in Posts.Infrastructure. GetNearbyPostsQueryHandler batch-fetches reputations in single query. PostDto now includes UserReputation. No direct Posts→Ratings Application coupling. Build green, 8/8 arch tests pass. |
+| 4.5 | Phase 4 exit gate | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-026):** 4.1-4.4 reopened. Closes with 9.6 + 10.10. Prior note: Attendance, Announcements, Ratings modules live. Feed→Ratings N+1 eliminated via batch query adapter. All modules wired into host. 8/8 arch tests pass. Build green. Phase 4 closed. |
 
 ## Phase 5 – Notifications + Moderation + BugReports + Payments
 
 | #   | Step                                              | Status | Date | Notes / commit |
 |-----|---------------------------------------------------|--------|------|----------------|
-| 5.1 | `Notifications` module (OneSignal STJ + MailKit, outbox-driven) | ✅     | 2025-01-09 | Stateless module. OneSignal push via STJ + HttpClient. MailKit email sender. Ports: IPushNotificationSender, IEmailSender. Build green. |
-| 5.2 | `Moderation` module (`moderation` schema)         | ✅     | 2025-01-09 | Domain: PostReport + UserReport + ReportStatus. Commands: Create post/user report, resolve. Query: GetOpenPostReports. EF DbContext with status indexes. Minimal API. Build green. |
+| 5.1 | `Notifications` module (OneSignal STJ + MailKit, outbox-driven) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-030, F-031, F-032):** no integration-event consumers, inbox or retry; adapters swallow failures. Closes with 8.11 + 9.4. Prior note: Stateless module. OneSignal push via STJ + HttpClient. MailKit email sender. Ports: IPushNotificationSender, IEmailSender. Build green. |
+| 5.2 | `Moderation` module (`moderation` schema) | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-012, F-032):** no *Deleted subscriptions; resolve without an admin check; no tests. Closes with 8.6 + 9.3 + 10.8. Prior note: Domain: PostReport + UserReport + ReportStatus. Commands: Create post/user report, resolve. Query: GetOpenPostReports. EF DbContext with status indexes. Minimal API. Build green. |
 | 5.3 | `BugReports` module (`bug_reports` schema)        | ✅     | 2025-01-09 | Domain: Bug + BugScreenshot. Create command with screenshot URLs. EF DbContext. Minimal API. Build green. |
-| 5.4 | `Payments` module (thin proxy)                    | ✅     | 2025-01-09 | Thin HTTP proxy. IPaymentsServiceClient port. No DB. Create/GetStatus endpoints. Build green. |
-| 5.5 | Phase 5 exit gate                                 | ✅     | 2025-01-09 | Notifications, Moderation, BugReports, Payments modules live. All wired into host. 8/8 arch tests pass. Build green. Phase 5 closed. |
+| 5.4 | `Payments` module (thin proxy) | ✅ | 2025-01-09 | Thin HTTP proxy. IPaymentsServiceClient port. No DB. Create/GetStatus endpoints. Build green. · Audit 2026-11-17: the adapter returns exception messages to clients (F-031) -> 8.11. |
+| 5.5 | Phase 5 exit gate | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-026):** 5.1 and 5.2 reopened. Closes with 9.6 + 10.10. Prior note: Notifications, Moderation, BugReports, Payments modules live. All wired into host. 8/8 arch tests pass. Build green. Phase 5 closed. |
 
 ## Phase 6 – Cleanup & hardening
 
 | #    | Step                                                       | Status | Date | Notes / commit |
 |------|------------------------------------------------------------|--------|------|----------------|
-| 6.1  | Delete legacy `BingoAPI` project                           | ✅     | 2025-01-10 | Removed BingoAPI, Bingo.Contracts, Bingo.IntegrationTests from sln & disk. Deleted obsolete LayerDependencyTests.cs referencing legacy. Build green (0 errors). |
-| 6.2  | Strongly-typed IDs across all modules                      | ✅     | 2025-01-10 | Added `StronglyTypedIds.cs` (UserId, PostId, RatingId, ParticipationId, AnnouncementId, BugReportId, PostReportId, UserReportId, PictureId, TagId, BugScreenshotId) to SharedKernel. Added generic EF converters in BuildingBlocks.Infrastructure. Updated all module Domain/Application/Infrastructure/API layers. Build green. |
-| 6.3  | Value objects in SharedKernel + module domains             | ✅     | 2025-01-10 | Added `Coordinates`, `RatingValue`, `Money` VOs + `IDateTimeProvider`. Replaced all `long Timestamp` with `DateTimeOffset CreatedAt`, `int Rate` with `RatingValue`, `DateTime` with `DateTimeOffset`. EF conversions added. Build green. |
-| 6.4  | Aggregate root factories + private constructors            | ✅     | 2025-01-10 | All aggregates (Post, Rating, Participation, Announcement, Bug, PostReport, UserReport) now extend `AggregateRoot<TId>` with private ctors + static `Create(...)` factories. Participation gets `Accept()/Reject()/Cancel()` domain methods; PostReport gets `Resolve()`. All command handlers updated. Build green, 0 warnings. |
-| 6.5  | Domain events raised from aggregates                       | ✅     | 2025-01-10 | All aggregates raise domain events via `AddDomainEvent`; `ModuleDbContext` dispatches after SaveChanges; domain event handlers in Infrastructure translate to integration events via `IIntegrationEventPublisher` → outbox. Build green, 5/5 arch tests pass. |
-| 6.6  | Contracts projects per module (cross-module isolation)      | ⬜     |      |                |
-| 6.7  | Tighten NetArchTest rules                                  | ⬜     |      |                |
-| 6.8  | Replace AutoMapper with Mapperly                           | ⬜     |      |                |
-| 6.9  | Resource-based authorization                               | ⬜     |      |                |
-| 6.10 | API versioning formalization                               | ⬜     |      |                |
+| 6.1 | Delete legacy `BingoAPI` project | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-041):** tracked zero-byte stubs `BingoAPI/BingoAPI.csproj`, `BingoAPI/Startup.cs`, `BingoAPI/appsettings.json` and `Bingo.IntegrationTests/Bingo.IntegrationTests.csproj` remain; `Dockerfile` still builds BingoAPI. Closes with 7.1. Prior note: Removed BingoAPI, Bingo.Contracts, Bingo.IntegrationTests from sln & disk. Deleted obsolete LayerDependencyTests.cs referencing legacy. Build green (0 errors). |
+| 6.2 | Strongly-typed IDs across all modules | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-020, F-022):** int IDs remain on Posts child entities, `BugScreenshot` and `RefreshToken`; ID `TryParse` accepts values <= 0; no JSON converters. Closes with 7.5 + 8.2/8.7/8.9. Prior note: Added `StronglyTypedIds.cs` (UserId, PostId, RatingId, ParticipationId, AnnouncementId, BugReportId, PostReportId, UserReportId, PictureId, TagId, BugScreenshotId) to SharedKernel. Added generic EF converters in BuildingBlocks.Infrastructure. Updated all module Domain/Application/Infrastructure/API layers. Build green. |
+| 6.3 | Value objects in SharedKernel + module domains | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-018, F-019):** `long RegistrationTimeStamp` in UserProfile/AppUser; `Coordinates` unused by Posts and constructible invalid (`IsValid`); `Money` unused and unvalidated; `TimeRange` missing. Closes with 8.1 + 8.2/8.8/8.9. Prior note: Added `Coordinates`, `RatingValue`, `Money` VOs + `IDateTimeProvider`. Replaced all `long Timestamp` with `DateTimeOffset CreatedAt`, `int Rate` with `RatingValue`, `DateTime` with `DateTimeOffset`. EF conversions added. Build green. |
+| 6.4 | Aggregate root factories + private constructors | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-025):** 'NetArchTest rule passes' is vacuous because the rule scans SharedKernel only. Closes with 6.7. Prior note: All aggregates (Post, Rating, Participation, Announcement, Bug, PostReport, UserReport) now extend `AggregateRoot<TId>` with private ctors + static `Create(...)` factories. Participation gets `Accept()/Reject()/Cancel()` domain methods; PostReport gets `Resolve()`. All command handlers updated. Build green, 0 warnings. |
+| 6.5 | Domain events raised from aggregates | 🟡 | 2026-11-17 | **Reopened 2026-11-17 (audit F-006, F-007):** events are dispatched after commit (non-atomic); factories raise events with default IDs; no integration tests. Closes with 7.6 + 8.2-8.5 + 9.2. Prior note: All aggregates raise domain events via `AddDomainEvent`; `ModuleDbContext` dispatches after SaveChanges; domain event handlers in Infrastructure translate to integration events via `IIntegrationEventPublisher` → outbox. Build green, 5/5 arch tests pass. |
+| 6.6 | Contracts projects per module (cross-module isolation) | ⬜ |  | Runs in Phase 7 order after 7.7 (D-005). |
+| 6.7 | Tighten NetArchTest rules | ⬜ |  | Runs next after 7.1, as a ratchet (D-002, D-005). |
+| 6.8 | Replace AutoMapper with Mapperly | ⬜ |  | Closes with 7.1: no project references AutoMapper (`dotnet list Bingo.sln package`); mapping is explicit code. |
+| 6.9 | Resource-based authorization | ⬜ |  | Runs in Phase 7 order after 6.6 (D-005). |
+| 6.10 | API versioning formalization | ⬜ |  | Runs within 10.1. |
 | 6.11 | Performance pass + index additions                         | ⬜     |      |                |
 | 6.12 | Decide on worker extraction (Notifications/Media)          | ⬜     |      |                |
 | 6.13 | Definition-of-Done check                                   | ⬜     |      |                |
+
+## Phase 7 – Audit remediation: safety net & foundation
+
+Execution order: 7.1 → 6.7 → 7.2 → 7.3 → 7.4 → 7.5 → 7.6 → 7.7 → 6.6 → 6.9 → 7.8 (D-005).
+
+| #   | Step                                                              | Status | Date | Notes / commit |
+|-----|-------------------------------------------------------------------|--------|------|----------------|
+| 7.1 | Repository hygiene + supply-chain fixes (closes 0.6, 6.1, 6.8)    | ⬜     |      |                |
+| 7.2 | Test pyramid scaffolding (xUnit v3, AwesomeAssertions, Testcontainers) | ⬜ |      |                |
+| 7.3 | Baseline EF Core migrations per module                            | ⬜     |      |                |
+| 7.4 | `Result`/`Error` foundation, problem details, `ICurrentUser`      | ⬜     |      |                |
+| 7.5 | `TimeProvider`, Guid v7, SharedKernel base types, ID parsing/JSON | ⬜     |      |                |
+| 7.6 | MediatR → Mediator, pipeline, module unit of work                 | ⬜     |      |                |
+| 7.7 | Host hardening: JWT auth, correlation id, health, OTLP, options   | ⬜     |      |                |
+| 7.8 | Phase 7 exit gate                                                 | ⬜     |      |                |
+
+## Phase 8 – Domain model refactoring (per module)
+
+| #    | Step                                         | Status | Date | Notes / commit |
+|------|----------------------------------------------|--------|------|----------------|
+| 8.1  | SharedKernel value-object catalog            | ⬜     |      |                |
+| 8.2  | Posts                                        | ⬜     |      |                |
+| 8.3  | Attendance                                   | ⬜     |      |                |
+| 8.4  | Ratings                                      | ⬜     |      |                |
+| 8.5  | Announcements                                | ⬜     |      |                |
+| 8.6  | Moderation                                   | ⬜     |      |                |
+| 8.7  | BugReports                                   | ⬜     |      |                |
+| 8.8  | Users                                        | ⬜     |      |                |
+| 8.9  | Identity                                     | ⬜     |      |                |
+| 8.10 | Media                                        | ⬜     |      |                |
+| 8.11 | Notifications and Payments adapters          | ⬜     |      |                |
+| 8.12 | Phase 8 exit gate                            | ⬜     |      |                |
+
+## Phase 9 – Messaging and integration
+
+Execution order: 9.1 → 9.2 → 9.3 → 9.4 → 9.5 → 1.6 → 9.6.
+
+| #   | Step                                                   | Status | Date | Notes / commit |
+|-----|--------------------------------------------------------|--------|------|----------------|
+| 9.1 | Per-module transactional outbox and inbox              | ⬜     |      |                |
+| 9.2 | Outbox relay and `IIntegrationEventBus`                | ⬜     |      |                |
+| 9.3 | Idempotent consumers between modules                   | ⬜     |      |                |
+| 9.4 | Notifications consumers                                | ⬜     |      |                |
+| 9.5 | Media pipeline (claim-check + Hangfire)                | ⬜     |      |                |
+| 9.6 | Phase 9 exit gate                                      | ⬜     |      |                |
+
+## Phase 10 – REST normalization and BingoMobile sync
+
+| #     | Step                                                  | Status | Date | Notes / commit |
+|-------|-------------------------------------------------------|--------|------|----------------|
+| 10.1  | API foundation: OpenAPI 3.1, versioning, JSON conventions | ⬜ |      |                |
+| 10.2  | Identity endpoints + BingoMobile                      | ⬜     |      |                |
+| 10.3  | Users endpoints + BingoMobile                         | ⬜     |      |                |
+| 10.4  | Posts and tags endpoints + BingoMobile                | ⬜     |      |                |
+| 10.5  | Attendance endpoints + BingoMobile                    | ⬜     |      |                |
+| 10.6  | Announcements endpoints + BingoMobile                 | ⬜     |      |                |
+| 10.7  | Ratings endpoints + BingoMobile                       | ⬜     |      |                |
+| 10.8  | Moderation and bug-report endpoints + BingoMobile     | ⬜     |      |                |
+| 10.9  | Media and Payments endpoint normalization             | ⬜     |      |                |
+| 10.10 | Phase 10 exit gate                                    | ⬜     |      |                |
+
+## Phase 11 – Release readiness
+
+Then 6.11 → 6.12 → 6.13.
+
+| #    | Step                                  | Status | Date | Notes / commit |
+|------|---------------------------------------|--------|------|----------------|
+| 11.1 | Legacy data conversion                | ⬜     |      |                |
+| 11.2 | Strict build by default               | ⬜     |      |                |
 
 ---
 
@@ -112,6 +181,7 @@
 
 | Date | Step | Action | Commit |
 |------|------|--------|--------|
+| 2026-11-17 | – | HopautArchitect Phase 1 audit: baseline `dotnet build Bingo.sln` green (0 errors; 116 warnings, all NU1902/NU1903 package advisories) and `dotnet test Bingo.sln` 5/5 (architecture tests only). Created `TODO.md` (findings F-001…F-050, contract inventory, decisions D-001…D-008, blocker B-001). Reopened 32 ✅ steps whose acceptance is not demonstrated (D-001); 1.6 ⬜ → 🟡 (partial work existed); annotated 0.3–0.5, 1.2, 1.3, 5.4. Extended `hopaut-execution-plan.md` with Phases 7–11 and a ratchet definition for 6.7. No contract change, so no handoff. | – |
 | 2025-01-10 | 6.5 | Created `IIntegrationEventPublisher` + `OutboxIntegrationEventPublisher`; added integration event records in Posts/Attendance/Ratings/Announcements Application layers; created domain event handlers in each module's Infrastructure layer. Registered publisher in Host DI. Build green, 5/5 arch tests pass. | – |
 | 2025-01-09 | 1.6 | Created ICacheService, RedisCacheService, CachingBehavior, ICachedQuery, CachingInstaller. Build green. | – |
 | 2025-01-09 | 1.5 | Wired Hangfire with Postgres storage, dashboard, and IHopautJobs abstraction. Build green. | – |
@@ -125,12 +195,12 @@
 | 2025-01-09 | 0.9 | Added CorrelationIdMiddleware, health checks, OpenTelemetry, replaced AspNetCoreRateLimit with built-in rate limiter. Build green. | – |
 | 2025-01-09 | 0.8 | Removed all `IErrorService`/`ErrorDataContext` callers; replaced with `ILogger<T>`. Deleted 7 obsolete files + ErrorData migrations. Fixed `UrlHelper.Action` pre-existing bug. Build green. | – |
 | 2025-01-09 | 0.7 | Added Serilog + ProblemDetails, created GlobalExceptionHandler, marked error infra obsolete, switched to Host.CreateDefaultBuilder. Build green. | – |
-| 2025-01-09 | 0.6 |
-| 2025-01-09 | 0.5 |
-| 2025-01-09 | 0.4 |
-| 2025-01-09 | 0.3 |
-| 2025-01-09 | 0.2 |
-| 2025-01-09 | – | **Tightened migration-workflow rules**
+| 2025-01-09 | 0.6 | (description not recorded in the original log; see the step table) | – |
+| 2025-01-09 | 0.5 | (description not recorded in the original log; see the step table) | – |
+| 2025-01-09 | 0.4 | (description not recorded in the original log; see the step table) | – |
+| 2025-01-09 | 0.3 | (description not recorded in the original log; see the step table) | – |
+| 2025-01-09 | 0.2 | (description not recorded in the original log; see the step table) | – |
+| 2025-01-09 | – | **Tightened migration-workflow rules** (details not recorded in the original log) | – |
 | 2025-01-09 | – | Added *Backend ↔ Mobile contract sync* section to `.github/github-copilot-instructions.md`; created `docs/mobile-handoffs/README.md` and `_TEMPLATE.md`; mirrored the rule in `BingoMobile/.github/github-copilot-instructions.md`. From now on, every backend prompt that touches the public HTTP/auth contract must produce a handoff file under `docs/mobile-handoffs/`. | – |
 | 2025-01-09 | 0.1 | Captured baseline: tagged repo `pre-net10-baseline` @ `56b91bf`, wrote `docs/baseline-packages.txt` and `docs/baseline-config-inventory.md` (config + options + hardcoded-values inventory). Note: `dotnet build` on `net5.0` not re-run locally (only .NET 10 SDK installed); using last-known-good as baseline. | – |
 | 2025-01-09 | – | Added Hangfire (§6.13.1), DDD (§6.12.1), and rebuilt Caching (§6.12) sections to `hopaut-solution-fix.md`; expanded Phase 1 with steps 1.5 (Hangfire), 1.6 (Caching), 1.8 (DDD); rewrote Step 3.5 (async picture pipeline) | – |
