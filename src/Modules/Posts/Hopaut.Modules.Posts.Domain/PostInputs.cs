@@ -12,6 +12,5 @@ public sealed record EventDetails(
     PostDescription Description,
     string? Requirements,
     Capacity? Slots,
-    double? EntrancePrice,
-    int? Currency,
+    Money? EntranceFee,
     string? TypeSpecificData);

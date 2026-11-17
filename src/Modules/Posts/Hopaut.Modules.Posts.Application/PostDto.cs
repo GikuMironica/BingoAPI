@@ -33,8 +33,8 @@ public sealed record PostDto(
             post.Location.Location.Y),
         new EventDto(
             post.Event.EventType,
-            post.Event.EntrancePrice,
-            post.Event.Currency,
+            (double?)post.Event.EntranceFee?.Amount,
+            post.Event.EntranceFee is { } fee ? LegacyCurrencies.IndexOf(fee.Currency) : null,
             post.Event.Title.Value,
             post.Event.Description.Value,
             post.Event.Requirements,

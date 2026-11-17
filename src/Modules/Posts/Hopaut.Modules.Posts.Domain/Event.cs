@@ -24,10 +24,7 @@ public sealed class Event
 
     public Capacity? Slots { get; private set; }
 
-    // TODO (F-019, plan Step 8.2 batch 2): EntrancePrice + Currency (legacy enum index) become Money with a data conversion.
-    public double? EntrancePrice { get; private set; }
-
-    public int? Currency { get; private set; }
+    public Money? EntranceFee { get; private set; }
 
     public string? TypeSpecificData { get; private set; }
 
@@ -39,8 +36,7 @@ public sealed class Event
         Description = details.Description,
         Requirements = details.Requirements,
         Slots = details.Slots,
-        EntrancePrice = details.EntrancePrice,
-        Currency = details.Currency,
+        EntranceFee = details.EntranceFee,
         TypeSpecificData = details.TypeSpecificData,
     };
 }

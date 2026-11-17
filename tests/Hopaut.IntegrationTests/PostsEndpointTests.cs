@@ -65,13 +65,36 @@ public sealed class PostsEndpointTests(HopautApiFactory factory)
         }
     }
 
+    [Fact]
+    public async Task GivenAnEntrancePriceAndLegacyCurrency_WhenThePostIsCreatedAndRead_ThenTodaysFieldsRoundTrip()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        using var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TestJwt.Create("posts-fee"));
+        using var created = await client.PostAsJsonAsync("/api/v1/posts", Body(userId: "posts-fee", title: "Paid party", entrancePrice: 12.5, currency: 2), ct);
+        using var createdBody = JsonDocument.Parse(await created.Content.ReadAsStringAsync(ct));
+        var postId = createdBody.RootElement.GetProperty("postId").GetInt32();
+
+        // Act
+        using var post = JsonDocument.Parse(await client.GetStringAsync($"/api/v1/posts/{postId}", ct));
+
+        // Assert
+        var @event = post.RootElement.GetProperty("event");
+        using (new AssertionScope())
+        {
+            @event.GetProperty("entrancePrice").GetDouble().Should().Be(12.5);
+            @event.GetProperty("currency").GetInt32().Should().Be(2);
+            post.RootElement.GetProperty("activeFlag").GetInt32().Should().Be(1);
+        }
+    }
     // Today's request shape: the command itself, with strongly-typed IDs as { "value": … } (D-016, plan Step 10.4).
-    private static object Body(string userId, string title, string description = "Bring snacks and good vibes") => new
+    private static object Body(string userId, string title, string description = "Bring snacks and good vibes", double? entrancePrice = null, int? currency = null) => new
     {
         eventTime = new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
         endTime = new DateTimeOffset(2030, 1, 9, 23, 0, 0, TimeSpan.Zero),
         userId = new { value = userId },
         location = new { entityName = "Venue", city = "Berlin", region = (string?)null, address = "Main St 1", country = "DE", longitude = 13.405, latitude = 52.52 },
-        @event = new { eventType = (int)EventType.HouseParty, entrancePrice = (double?)null, currency = (int?)null, title, description, requirements = (string?)null, slots = 25, typeSpecificData = (string?)null },
+        @event = new { eventType = (int)EventType.HouseParty, entrancePrice, currency, title, description, requirements = (string?)null, slots = 25, typeSpecificData = (string?)null },
     };
 }

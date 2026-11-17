@@ -15,6 +15,7 @@ internal sealed class PostBuilder
     private DateTimeOffset? _end = Now.AddDays(1).AddHours(4);
     private string? _requirements;
     private IEnumerable<string>? _pictures;
+    private Money? _entranceFee;
 
     public PostBuilder WithId(int id) { _id = PostId.From(id); return this; }
 
@@ -25,6 +26,8 @@ internal sealed class PostBuilder
     public PostBuilder WithRequirements(string requirements) { _requirements = requirements; return this; }
 
     public PostBuilder WithPictures(params string[] urls) { _pictures = urls; return this; }
+
+    public PostBuilder Charging(Money fee) { _entranceFee = fee; return this; }
 
     public Result<Post> TryBuild() => Post.Create(
         _id,
@@ -38,8 +41,7 @@ internal sealed class PostBuilder
             PostDescription.Create("Bring snacks and good vibes").Value,
             _requirements,
             Capacity.Create(20).Value,
-            EntrancePrice: null,
-            Currency: null,
+            _entranceFee,
             TypeSpecificData: null),
         _pictures,
         Now);

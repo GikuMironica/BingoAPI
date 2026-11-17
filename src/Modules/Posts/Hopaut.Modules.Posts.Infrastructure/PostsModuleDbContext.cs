@@ -1,4 +1,5 @@
 using Hopaut.BuildingBlocks.Infrastructure;
+using Hopaut.BuildingBlocks.Infrastructure.Persistence;
 using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
@@ -63,6 +64,7 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.Property(e => e.Title).HasConversion<ValueObjectConverter<PostTitle, string>>().IsRequired();
             entity.Property(e => e.Description).HasConversion<ValueObjectConverter<PostDescription, string>>().IsRequired();
             entity.Property(e => e.Slots).HasConversion<ValueObjectConverter<Capacity, int>>();
+            entity.ComplexProperty(e => e.EntranceFee, fee => fee.MapMoney("entrance_fee"));
             entity.Property(e => e.TypeSpecificData).HasColumnType("jsonb");
             entity.HasIndex(e => e.EventType);
         });

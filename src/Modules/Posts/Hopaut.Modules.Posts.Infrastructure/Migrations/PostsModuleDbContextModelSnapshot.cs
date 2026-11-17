@@ -36,15 +36,9 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("Currency")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<double?>("EntrancePrice")
-                        .HasColumnType("double precision");
 
                     b.Property<int>("EventType")
                         .HasColumnType("integer");
@@ -64,6 +58,21 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
 
                     b.Property<string>("TypeSpecificData")
                         .HasColumnType("jsonb");
+
+                    b.ComplexProperty(typeof(Dictionary<string, object>), "EntranceFee", "Hopaut.Modules.Posts.Domain.Event.EntranceFee#Money", b1 =>
+                        {
+                            b1.Property<decimal>("Amount")
+                                .HasPrecision(10, 2)
+                                .HasColumnType("numeric(10,2)")
+                                .HasColumnName("entrance_fee_amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character(3)")
+                                .HasColumnName("entrance_fee_currency")
+                                .IsFixedLength();
+                        });
 
                     b.HasKey("Id");
 

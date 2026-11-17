@@ -14,13 +14,15 @@ public sealed class CreatePostCommandHandler(IPostRepository posts, TimeProvider
         var title = PostTitle.Create(request.Event.Title);
         var description = PostDescription.Create(request.Event.Description);
         var slots = request.Event.Slots is { } count ? Capacity.Create(count) : null;
+        var entranceFee = LegacyCurrencies.EntranceFee(request.Event.EntrancePrice, request.Event.Currency);
 
         var invalid = ValidationError.FromFailures(
             ("endTime", schedule),
             ("location", coordinates),
             ("event.title", title),
             ("event.description", description),
-            ("event.slots", slots));
+            ("event.slots", slots),
+            ("event.entrancePrice", entranceFee));
         if (invalid is not null)
             return invalid;
 
@@ -37,8 +39,7 @@ public sealed class CreatePostCommandHandler(IPostRepository posts, TimeProvider
                 description.Value,
                 request.Event.Requirements,
                 slots?.Value,
-                request.Event.EntrancePrice,
-                request.Event.Currency,
+                entranceFee?.Value,
                 request.Event.TypeSpecificData),
             request.PictureUrls,
             timeProvider.GetUtcNow());
