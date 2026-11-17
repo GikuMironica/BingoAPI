@@ -25,7 +25,7 @@ If the task touches a specialised area, read the corresponding instruction file 
 
 The refactor is governed by three persistent files at the repo root:
 
-1. `.github/github-copilot-instructions.md` – this file (behavioral rules).
+1. `.github/copilot-instructions.md` – this file (behavioral rules).
 2. `hopaut-execution-plan.md` – ordered phases and steps (the **plan**).
 3. `hopaut-migration-status.md` – persistent progress tracker (the **state**).
 

@@ -20,7 +20,7 @@ Read at the start of every session, in this order. Never infer progress from mem
 3. [hopaut-migration-status.md](../../hopaut-migration-status.md): the step ledger.
 4. [hopaut-execution-plan.md](../../hopaut-execution-plan.md): steps with Goal / Actions / Acceptance.
 5. [hopaut-solution-fix.md](../../hopaut-solution-fix.md) and [Hopaut-Backend-State.md](../../Hopaut-Backend-State.md): target architecture and known flaws; read the sections relevant to the current step.
-6. [Repository rules](../github-copilot-instructions.md): binding, except where *Precedence* below overrides them.
+6. [Repository rules](../copilot-instructions.md): binding, except where *Precedence* below overrides them.
 7. [Mobile handoff rules](../../docs/mobile-handoffs/README.md) and [template](../../docs/mobile-handoffs/_TEMPLATE.md).
 8. Before any mobile edit: `C:\Users\ghmi\personal\BingoMobile\.github\github-copilot-instructions.md`, `mobile-migration-status.md` and `mobile-playbook.md` in that repo.
 

@@ -13,7 +13,7 @@ Leading word: **resumable**. Any session may be the last of its context window; 
 | File | Purpose | Lifecycle |
 |------|---------|-----------|
 | `TODO.md` (repo root) | Working queue, audit findings, contract inventory, decisions, blockers | Created in Phase 1 from [templates/TODO.md](./templates/TODO.md); updated after every work item |
-| `hopaut-migration-status.md` | Step ledger: status, date, notes, commit per step + activity log | Existing rules in `.github/github-copilot-instructions.md`; updated after every change |
+| `hopaut-migration-status.md` | Step ledger: status, date, notes, commit per step + activity log | Existing rules in `.github/copilot-instructions.md`; updated after every change |
 | `hopaut-execution-plan.md` | Step definitions (Goal / Actions / Acceptance) | Append Phase 7+ steps; never rewrite completed steps |
 | `docs/mobile-handoffs/YYYY-MM-DD-<phase>-<step>-<slug>.md` | One per contract change | From `docs/mobile-handoffs/_TEMPLATE.md`; never edit once `applied` |
 | `C:\Users\ghmi\personal\BingoMobile\mobile-migration-status.md` | Mobile ledger | Activity row for every contract change you apply or hand off |

@@ -11,7 +11,7 @@
 - ❌ blocked (add reason)
 - ⏭️ skipped (add reason)
 
-**Current focus:** Phase 7 – Step 7.5 (`TimeProvider`, Guid v7, SharedKernel base types, ID parsing/JSON). Ledger reconciled 2026-11-17 by the HopautArchitect audit: every reopened step (🟡) names the step that closes it; findings `F-###`, decisions `D-###`, blockers and the contract inventory live in `TODO.md`; session resume point in `HANDOVER.md`.
+**Current focus:** Phase 7 – Step 7.5 (`TimeProvider`, Guid v7, SharedKernel base types, ID parsing/JSON). Ledger reconciled 2026-11-17 by the HopautArchitect audit: every reopened step (🟡) names the step that closes it; findings `F-###`, decisions `D-###`, blockers and the contract inventory live in `TODO.md`; session resume point in `HANDOVER.md`. Open blocker: B-002 (Six Labors key; blocks Release builds only).
 
 ---
 
@@ -168,12 +168,13 @@ Execution order: 9.1 → 9.2 → 9.3 → 9.4 → 9.5 → 1.6 → 9.6.
 
 ## Phase 11 – Release readiness
 
-Then 6.11 → 6.12 → 6.13.
+Then 6.11 → 6.12 → 6.13 → 11.3 (final merge into `master`, D-015).
 
 | #    | Step                                  | Status | Date | Notes / commit |
 |------|---------------------------------------|--------|------|----------------|
 | 11.1 | Legacy data conversion                | ⬜     |      |                |
 | 11.2 | Strict build by default               | ⬜     |      |                |
+| 11.3 | Final merge into `master` (runs last, after 6.13) | ⬜ |  | User request 2026-11-17: one `git merge --no-ff migrate/net10` into `master` at the very end; no intermediate merges; the agent never pushes (D-015). |
 
 ---
 
@@ -181,7 +182,10 @@ Then 6.11 → 6.12 → 6.13.
 
 | Date | Step | Action | Commit |
 |------|------|--------|--------|
-| 2026-11-17 | – | Session handover: `HANDOVER.md` written (resume at 7.5; validation 84/84; no contract changes; B-001 open); Podman API helper stopped. | – |
+| 2026-11-17 | – | User decisions recorded: ImageSharp used under Apache-2.0 because Hopaut is a non-profit (B-001 resolved, D-014); Hangfire LGPL-3.0 license confirmed (D-010); final `--no-ff` merge into `master` planned as Step 11.3 (D-015). New blocker B-002: Release builds need the free Six Labors Community key. References to `.github/github-copilot-instructions.md` now point to `.github/copilot-instructions.md`; `HANDOVER.md` updated. No contract change. | – |
+| 2026-11-17 | 7.1 | Follow-up (B-001): SixLabors.ImageSharp 3.1.7 → 3.2.0 (all seven advisories fixed; vulnerable scan clean) with license-key plumbing (`SixLaborsLicenseKey` / git-ignored root `sixlabors.lic` / Dockerfile build secret, verified with an invalid dummy key locally and in a Podman build) and `Hopaut.Modules.Media.UnitTests` (2 `ImageSharpProcessor` tests, green on 3.1.7 and 3.2.0). 86/86 tests. No contract change. | `42be344` |
+| 2026-11-17 | – | Committed the user's agent setup verbatim on request: `.github/agents`, `.github/skills`, and the instructions file moved to `.github/copilot-instructions.md`. | `4307963` |
+| 2026-11-17 | – | Session handover: `HANDOVER.md` written (resume at 7.5; validation 84/84; no contract changes; B-001 open); Podman API helper stopped. | `0b5a35e` |
 | 2026-11-17 | 7.4 | `Result`/`Error` foundation in SharedKernel, problem-details building blocks (`ToProblem`, `errorCode`/`traceId`, `HopautExceptionHandler`) and `ICurrentUser`; Host wired to the new problem details and current user; JWT user-id claim from one constant. 84/84 tests. No contract change (module endpoints untouched; 500 bodies stay RFC 7807). | `8286bd4` |
 | 2026-11-17 | 7.3 | Baseline EF Core migrations for 9 contexts with design-time factories, shared provider options, per-module persistence registration and opt-in migrate-on-startup; integration tests migrate all contexts on PostGIS and verify seeding. Found and fixed F-056 (4 module models could not be built) and partly F-055 (outbox context never registered). Closed 3.2. 59/59 tests. No contract change. | `49610d2` |
 | 2026-11-17 | 7.2 | Test pyramid scaffolding: xUnit v3 stack in CPM, BuildingBlocks unit-test and Testcontainers integration-test projects, `tests/README.md`; the first Host smoke test found F-054 (Host could not start) and the minimal `AddAuthorization()` fix makes it boot. 48/48 tests. No contract change (the Host could not serve requests before). | `6620968` |

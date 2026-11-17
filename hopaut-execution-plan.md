@@ -4,7 +4,7 @@
 > This document is the **how**: ordered, executable steps grouped into phases. Every step has a clear *Goal*, *Actions*, *Acceptance criteria*, and *Status checkbox to update in `hopaut-migration-status.md`*.
 >
 > **Working contract**
-> 1. Resume work by attaching the three files: `.github/github-copilot-instructions.md`, `hopaut-execution-plan.md`, `hopaut-migration-status.md`.
+> 1. Resume work by attaching the three files: `.github/copilot-instructions.md`, `hopaut-execution-plan.md`, `hopaut-migration-status.md`.
 > 2. Trigger with `/migrate #hopaut-execution-plan.md` (or just point at the next pending step).
 > 3. After every step that changes code or configuration, **update `hopaut-migration-status.md`** (mark the step done, add a one-line note + commit hash if applicable).
 > 4. Never skip ahead more than one step without explicit user approval. Never run a full build unless the user asks.
@@ -544,6 +544,7 @@
 
 ### Step 7.8 – Phase 7 exit gate
 * **Actions:** run verification-ladder level 4 (`dotnet build Bingo.sln -c Release -p:HopautStrictWarnings=true`, `dotnet format Bingo.sln --verify-no-changes`, `dotnet list Bingo.sln package --vulnerable --include-transitive`); confirm 7.1–7.7, 6.6, 6.7 and 6.9 are ✅ and that the reopened steps they close are ✅.
+* **Prerequisite (2026-11-17):** Release builds need the free Six Labors Community license key for ImageSharp 3.2 (blocker B-002 in `TODO.md`), supplied as the `SixLaborsLicenseKey` environment variable or the git-ignored repository-root `sixlabors.lic`.
 * **Status field:** `7.8 – Phase 7 closed`.
 
 ---
@@ -713,7 +714,7 @@
 
 ## Phase 11 – Release readiness
 
-> After 11.1 and 11.2, Steps 6.11 (performance pass), 6.12 (worker-extraction decision) and 6.13 (Definition of Done) close the project.
+> After 11.1 and 11.2, Steps 6.11 (performance pass), 6.12 (worker-extraction decision) and 6.13 (Definition of Done) close the project; Step 11.3 (final merge into `master`) runs last.
 
 ### Step 11.1 – Legacy data conversion
 * **Goal:** production data moves from the legacy `public` schema into the module schemas without loss.
@@ -726,6 +727,15 @@
 * **Actions:** `TreatWarningsAsErrors`, `AnalysisLevel=latest-recommended`, `EnforceCodeStyleInBuild`, `NuGetAudit` + `NuGetAuditMode=all` in `Directory.Build.props`; fix warnings instead of suppressing them; `dotnet format` clean.
 * **Acceptance:** `dotnet build Bingo.sln -c Release` has zero warnings; `dotnet format Bingo.sln --verify-no-changes` is clean.
 * **Status field:** `11.2`.
+
+### Step 11.3 – Final merge into `master` (runs last, after 6.13)
+* **Goal:** the whole migration lands on `master` in one merge (user request 2026-11-17, decision D-015 in `TODO.md`); there are no intermediate merges.
+* **Actions:**
+  * Preconditions: every step in `hopaut-migration-status.md` is ✅ or ⏭️ with a reason; verification-ladder level 4 is green on `migrate/net10`; every handoff in `docs/mobile-handoffs/` is `applied`; `HANDOVER.md` is deleted.
+  * Locally: `git switch master`, then `git merge --no-ff migrate/net10` with the message `Merge migrate/net10: Hopaut modular monolith on .NET 10`, which keeps every step commit in history. Re-run level 3 on the merge result. Resolve conflicts only after review; never rebase, squash or force.
+  * Do not push; the user pushes and opens or merges any pull request. BingoMobile's `master` is outside the agent's remit, so the user merges BingoMobile `dev` there, or authorises it explicitly at that time.
+* **Acceptance:** `master` contains `migrate/net10` through one `--no-ff` merge commit, and `dotnet build Bingo.sln` + `dotnet test Bingo.sln` are green on `master`.
+* **Status field:** `11.3 – Migration merged`.
 
 ---
 
@@ -744,6 +754,6 @@
 
 ## How to resume work in a new chat (copy-paste)
 
-> Attach: `.github/github-copilot-instructions.md`, `hopaut-execution-plan.md`, `hopaut-migration-status.md`.
+> Attach: `.github/copilot-instructions.md`, `hopaut-execution-plan.md`, `hopaut-migration-status.md`.
 >
 > Prompt: `/migrate #hopaut-execution-plan.md – continue from the next pending step in hopaut-migration-status.md. Do exactly one step. Then update hopaut-migration-status.md.`

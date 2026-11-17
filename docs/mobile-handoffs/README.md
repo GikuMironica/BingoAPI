@@ -17,7 +17,7 @@ Whenever a backend change alters the public HTTP / SignalR / auth contract, the 
 
 ## What triggers a handoff
 
-See *Backend ↔ Mobile contract sync* in `.github/github-copilot-instructions.md`.
+See *Backend ↔ Mobile contract sync* in `.github/copilot-instructions.md`.
 
 ## What does not
 
