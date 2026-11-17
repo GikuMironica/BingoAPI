@@ -10,7 +10,8 @@ public static class PaymentsModuleInstaller
 {
     public static IServiceCollection AddPaymentsModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<PaymentsServiceOptions>(configuration.GetSection("PaymentsService"));
+        // Constraints arrive with the adapter hardening (F-031 → plan Step 8.11).
+        services.AddOptions<PaymentsServiceOptions>().BindConfiguration("PaymentsService").ValidateDataAnnotations().ValidateOnStart();
         services.AddHttpClient<IPaymentsServiceClient, PaymentsServiceClient>();
         return services;
     }

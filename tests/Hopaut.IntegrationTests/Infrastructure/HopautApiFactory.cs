@@ -24,6 +24,7 @@ public sealed class HopautApiFactory : WebApplicationFactory<Program>, IAsyncLif
         builder.UseSetting("ConnectionStrings:DefaultConnection", ConnectionString);
         builder.UseSetting("ConnectionStrings:HangfireConnection", ConnectionString);
         builder.UseSetting("Database:MigrateOnStartup", "true");
+        builder.UseSetting("JwtSettings:Secret", TestJwt.Secret);
     }
 
     public override async ValueTask DisposeAsync()

@@ -13,7 +13,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=hopaut;Username=${POSTGRES_USER:-hopaut};Password=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       ConnectionStrings__Redis: redis:6379
-      JwtSettings__Secret: ${JwtSettings__Secret:-}
+      JwtSettings__Secret: ${JwtSettings__Secret:?set JwtSettings__Secret (at least 32 random characters) in .env}
     ports:
       - "8080:8080"
 

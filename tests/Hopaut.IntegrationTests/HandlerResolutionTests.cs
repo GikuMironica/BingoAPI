@@ -17,10 +17,8 @@ public sealed class HandlerResolutionTests(HopautApiFactory factory)
 {
     // Known defects, each tied to an open finding in TODO.md. Entries may only be removed (ratchet, decision D-002):
     // a new unresolvable handler fails the test, and so does an entry whose handler resolves again.
-    private static readonly IReadOnlyDictionary<string, string> KnownUnresolvable = new Dictionary<string, string>
-    {
-        ["RefreshTokenCommandHandler"] = "F-058", // TokenValidationParameters is not registered (plan Step 7.7)
-    };
+    // F-058 (RefreshTokenCommandHandler) was removed in plan Step 7.7, which registers TokenValidationParameters.
+    private static readonly IReadOnlyDictionary<string, string> KnownUnresolvable = new Dictionary<string, string>();
 
     private static readonly Type[] HandlerInterfaces = [typeof(ICommandHandler<,>), typeof(IQueryHandler<,>), typeof(INotificationHandler<>)];
 

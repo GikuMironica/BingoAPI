@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <RootNamespace>Hopaut.Api.Host</RootNamespace>
+    <!-- Local secrets (e.g. JwtSettings:Secret) live in `dotnet user-secrets`, never in committed appsettings files. -->
+    <UserSecretsId>hopaut-api-host</UserSecretsId>
     <!-- Mediator.SourceGenerator 3.0.2 warnings fail the build (messaging-integration skill §3): MSG0001 multiple handlers,
          MSG0002/MSG0003 invalid handler type, MSG0004 message with several message interfaces, MSG0005 message without handler. -->
     <WarningsAsErrors>$(WarningsAsErrors);MSG0001;MSG0002;MSG0003;MSG0004;MSG0005</WarningsAsErrors>
@@ -14,6 +16,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.PostgreSql" />

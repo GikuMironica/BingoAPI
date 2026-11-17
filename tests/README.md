@@ -10,6 +10,8 @@
 
 Stack: xUnit v3 (3.2.x, VSTest mode), AwesomeAssertions, NSubstitute, `FakeTimeProvider`, Testcontainers. Naming: `GivenPrecondition_WhenAction_ThenExpected`, with `// Arrange`, `// Act`, `// Assert`.
 
+`HopautApiFactory` gives the test Host a test-only JWT signing key; `TestJwt.Create(userId, roles, …)` issues matching bearer tokens (and invalid variants: other issuer, audience or key, expired) for endpoint tests.
+
 ## Running
 
 ```powershell

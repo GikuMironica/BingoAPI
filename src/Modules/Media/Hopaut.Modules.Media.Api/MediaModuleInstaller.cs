@@ -6,6 +6,7 @@ using Hopaut.Modules.Media.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Hopaut.Modules.Media.Api;
 
@@ -13,14 +14,18 @@ public static class MediaModuleInstaller
 {
     public static IServiceCollection AddMediaModule(this IServiceCollection services, IConfiguration configuration)
     {
-        // S3 options
-        var s3Options = new S3MediaStorageOptions();
-        configuration.GetSection("AwsBucketSettings").Bind(s3Options);
-        services.Configure<S3MediaStorageOptions>(configuration.GetSection("AwsBucketSettings"));
+        // S3 options (constraints arrive with the Media adapter hardening, F-031 → plan Step 8.10)
+        services.AddOptions<S3MediaStorageOptions>()
+            .BindConfiguration("AwsBucketSettings")
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
-        // S3 client as singleton
-        services.AddSingleton<IAmazonS3>(_ =>
-            new AmazonS3Client(s3Options.AccessKeyId, s3Options.SecretAccessKey, RegionEndpoint.GetBySystemName(s3Options.Region)));
+        // S3 client as singleton, built from the bound options when first resolved
+        services.AddSingleton<IAmazonS3>(provider =>
+        {
+            var s3Options = provider.GetRequiredService<IOptions<S3MediaStorageOptions>>().Value;
+            return new AmazonS3Client(s3Options.AccessKeyId, s3Options.SecretAccessKey, RegionEndpoint.GetBySystemName(s3Options.Region));
+        });
 
         // Services
         services.AddScoped<IMediaStorage, S3MediaStorage>();

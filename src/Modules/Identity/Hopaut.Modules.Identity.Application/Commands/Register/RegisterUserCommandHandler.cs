@@ -1,3 +1,4 @@
+using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Identity.Domain;
 using Hopaut.SharedKernel;
 using Mediator;
@@ -37,7 +38,7 @@ public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCom
         if (!result.Succeeded)
             return AuthResult.Fail(result.Errors.Select(e => e.Description).ToArray());
 
-        await _userManager.AddToRoleAsync(newUser, "User");
+        await _userManager.AddToRoleAsync(newUser, HopautRoles.User);
         await _userManager.AddClaimAsync(newUser, new System.Security.Claims.Claim("post.add", "true"));
 
         var confirmToken = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);

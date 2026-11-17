@@ -2,10 +2,13 @@ using FluentValidation;
 using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
 using Hopaut.Modules.Identity.Infrastructure;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Hopaut.Modules.Identity.Api;
 
@@ -28,10 +31,25 @@ public static class IdentityModuleInstaller
             .AddEntityFrameworkStores<IdentityModuleDbContext>()
             .AddDefaultTokenProviders();
 
-        // JWT settings
-        var jwtSettings = new JwtSettings();
-        configuration.GetSection("JwtSettings").Bind(jwtSettings);
-        services.AddSingleton(jwtSettings);
+        // JWT settings (validated at startup: the Host refuses to start without a signing key) and the one definition of a
+        // valid token, shared by bearer authentication and the refresh flow (F-058).
+        services.AddOptions<JwtSettings>()
+            .BindConfiguration(JwtSettings.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddSingleton(provider => JwtTokenValidation.Parameters(provider.GetRequiredService<IOptions<JwtSettings>>().Value));
+
+        // AddIdentity made its cookie the default scheme; the API authenticates, challenges and forbids with bearer tokens.
+        services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer();
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<TokenValidationParameters>((bearer, parameters) => bearer.TokenValidationParameters = parameters);
 
         // Repositories
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();

@@ -62,6 +62,8 @@
 	<PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
 	<PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
 	<PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.21.0" />
+	<!-- OTLP exporter (Apache-2.0, checked 2026-11-17): configured through the standard OTEL_* variables, step 7.7. -->
+	<PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.21.0" />
 	<PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.0" />
 
 	<!-- Testing (licenses checked 2026-11-17: Apache-2.0 xunit.v3/runner/AwesomeAssertions, BSD-3-Clause NSubstitute, MIT others). -->

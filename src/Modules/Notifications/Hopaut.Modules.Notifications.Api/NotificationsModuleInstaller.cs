@@ -9,8 +9,9 @@ public static class NotificationsModuleInstaller
 {
     public static IServiceCollection AddNotificationsModule(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<OneSignalOptions>(configuration.GetSection("OneSignal"));
-        services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
+        // Constraints arrive with the adapter hardening (F-031 → plan Step 8.11).
+        services.AddOptions<OneSignalOptions>().BindConfiguration("OneSignal").ValidateDataAnnotations().ValidateOnStart();
+        services.AddOptions<SmtpOptions>().BindConfiguration("Smtp").ValidateDataAnnotations().ValidateOnStart();
 
         services.AddHttpClient<IPushNotificationSender, OneSignalPushSender>();
         services.AddScoped<IEmailSender, MailKitEmailSender>();

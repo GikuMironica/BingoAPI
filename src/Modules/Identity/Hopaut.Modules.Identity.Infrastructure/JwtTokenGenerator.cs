@@ -1,10 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
 using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Hopaut.Modules.Identity.Infrastructure;
@@ -18,13 +18,13 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
     private readonly TimeProvider _timeProvider;
 
     public JwtTokenGenerator(
-        JwtSettings jwtSettings,
+        IOptions<JwtSettings> jwtSettings,
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager,
         IRefreshTokenRepository refreshTokenRepo,
         TimeProvider timeProvider)
     {
-        _jwtSettings = jwtSettings;
+        _jwtSettings = jwtSettings.Value;
         _userManager = userManager;
         _roleManager = roleManager;
         _refreshTokenRepo = refreshTokenRepo;
@@ -34,7 +34,6 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
     public async Task<AuthResult> GenerateForUserAsync(AppUser user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
         var now = _timeProvider.GetUtcNow();
 
         var claims = new List<Claim>
@@ -73,7 +72,7 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             NotBefore = now.UtcDateTime,
             Expires = now.UtcDateTime.Add(_jwtSettings.TokenLifetime),
             SigningCredentials = new SigningCredentials(
-                new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                JwtTokenValidation.SigningKey(_jwtSettings), SecurityAlgorithms.HmacSha256Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);

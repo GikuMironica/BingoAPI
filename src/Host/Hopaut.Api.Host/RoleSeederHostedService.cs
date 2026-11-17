@@ -1,3 +1,4 @@
+using Hopaut.BuildingBlocks.Application.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,7 +15,7 @@ public sealed class RoleSeederHostedService : IHostedLifecycleService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHostEnvironment _env;
     private readonly ILogger<RoleSeederHostedService> _logger;
-    private readonly string[] _requiredRoles = ["Admin", "User", "SuperAdmin"];
+    private readonly IReadOnlyList<string> _requiredRoles = HopautRoles.All;
 
     public RoleSeederHostedService(
         IServiceScopeFactory scopeFactory,
