@@ -54,9 +54,10 @@ public sealed class DatabaseMigrationTests(HopautApiFactory factory)
         // Arrange
         _ = factory.Services; // the Host is started, so every module assembly is loaded
 
-        // Act
+        // Act (production assemblies only: test-only contexts such as ValueObjectMappingTests' are not migrated by the Host)
         var contexts = AppDomain.CurrentDomain.GetAssemblies()
             .Where(a => a.GetName().Name?.StartsWith("Hopaut.", StringComparison.Ordinal) == true)
+            .Where(a => a != typeof(DatabaseMigrationTests).Assembly)
             .SelectMany(a => a.GetTypes())
             .Where(t => t is { IsAbstract: false } && typeof(DbContext).IsAssignableFrom(t))
             .ToList();

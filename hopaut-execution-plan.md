@@ -567,6 +567,7 @@
 * **Goal:** valid-by-construction building blocks for the module steps.
 * **Actions:** `Coordinates` (WGS-84 ranges, `Result` factory; replaces the `IsValid` flag), `TimeRange` (start before end, UTC), `Money` + `Currency` (ISO-4217, amount ≥ 0), `RatingValue` (1–5, `Result` factory instead of throwing), `EmailAddress`, bounded text (`PostTitle`, `Description`), `Capacity`, `RadiusMeters`, `PageSize` / `Cursor`, `MediaKey`; EF complex-type mapping helpers.
 * **Acceptance:** unit tests for every factory (valid input, each invalid case, normalisation); no value object exposes a constructor that skips validation.
+* **Implemented 2026-11-17 (D-025 in `TODO.md`):** `Description` is named `PostDescription` (the Users profile description has other limits); bounds follow the legacy API (title ≤ 30, description 10–5000, radius 1–15 km); `Coordinates` gets no EF helper because spatial queries need the PostGIS `Point` column (8.2 decides the mapping); event-duration rules (≥ 15 min, < 12 h) belong to the Post aggregate (8.2), not to `TimeRange`.
 * **Status field:** `8.1`.
 
 ### Step 8.2 – Posts

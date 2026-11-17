@@ -9,10 +9,14 @@ public sealed class CreateRatingCommandHandler(IRatingRepository ratings, IUserR
 {
     public async ValueTask<Result<RatingId>> Handle(CreateRatingCommand request, CancellationToken cancellationToken)
     {
+        var rate = RatingValue.Create(request.Rate);
+        if (rate.IsFailure)
+            return rate.Error;
+
         var id = await ratings.NextIdAsync(cancellationToken);
         var rating = Rating.Create(
             id,
-            RatingValue.From(request.Rate),
+            rate.Value,
             request.UserId,
             request.RaterId,
             request.PostId,

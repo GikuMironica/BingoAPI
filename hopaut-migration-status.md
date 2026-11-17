@@ -11,7 +11,7 @@
 - ❌ blocked (add reason)
 - ⏭️ skipped (add reason)
 
-**Current focus:** Phase 7 – Step 7.8 (Phase 7 exit gate; the Release build waits for B-002), then Phase 8. Ledger reconciled 2026-11-17 by the HopautArchitect audit: every reopened step (🟡) names the step that closes it; findings `F-###`, decisions `D-###`, blockers and the contract inventory live in `TODO.md`; a session that stops mid-work leaves its resume point in `HANDOVER.md`. Open blocker: B-002 (Six Labors key; blocks Release builds only).
+**Current focus:** Phase 8 – Step 8.2 (Posts); 7.8 only waits for the Release build (B-002). Ledger reconciled 2026-11-17 by the HopautArchitect audit: every reopened step (🟡) names the step that closes it; findings `F-###`, decisions `D-###`, blockers and the contract inventory live in `TODO.md`; a session that stops mid-work leaves its resume point in `HANDOVER.md`. Open blocker: B-002 (Six Labors key; blocks Release builds only).
 
 ---
 
@@ -125,7 +125,7 @@ Execution order: 7.1 → 6.7 → 7.2 → 7.3 → 7.4 → 7.5 → 7.6 → 7.7 →
 
 | #    | Step                                         | Status | Date | Notes / commit |
 |------|----------------------------------------------|--------|------|----------------|
-| 8.1  | SharedKernel value-object catalog            | ⬜     |      |                |
+| 8.1  | SharedKernel value-object catalog            | ✅     | 2026-11-17 | Valid-by-construction `sealed record`s with private constructors, `Result` factories, normalisation and stable `shared.<value>.<reason>` validation codes (D-025): `Coordinates` (WGS-84, finite; the `IsValid` flag is gone), `TimeRange` (end after start, UTC), `Currency` (ISO-4217 format) + `Money` (≥ 0, ≤ 99,999,999.99, cents), `RatingValue` (1–5; no longer throws), `EmailAddress`, `PostTitle` (≤ 30) / `PostDescription` (10–5000), `Capacity` (> 0), `RadiusMeters` (1–15 km, default 10 km), `PageSize` (1–100, default 20) / `Cursor` (base64url, encode/decode), `MediaKey` (safe S3 key). `ISingleValueObject<TSelf,TValue>` + EF `ValueObjectConverter` (reads through the factory) and `MapMoney`/`MapTimeRange` complex-type helpers; Ratings stores `RatingValue` through the converter and `CreateRating` returns the factory's validation error (F-064: an out-of-range rate was a 500). Evidence: 116 new unit tests (valid, each invalid case, normalisation, no public constructor on any value object, every `ISingleValueObject` covered), `ValueObjectConverterTests`, `ValueObjectMappingTests` (Money, optional Money, TimeRange with/without end, converters round-trip through PostgreSQL in the promised columns), `RatingValueEndpointTests` (400 `shared.rating_value.out_of_range`); `dotnet test Bingo.sln` 354/354; strict build 0 compiler warnings; `has-pending-model-changes` clean ×9; solution-wide format clean. No BingoMobile contract change (D-007). Commit: –. |
 | 8.2  | Posts                                        | ⬜     |      |                |
 | 8.3  | Attendance                                   | ⬜     |      |                |
 | 8.4  | Ratings                                      | ⬜     |      |                |
@@ -182,6 +182,7 @@ Then 6.11 → 6.12 → 6.13 → 11.3 (final merge into `master`, D-015).
 
 | Date | Step | Action | Commit |
 |------|------|--------|--------|
+| 2026-11-17 | 8.1 | SharedKernel value-object catalog (13 value objects with `Result` factories and `shared.*` codes), `ISingleValueObject` + `ValueObjectConverter`, `MapMoney`/`MapTimeRange`; `RatingValue` validated instead of throwing (F-064); decision D-025; `HANDOVER.md` checkpoint absorbed and deleted. 354/354 tests. No contract change for BingoMobile. | – |
 | 2026-11-17 | – | Checkpoint: `HANDOVER.md` written before Phase 8 (resume at 8.1; validation 235/235; 7.8 waits for B-002; Phase 10 handoffs must list the 6.9 authorization rules; no pending mobile handoff). | – |
 | 2026-11-17 | 7.8 | Phase 7 gate run: strict Debug build clean (0 compiler warnings), Release strict build fails only on B-002 (51 assemblies build), solution-wide `dotnet format --verify-no-changes` clean after fixing F-063, vulnerable scan clean, reopened-step check recorded (0.12, 1.10, 4.4 notes); 7.8 stays 🟡 until the Six Labors key exists. No contract change. | `5fd133d` |
 | 2026-11-17 | 6.9 | Resource-based authorization: `IResourceAuthorizer` port + ASP.NET Core adapter, generic resource-owner policy, per-module policies (post, announcements, attendance, rating, profile) and Admin-only report endpoints; Posts.Contracts `IPostHostQueries`; fixed F-009–F-012 and F-062; decision D-024; redundant `Microsoft.Extensions.Hosting.Abstractions` package removed (NU1510 after the explicit ASP.NET Core framework reference). 235/235 tests. No BingoMobile contract change (D-007). | `0a850c1` |

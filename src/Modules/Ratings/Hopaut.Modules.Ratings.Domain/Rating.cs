@@ -18,6 +18,7 @@ public sealed class Rating : AggregateRoot<RatingId>
     public static Rating Create(RatingId id, RatingValue rate, UserId userId, UserId raterId, PostId postId, string? feedback, DateTimeOffset now)
     {
         ArgumentOutOfRangeException.ThrowIfEqual(id, default);
+        ArgumentNullException.ThrowIfNull(rate);
 
         var rating = new Rating
         {

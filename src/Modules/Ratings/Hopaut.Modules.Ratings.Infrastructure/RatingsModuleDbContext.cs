@@ -29,9 +29,7 @@ public class RatingsModuleDbContext : ModuleDbContext, IRatingsUnitOfWork
             entity.ToTable("ratings");
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<RatingId, int>>().ValueGeneratedNever();
-            entity.Property(e => e.Rate).HasConversion(
-                v => v.Value,
-                v => RatingValue.From(v));
+            entity.Property(e => e.Rate).HasConversion<ValueObjectConverter<RatingValue, int>>();
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.RaterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
