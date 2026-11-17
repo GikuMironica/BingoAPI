@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
   </ItemGroup>
 
 </Project>

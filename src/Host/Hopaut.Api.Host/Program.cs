@@ -19,6 +19,8 @@ using Hopaut.Modules.Notifications.Api;
 using Hopaut.Modules.Moderation.Api;
 using Hopaut.Modules.BugReports.Api;
 using Hopaut.Modules.Payments.Api;
+using Hopaut.BuildingBlocks.Api.Http;
+using Hopaut.BuildingBlocks.Api.Security;
 using Hopaut.BuildingBlocks.Application;
 using Hopaut.BuildingBlocks.Infrastructure.Outbox;
 using Hopaut.BuildingBlocks.Infrastructure.Persistence;
@@ -61,8 +63,11 @@ builder.Services.AddHealthChecks();
 // ── Shared Kernel ──
 builder.Services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
-// ── ProblemDetails ──
-builder.Services.AddProblemDetails();
+// ── ProblemDetails (errorCode + traceId on every problem; unhandled exceptions → 500 without internals) ──
+builder.Services.AddHopautProblemDetails();
+
+// ── Current user (ICurrentUser for handlers) ──
+builder.Services.AddHopautCurrentUser();
 
 // ── Authorization (required by UseAuthorization and RequireAuthorization; JWT bearer authentication is plan Step 7.7) ──
 builder.Services.AddAuthorization();

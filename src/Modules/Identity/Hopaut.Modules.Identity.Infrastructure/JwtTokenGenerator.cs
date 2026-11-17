@@ -1,3 +1,4 @@
+using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity;
@@ -36,7 +37,7 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
         {
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Email, user.Email!),
-            new("id", user.Id)
+            new(HopautClaimTypes.UserId, user.Id)
         };
 
         var userClaims = await _userManager.GetClaimsAsync(user);
