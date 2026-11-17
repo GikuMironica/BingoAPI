@@ -14,4 +14,4 @@ public interface IBugReportsUnitOfWork : IUnitOfWork;
 public sealed class BugReportsUnitOfWorkBehavior<TMessage, TResponse>(IBugReportsUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IBugReportsCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

@@ -14,4 +14,4 @@ public interface IRatingsUnitOfWork : IUnitOfWork;
 public sealed class RatingsUnitOfWorkBehavior<TMessage, TResponse>(IRatingsUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IRatingsCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

@@ -42,6 +42,7 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedNever();
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.Status).HasConversion<int>();
+            entity.Property(e => e.Version).IsRowVersion();
             entity.ComplexProperty(e => e.Schedule, schedule =>
             {
                 schedule.Property(s => s.Start).HasColumnName("EventTime");

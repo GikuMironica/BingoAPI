@@ -37,6 +37,9 @@ public sealed class Post : AggregateRoot<PostId>
 
     public RepeatableProperty? Repeatable { get; private set; }
 
+    /// <summary>Optimistic-concurrency token (PostgreSQL <c>xmin</c>): the host and administrators may edit a post at the same time.</summary>
+    public uint Version { get; private set; }
+
     /// <summary>Creates a post with an ID taken from the posts sequence, so <see cref="PostCreatedDomainEvent"/> carries it.</summary>
     public static Result<Post> Create(
         PostId id,

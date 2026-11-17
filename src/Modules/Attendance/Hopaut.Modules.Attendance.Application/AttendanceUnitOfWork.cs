@@ -14,4 +14,4 @@ public interface IAttendanceUnitOfWork : IUnitOfWork;
 public sealed class AttendanceUnitOfWorkBehavior<TMessage, TResponse>(IAttendanceUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IAttendanceCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

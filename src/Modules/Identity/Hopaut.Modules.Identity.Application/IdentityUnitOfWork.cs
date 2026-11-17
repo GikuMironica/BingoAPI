@@ -17,4 +17,4 @@ public interface IIdentityUnitOfWork : IUnitOfWork;
 public sealed class IdentityUnitOfWorkBehavior<TMessage, TResponse>(IIdentityUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IIdentityCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

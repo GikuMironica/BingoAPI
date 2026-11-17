@@ -14,4 +14,4 @@ public interface IPostsUnitOfWork : IUnitOfWork;
 public sealed class PostsUnitOfWorkBehavior<TMessage, TResponse>(IPostsUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IPostsCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

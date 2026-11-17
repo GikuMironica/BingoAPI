@@ -1,3 +1,5 @@
+using AwesomeAssertions.Execution;
+using Hopaut.BuildingBlocks.Application;
 using Hopaut.BuildingBlocks.Application.Behaviors;
 using Hopaut.SharedKernel;
 using Mediator;
@@ -69,6 +71,26 @@ public sealed class UnitOfWorkBehaviorTests
         result.Value.Should().Be(7);
     }
 
+    [Fact]
+    public async Task GivenASaveThatConflictsWithAConcurrentChange_WhenHandled_ThenTheResultIsAConcurrencyConflict()
+    {
+        // Arrange
+        var unitOfWork = Substitute.For<IUnitOfWork>();
+        unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>())
+            .Returns<int>(_ => throw new ConcurrencyConflictException("stale xmin", new InvalidOperationException("inner")));
+        var behavior = new SampleUnitOfWorkBehavior<OpenVenue, Result<int>>(unitOfWork);
+
+        // Act
+        var result = await behavior.Handle(new OpenVenue("Hall"), (_, _) => ValueTask.FromResult<Result<int>>(7), TestContext.Current.CancellationToken);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Error.Should().Be(UnitOfWorkErrors.ConcurrencyConflict);
+            result.Error.Type.Should().Be(ErrorType.Conflict);
+        }
+    }
+
     public sealed record RenameVenue(string Name) : ICommand<Result>;
 
     public sealed record OpenVenue(string Name) : ICommand<Result<int>>;
@@ -76,5 +98,5 @@ public sealed class UnitOfWorkBehaviorTests
     private sealed class SampleUnitOfWorkBehavior<TMessage, TResponse>(IUnitOfWork unitOfWork)
         : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
         where TMessage : IBaseCommand
-        where TResponse : IResultBase;
+        where TResponse : IResultBase, IFailureFactory<TResponse>;
 }

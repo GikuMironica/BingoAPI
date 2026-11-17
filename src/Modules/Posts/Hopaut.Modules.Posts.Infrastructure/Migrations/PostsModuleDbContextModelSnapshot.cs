@@ -172,6 +172,12 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("character varying(450)");
 
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
                     b.ComplexProperty(typeof(Dictionary<string, object>), "Schedule", "Hopaut.Modules.Posts.Domain.Post.Schedule#TimeRange", b1 =>
                         {
                             b1.IsRequired();

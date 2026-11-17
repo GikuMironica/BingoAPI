@@ -14,4 +14,4 @@ public interface IModerationUnitOfWork : IUnitOfWork;
 public sealed class ModerationUnitOfWorkBehavior<TMessage, TResponse>(IModerationUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IModerationCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

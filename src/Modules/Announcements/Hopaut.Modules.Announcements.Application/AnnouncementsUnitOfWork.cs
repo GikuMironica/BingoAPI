@@ -14,4 +14,4 @@ public interface IAnnouncementsUnitOfWork : IUnitOfWork;
 public sealed class AnnouncementsUnitOfWorkBehavior<TMessage, TResponse>(IAnnouncementsUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IAnnouncementsCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;

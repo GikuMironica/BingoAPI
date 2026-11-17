@@ -14,4 +14,4 @@ public interface IUsersUnitOfWork : IUnitOfWork;
 public sealed class UsersUnitOfWorkBehavior<TMessage, TResponse>(IUsersUnitOfWork unitOfWork)
     : UnitOfWorkBehavior<TMessage, TResponse>(unitOfWork)
     where TMessage : IUsersCommand
-    where TResponse : IResultBase;
+    where TResponse : IResultBase, IFailureFactory<TResponse>;
