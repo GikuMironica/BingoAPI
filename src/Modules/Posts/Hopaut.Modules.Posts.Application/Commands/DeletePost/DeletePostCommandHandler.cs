@@ -1,10 +1,12 @@
+using Hopaut.BuildingBlocks.Application.Security;
+using Hopaut.Modules.Posts.Application.Authorization;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
 using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Commands.DeletePost;
 
-public sealed class DeletePostCommandHandler(IPostRepository posts) : ICommandHandler<DeletePostCommand, Result>
+public sealed class DeletePostCommandHandler(IPostRepository posts, IResourceAuthorizer authorizer) : ICommandHandler<DeletePostCommand, Result>
 {
     public async ValueTask<Result> Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {
@@ -12,8 +14,7 @@ public sealed class DeletePostCommandHandler(IPostRepository posts) : ICommandHa
         if (post is null)
             return PostErrors.NotFound(request.PostId);
 
-        // Resource-based authorization moves to the authorization port in plan Step 6.9.
-        if (post.UserId != request.UserId)
+        if (!await authorizer.IsAuthorizedAsync(post, PostPolicies.MustOwnPost, cancellationToken))
             return PostErrors.NotHost(request.PostId);
 
         posts.Remove(post);

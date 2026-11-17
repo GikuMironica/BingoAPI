@@ -3,4 +3,5 @@ using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Commands.DeletePost;
 
-public sealed record DeletePostCommand(PostId PostId, UserId UserId) : ICommand<Result>, IPostsCommand;
+/// <summary>Deletes a post; only its host or an administrator may (<see cref="Authorization.PostPolicies.MustOwnPost"/>).</summary>
+public sealed record DeletePostCommand(PostId PostId) : ICommand<Result>, IPostsCommand;

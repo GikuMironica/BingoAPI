@@ -40,10 +40,9 @@ public sealed class PostsModule : IModuleEndpoints
                 : result.ToProblem();
         }).RequireAuthorization();
 
-        group.MapDelete("/{postId:int}", async (int postId, HttpContext context, ISender sender, CancellationToken cancellationToken) =>
+        group.MapDelete("/{postId:int}", async (int postId, ISender sender, CancellationToken cancellationToken) =>
         {
-            var userId = UserId.From(context.User.FindFirst("id")?.Value ?? "");
-            var result = await sender.Send(new DeletePostCommand(PostId.From(postId), userId), cancellationToken);
+            var result = await sender.Send(new DeletePostCommand(PostId.From(postId)), cancellationToken);
             return result.IsSuccess ? Results.NoContent() : Results.NotFound();
         }).RequireAuthorization();
     }

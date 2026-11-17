@@ -27,8 +27,7 @@
 	<!-- Caching -->
 	<PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
 
-	<!-- Hosting / logging abstractions -->
-	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+	<!-- Logging abstractions (hosting abstractions come from the ASP.NET Core shared framework) -->
 	<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
 
 	<!-- Mediator (martinothamar, MIT, source-generated; license checked 2026-11-17, D-018). The generator is referenced only by the Host. -->

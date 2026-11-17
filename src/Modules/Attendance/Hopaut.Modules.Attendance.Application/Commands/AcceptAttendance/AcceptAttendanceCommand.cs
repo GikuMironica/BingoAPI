@@ -3,4 +3,5 @@ using Mediator;
 
 namespace Hopaut.Modules.Attendance.Application.Commands.AcceptAttendance;
 
-public sealed record AcceptAttendanceCommand(PostId PostId, UserId UserId, UserId OwnerId) : ICommand<Result>, IAttendanceCommand;
+/// <summary>The host of the post accepts an attendee's request (<see cref="Authorization.AttendancePolicies.MustHostPost"/>).</summary>
+public sealed record AcceptAttendanceCommand(PostId PostId, UserId UserId) : ICommand<Result>, IAttendanceCommand;

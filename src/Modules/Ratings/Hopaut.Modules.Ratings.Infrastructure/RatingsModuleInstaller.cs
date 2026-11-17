@@ -1,6 +1,9 @@
 using FluentValidation;
+using Hopaut.BuildingBlocks.Infrastructure.Authorization;
 using Hopaut.Modules.Ratings.Application;
+using Hopaut.Modules.Ratings.Application.Authorization;
 using Hopaut.Modules.Ratings.Contracts;
+using Hopaut.Modules.Ratings.Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +19,8 @@ public static class RatingsModuleInstaller
         services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IUserReputationRepository, UserReputationRepository>();
         services.AddScoped<IUserReputationQueries, UserReputationQueries>();
+
+        services.AddResourceOwnerPolicy<Rating>(RatingPolicies.MustOwnRating, rating => rating.RaterId, administratorsAllowed: true);
 
         services.AddValidatorsFromAssemblyContaining<IRatingsCommand>(includeInternalTypes: true);
 

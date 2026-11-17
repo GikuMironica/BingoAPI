@@ -97,7 +97,7 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         var first = await SendAsync(factory.Services, new CreateRatingCommand(4, rated, UserId.From("rater-a-" + suffix), post, null), ct);
         await SendAsync(factory.Services, new CreateRatingCommand(2, rated, UserId.From("rater-b-" + suffix), post, null), ct);
         var afterCreates = await ReputationAsync(rated, ct);
-        var deleted = await SendAsync(factory.Services, new DeleteRatingCommand(first.Value), ct);
+        var deleted = await TestCaller.SendAsync(factory.Services, TestCaller.For("rater-a-" + suffix), new DeleteRatingCommand(first.Value), ct);
         var afterDelete = await ReputationAsync(rated, ct);
 
         // Assert
@@ -118,9 +118,11 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         var reporter = UserId.From("reporter-" + suffix);
         var attendee = UserId.From("attendee-" + suffix);
         var post = PostId.From(11);
+        var hostedPost = await SendAsync(factory.Services, NewPost("uow-announced-" + suffix), ct);
 
         // Act
-        var announcement = await SendAsync(factory.Services, new CreateAnnouncementCommand(post, "uow"), ct);
+        var announcement = await TestCaller.SendAsync(
+            factory.Services, TestCaller.For(UnitOfWorkHost), new CreateAnnouncementCommand(hostedPost.Value, "uow"), ct);
         var bug = await SendAsync(factory.Services, new CreateBugReportCommand("uow", reporter, ["https://cdn.hopaut.app/bug.png"]), ct);
         var postReport = await SendAsync(factory.Services, new CreatePostReportCommand(post, reporter, UserId.From("host"), 1, null), ct);
         var userReport = await SendAsync(factory.Services, new CreateUserReportCommand(reporter, UserId.From("reported"), 2, null), ct);
@@ -144,10 +146,12 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         }
     }
 
+    private const string UnitOfWorkHost = "uow-host";
+
     private static CreatePostCommand NewPost(string description) => new(
         new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
         new DateTimeOffset(2030, 1, 9, 23, 0, 0, TimeSpan.Zero),
-        UserId.From("uow-host"),
+        UserId.From(UnitOfWorkHost),
         new CreatePostLocationInput("Venue", "Berlin", null, "Main St 1", "DE", 13.405, 52.52),
         new CreatePostEventInput(EventType.HouseParty, null, null, "Unit of work", description, null, 10, null));
 

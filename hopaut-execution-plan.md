@@ -414,6 +414,7 @@
   * Register policies: `MustOwnPost`, `MustOwnAnnouncement`, `MustOwnRating`.
   * Replace manual ownership checks in command handlers / endpoints with `[Authorize(Policy = "...")]` or `AuthorizationService.AuthorizeAsync(...)`.
 * **Acceptance:** no manual `if (post.UserId != currentUser)` checks in handlers; policies are unit-testable; build green.
+* **Implemented 2026-11-17 (D-024 in `TODO.md`):** Application port `IResourceAuthorizer` (handlers: load → authorize → domain verb) with an ASP.NET Core adapter that evaluates named policies for the request principal (anonymous without a request); one generic `ResourceOwnerRequirement<TResource>` + handler in BuildingBlocks.Infrastructure, registered per module with `AddResourceOwnerPolicy<TResource>(name, ownerOf, administratorsAllowed)`. Policies: `posts.post.owner` (`MustOwnPost`: host or admin; delete post), `announcements.post.host` (`MustOwnAnnouncement`: post host or admin; create/delete announcement), `attendance.post.host` (post host only; accept/reject attendee), `ratings.rating.owner` (`MustOwnRating`: rater or admin; delete rating), `users.profile.owner` (profile owner or admin; profile and picture updates); report listing and resolution require `HopautPolicies.Admin`. The post host reaches Announcements and Attendance through Posts.Contracts `IPostHostQueries`. Closes the authorization parts of 8.3, 8.4, 8.5, 8.6 and 8.8 (F-009–F-012).
 * **Status field:** `6.9`.
 
 ### Step 6.10 – API versioning formalization
@@ -574,22 +575,22 @@
 * **Status field:** `8.2`.
 
 ### Step 8.3 – Attendance
-* **Actions:** `Participation.Request` checks (through Posts.Contracts) that the post exists, is active and has capacity, and that the requester is not the host; `Accept` / `Reject` only by the host and `Cancel` only by the participant, all returning `Result` (`attendance.participation.not_pending`, …); duplicate request → `Conflict`; paged attendee and my-attendances queries.
+* **Actions:** `Participation.Request` checks (through Posts.Contracts) that the post exists, is active and has capacity, and that the requester is not the host; `Accept` / `Reject` only by the host and `Cancel` only by the participant, all returning `Result` (`attendance.participation.not_pending`, …); duplicate request → `Conflict`; paged attendee and my-attendances queries. *(Host-only accept/reject through `attendance.post.host` and the caller-scoped cancel are in place since 6.9.)*
 * **Closes (partly):** 4.1.
 * **Status field:** `8.3`.
 
 ### Step 8.4 – Ratings
-* **Actions:** the handler builds `RatingValue` from the raw input (failures collected into one validation error) and `Rating.Create` takes it; rater from `ICurrentUser`; eligibility rules recovered from the legacy rating logic at tag `pre-net10-baseline`; delete only by the rater (or Admin); duplicate → `Conflict`; the reputation update moves to the 9.3 projection (remove the synchronous `UpsertAsync`).
+* **Actions:** the handler builds `RatingValue` from the raw input (failures collected into one validation error) and `Rating.Create` takes it; rater from `ICurrentUser`; eligibility rules recovered from the legacy rating logic at tag `pre-net10-baseline`; delete only by the rater (or Admin) *(in place since 6.9: `ratings.rating.owner`)*; duplicate → `Conflict`; the reputation update moves to the 9.3 projection (remove the synchronous `UpsertAsync`).
 * **Closes (partly):** 4.3.
 * **Status field:** `8.4`.
 
 ### Step 8.5 – Announcements
-* **Actions:** only the post host creates, updates and deletes (Posts.Contracts + 6.9); message value object; `UpdateAnnouncement` and `GetAnnouncementById` use cases (BingoMobile calls them); paged list per post; inbox / outbox read models for 10.6.
+* **Actions:** only the post host creates, updates and deletes (Posts.Contracts + 6.9; create and delete use `announcements.post.host` since 6.9, `UpdateAnnouncement` must use it too); message value object; `UpdateAnnouncement` and `GetAnnouncementById` use cases (BingoMobile calls them); paged list per post; inbox / outbox read models for 10.6.
 * **Closes (partly):** 4.2.
 * **Status field:** `8.5`.
 
 ### Step 8.6 – Moderation
-* **Actions:** reporter from `ICurrentUser`; duplicate report → `Conflict`; `Resolve` returns `Result` and requires the Admin policy; paged open-report query.
+* **Actions:** reporter from `ICurrentUser`; duplicate report → `Conflict`; `Resolve` returns `Result` and requires the Admin policy *(endpoint-level `HopautPolicies.Admin` on listing and resolving since 6.9)*; paged open-report query.
 * **Closes (partly):** 5.2.
 * **Status field:** `8.6`.
 
@@ -598,7 +599,7 @@
 * **Status field:** `8.7`.
 
 ### Step 8.8 – Users
-* **Actions:** `UserProfile` keyed by the identity `UserId`; `RegistrationTimeStamp` (`long`) → `RegisteredAt` (`DateTimeOffset`) with a migration and conversion script; profile verbs (`Rename`, `Describe`, `ChangePicture`, `RemovePicture`; decide where the phone number lives); every mutation acts on `ICurrentUser` (`me`); account deletion raises `UserDeleted`.
+* **Actions:** `UserProfile` keyed by the identity `UserId`; `RegistrationTimeStamp` (`long`) → `RegisteredAt` (`DateTimeOffset`) with a migration and conversion script; profile verbs (`Rename`, `Describe`, `ChangePicture`, `RemovePicture`; decide where the phone number lives); every mutation acts on `ICurrentUser` (`me`) *(until then, profile and picture updates are limited to the owner or an admin by `users.profile.owner` since 6.9)*; account deletion raises `UserDeleted`.
 * **Closes (partly):** 2.4, 6.3.
 * **Status field:** `8.8`.
 

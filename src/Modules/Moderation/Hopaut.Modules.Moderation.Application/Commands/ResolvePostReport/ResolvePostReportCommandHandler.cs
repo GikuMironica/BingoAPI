@@ -4,7 +4,7 @@ using Mediator;
 
 namespace Hopaut.Modules.Moderation.Application.Commands.ResolvePostReport;
 
-// TODO (F-012, plan Step 8.6): any authenticated user can resolve reports; restrict to the Admin policy.
+/// <summary>Resolves a post report; the endpoint requires the Admin policy (plan Step 6.9).</summary>
 public sealed class ResolvePostReportCommandHandler(IModerationRepository reports) : ICommandHandler<ResolvePostReportCommand, Result>
 {
     public async ValueTask<Result> Handle(ResolvePostReportCommand request, CancellationToken cancellationToken)

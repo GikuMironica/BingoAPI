@@ -131,9 +131,11 @@ builder.Services.AddHopautCurrentUser();
 builder.Services.AddTransient<CorrelationIdPropagationHandler>();
 builder.Services.ConfigureHttpClientDefaults(http => http.AddHttpMessageHandler<CorrelationIdPropagationHandler>());
 
-// ── Authorization: endpoints with RequireAuthorization need an authenticated bearer token (JWT bearer: Identity module) ──
+// ── Authorization: endpoints with RequireAuthorization need an authenticated bearer token (JWT bearer: Identity module);
+//    handlers authorize loaded resources through IResourceAuthorizer against the policies each module registers ──
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(HopautPolicies.Admin, policy => policy.RequireRole(HopautRoles.Admin, HopautRoles.SuperAdmin));
+    .AddPolicy(HopautPolicies.Admin, policy => policy.RequireRole(HopautRoles.Administrators));
+builder.Services.AddHopautResourceAuthorization();
 
 // ── Reverse proxies (forwarded headers) and CORS, both from validated settings ──
 builder.Services.AddOptions<ProxySettings>().BindConfiguration(ProxySettings.SectionName).ValidateDataAnnotations().ValidateOnStart();

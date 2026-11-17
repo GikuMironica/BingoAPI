@@ -1,5 +1,6 @@
 using Hopaut.BuildingBlocks.Api;
 using Hopaut.BuildingBlocks.Api.Http;
+using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Moderation.Application.Commands.CreatePostReport;
 using Hopaut.Modules.Moderation.Application.Commands.CreateUserReport;
 using Hopaut.Modules.Moderation.Application.Commands.ResolvePostReport;
@@ -41,12 +42,12 @@ public sealed class ModerationModule : IModuleEndpoints
         {
             var result = await sender.Send(new GetOpenPostReportsQuery(), cancellationToken);
             return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
-        });
+        }).RequireAuthorization(HopautPolicies.Admin);
 
         group.MapPost("/reports/post/{id:int}/resolve", async (int id, ISender sender, CancellationToken cancellationToken) =>
         {
             var result = await sender.Send(new ResolvePostReportCommand(PostReportId.From(id)), cancellationToken);
             return result.IsSuccess ? Results.Ok() : Results.NotFound();
-        });
+        }).RequireAuthorization(HopautPolicies.Admin);
     }
 }

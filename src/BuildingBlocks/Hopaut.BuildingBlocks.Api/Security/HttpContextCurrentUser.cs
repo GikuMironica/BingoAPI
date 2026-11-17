@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.SharedKernel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using System.Security.Claims;
 
 namespace Hopaut.BuildingBlocks.Api.Security;
 
@@ -11,17 +11,12 @@ public sealed class HttpContextCurrentUser(IHttpContextAccessor accessor) : ICur
 {
     private ClaimsPrincipal? Principal => accessor.HttpContext?.User;
 
-    public bool IsAuthenticated => Principal?.Identity?.IsAuthenticated == true && UserIdClaim is not null;
+    public bool IsAuthenticated => Principal?.GetUserId() is not null;
 
-    public UserId Id => UserIdClaim is { } value && UserId.TryParse(value, out var id)
-        ? id
-        : throw new InvalidOperationException("The current request has no authenticated user.");
+    public UserId Id => Principal?.GetUserId()
+        ?? throw new InvalidOperationException("The current request has no authenticated user.");
 
     public bool IsInRole(string role) => Principal?.IsInRole(role) == true;
-
-    private string? UserIdClaim => Principal?.Identity?.IsAuthenticated == true
-        ? Principal.FindFirst(HopautClaimTypes.UserId)?.Value
-        : null;
 }
 
 public static class CurrentUserServiceCollectionExtensions
@@ -30,6 +25,15 @@ public static class CurrentUserServiceCollectionExtensions
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
+        return services;
+    }
+
+    /// <summary>Registers <see cref="IResourceAuthorizer"/>; the policies it evaluates are registered by the modules.</summary>
+    public static IServiceCollection AddHopautResourceAuthorization(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+        services.AddAuthorizationCore();
+        services.AddScoped<IResourceAuthorizer, AuthorizationServiceResourceAuthorizer>();
         return services;
     }
 }
