@@ -5,7 +5,7 @@
 **Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 8 · **Current step:** 8.2
 
 ## Now
-- [ ] 8.2 – Posts (skills: clean-architecture-ddd, dotnet-10-migration, rest-api-standards for the unchanged wire): Phase 8 checklist + plan § 8.2 (`Post` owns its children, `PostStatus`, value objects from 8.1, verbs, bounded nearby read model, ownership through 6.9); first module unit-test project from `templates/Module`
+- [ ] 8.2 – Posts (skills: clean-architecture-ddd, dotnet-10-migration, rest-api-standards for the unchanged wire): batches 1–2 done (`42b6c68`, `3e14aed`); next batch 3 (`UpdatePost`, `DisablePost`, `GetMyPosts`, tags with sequence IDs – F-065, `xmin`), then batch 4 (bounded read model with cursor, coverage ≥ 70 %); details in `HANDOVER.md` §2
 
 ## Next
 Order and dependencies: `hopaut-execution-plan.md` Phase 7 header (D-005) and Phase 8 checklist.
