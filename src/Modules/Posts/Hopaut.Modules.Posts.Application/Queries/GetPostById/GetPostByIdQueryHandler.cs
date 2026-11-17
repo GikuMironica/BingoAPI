@@ -8,15 +8,7 @@ public sealed class GetPostByIdQueryHandler(IPostRepository posts) : IQueryHandl
 {
     public async ValueTask<Result<PostDto>> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
     {
-        var p = await posts.GetByIdAsync(request.PostId, cancellationToken);
-        if (p is null)
-            return PostErrors.NotFound(request.PostId);
-
-        return new PostDto(
-            p.Id.Value, p.PostTime, p.EventTime, p.EndTime, p.ActiveFlag, p.UserId.Value,
-            new EventLocationDto(p.Location.EntityName, p.Location.City, p.Location.Region, p.Location.Address, p.Location.Country, p.Location.Location.X, p.Location.Location.Y),
-            new EventDto(p.Event.EventType, p.Event.EntrancePrice, p.Event.Currency, p.Event.Title, p.Event.Description, p.Event.Requirements, p.Event.Slots),
-            p.Pictures.Select(pic => new PictureDto(pic.Id.Value, pic.Url, pic.State.ToString())).ToList(),
-            p.Tags.Select(t => t.Tag!.TagName).ToList());
+        var post = await posts.GetByIdAsync(request.PostId, cancellationToken);
+        return post is null ? PostErrors.NotFound(request.PostId) : PostDto.From(post);
     }
 }

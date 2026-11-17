@@ -33,7 +33,7 @@ public sealed class PostRepository : IPostRepository
             .Include(p => p.Event)
             .Include(p => p.Pictures)
             .Include(p => p.Tags).ThenInclude(t => t.Tag)
-            .Where(p => p.ActiveFlag == 1 && p.Location.Location.IsWithinDistance(point, radiusMeters))
+            .Where(p => p.Status == PostStatus.Active && p.Location.Location.IsWithinDistance(point, radiusMeters))
             .OrderBy(p => p.Location.Location.Distance(point))
             .Take(limit)
             .ToListAsync(ct);

@@ -40,10 +40,17 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedNever();
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
-            entity.HasOne(e => e.Location).WithOne(l => l.Post).HasForeignKey<EventLocation>(l => l.PostId);
-            entity.HasOne(e => e.Event).WithOne(ev => ev.Post).HasForeignKey<Event>(ev => ev.PostId);
-            entity.HasOne(e => e.Repeatable).WithOne(r => r.Post).HasForeignKey<RepeatableProperty>(r => r.PostId);
-            entity.HasMany(e => e.Pictures).WithOne(p => p.Post).HasForeignKey(p => p.PostId);
+            entity.Property(e => e.Status).HasConversion<int>();
+            entity.ComplexProperty(e => e.Schedule, schedule =>
+            {
+                schedule.Property(s => s.Start).HasColumnName("EventTime");
+                schedule.Property(s => s.End).HasColumnName("EndTime");
+            });
+            entity.HasOne(e => e.Location).WithOne().HasForeignKey<EventLocation>(l => l.PostId);
+            entity.HasOne(e => e.Event).WithOne().HasForeignKey<Event>(ev => ev.PostId);
+            entity.HasOne(e => e.Repeatable).WithOne().HasForeignKey<RepeatableProperty>(r => r.PostId);
+            entity.HasMany(e => e.Pictures).WithOne().HasForeignKey(p => p.PostId);
+            entity.HasMany(e => e.Tags).WithOne().HasForeignKey(t => t.PostId);
         });
 
         modelBuilder.Entity<Event>(entity =>
@@ -53,7 +60,9 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.EventType).HasConversion<int>();
-            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.Title).HasConversion<ValueObjectConverter<PostTitle, string>>().IsRequired();
+            entity.Property(e => e.Description).HasConversion<ValueObjectConverter<PostDescription, string>>().IsRequired();
+            entity.Property(e => e.Slots).HasConversion<ValueObjectConverter<Capacity, int>>();
             entity.Property(e => e.TypeSpecificData).HasColumnType("jsonb");
             entity.HasIndex(e => e.EventType);
         });
@@ -92,6 +101,7 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.HasKey(e => new { e.PostId, e.TagId });
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
             entity.Property(e => e.TagId).HasConversion<StronglyTypedIdConverter<TagId, int>>();
+            entity.HasOne(e => e.Tag).WithMany().HasForeignKey(e => e.TagId);
         });
 
         modelBuilder.Entity<RepeatableProperty>(entity =>

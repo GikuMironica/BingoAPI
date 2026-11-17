@@ -1,5 +1,6 @@
 using Hopaut.BuildingBlocks.Api;
 using Hopaut.BuildingBlocks.Api.Http;
+using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.Modules.Posts.Application.Commands.CreatePost;
 using Hopaut.Modules.Posts.Application.Commands.DeletePost;
 using Hopaut.Modules.Posts.Application.Queries.GetNearbyPosts;
@@ -32,9 +33,10 @@ public sealed class PostsModule : IModuleEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : Results.NotFound();
         });
 
-        group.MapPost("/", async (CreatePostCommand command, ISender sender, CancellationToken cancellationToken) =>
+        // The host is the caller (F-013): a userId sent in the body is ignored until the body shape changes in plan Step 10.4.
+        group.MapPost("/", async (CreatePostCommand command, ICurrentUser currentUser, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(command, cancellationToken);
+            var result = await sender.Send(command with { UserId = currentUser.Id }, cancellationToken);
             return result.IsSuccess
                 ? Results.Created($"/api/v1/posts/{result.Value.Value}", new { postId = result.Value.Value })
                 : result.ToProblem();

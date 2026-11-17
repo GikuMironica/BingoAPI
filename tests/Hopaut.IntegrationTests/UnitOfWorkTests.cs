@@ -75,8 +75,9 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         // Assert
         var thrown = await act.Should().ThrowAsync<Exception>();
         await using var scope = factory.Services.CreateAsyncScope();
+        var description = PostDescription.Create(marker).Value;
         var committed = await scope.ServiceProvider.GetRequiredService<PostsModuleDbContext>().Events
-            .AnyAsync(e => e.Description == marker, ct);
+            .AnyAsync(e => e.Description == description, ct);
         using (new AssertionScope())
         {
             SelfAndInner(thrown.Which).Should().ContainSingle(e => e is SimulatedPublishFailure);

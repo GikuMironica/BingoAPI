@@ -41,6 +41,27 @@ public sealed record ValidationError(IReadOnlyDictionary<string, string[]> Error
 {
     public const string DefaultCode = "general.validation";
     public const string DefaultDescription = "One or more validation errors occurred.";
+
+    /// <summary>
+    /// Gathers the failed results (typically value-object factories in a handler) under their field paths, so a client sees
+    /// every invalid field at once; null when all succeeded. A null result is skipped (an optional input that was absent).
+    /// </summary>
+    public static ValidationError? FromFailures(params ReadOnlySpan<(string Field, IResultBase? Result)> results)
+    {
+        Dictionary<string, string[]>? errors = null;
+        foreach (var (field, result) in results)
+        {
+            if (result is not { IsFailure: true })
+                continue;
+
+            errors ??= new Dictionary<string, string[]>(StringComparer.Ordinal);
+            errors[field] = errors.TryGetValue(field, out var earlier)
+                ? [.. earlier, result.Error.Description]
+                : [result.Error.Description];
+        }
+
+        return errors is null ? null : new ValidationError(errors);
+    }
 }
 
 /// <summary>Success check shared by <see cref="Result"/> and <see cref="Result{TValue}"/>; lets pipeline behaviors inspect any result type.</summary>

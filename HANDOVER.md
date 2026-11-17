@@ -1,6 +1,6 @@
 # Handover – Hopaut architecture migration
 
-**Written:** 2026-11-17 by HopautArchitect · **Backend:** `migrate/net10` @ `c96d062` + the commit that adds this file (tree clean) · **Mobile:** `dev` @ `b20be13` (tree clean, unchanged this session)
+**Written:** 2026-11-17 by HopautArchitect · **Backend:** `migrate/net10` (tree clean after the 8.2 batch 1 commit) · **Mobile:** `dev` @ `b20be13` (tree clean, unchanged this session)
 
 ## 1. State
 Phase 7 is done except for the Release build of the 7.8 gate (B-002). This session completed **7.6** (`6dbbb7c`), **7.7** (`7fbd734`), **6.6** (`1d33227`), **6.9** (`0a850c1`), the **7.8** gate run (`5fd133d`, 7.8 stays 🟡 for B-002) and **8.1** (`c96d062`: SharedKernel value-object catalog, `ISingleValueObject` + `ValueObjectConverter`, `MapMoney`/`MapTimeRange`, F-064 fixed). Next is **8.2 – Posts**, the largest Phase 8 step; this checkpoint holds its batch plan. A later commit that finishes 8.2 deletes this file.
@@ -14,7 +14,7 @@ Phase 7 is done except for the Release build of the 7.8 gate (B-002). This sessi
   2. *Money:* `Money? EntranceFee` via `MapMoney` (new columns) + a migration that converts `EntrancePrice`/`Currency` with the legacy enum → ISO-4217 table (find the legacy enum in `pre-net10-baseline`), Down restores; the wire keeps `entrancePrice` + `currency` (map in the DTO).
   3. *Use cases:* `UpdatePost` (`posts.post.owner`), `DisablePost` (Admin policy), `GetMyPosts(status)`; tags persisted (find-or-create by name, ≤ 20 × ≤ 20 chars); new endpoints are additive (no handoff, D-007); `xmin` concurrency (`uint Version`).
   4. *Read model:* `IPostReadModel` (`AsNoTracking` projection to `PostDto`) for nearby (`RadiusMeters`, `PageSize` ≤ 100, keyset cursor on distance + id) and by-id; reputations batched as today; the endpoint keeps returning the list until 10.4; integration tests for bounds and paging; coverage ≥ 70 % for Posts Domain + Application (`dotnet test --collect:"XPlat Code Coverage"`); then 8.2 ✅.
-- **Half-done:** None at the time of writing.
+- **Half-done:** batch 1 is committed (see the ledger's 8.2 row); continue with batch 2.
 
 ## 3. Validation status
 

@@ -6,7 +6,8 @@ using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Commands.DeletePost;
 
-public sealed class DeletePostCommandHandler(IPostRepository posts, IResourceAuthorizer authorizer) : ICommandHandler<DeletePostCommand, Result>
+public sealed class DeletePostCommandHandler(IPostRepository posts, IResourceAuthorizer authorizer, TimeProvider timeProvider)
+    : ICommandHandler<DeletePostCommand, Result>
 {
     public async ValueTask<Result> Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {
@@ -17,6 +18,7 @@ public sealed class DeletePostCommandHandler(IPostRepository posts, IResourceAut
         if (!await authorizer.IsAuthorizedAsync(post, PostPolicies.MustOwnPost, cancellationToken))
             return PostErrors.NotHost(request.PostId);
 
+        post.Delete(timeProvider.GetUtcNow());
         posts.Remove(post);
         return Result.Success();
     }

@@ -3,25 +3,44 @@ using Hopaut.SharedKernel;
 namespace Hopaut.Modules.Posts.Domain;
 
 /// <summary>
-/// Collapsed Event entity — replaces the 9-subclass TPH hierarchy.
-/// Type-specific data is stored as JSONB via <see cref="TypeSpecificData"/>.
+/// What a post's event offers (one row per post; the former nine-class hierarchy collapsed into <see cref="EventType"/>
+/// plus JSONB <see cref="TypeSpecificData"/>). Changes only through <see cref="Post"/>.
 /// </summary>
 public sealed class Event
 {
-    public int Id { get; set; }
-    public EventType EventType { get; set; }
-    public double? EntrancePrice { get; set; }
-    public int? Currency { get; set; }
-    public string? Title { get; set; }
-    public string Description { get; set; } = default!;
-    public string? Requirements { get; set; }
-    public int? Slots { get; set; }
+    private Event() { } // EF Core
 
-    /// <summary>
-    /// JSONB column for type-specific properties (e.g., "dressCode", "musicGenre").
-    /// </summary>
-    public string? TypeSpecificData { get; set; }
+    public int Id { get; private set; }
 
-    public PostId PostId { get; set; }
-    public Post? Post { get; set; }
+    public PostId PostId { get; private set; }
+
+    public EventType EventType { get; private set; }
+
+    public PostTitle Title { get; private set; }
+
+    public PostDescription Description { get; private set; }
+
+    public string? Requirements { get; private set; }
+
+    public Capacity? Slots { get; private set; }
+
+    // TODO (F-019, plan Step 8.2 batch 2): EntrancePrice + Currency (legacy enum index) become Money with a data conversion.
+    public double? EntrancePrice { get; private set; }
+
+    public int? Currency { get; private set; }
+
+    public string? TypeSpecificData { get; private set; }
+
+    internal static Event Create(PostId postId, EventDetails details) => new()
+    {
+        PostId = postId,
+        EventType = details.Type,
+        Title = details.Title,
+        Description = details.Description,
+        Requirements = details.Requirements,
+        Slots = details.Slots,
+        EntrancePrice = details.EntrancePrice,
+        Currency = details.Currency,
+        TypeSpecificData = details.TypeSpecificData,
+    };
 }
