@@ -27,14 +27,28 @@ public sealed class EventLocation
 
     public Point Location { get; private set; }
 
-    internal static EventLocation Create(PostId postId, Coordinates coordinates, PostPlace place) => new()
+    internal static EventLocation Create(PostId postId, Coordinates coordinates, PostPlace place)
     {
-        PostId = postId,
-        EntityName = place.EntityName,
-        City = place.City,
-        Region = place.Region,
-        Address = place.Address,
-        Country = place.Country,
-        Location = new Point(coordinates.Longitude, coordinates.Latitude) { SRID = Wgs84 },
-    };
+        var location = new EventLocation { PostId = postId };
+        location.Move(new PostLocation(coordinates, place));
+        return location;
+    }
+
+    /// <summary>Moves the event; true when the point or any address part changed.</summary>
+    internal bool Move(PostLocation location)
+    {
+        var place = location.Place;
+        var point = new Point(location.Coordinates.Longitude, location.Coordinates.Latitude) { SRID = Wgs84 };
+        var changed = Location is null
+            || !Location.EqualsExact(point)
+            || (EntityName, City, Region, Address, Country) != (place.EntityName, place.City, place.Region, place.Address, place.Country);
+
+        EntityName = place.EntityName;
+        City = place.City;
+        Region = place.Region;
+        Address = place.Address;
+        Country = place.Country;
+        Location = point;
+        return changed;
+    }
 }

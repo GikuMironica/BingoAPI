@@ -2,6 +2,7 @@ using FluentValidation;
 using Hopaut.BuildingBlocks.Infrastructure.Authorization;
 using Hopaut.Modules.Attendance.Application;
 using Hopaut.Modules.Attendance.Application.Authorization;
+using Hopaut.Modules.Attendance.Contracts;
 using Hopaut.Modules.Posts.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,7 @@ public static class AttendanceModuleInstaller
         services.AddAttendancePersistence(configuration.GetConnectionString("DefaultConnection"));
 
         services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+        services.AddScoped<IAttendanceQueries, AttendanceQueries>();
 
         services.AddResourceOwnerPolicy<PostHost>(AttendancePolicies.MustHostPost, host => host.HostId, administratorsAllowed: false);
 

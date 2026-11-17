@@ -39,4 +39,22 @@ public sealed class Event
         EntranceFee = details.EntranceFee,
         TypeSpecificData = details.TypeSpecificData,
     };
+
+    /// <summary>Applies the given parts of a revision (null keeps a value); <c>Notify</c> when attendees should hear about it (requirements or fee changed).</summary>
+    internal (bool Changed, bool Notify) Revise(PostRevision revision)
+    {
+        var notify = (revision.Requirements is not null && revision.Requirements != Requirements)
+            || (revision.EntranceFee is not null && revision.EntranceFee != EntranceFee);
+        var changed = notify
+            || (revision.Title is not null && revision.Title != Title)
+            || (revision.Description is not null && revision.Description != Description)
+            || (revision.Slots is not null && revision.Slots != Slots);
+
+        Title = revision.Title ?? Title;
+        Description = revision.Description ?? Description;
+        Requirements = revision.Requirements ?? Requirements;
+        Slots = revision.Slots ?? Slots;
+        EntranceFee = revision.EntranceFee ?? EntranceFee;
+        return (changed, notify);
+    }
 }

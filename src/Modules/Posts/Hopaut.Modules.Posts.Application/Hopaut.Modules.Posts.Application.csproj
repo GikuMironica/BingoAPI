@@ -12,6 +12,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Hopaut.Modules.Posts.Domain\Hopaut.Modules.Posts.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+    <!-- Read-only accepted-attendee count for the capacity rule of UpdatePost (plan Step 8.2). -->
+    <ProjectReference Include="..\..\Attendance\Hopaut.Modules.Attendance.Contracts\Hopaut.Modules.Attendance.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -134,6 +134,96 @@ public sealed class PostsEndpointTests(HopautApiFactory factory)
         }
     }
 
+    [Fact]
+    public async Task GivenTheHost_WhenThePostIsPatched_ThenTheChangesAreSavedAndReturned()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        using var client = ClientFor("posts-patch-host");
+        var postId = await CreateAsync(client, Body(userId: "posts-patch-host", title: "Before"), ct);
+
+        // Act
+        using var response = await client.PatchAsJsonAsync(
+            $"/api/v1/posts/{postId}",
+            new
+            {
+                location = new { city = "Munich", longitude = 11.575, latitude = 48.137 },
+                @event = new { title = "After", slots = 30, entrancePrice = 7.5, currency = 1 },
+                tagNames = new[] { "Patched" },
+            },
+            ct);
+
+        // Assert
+        using var post = JsonDocument.Parse(await client.GetStringAsync($"/api/v1/posts/{postId}", ct));
+        var @event = post.RootElement.GetProperty("event");
+        var location = post.RootElement.GetProperty("location");
+        using (new AssertionScope())
+        {
+            response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            @event.GetProperty("title").GetString().Should().Be("After");
+            @event.GetProperty("slots").GetInt32().Should().Be(30);
+            @event.GetProperty("entrancePrice").GetDouble().Should().Be(7.5);
+            @event.GetProperty("currency").GetInt32().Should().Be(1);
+            location.GetProperty("city").GetString().Should().Be("Munich");
+            location.GetProperty("latitude").GetDouble().Should().Be(48.137);
+            post.RootElement.GetProperty("tags").EnumerateArray().Select(tag => tag.GetString()).Should().Equal("patched");
+        }
+    }
+
+    [Fact]
+    public async Task GivenAnotherUser_WhenThePostIsPatched_ThenItIsForbiddenAndUnchanged()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        using var host = ClientFor("posts-patch-owner");
+        using var stranger = ClientFor("posts-patch-stranger");
+        var postId = await CreateAsync(host, Body(userId: "posts-patch-owner", title: "Mine"), ct);
+
+        // Act
+        using var response = await stranger.PatchAsJsonAsync($"/api/v1/posts/{postId}", new { @event = new { title = "Hijacked" } }, ct);
+
+        // Assert
+        using var problem = JsonDocument.Parse(await response.Content.ReadAsStringAsync(ct));
+        using var post = JsonDocument.Parse(await host.GetStringAsync($"/api/v1/posts/{postId}", ct));
+        using (new AssertionScope())
+        {
+            response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            problem.RootElement.GetProperty("errorCode").GetString().Should().Be("posts.post.not_host");
+            post.RootElement.GetProperty("event").GetProperty("title").GetString().Should().Be("Mine");
+        }
+    }
+
+    [Fact]
+    public async Task GivenAnInvalidEditOrAMissingPost_WhenPatched_ThenTheProblemsAreValidationAndNotFound()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        using var client = ClientFor("posts-patch-invalid");
+        var postId = await CreateAsync(client, Body(userId: "posts-patch-invalid", title: "Valid"), ct);
+
+        // Act
+        using var invalid = await client.PatchAsJsonAsync($"/api/v1/posts/{postId}", new { @event = new { title = new string('t', 31) } }, ct);
+        using var missing = await client.PatchAsJsonAsync("/api/v1/posts/999999", new { @event = new { title = "Ghost" } }, ct);
+
+        // Assert
+        using var validation = JsonDocument.Parse(await invalid.Content.ReadAsStringAsync(ct));
+        using var notFound = JsonDocument.Parse(await missing.Content.ReadAsStringAsync(ct));
+        using (new AssertionScope())
+        {
+            invalid.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            validation.RootElement.GetProperty("errors").EnumerateObject().Select(e => e.Name).Should().Equal("event.title");
+            missing.StatusCode.Should().Be(HttpStatusCode.NotFound);
+            notFound.RootElement.GetProperty("errorCode").GetString().Should().Be("posts.post.not_found");
+        }
+    }
+
+    private HttpClient ClientFor(string userId)
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TestJwt.Create(userId));
+        return client;
+    }
+
     private static async Task<int> CreateAsync(HttpClient client, object body, CancellationToken ct)
     {
         using var response = await client.PostAsJsonAsync("/api/v1/posts", body, ct);

@@ -14,3 +14,26 @@ public sealed record EventDetails(
     Capacity? Slots,
     Money? EntranceFee,
     string? TypeSpecificData);
+
+/// <summary>Where an event moves to: the point and its descriptive address parts.</summary>
+public sealed record PostLocation(Coordinates Coordinates, PostPlace Place);
+
+/// <summary>The host's edit of a post (the legacy update): every part is optional, and null keeps the current value.</summary>
+public sealed record PostRevision
+{
+    public TimeRange? Schedule { get; init; }
+
+    public PostLocation? Location { get; init; }
+
+    public PostTitle? Title { get; init; }
+
+    public PostDescription? Description { get; init; }
+
+    public string? Requirements { get; init; }
+
+    public Capacity? Slots { get; init; }
+
+    public Money? EntranceFee { get; init; }
+
+    public IReadOnlyCollection<TagId>? Tags { get; init; }
+}

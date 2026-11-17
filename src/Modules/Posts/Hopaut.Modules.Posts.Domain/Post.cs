@@ -13,6 +13,10 @@ public sealed class Post : AggregateRoot<PostId>
     public static readonly TimeSpan MinimumDuration = TimeSpan.FromMinutes(15);
     public static readonly TimeSpan MaximumDuration = TimeSpan.FromHours(12);
     public static readonly TimeSpan StartTolerance = TimeSpan.FromMinutes(30);
+    public static readonly TimeSpan RescheduleTolerance = TimeSpan.FromMinutes(5);
+
+    /// <summary>A running event must still last this long after an edit (legacy: 1700 s, 30 minutes less 100 s of clock slack).</summary>
+    public static readonly TimeSpan MinimumRemainingTime = TimeSpan.FromSeconds(1700);
     public const int MaxTags = 20;
 
     private readonly List<Picture> _pictures = [];
@@ -94,28 +98,51 @@ public sealed class Post : AggregateRoot<PostId>
     }
 
     /// <summary>Replaces the post's tags: links the new ones and unlinks the rest (duplicates collapse, at most <see cref="MaxTags"/>).</summary>
-    public Result Retag(IEnumerable<TagId> tags)
+    public Result Retag(IEnumerable<TagId> tags, DateTimeOffset now)
     {
         ArgumentNullException.ThrowIfNull(tags);
-
-        var tagIds = tags.Distinct().ToList();
-        if (tagIds.Count > MaxTags)
-            return PostErrors.TooManyTags;
-
-        _tags.RemoveAll(link => !tagIds.Contains(link.TagId));
-        _tags.AddRange(tagIds
-            .Where(tagId => _tags.TrueForAll(link => link.TagId != tagId))
-            .Select(tagId => PostTag.Create(Id, tagId))
-            .ToList());
-        return Result.Success();
+        return Update(new PostRevision { Tags = [.. tags] }, acceptedGuests: 0, now);
     }
 
     public Result Reschedule(TimeRange schedule, DateTimeOffset now)
     {
-        if (CheckSchedule(schedule, now) is { } scheduleError)
+        ArgumentNullException.ThrowIfNull(schedule);
+        return Update(new PostRevision { Schedule = schedule }, acceptedGuests: 0, now);
+    }
+
+    /// <summary>
+    /// Applies the host's edit with the legacy update rules: before the event starts, its start may move to at most
+    /// <see cref="RescheduleTolerance"/> in the past; once it has started, only the end may move, to at least
+    /// <see cref="MinimumRemainingTime"/> from now; the duration rules of <see cref="Create"/> apply; the capacity never drops
+    /// below the accepted attendees. Nothing changes unless every rule holds. When something changed it raises
+    /// <see cref="PostUpdatedDomainEvent"/>, asking to notify attendees if the time, place, requirements or fee changed.
+    /// </summary>
+    /// <param name="acceptedGuests">The post's accepted attendees; only checked when the revision changes the capacity.</param>
+    public Result Update(PostRevision revision, int acceptedGuests, DateTimeOffset now)
+    {
+        ArgumentNullException.ThrowIfNull(revision);
+
+        if (revision.Schedule is { } schedule && CheckReschedule(schedule, now) is { } scheduleError)
             return scheduleError;
 
-        Schedule = schedule;
+        if (revision.Requirements?.Length > PostErrors.MaxRequirementsLength)
+            return PostErrors.RequirementsTooLong;
+
+        if (revision.Slots is { } slots && slots.Value < acceptedGuests)
+            return PostErrors.SlotsBelowAttendees(acceptedGuests);
+
+        if (revision.Tags?.Distinct().Count() > MaxTags)
+            return PostErrors.TooManyTags;
+
+        var rescheduled = revision.Schedule is { } newSchedule && newSchedule != Schedule;
+        Schedule = revision.Schedule ?? Schedule;
+        var moved = revision.Location is { } location && Location.Move(location);
+        var (revised, notifyOfEvent) = Event.Revise(revision);
+        var retagged = revision.Tags is { } tags && RelinkTags(tags);
+
+        if (rescheduled || moved || revised || retagged)
+            Raise(new PostUpdatedDomainEvent(now, Id, NotifyAttendees: rescheduled || moved || notifyOfEvent));
+
         return Result.Success();
     }
 
@@ -158,7 +185,24 @@ public sealed class Post : AggregateRoot<PostId>
         return Result.Success();
     }
 
-    private static Error? CheckSchedule(TimeRange schedule, DateTimeOffset now)
+    private static Error? CheckSchedule(TimeRange schedule, DateTimeOffset now) =>
+        CheckDuration(schedule) ?? (schedule.Start < now - StartTolerance ? PostErrors.StartsInThePast : null);
+
+    private Error? CheckReschedule(TimeRange schedule, DateTimeOffset now)
+    {
+        if (CheckDuration(schedule) is { } durationError)
+            return durationError;
+
+        if (Schedule.Start > now)
+            return schedule.Start < now - RescheduleTolerance ? PostErrors.MovedToThePast : null;
+
+        if (schedule.Start != Schedule.Start)
+            return PostErrors.AlreadyStarted;
+
+        return schedule.End < now + MinimumRemainingTime ? PostErrors.EndsTooSoon : null;
+    }
+
+    private static Error? CheckDuration(TimeRange schedule)
     {
         ArgumentNullException.ThrowIfNull(schedule);
 
@@ -168,9 +212,18 @@ public sealed class Post : AggregateRoot<PostId>
         if (duration < MinimumDuration)
             return PostErrors.TooShort;
 
-        if (duration >= MaximumDuration)
-            return PostErrors.TooLong;
+        return duration >= MaximumDuration ? PostErrors.TooLong : null;
+    }
 
-        return schedule.Start < now - StartTolerance ? PostErrors.StartsInThePast : null;
+    private bool RelinkTags(IEnumerable<TagId> tags)
+    {
+        var tagIds = tags.Distinct().ToList();
+        var unlinked = _tags.RemoveAll(link => !tagIds.Contains(link.TagId));
+        var linked = tagIds
+            .Where(tagId => _tags.TrueForAll(link => link.TagId != tagId))
+            .Select(tagId => PostTag.Create(Id, tagId))
+            .ToList();
+        _tags.AddRange(linked);
+        return unlinked > 0 || linked.Count > 0;
     }
 }

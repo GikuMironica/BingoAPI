@@ -1,8 +1,10 @@
 using Hopaut.BuildingBlocks.Api;
 using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.BuildingBlocks.Application.Security;
+using Hopaut.Modules.Posts.Api.Contracts.V1;
 using Hopaut.Modules.Posts.Application.Commands.CreatePost;
 using Hopaut.Modules.Posts.Application.Commands.DeletePost;
+using Hopaut.Modules.Posts.Application.Commands.UpdatePost;
 using Hopaut.Modules.Posts.Application.Queries.GetNearbyPosts;
 using Hopaut.Modules.Posts.Application.Queries.GetPostById;
 using Hopaut.SharedKernel;
@@ -47,5 +49,27 @@ public sealed class PostsModule : IModuleEndpoints
             var result = await sender.Send(new DeletePostCommand(PostId.From(postId)), cancellationToken);
             return result.IsSuccess ? Results.NoContent() : Results.NotFound();
         }).RequireAuthorization();
+
+        // Additive (plan Step 8.2): the legacy update had no module endpoint yet; failures are problem details.
+        group.MapPatch("/{postId:int}", async (int postId, UpdatePostRequest request, ISender sender, CancellationToken cancellationToken) =>
+        {
+            var result = await sender.Send(ToCommand(PostId.From(postId), request), cancellationToken);
+            return result.IsSuccess ? Results.NoContent() : result.ToProblem();
+        })
+            .RequireAuthorization()
+            .WithName("Posts_UpdatePost")
+            .WithSummary("Partially updates a post. Host or administrator only.");
     }
+
+    private static UpdatePostCommand ToCommand(PostId postId, UpdatePostRequest request) => new(
+        postId,
+        request.EventTime,
+        request.EndTime,
+        request.Location is { } location
+            ? new CreatePostLocationInput(location.EntityName, location.City, location.Region, location.Address, location.Country, location.Longitude, location.Latitude)
+            : null,
+        request.Event is { } @event
+            ? new UpdatePostEventInput(@event.Title, @event.Description, @event.Requirements, @event.Slots, @event.EntrancePrice, @event.Currency)
+            : null,
+        request.TagNames);
 }

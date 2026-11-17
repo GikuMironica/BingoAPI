@@ -23,6 +23,14 @@ public sealed class PostDeletedDomainEventHandler(IIntegrationEventPublisher pub
             cancellationToken));
 }
 
+public sealed class PostUpdatedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<PostUpdatedDomainEvent>
+{
+    public ValueTask Handle(PostUpdatedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
+            new PostUpdatedIntegrationEvent(notification.OccurredOnUtc, notification.PostId, notification.NotifyAttendees),
+            cancellationToken));
+}
+
 public sealed class PictureStateChangedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<PictureStateChangedDomainEvent>
 {
     public ValueTask Handle(PictureStateChangedDomainEvent notification, CancellationToken cancellationToken) =>

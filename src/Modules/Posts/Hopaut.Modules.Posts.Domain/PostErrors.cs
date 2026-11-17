@@ -39,4 +39,16 @@ public static class PostErrors
 
     public static readonly Error TooManyTags =
         Error.Validation("posts.post.too_many_tags", $"A post can have at most {Post.MaxTags} tags.");
+
+    public static readonly Error MovedToThePast =
+        Error.Rule("posts.post.moved_to_the_past", "An event cannot be moved to start more than 5 minutes in the past.");
+
+    public static readonly Error AlreadyStarted =
+        Error.Rule("posts.post.already_started", "The start of an event that has begun cannot change.");
+
+    public static readonly Error EndsTooSoon =
+        Error.Rule("posts.post.ends_too_soon", "A running event must end at least 30 minutes from now.");
+
+    public static Error SlotsBelowAttendees(int acceptedGuests) =>
+        Error.Rule("posts.post.slots_below_attendees", $"The event has {acceptedGuests} accepted attendees, so it needs at least as many slots.");
 }

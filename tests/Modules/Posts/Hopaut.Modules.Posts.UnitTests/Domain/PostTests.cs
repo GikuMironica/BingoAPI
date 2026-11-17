@@ -116,7 +116,7 @@ public sealed class PostTests
         var kept = post.Tags[1];
 
         // Act
-        var result = post.Retag([TagId.From(2), TagId.From(3), TagId.From(3)]);
+        var result = post.Retag([TagId.From(2), TagId.From(3), TagId.From(3)], Now);
 
         // Assert
         using (new AssertionScope())
@@ -134,7 +134,7 @@ public sealed class PostTests
         var post = new PostBuilder().WithTags(1).Build();
 
         // Act
-        var result = post.Retag(Enumerable.Range(1, Post.MaxTags + 1).Select(TagId.From));
+        var result = post.Retag(Enumerable.Range(1, Post.MaxTags + 1).Select(TagId.From), Now);
 
         // Assert
         using (new AssertionScope())
