@@ -4,8 +4,8 @@ using Hopaut.SharedKernel;
 
 namespace Hopaut.Modules.Posts.Application.Queries;
 
-/// <summary>Which of the caller's posts to list: active = listed and not ended; inactive = disabled or ended.</summary>
-public enum HostedPostsFilter
+/// <summary>Which posts of a list to show: active = listed and not ended; inactive = disabled or ended (the legacy lists).</summary>
+public enum PostListFilter
 {
     Active,
     Inactive,
@@ -75,7 +75,11 @@ public interface IPostReadModel
 
     /// <summary>Up to <paramref name="count"/> posts of the host matching the filter, newest start first, after the given position.</summary>
     Task<IReadOnlyList<PostDto>> GetHostedAsync(
-        UserId host, HostedPostsFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct);
+        UserId host, PostListFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct);
+
+    /// <summary>Up to <paramref name="count"/> of the given posts matching the filter, newest start first, after the given position.</summary>
+    Task<IReadOnlyList<PostDto>> GetAttendedAsync(
+        IReadOnlyCollection<PostId> attended, PostListFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct);
 }
 
 public static class PostListErrors
@@ -84,10 +88,10 @@ public static class PostListErrors
         Error.Validation("posts.post.unknown_list_status", "The status must be \"active\" or \"inactive\".");
 
     /// <summary>Parses the wire value of a list filter; absent means active.</summary>
-    public static Result<HostedPostsFilter> ParseFilter(string? status) => status?.ToUpperInvariant() switch
+    public static Result<PostListFilter> ParseFilter(string? status) => status?.ToUpperInvariant() switch
     {
-        null or "ACTIVE" => HostedPostsFilter.Active,
-        "INACTIVE" => HostedPostsFilter.Inactive,
+        null or "ACTIVE" => PostListFilter.Active,
+        "INACTIVE" => PostListFilter.Inactive,
         _ => UnknownStatus,
     };
 }

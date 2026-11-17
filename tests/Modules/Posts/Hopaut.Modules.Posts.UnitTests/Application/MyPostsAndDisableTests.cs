@@ -66,7 +66,7 @@ public sealed class MyPostsAndDisableTests
         using (new AssertionScope())
         {
             result.Error.Should().BeOfType<ValidationError>().Which.Errors.Keys.Should().BeEquivalentTo("status", "cursor", "limit");
-            await _readModel.DidNotReceive().GetHostedAsync(Arg.Any<UserId>(), Arg.Any<HostedPostsFilter>(), Arg.Any<DateTimeOffset>(), Arg.Any<PostKeyset?>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
+            await _readModel.DidNotReceive().GetHostedAsync(Arg.Any<UserId>(), Arg.Any<PostListFilter>(), Arg.Any<DateTimeOffset>(), Arg.Any<PostKeyset?>(), Arg.Any<int>(), Arg.Any<CancellationToken>());
         }
     }
 
@@ -74,7 +74,7 @@ public sealed class MyPostsAndDisableTests
     public async Task GetMyPosts_WhenMorePostsFollow_ReturnsOnePageAndTheCursorOfItsLastItem()
     {
         // Arrange
-        _readModel.GetHostedAsync(Host, HostedPostsFilter.Inactive, Now, null, 3, Arg.Any<CancellationToken>())
+        _readModel.GetHostedAsync(Host, PostListFilter.Inactive, Now, null, 3, Arg.Any<CancellationToken>())
             .Returns([Dto(9, Now.AddDays(-1)), Dto(8, Now.AddDays(-2)), Dto(7, Now.AddDays(-3))]);
 
         // Act
@@ -94,7 +94,7 @@ public sealed class MyPostsAndDisableTests
     {
         // Arrange
         var after = new PostKeyset(Now.AddDays(-2), PostId.From(8));
-        _readModel.GetHostedAsync(Host, HostedPostsFilter.Active, Now, after, PageSize.Default.Value + 1, Arg.Any<CancellationToken>())
+        _readModel.GetHostedAsync(Host, PostListFilter.Active, Now, after, PageSize.Default.Value + 1, Arg.Any<CancellationToken>())
             .Returns([Dto(7, Now.AddDays(-3))]);
 
         // Act

@@ -1,10 +1,13 @@
 using Hopaut.BuildingBlocks.Api;
 using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.BuildingBlocks.Application;
+using Hopaut.Modules.Attendance.Api.Contracts.V1;
 using Hopaut.Modules.Attendance.Application.Commands.AcceptAttendance;
 using Hopaut.Modules.Attendance.Application.Commands.CancelAttendance;
 using Hopaut.Modules.Attendance.Application.Commands.RejectAttendance;
 using Hopaut.Modules.Attendance.Application.Commands.RequestAttendance;
+using Hopaut.Modules.Attendance.Application.Queries;
+using Hopaut.Modules.Attendance.Application.Queries.GetAttendees;
 using Hopaut.Modules.Attendance.Application.Queries.IsUserAttending;
 using Hopaut.SharedKernel;
 using Mediator;
@@ -59,7 +62,26 @@ public sealed class AttendanceModule : IModuleEndpoints
             var result = await sender.Send(new IsUserAttendingQuery(PostId.From(postId)), cancellationToken);
             return result.IsSuccess ? Results.Ok(new { attending = result.Value }) : result.ToProblem();
         });
+
+        // Additive (plan Step 8.3): replaces the legacy GET /fetchallaccepted, /fetchallpending and /fetchaccepteddata.
+        endpoints.MapGet("/api/v1/posts/{postId:int}/attendees", async (int postId, string? status, string? cursor, int? limit, ISender sender, CancellationToken cancellationToken) =>
+        {
+            var result = await sender.Send(new GetAttendeesQuery(PostId.From(postId), status, cursor, limit), cancellationToken);
+            return result.IsSuccess ? Results.Ok(ToResponse(result.Value)) : result.ToProblem();
+        })
+            .RequireAuthorization()
+            .WithTags("Attendance")
+            .WithName("Attendance_GetAttendees")
+            .WithSummary("Lists a post's attendees: status=accepted (default, any signed-in user) or pending (the host only), earliest request first, cursor-paged.");
     }
+
+    private static AttendeePageResponse ToResponse(AttendeePage page) => new(
+        page.Items.Select(attendee => new AttendeeResponse(
+            attendee.UserId.Value,
+            attendee.Status,
+            attendee.RequestedAt,
+            attendee.RespondedAt)).ToList(),
+        page.NextCursor);
 
     /// <summary>A participation in the wrong state (not a concurrent save, which stays a 409 problem).</summary>
     private static bool IsStateConflict(Error error) =>

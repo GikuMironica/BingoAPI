@@ -44,13 +44,38 @@ public sealed class PostReadModel(PostsModuleDbContext db) : IPostReadModel
 
     // TODO: add index — CREATE INDEX IX_posts_UserId_EventTime_Id ON posts.posts ("UserId", "EventTime" DESC, "Id" DESC);
     public async Task<IReadOnlyList<PostDto>> GetHostedAsync(
-        UserId host, HostedPostsFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct)
+        UserId host, PostListFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct)
     {
-        var active = filter == HostedPostsFilter.Active;
+        var active = filter == PostListFilter.Active;
         var keys = await db.Database.SqlQuery<PostKey>($"""
             SELECT p."Id", p."EventTime"
             FROM posts.posts AS p
             WHERE p."UserId" = {host.Value}
+              AND CASE WHEN {active}
+                       THEN p."Status" = {(int)PostStatus.Active} AND p."EndTime" > {now}
+                       ELSE p."Status" = {(int)PostStatus.Disabled} OR p."EndTime" <= {now}
+                  END
+              AND ({after is null} OR (p."EventTime", p."Id") < ({after?.EventTime ?? now}, {after?.PostId.Value ?? 0}))
+            ORDER BY p."EventTime" DESC, p."Id" DESC
+            LIMIT {count}
+            """).ToListAsync(ct);
+
+        return await LoadAsync(keys.ConvertAll(key => PostId.From(key.Id)), ct);
+    }
+
+    // The primary key serves the ID filter; the list is bounded by the caller's accepted participations.
+    public async Task<IReadOnlyList<PostDto>> GetAttendedAsync(
+        IReadOnlyCollection<PostId> attended, PostListFilter filter, DateTimeOffset now, PostKeyset? after, int count, CancellationToken ct)
+    {
+        if (attended.Count == 0)
+            return [];
+
+        var ids = attended.Select(id => id.Value).ToArray();
+        var active = filter == PostListFilter.Active;
+        var keys = await db.Database.SqlQuery<PostKey>($"""
+            SELECT p."Id", p."EventTime"
+            FROM posts.posts AS p
+            WHERE p."Id" = ANY({ids})
               AND CASE WHEN {active}
                        THEN p."Status" = {(int)PostStatus.Active} AND p."EndTime" > {now}
                        ELSE p."Status" = {(int)PostStatus.Disabled} OR p."EndTime" <= {now}

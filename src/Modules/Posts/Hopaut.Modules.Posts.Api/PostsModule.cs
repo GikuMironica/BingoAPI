@@ -6,6 +6,7 @@ using Hopaut.Modules.Posts.Application.Commands.CreatePost;
 using Hopaut.Modules.Posts.Application.Commands.DeletePost;
 using Hopaut.Modules.Posts.Application.Commands.DisablePost;
 using Hopaut.Modules.Posts.Application.Commands.UpdatePost;
+using Hopaut.Modules.Posts.Application.Queries.GetMyAttendances;
 using Hopaut.Modules.Posts.Application.Queries.GetMyPosts;
 using Hopaut.Modules.Posts.Application.Queries.GetNearbyPosts;
 using Hopaut.Modules.Posts.Application.Queries.GetPostById;
@@ -86,6 +87,17 @@ public sealed class PostsModule : IModuleEndpoints
             .WithTags("Posts")
             .WithName("Posts_GetMyPosts")
             .WithSummary("Lists the caller's posts: status=active (default) or inactive, newest start first, cursor-paged.");
+
+        // Additive (plan Step 8.3): replaces the legacy GET /attendedactive and /attendedinactive (accepted participations of the caller).
+        endpoints.MapGet("/api/v1/users/me/attendances", async (string? status, string? cursor, int? limit, ISender sender, CancellationToken cancellationToken) =>
+        {
+            var result = await sender.Send(new GetMyAttendancesQuery(status, cursor, limit), cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
+        })
+            .RequireAuthorization()
+            .WithTags("Posts")
+            .WithName("Posts_GetMyAttendances")
+            .WithSummary("Lists the posts the caller attends: status=active (default) or inactive, newest start first, cursor-paged.");
     }
 
     private const string DisabledStatus = "disabled";

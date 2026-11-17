@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text.Json;
 using AwesomeAssertions.Execution;
 using Hopaut.BuildingBlocks.Application;
+using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.IntegrationTests.Infrastructure;
 using Hopaut.Modules.Attendance.Application;
 using Hopaut.Modules.Attendance.Domain;
@@ -166,6 +168,86 @@ public sealed class AttendanceEndpointTests(HopautApiFactory factory)
     }
 
     private static string NewUser(string role) => $"attendance-{role}-{Guid.NewGuid():N}";
+
+    [Fact]
+    public async Task GivenAcceptedAndPendingGuests_WhenTheAttendeesAreListed_ThenAcceptedArePublicAndPendingOnlyForTheHost()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var hostId = NewUser("host");
+        var post = await CreatePostAsync(hostId, EventType.HouseParty, slots: null, ct);
+        var (first, second, waiting) = (NewUser("first"), NewUser("second"), NewUser("waiting"));
+        await RequestAsync(post, first, ct);
+        await RequestAsync(post, second, ct);
+        await RequestAsync(post, waiting, ct);
+        using var host = ClientFor(hostId);
+        using var stranger = ClientFor(NewUser("stranger"));
+        (await host.PostAsync($"/api/v1/attendance/{post.Value}/accept/{first}", content: null, ct)).EnsureSuccessStatusCode();
+        (await host.PostAsync($"/api/v1/attendance/{post.Value}/accept/{second}", content: null, ct)).EnsureSuccessStatusCode();
+
+        // Act
+        using var firstPage = JsonDocument.Parse(await stranger.GetStringAsync($"/api/v1/posts/{post.Value}/attendees?limit=1", ct));
+        var cursor = firstPage.RootElement.GetProperty("nextCursor").GetString();
+        using var secondPage = JsonDocument.Parse(await stranger.GetStringAsync($"/api/v1/posts/{post.Value}/attendees?limit=1&cursor={cursor}", ct));
+        using var pendingForStranger = await stranger.GetAsync($"/api/v1/posts/{post.Value}/attendees?status=pending", ct);
+        using var pending = JsonDocument.Parse(await host.GetStringAsync($"/api/v1/posts/{post.Value}/attendees?status=pending", ct));
+        using var unknown = await host.GetAsync($"/api/v1/posts/{post.Value}/attendees?status=rejected", ct);
+
+        // Assert
+        var attendee = firstPage.RootElement.GetProperty("items")[0];
+        using (new AssertionScope())
+        {
+            attendee.GetProperty("userId").GetString().Should().Be(first);
+            attendee.GetProperty("status").GetString().Should().Be("accepted");
+            attendee.GetProperty("requestedAt").GetDateTimeOffset().Offset.Should().Be(TimeSpan.Zero);
+            attendee.GetProperty("respondedAt").ValueKind.Should().Be(JsonValueKind.String);
+            UserIds(secondPage).Should().Equal(second);
+            secondPage.RootElement.GetProperty("nextCursor").ValueKind.Should().Be(JsonValueKind.Null);
+            pendingForStranger.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+            (await ErrorCodeAsync(pendingForStranger, ct)).Should().Be("attendance.participation.not_post_host");
+            UserIds(pending).Should().Equal(waiting);
+            unknown.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+    }
+
+    [Fact]
+    public async Task GivenAGuestWithRunningDisabledAndPendingAttendances_WhenTheyListThem_ThenOnlyTheirAcceptedOnesAreSplitByStatus()
+    {
+        // Arrange
+        var ct = TestContext.Current.CancellationToken;
+        var hostId = NewUser("host");
+        var guestId = NewUser("guest");
+        var running = await CreatePostAsync(hostId, EventType.Bar, slots: null, ct);
+        var disabled = await CreatePostAsync(hostId, EventType.Club, slots: null, ct, new DateTimeOffset(2030, 2, 1, 18, 0, 0, TimeSpan.Zero));
+        var awaiting = await CreatePostAsync(hostId, EventType.HouseParty, slots: null, ct);
+        var othersOnly = await CreatePostAsync(hostId, EventType.Bar, slots: null, ct);
+        await RequestAsync(running, guestId, ct);
+        await RequestAsync(disabled, guestId, ct);
+        await RequestAsync(awaiting, guestId, ct);
+        await RequestAsync(othersOnly, NewUser("other"), ct);
+        using var admin = factory.CreateClient();
+        admin.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TestJwt.Create(NewUser("admin"), [HopautRoles.Admin]));
+        using var disabling = await admin.PatchAsJsonAsync($"/api/v1/posts/{disabled.Value}/status", new { status = "disabled" }, ct);
+        using var guest = ClientFor(guestId);
+
+        // Act
+        using var active = JsonDocument.Parse(await guest.GetStringAsync("/api/v1/users/me/attendances", ct));
+        using var inactive = JsonDocument.Parse(await guest.GetStringAsync("/api/v1/users/me/attendances?status=inactive", ct));
+
+        // Assert
+        using (new AssertionScope())
+        {
+            disabling.StatusCode.Should().Be(HttpStatusCode.NoContent);
+            PostIds(active).Should().Equal(running.Value);
+            PostIds(inactive).Should().Equal(disabled.Value);
+        }
+    }
+
+    private static List<string?> UserIds(JsonDocument page) =>
+        page.RootElement.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("userId").GetString()).ToList();
+
+    private static List<int> PostIds(JsonDocument page) =>
+        page.RootElement.GetProperty("items").EnumerateArray().Select(item => item.GetProperty("id").GetInt32()).ToList();
 
     private HttpClient ClientFor(string userId)
     {
