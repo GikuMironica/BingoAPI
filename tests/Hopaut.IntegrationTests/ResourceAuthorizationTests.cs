@@ -7,6 +7,7 @@ using Hopaut.BuildingBlocks.Application.Security;
 using Hopaut.IntegrationTests.Infrastructure;
 using Hopaut.Modules.Announcements.Application.Commands.CreateAnnouncement;
 using Hopaut.Modules.Announcements.Infrastructure;
+using Hopaut.Modules.Attendance.Application.Commands.RequestAttendance;
 using Hopaut.Modules.Attendance.Domain;
 using Hopaut.Modules.Attendance.Infrastructure;
 using Hopaut.Modules.Moderation.Application.Commands.CreatePostReport;
@@ -229,11 +230,9 @@ public sealed class ResourceAuthorizationTests(HopautApiFactory factory)
         // Arrange
         var ct = TestContext.Current.CancellationToken;
         var rater = NewUser("rater");
-        var rating = await TestCaller.SendAsync(
-            factory.Services,
-            caller: null,
-            new CreateRatingCommand(4, UserId.From(NewUser("rated")), UserId.From(rater), PostId.From(1), null),
-            ct);
+        var post = await CreatePostAsync(NewUser("rated"), ct, EventType.Bar);
+        await TestCaller.SendAsync(factory.Services, TestCaller.For(rater), new RequestAttendanceCommand(post), ct);
+        var rating = await TestCaller.SendAsync(factory.Services, TestCaller.For(rater), new CreateRatingCommand(4, post, null), ct);
         using var client = ClientFor(caller, rater);
 
         // Act
@@ -352,14 +351,14 @@ public sealed class ResourceAuthorizationTests(HopautApiFactory factory)
     // Strongly-typed IDs are bound as { "value": n } until the wire switches to primitives (D-016, plan Step 10.1).
     private static object AnnouncementBody(PostId post) => new { postId = new { value = post.Value }, message = "Doors open at eight" };
 
-    private async Task<PostId> CreatePostAsync(string hostId, CancellationToken ct)
+    private async Task<PostId> CreatePostAsync(string hostId, CancellationToken ct, EventType type = EventType.HouseParty)
     {
         var created = await TestCaller.SendAsync(factory.Services, caller: null, new CreatePostCommand(
             new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
             new DateTimeOffset(2030, 1, 9, 23, 0, 0, TimeSpan.Zero),
             UserId.From(hostId),
             new CreatePostLocationInput("Venue", "Berlin", null, "Main St 1", "DE", 13.405, 52.52),
-            new CreatePostEventInput(EventType.HouseParty, null, null, "Authorization", "authorization tests", null, 10, null)), ct);
+            new CreatePostEventInput(type, null, null, "Authorization", "authorization tests", null, 10, null)), ct);
         return created.Value;
     }
 

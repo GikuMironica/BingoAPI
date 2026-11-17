@@ -1,6 +1,7 @@
 using Hopaut.BuildingBlocks.Infrastructure;
 using Hopaut.Modules.Ratings.Application;
 using Hopaut.Modules.Ratings.Domain;
+using Hopaut.Modules.Ratings.Infrastructure.Reputation;
 using Hopaut.SharedKernel;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +34,7 @@ public class RatingsModuleDbContext : ModuleDbContext, IRatingsUnitOfWork
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.RaterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
+            entity.Property(e => e.Feedback).HasConversion<ValueObjectConverter<RatingFeedback, string>>().HasMaxLength(RatingFeedback.MaxLength);
             entity.HasIndex(e => e.UserId);
             entity.HasIndex(e => e.PostId);
             entity.HasIndex(e => new { e.RaterId, e.PostId }).IsUnique();
@@ -43,6 +45,7 @@ public class RatingsModuleDbContext : ModuleDbContext, IRatingsUnitOfWork
             entity.ToTable("user_reputations");
             entity.HasKey(e => e.UserId);
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().HasMaxLength(450);
+            entity.Property(e => e.Version).IsRowVersion();
         });
     }
 }

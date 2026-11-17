@@ -34,7 +34,8 @@ namespace Hopaut.Modules.Ratings.Infrastructure.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Feedback")
-                        .HasColumnType("text");
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
@@ -64,7 +65,7 @@ namespace Hopaut.Modules.Ratings.Infrastructure.Migrations
                     b.ToTable("ratings", "ratings");
                 });
 
-            modelBuilder.Entity("Hopaut.Modules.Ratings.Domain.UserReputation", b =>
+            modelBuilder.Entity("Hopaut.Modules.Ratings.Infrastructure.Reputation.UserReputation", b =>
                 {
                     b.Property<string>("UserId")
                         .HasMaxLength(450)
@@ -78,6 +79,12 @@ namespace Hopaut.Modules.Ratings.Infrastructure.Migrations
 
                     b.Property<int>("TotalRatings")
                         .HasColumnType("integer");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("UserId");
 

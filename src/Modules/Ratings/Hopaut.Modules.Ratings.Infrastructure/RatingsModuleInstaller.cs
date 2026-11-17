@@ -2,6 +2,7 @@ using FluentValidation;
 using Hopaut.BuildingBlocks.Infrastructure.Authorization;
 using Hopaut.Modules.Ratings.Application;
 using Hopaut.Modules.Ratings.Application.Authorization;
+using Hopaut.Modules.Ratings.Application.Queries;
 using Hopaut.Modules.Ratings.Contracts;
 using Hopaut.Modules.Ratings.Domain;
 using Microsoft.Extensions.Configuration;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Hopaut.Modules.Ratings.Infrastructure;
 
-/// <summary>Registers the Ratings module's services. Handlers, domain-event handlers and the unit-of-work behavior are registered by the Host's AddMediator; IUserReputationQueries is the module's public read port (Contracts).</summary>
+/// <summary>Registers the Ratings module's services. Handlers, domain-event handlers (including the reputation projection) and the unit-of-work behavior are registered by the Host's AddMediator; IUserReputationQueries is the module's public read port (Contracts); the host and the attendance come from Posts.Contracts and Attendance.Contracts.</summary>
 public static class RatingsModuleInstaller
 {
     public static IServiceCollection AddRatingsModule(this IServiceCollection services, IConfiguration configuration)
@@ -17,7 +18,7 @@ public static class RatingsModuleInstaller
         services.AddRatingsPersistence(configuration.GetConnectionString("DefaultConnection"));
 
         services.AddScoped<IRatingRepository, RatingRepository>();
-        services.AddScoped<IUserReputationRepository, UserReputationRepository>();
+        services.AddScoped<IRatingReadModel, RatingReadModel>();
         services.AddScoped<IUserReputationQueries, UserReputationQueries>();
 
         services.AddResourceOwnerPolicy<Rating>(RatingPolicies.MustOwnRating, rating => rating.RaterId, administratorsAllowed: true);

@@ -19,4 +19,9 @@ public sealed class AttendanceQueries(AttendanceModuleDbContext db) : IAttendanc
             .Where(p => p.UserId == userId && p.Status == AttendanceStatus.Accepted)
             .Select(p => p.PostId)
             .ToListAsync(cancellationToken);
+
+    public Task<bool> IsAcceptedAsync(PostId postId, UserId userId, CancellationToken cancellationToken) =>
+        db.Participations
+            .AsNoTracking()
+            .AnyAsync(p => p.PostId == postId && p.UserId == userId && p.Status == AttendanceStatus.Accepted, cancellationToken);
 }

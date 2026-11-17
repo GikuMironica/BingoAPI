@@ -3,15 +3,9 @@ using Mediator;
 
 namespace Hopaut.Modules.Ratings.Application.Queries.GetRatingsByUser;
 
-public sealed class GetRatingsByUserQueryHandler(IRatingRepository ratings)
+public sealed class GetRatingsByUserQueryHandler(IRatingReadModel readModel)
     : IQueryHandler<GetRatingsByUserQuery, Result<IReadOnlyList<RatingDto>>>
 {
-    public async ValueTask<Result<IReadOnlyList<RatingDto>>> Handle(GetRatingsByUserQuery request, CancellationToken cancellationToken)
-    {
-        var received = await ratings.GetByUserAsync(request.UserId, cancellationToken);
-        IReadOnlyList<RatingDto> dtos = received
-            .Select(r => new RatingDto(r.Id.Value, r.Rate.Value, r.RaterId.Value, r.PostId.Value, r.Feedback, r.CreatedAt))
-            .ToList();
-        return Result.Success(dtos);
-    }
+    public async ValueTask<Result<IReadOnlyList<RatingDto>>> Handle(GetRatingsByUserQuery request, CancellationToken cancellationToken) =>
+        Result.Success(await readModel.GetReceivedAsync(request.UserId, cancellationToken));
 }

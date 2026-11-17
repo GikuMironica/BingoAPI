@@ -10,4 +10,7 @@ public interface IAttendanceQueries
 
     /// <summary>The posts in which the user's participation is accepted.</summary>
     Task<IReadOnlyList<PostId>> GetAcceptedPostIdsAsync(UserId userId, CancellationToken cancellationToken);
+
+    /// <summary>Whether the user's participation in the post is accepted (the Ratings eligibility rule).</summary>
+    Task<bool> IsAcceptedAsync(PostId postId, UserId userId, CancellationToken cancellationToken);
 }

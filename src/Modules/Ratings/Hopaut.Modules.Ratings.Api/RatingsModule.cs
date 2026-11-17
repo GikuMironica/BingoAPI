@@ -2,6 +2,7 @@ using Hopaut.BuildingBlocks.Api;
 using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.Modules.Ratings.Application.Commands.CreateRating;
 using Hopaut.Modules.Ratings.Application.Commands.DeleteRating;
+using Hopaut.Modules.Ratings.Application.Queries.GetRatingById;
 using Hopaut.Modules.Ratings.Application.Queries.GetRatingsByUser;
 using Hopaut.SharedKernel;
 using Mediator;
@@ -25,6 +26,17 @@ public sealed class RatingsModule : IModuleEndpoints
             return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
         }).RequireAuthorization();
 
+        // Additive (plan Step 8.4): BingoMobile reads a rating with the legacy POST /ratings/{id}; the target is this GET (10.7).
+        group.MapGet("/{id:int}", async (int id, ISender sender, CancellationToken cancellationToken) =>
+        {
+            var result = await sender.Send(new GetRatingByIdQuery(RatingId.From(id)), cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
+        })
+            .RequireAuthorization()
+            .WithName("Ratings_GetRatingById")
+            .WithSummary("Gets one rating.");
+
+        // The rater is the caller and the rated user the post's host (D-031): body fields userId and raterId are ignored until 10.7.
         group.MapPost("/", async (CreateRatingCommand command, ISender sender, CancellationToken cancellationToken) =>
         {
             var result = await sender.Send(command, cancellationToken);

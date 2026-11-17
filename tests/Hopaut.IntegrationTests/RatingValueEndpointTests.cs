@@ -7,7 +7,10 @@ using Hopaut.IntegrationTests.Infrastructure;
 
 namespace Hopaut.IntegrationTests;
 
-/// <summary>Plan Step 8.1 (F-064): a rating outside 1–5 is rejected by the <c>RatingValue</c> factory instead of throwing.</summary>
+/// <summary>
+/// Plan Step 8.1 (F-064): a rating outside 1–5 is rejected by the <c>RatingValue</c> factory instead of throwing; since Step 8.4
+/// the handler collects every invalid field into one validation problem (D-031).
+/// </summary>
 [Collection(HostCollection.Name)]
 public sealed class RatingValueEndpointTests(HopautApiFactory factory)
 {
@@ -39,7 +42,8 @@ public sealed class RatingValueEndpointTests(HopautApiFactory factory)
         using (new AssertionScope())
         {
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-            problem.RootElement.GetProperty("errorCode").GetString().Should().Be("shared.rating_value.out_of_range");
+            problem.RootElement.GetProperty("errors").GetProperty("rate").EnumerateArray().Select(message => message.GetString())
+                .Should().Equal("A rating must be between 1 and 5.");
         }
     }
 }

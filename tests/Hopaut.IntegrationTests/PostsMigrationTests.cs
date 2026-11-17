@@ -2,11 +2,11 @@ using AwesomeAssertions.Execution;
 using Hopaut.BuildingBlocks.Infrastructure.Persistence;
 using Hopaut.IntegrationTests.Infrastructure;
 using Hopaut.Modules.Posts.Infrastructure;
-using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql;
+using static Hopaut.IntegrationTests.Infrastructure.MigrationTestDatabase;
 
 namespace Hopaut.IntegrationTests;
 
@@ -102,28 +102,5 @@ public sealed class PostsMigrationTests(HopautApiFactory factory)
         {
             await context.Database.EnsureDeletedAsync(ct);
         }
-    }
-
-    private static async Task<List<(string?, string?)>> RowsAsync(string connectionString, string sql, CancellationToken ct)
-    {
-        await using var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync(ct);
-        await using var command = new NpgsqlCommand(sql, connection);
-        await using var reader = await command.ExecuteReaderAsync(ct);
-        var rows = new List<(string?, string?)>();
-        while (await reader.ReadAsync(ct))
-        {
-            rows.Add((reader.IsDBNull(0) ? null : reader.GetString(0), reader.IsDBNull(1) ? null : reader.GetString(1)));
-        }
-
-        return rows;
-    }
-
-    private sealed class NoPublisher : IPublisher
-    {
-        public ValueTask Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
-            where TNotification : INotification => ValueTask.CompletedTask;
-
-        public ValueTask Publish(object notification, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     }
 }

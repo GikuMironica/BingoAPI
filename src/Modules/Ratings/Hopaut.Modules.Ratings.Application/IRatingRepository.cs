@@ -8,9 +8,13 @@ public interface IRatingRepository
 {
     /// <summary>Next ID from the ratings sequence, assigned before the rating is created.</summary>
     Task<RatingId> NextIdAsync(CancellationToken ct = default);
+
     Task<Rating?> GetByIdAsync(RatingId id, CancellationToken ct = default);
-    Task<List<Rating>> GetByUserAsync(UserId userId, CancellationToken ct = default);
-    Task<List<Rating>> GetByPostAsync(PostId postId, CancellationToken ct = default);
+
+    /// <summary>Whether the rater already rated the post (one rating per rater and post).</summary>
+    Task<bool> ExistsAsync(UserId raterId, PostId postId, CancellationToken ct = default);
+
     void Add(Rating rating);
+
     void Remove(Rating rating);
 }

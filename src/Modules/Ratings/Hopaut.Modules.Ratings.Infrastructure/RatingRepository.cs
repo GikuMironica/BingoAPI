@@ -14,11 +14,9 @@ public sealed class RatingRepository(RatingsModuleDbContext db) : IRatingReposit
     public Task<Rating?> GetByIdAsync(RatingId id, CancellationToken ct = default)
         => db.Ratings.FirstOrDefaultAsync(r => r.Id == id, ct);
 
-    public Task<List<Rating>> GetByUserAsync(UserId userId, CancellationToken ct = default)
-        => db.Ratings.Where(r => r.UserId == userId).OrderByDescending(r => r.CreatedAt).ToListAsync(ct);
-
-    public Task<List<Rating>> GetByPostAsync(PostId postId, CancellationToken ct = default)
-        => db.Ratings.Where(r => r.PostId == postId).ToListAsync(ct);
+    // The unique (RaterId, PostId) index serves the check and rejects a concurrent duplicate on save.
+    public Task<bool> ExistsAsync(UserId raterId, PostId postId, CancellationToken ct = default)
+        => db.Ratings.AnyAsync(r => r.RaterId == raterId && r.PostId == postId, ct);
 
     public void Add(Rating rating) => db.Ratings.Add(rating);
 

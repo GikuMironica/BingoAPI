@@ -92,13 +92,16 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         var ct = TestContext.Current.CancellationToken;
         var suffix = Guid.NewGuid().ToString("N");
         var rated = UserId.From("uow-rated-" + suffix);
-        var post = PostId.From(7);
+        var (raterA, raterB) = ("rater-a-" + suffix, "rater-b-" + suffix);
+        var post = await SendAsync(factory.Services, OpenEvent(rated), ct);
+        await TestCaller.SendAsync(factory.Services, TestCaller.For(raterA), new RequestAttendanceCommand(post.Value), ct);
+        await TestCaller.SendAsync(factory.Services, TestCaller.For(raterB), new RequestAttendanceCommand(post.Value), ct);
 
         // Act
-        var first = await SendAsync(factory.Services, new CreateRatingCommand(4, rated, UserId.From("rater-a-" + suffix), post, null), ct);
-        await SendAsync(factory.Services, new CreateRatingCommand(2, rated, UserId.From("rater-b-" + suffix), post, null), ct);
+        var first = await TestCaller.SendAsync(factory.Services, TestCaller.For(raterA), new CreateRatingCommand(4, post.Value, null), ct);
+        await TestCaller.SendAsync(factory.Services, TestCaller.For(raterB), new CreateRatingCommand(2, post.Value, null), ct);
         var afterCreates = await ReputationAsync(rated, ct);
-        var deleted = await TestCaller.SendAsync(factory.Services, TestCaller.For("rater-a-" + suffix), new DeleteRatingCommand(first.Value), ct);
+        var deleted = await TestCaller.SendAsync(factory.Services, TestCaller.For(raterA), new DeleteRatingCommand(first.Value), ct);
         var afterDelete = await ReputationAsync(rated, ct);
 
         // Assert
@@ -156,6 +159,14 @@ public sealed class UnitOfWorkTests(HopautApiFactory factory)
         UserId.From(UnitOfWorkHost),
         new CreatePostLocationInput("Venue", "Berlin", null, "Main St 1", "DE", 13.405, 52.52),
         new CreatePostEventInput(EventType.HouseParty, null, null, "Unit of work", description, null, 10, null));
+
+    /// <summary>A bar night hosted by <paramref name="host"/>: requests to attend are accepted at once (D-030).</summary>
+    private static CreatePostCommand OpenEvent(UserId host) => new(
+        new DateTimeOffset(2030, 1, 9, 18, 0, 0, TimeSpan.Zero),
+        new DateTimeOffset(2030, 1, 9, 23, 0, 0, TimeSpan.Zero),
+        host,
+        new CreatePostLocationInput("Venue", "Berlin", null, "Main St 1", "DE", 13.405, 52.52),
+        new CreatePostEventInput(EventType.Bar, null, null, "Unit of work", "rated by its attendees", null, null, null));
 
     private static async Task<TResponse> SendAsync<TResponse>(IServiceProvider root, ICommand<TResponse> command, CancellationToken ct)
     {

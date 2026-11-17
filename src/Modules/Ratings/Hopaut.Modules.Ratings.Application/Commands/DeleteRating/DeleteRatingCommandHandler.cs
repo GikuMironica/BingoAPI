@@ -6,8 +6,7 @@ using Mediator;
 
 namespace Hopaut.Modules.Ratings.Application.Commands.DeleteRating;
 
-public sealed class DeleteRatingCommandHandler(
-    IRatingRepository ratings, IUserReputationRepository reputations, IResourceAuthorizer authorizer)
+public sealed class DeleteRatingCommandHandler(IRatingRepository ratings, IResourceAuthorizer authorizer, TimeProvider timeProvider)
     : ICommandHandler<DeleteRatingCommand, Result>
 {
     public async ValueTask<Result> Handle(DeleteRatingCommand request, CancellationToken cancellationToken)
@@ -19,11 +18,8 @@ public sealed class DeleteRatingCommandHandler(
         if (!await authorizer.IsAuthorizedAsync(rating, RatingPolicies.MustOwnRating, cancellationToken))
             return RatingErrors.NotRater(request.RatingId);
 
+        rating.Delete(timeProvider.GetUtcNow());
         ratings.Remove(rating);
-
-        // Denormalized reputation projection, saved in the same unit of work as the deletion.
-        await reputations.RecalculateAsync(rating.UserId, cancellationToken);
-
         return Result.Success();
     }
 }
