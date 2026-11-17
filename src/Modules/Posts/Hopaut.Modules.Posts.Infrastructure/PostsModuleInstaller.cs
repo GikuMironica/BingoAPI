@@ -1,20 +1,16 @@
 using FluentValidation;
 using Hopaut.Modules.Posts.Application;
-using Hopaut.Modules.Posts.Infrastructure;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hopaut.Modules.Posts.Api;
+namespace Hopaut.Modules.Posts.Infrastructure;
 
-/// <summary>Handlers, domain-event handlers and the unit-of-work behavior are registered by the Host's AddMediator.</summary>
+/// <summary>Registers the Posts module's services. Handlers, domain-event handlers and the unit-of-work behavior are registered by the Host's AddMediator.</summary>
 public static class PostsModuleInstaller
 {
     public static IServiceCollection AddPostsModule(this IServiceCollection services, IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-        services.AddPostsPersistence(connectionString);
+        services.AddPostsPersistence(configuration.GetConnectionString("DefaultConnection"));
 
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<IUserReputationProvider, RatingsUserReputationProvider>();
@@ -22,11 +18,5 @@ public static class PostsModuleInstaller
         services.AddValidatorsFromAssemblyContaining<IPostsCommand>(includeInternalTypes: true);
 
         return services;
-    }
-
-    public static IEndpointRouteBuilder MapPostsEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        new PostsModule().MapEndpoints(endpoints);
-        return endpoints;
     }
 }

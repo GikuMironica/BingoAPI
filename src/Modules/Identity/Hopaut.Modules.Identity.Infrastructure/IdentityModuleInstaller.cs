@@ -1,17 +1,16 @@
 using FluentValidation;
 using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
-using Hopaut.Modules.Identity.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Hopaut.Modules.Identity.Api;
+namespace Hopaut.Modules.Identity.Infrastructure;
 
+/// <summary>Registers the Identity module's services, including JWT bearer authentication; handlers and the unit-of-work behavior are registered by the Host's AddMediator.</summary>
 public static class IdentityModuleInstaller
 {
     public static IServiceCollection AddIdentityModule(this IServiceCollection services, IConfiguration configuration)
@@ -61,11 +60,5 @@ public static class IdentityModuleInstaller
         services.AddValidatorsFromAssemblyContaining<IIdentityCommand>(includeInternalTypes: true);
 
         return services;
-    }
-
-    public static IEndpointRouteBuilder MapIdentityEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        new IdentityModule().MapEndpoints(endpoints);
-        return endpoints;
     }
 }

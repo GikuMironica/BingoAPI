@@ -1,5 +1,5 @@
 using Hopaut.BuildingBlocks.Application;
-using Hopaut.Modules.Ratings.Application.IntegrationEvents;
+using Hopaut.Modules.Ratings.Contracts;
 using Hopaut.Modules.Ratings.Domain.Events;
 using Mediator;
 

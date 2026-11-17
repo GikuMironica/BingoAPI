@@ -1,10 +1,10 @@
 using Hopaut.Modules.Notifications.Application;
-using Hopaut.Modules.Notifications.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Hopaut.Modules.Notifications.Api;
+namespace Hopaut.Modules.Notifications.Infrastructure;
 
+/// <summary>Registers the Notifications module's services; handlers are registered by the Host's AddMediator.</summary>
 public static class NotificationsModuleInstaller
 {
     public static IServiceCollection AddNotificationsModule(this IServiceCollection services, IConfiguration configuration)

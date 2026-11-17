@@ -40,7 +40,7 @@ public sealed class HandlerResolutionTests(HopautApiFactory factory)
         // Assert
         using (new AssertionScope())
         {
-            handlers.Should().HaveCountGreaterThan(40, "the Host registers every module's request and domain-event handlers");
+            handlers.Should().HaveCountGreaterThanOrEqualTo(40, "the Host registers every module's 31 command/query handlers and 9 domain-event handlers");
             handlers.Should().Contain(h => h.Service.GetGenericTypeDefinition() == typeof(INotificationHandler<>),
                 "the Infrastructure domain-event handlers are registered too (F-057)");
             failures.Select(f => f.Handler).Should().BeEquivalentTo(

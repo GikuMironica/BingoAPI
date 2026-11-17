@@ -2,14 +2,13 @@ using Amazon;
 using Amazon.S3;
 using FluentValidation;
 using Hopaut.Modules.Media.Application;
-using Hopaut.Modules.Media.Infrastructure;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Hopaut.Modules.Media.Api;
+namespace Hopaut.Modules.Media.Infrastructure;
 
+/// <summary>Registers the Media module's services; handlers are registered by the Host's AddMediator.</summary>
 public static class MediaModuleInstaller
 {
     public static IServiceCollection AddMediaModule(this IServiceCollection services, IConfiguration configuration)
@@ -35,11 +34,5 @@ public static class MediaModuleInstaller
         services.AddValidatorsFromAssemblyContaining<IMediaCommand>(includeInternalTypes: true);
 
         return services;
-    }
-
-    public static IEndpointRouteBuilder MapMediaEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        new MediaModule().MapEndpoints(endpoints);
-        return endpoints;
     }
 }

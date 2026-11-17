@@ -50,6 +50,18 @@
     <ProjectReference Include="..\..\Modules\Moderation\Hopaut.Modules.Moderation.Api\Hopaut.Modules.Moderation.Api.csproj" />
     <ProjectReference Include="..\..\Modules\BugReports\Hopaut.Modules.BugReports.Api\Hopaut.Modules.BugReports.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Payments\Hopaut.Modules.Payments.Api\Hopaut.Modules.Payments.Api.csproj" />
+    <!-- Module service registration (AddXxxModule) lives in each module's Infrastructure (plan Step 6.6, F-052). -->
+    <ProjectReference Include="..\..\Modules\Identity\Hopaut.Modules.Identity.Infrastructure\Hopaut.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Users\Hopaut.Modules.Users.Infrastructure\Hopaut.Modules.Users.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Media\Hopaut.Modules.Media.Infrastructure\Hopaut.Modules.Media.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Posts\Hopaut.Modules.Posts.Infrastructure\Hopaut.Modules.Posts.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Attendance\Hopaut.Modules.Attendance.Infrastructure\Hopaut.Modules.Attendance.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Announcements\Hopaut.Modules.Announcements.Infrastructure\Hopaut.Modules.Announcements.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Ratings\Hopaut.Modules.Ratings.Infrastructure\Hopaut.Modules.Ratings.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Hopaut.Modules.Notifications.Infrastructure\Hopaut.Modules.Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Moderation\Hopaut.Modules.Moderation.Infrastructure\Hopaut.Modules.Moderation.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\BugReports\Hopaut.Modules.BugReports.Infrastructure\Hopaut.Modules.BugReports.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Payments\Hopaut.Modules.Payments.Infrastructure\Hopaut.Modules.Payments.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

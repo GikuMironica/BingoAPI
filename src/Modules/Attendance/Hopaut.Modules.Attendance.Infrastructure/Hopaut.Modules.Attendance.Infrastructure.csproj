@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hopaut.Modules.Attendance.Application\Hopaut.Modules.Attendance.Application.csproj" />
+    <ProjectReference Include="..\Hopaut.Modules.Attendance.Contracts\Hopaut.Modules.Attendance.Contracts.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Infrastructure\Hopaut.BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
 

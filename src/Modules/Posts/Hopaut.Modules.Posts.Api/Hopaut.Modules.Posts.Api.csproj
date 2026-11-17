@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Hopaut.Modules.Posts.Application\Hopaut.Modules.Posts.Application.csproj" />
-    <ProjectReference Include="..\Hopaut.Modules.Posts.Infrastructure\Hopaut.Modules.Posts.Infrastructure.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Api\Hopaut.BuildingBlocks.Api.csproj" />
   </ItemGroup>
 

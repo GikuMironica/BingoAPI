@@ -4,7 +4,7 @@ public sealed record BaselineEntry(string Violation, string FindingId);
 
 /// <summary>
 /// Known architecture violations at the 2026-11-17 audit (decision D-002 in TODO.md). Every entry names the open
-/// finding that fixes it (F-020 → 8.2/8.4/8.7/8.9, F-023 → 6.6, F-024/F-050/F-053 → 8.9, F-052 → 6.6).
+/// finding that fixes it (F-020 → 8.2/8.4/8.7/8.9, F-024/F-050/F-053 → 8.9). F-023 and F-052 were fixed in 6.6.
 /// Entries may only be removed: a new violation must be fixed, never added here.
 /// </summary>
 public static class ArchitectureBaseline
@@ -74,26 +74,11 @@ public static class ArchitectureBaseline
         new("ARCH-DOMAIN-SETTER: Hopaut.Modules.Ratings.Domain.UserReputation.SumRatings", "F-020"),
         new("ARCH-DOMAIN-SETTER: Hopaut.Modules.Ratings.Domain.UserReputation.TotalRatings", "F-020"),
         new("ARCH-DOMAIN-SETTER: Hopaut.Modules.Ratings.Domain.UserReputation.UserId", "F-020"),
-        // ARCH-LAYER-API
-        new("ARCH-LAYER-API: Hopaut.Modules.Announcements.Api -> Hopaut.Modules.Announcements.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Attendance.Api -> Hopaut.Modules.Attendance.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.BugReports.Api -> Hopaut.Modules.BugReports.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Identity.Api -> Hopaut.Modules.Identity.Domain", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Identity.Api -> Hopaut.Modules.Identity.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Media.Api -> Hopaut.Modules.Media.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Moderation.Api -> Hopaut.Modules.Moderation.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Notifications.Api -> Hopaut.Modules.Notifications.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Payments.Api -> Hopaut.Modules.Payments.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Posts.Api -> Hopaut.Modules.Posts.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Ratings.Api -> Hopaut.Modules.Ratings.Infrastructure", "F-052"),
-        new("ARCH-LAYER-API: Hopaut.Modules.Users.Api -> Hopaut.Modules.Users.Infrastructure", "F-052"),
         // ARCH-LAYER-APPLICATION
         new("ARCH-LAYER-APPLICATION: Hopaut.Modules.Identity.Application -> Microsoft.AspNetCore", "F-053"),
         // ARCH-LAYER-DOMAIN
         new("ARCH-LAYER-DOMAIN: Hopaut.Modules.Identity.Domain -> Microsoft.AspNetCore", "F-024"),
         new("ARCH-LAYER-DOMAIN: Hopaut.Modules.Identity.Domain -> System.ComponentModel.DataAnnotations", "F-050"),
-        // ARCH-LAYER-INFRASTRUCTURE
-        new("ARCH-LAYER-INFRASTRUCTURE: Hopaut.Modules.Posts.Infrastructure -> Hopaut.Modules.Ratings.Application", "F-023"),
     ];
 
     public static IEnumerable<BaselineEntry> ForRule(string ruleId) =>

@@ -1,7 +1,7 @@
 using Hopaut.IntegrationEvents;
 using Hopaut.SharedKernel;
 
-namespace Hopaut.Modules.Attendance.Application.IntegrationEvents;
+namespace Hopaut.Modules.Attendance.Contracts;
 
 public sealed record AttendanceRequestedIntegrationEvent(DateTimeOffset OccurredOnUtc, ParticipationId ParticipationId, PostId PostId, UserId UserId) : IntegrationEventBase(OccurredOnUtc);
 

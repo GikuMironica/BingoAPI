@@ -1,5 +1,5 @@
 using Hopaut.BuildingBlocks.Application;
-using Hopaut.Modules.Attendance.Application.IntegrationEvents;
+using Hopaut.Modules.Attendance.Contracts;
 using Hopaut.Modules.Attendance.Domain.Events;
 using Mediator;
 

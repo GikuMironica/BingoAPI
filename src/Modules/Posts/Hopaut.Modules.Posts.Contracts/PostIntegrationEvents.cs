@@ -1,7 +1,7 @@
 using Hopaut.IntegrationEvents;
 using Hopaut.SharedKernel;
 
-namespace Hopaut.Modules.Posts.Application.IntegrationEvents;
+namespace Hopaut.Modules.Posts.Contracts;
 
 public sealed record PostCreatedIntegrationEvent(DateTimeOffset OccurredOnUtc, PostId PostId, UserId HostUserId) : IntegrationEventBase(OccurredOnUtc);
 

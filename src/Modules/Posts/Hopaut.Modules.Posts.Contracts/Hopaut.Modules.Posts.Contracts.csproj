@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.Modules.Posts.Contracts</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Public surface of the Posts module for other modules: integration events and read-only query interfaces (plan Step 6.6). -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.IntegrationEvents\Hopaut.IntegrationEvents.csproj" />
+  </ItemGroup>
+
+</Project>
