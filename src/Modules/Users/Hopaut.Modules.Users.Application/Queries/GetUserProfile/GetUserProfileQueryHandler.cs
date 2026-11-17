@@ -1,17 +1,16 @@
-using MediatR;
+using Hopaut.Modules.Users.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Users.Application.Queries.GetUserProfile;
 
-public sealed class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, UserProfileDto?>
+public sealed class GetUserProfileQueryHandler(IUserProfileRepository profiles) : IQueryHandler<GetUserProfileQuery, Result<UserProfileDto>>
 {
-    private readonly IUserProfileRepository _repo;
-
-    public GetUserProfileQueryHandler(IUserProfileRepository repo) => _repo = repo;
-
-    public async Task<UserProfileDto?> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Result<UserProfileDto>> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
     {
-        var profile = await _repo.GetByIdentityUserIdAsync(request.IdentityUserId, cancellationToken);
-        if (profile is null) return null;
+        var profile = await profiles.GetByIdentityUserIdAsync(request.IdentityUserId, cancellationToken);
+        if (profile is null)
+            return UserProfileErrors.NotFound(request.IdentityUserId);
 
         return new UserProfileDto(
             profile.IdentityUserId,

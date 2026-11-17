@@ -1,20 +1,20 @@
-using MediatR;
+using Hopaut.Modules.Announcements.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Announcements.Application.Commands.DeleteAnnouncement;
 
-public sealed class DeleteAnnouncementCommandHandler : IRequestHandler<DeleteAnnouncementCommand, bool>
+// TODO (F-011, plan Step 8.5): any user can delete any announcement; only the post host may.
+public sealed class DeleteAnnouncementCommandHandler(IAnnouncementRepository announcements)
+    : ICommandHandler<DeleteAnnouncementCommand, Result>
 {
-    private readonly IAnnouncementRepository _repo;
-
-    public DeleteAnnouncementCommandHandler(IAnnouncementRepository repo) => _repo = repo;
-
-    public async Task<bool> Handle(DeleteAnnouncementCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result> Handle(DeleteAnnouncementCommand request, CancellationToken cancellationToken)
     {
-        var announcement = await _repo.GetByIdAsync(request.AnnouncementId, cancellationToken);
-        if (announcement is null) return false;
+        var announcement = await announcements.GetByIdAsync(request.AnnouncementId, cancellationToken);
+        if (announcement is null)
+            return AnnouncementErrors.NotFound(request.AnnouncementId);
 
-        await _repo.DeleteAsync(announcement, cancellationToken);
-        await _repo.SaveChangesAsync(cancellationToken);
-        return true;
+        announcements.Remove(announcement);
+        return Result.Success();
     }
 }

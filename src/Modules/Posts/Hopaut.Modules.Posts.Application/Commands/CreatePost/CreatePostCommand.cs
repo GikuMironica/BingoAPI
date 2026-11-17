@@ -1,6 +1,6 @@
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Commands.CreatePost;
 
@@ -11,7 +11,7 @@ public sealed record CreatePostCommand(
     CreatePostLocationInput Location,
     CreatePostEventInput Event,
     List<string>? PictureUrls = null,
-    List<string>? TagNames = null) : IRequest<PostId>;
+    List<string>? TagNames = null) : ICommand<Result<PostId>>, IPostsCommand;
 
 public sealed record CreatePostLocationInput(string? EntityName, string? City, string? Region, string? Address, string? Country, double Longitude, double Latitude);
 

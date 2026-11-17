@@ -3,21 +3,31 @@ using Hangfire;
 using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.BuildingBlocks.Api.Security;
 using Hopaut.BuildingBlocks.Application;
+using Hopaut.BuildingBlocks.Application.Behaviors;
+using Hopaut.BuildingBlocks.Application.Caching;
 using Hopaut.BuildingBlocks.Infrastructure.Caching;
 using Hopaut.BuildingBlocks.Infrastructure.Hangfire;
 using Hopaut.BuildingBlocks.Infrastructure.Outbox;
 using Hopaut.BuildingBlocks.Infrastructure.Persistence;
 using Hopaut.Modules.Announcements.Api;
+using Hopaut.Modules.Announcements.Application;
 using Hopaut.Modules.Attendance.Api;
+using Hopaut.Modules.Attendance.Application;
 using Hopaut.Modules.BugReports.Api;
+using Hopaut.Modules.BugReports.Application;
 using Hopaut.Modules.Identity.Api;
+using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Media.Api;
 using Hopaut.Modules.Moderation.Api;
+using Hopaut.Modules.Moderation.Application;
 using Hopaut.Modules.Notifications.Api;
 using Hopaut.Modules.Payments.Api;
 using Hopaut.Modules.Posts.Api;
+using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Ratings.Api;
+using Hopaut.Modules.Ratings.Application;
 using Hopaut.Modules.Users.Api;
+using Hopaut.Modules.Users.Application;
 using Microsoft.AspNetCore.RateLimiting;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -82,6 +92,49 @@ builder.Services.AddHopautHangfire(builder.Configuration);
 
 // ── Role Seeder ──
 builder.Services.AddHostedService<Hopaut.Api.Host.RoleSeederHostedService>();
+
+// ── Mediator (source-generated; the generator reads these literal lists at compile time) ──
+// Scoped: handlers and behaviors depend on the scoped module DbContexts. List every assembly with messages or handlers
+// (Domain: domain events; Application: commands, queries, handlers; Infrastructure: domain-event handlers).
+// Pipeline, outer to inner: Logging → Validation → Caching (ICachedQuery) → the module's unit of work (its command marker).
+builder.Services.AddMediator(options =>
+{
+    options.ServiceLifetime = ServiceLifetime.Scoped;
+    options.Assemblies =
+    [
+        typeof(IIdentityCommand),
+        typeof(IUsersCommand),
+        typeof(Hopaut.Modules.Media.Application.IMediaCommand),
+        typeof(Hopaut.Modules.Posts.Domain.Post),
+        typeof(IPostsCommand),
+        typeof(Hopaut.Modules.Posts.Infrastructure.PostsModuleDbContext),
+        typeof(Hopaut.Modules.Attendance.Domain.Participation),
+        typeof(IAttendanceCommand),
+        typeof(Hopaut.Modules.Attendance.Infrastructure.AttendanceModuleDbContext),
+        typeof(Hopaut.Modules.Announcements.Domain.Announcement),
+        typeof(IAnnouncementsCommand),
+        typeof(Hopaut.Modules.Announcements.Infrastructure.AnnouncementsModuleDbContext),
+        typeof(Hopaut.Modules.Ratings.Domain.Rating),
+        typeof(IRatingsCommand),
+        typeof(Hopaut.Modules.Ratings.Infrastructure.RatingsModuleDbContext),
+        typeof(IModerationCommand),
+        typeof(IBugReportsCommand),
+    ];
+    options.PipelineBehaviors =
+    [
+        typeof(LoggingBehavior<,>),
+        typeof(ValidationBehavior<,>),
+        typeof(CachingBehavior<,>),
+        typeof(IdentityUnitOfWorkBehavior<,>),
+        typeof(UsersUnitOfWorkBehavior<,>),
+        typeof(PostsUnitOfWorkBehavior<,>),
+        typeof(AttendanceUnitOfWorkBehavior<,>),
+        typeof(AnnouncementsUnitOfWorkBehavior<,>),
+        typeof(RatingsUnitOfWorkBehavior<,>),
+        typeof(ModerationUnitOfWorkBehavior<,>),
+        typeof(BugReportsUnitOfWorkBehavior<,>),
+    ];
+});
 
 // ── Modules ──
 builder.Services.AddIdentityModule(builder.Configuration);

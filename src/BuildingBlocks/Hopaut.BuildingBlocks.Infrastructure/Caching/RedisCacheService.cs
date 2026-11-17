@@ -9,6 +9,12 @@ public sealed class RedisCacheService : ICacheService
     private readonly IDistributedCache _cache;
     private static readonly TimeSpan DefaultExpiry = TimeSpan.FromMinutes(5);
 
+    /// <summary>Web defaults plus round-tripping of the successful query results CachingBehavior stores.</summary>
+    private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new SuccessfulResultJsonConverterFactory() },
+    };
+
     public RedisCacheService(IDistributedCache cache)
     {
         _cache = cache;
@@ -17,12 +23,12 @@ public sealed class RedisCacheService : ICacheService
     public async Task<T?> GetAsync<T>(string key, CancellationToken ct = default)
     {
         var bytes = await _cache.GetAsync(key, ct);
-        return bytes is null ? default : JsonSerializer.Deserialize<T>(bytes);
+        return bytes is null ? default : JsonSerializer.Deserialize<T>(bytes, SerializerOptions);
     }
 
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiry = null, string[]? tags = null, CancellationToken ct = default)
     {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(value);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(value, SerializerOptions);
         var options = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = expiry ?? DefaultExpiry

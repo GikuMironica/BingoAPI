@@ -1,5 +1,6 @@
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Identity.Application.Commands.ConfirmEmail;
 
-public sealed record ConfirmEmailCommand(string UserId, string Token) : IRequest<AuthResult>;
+public sealed record ConfirmEmailCommand(string UserId, string Token) : ICommand<Result<AuthResult>>, IIdentityCommand;

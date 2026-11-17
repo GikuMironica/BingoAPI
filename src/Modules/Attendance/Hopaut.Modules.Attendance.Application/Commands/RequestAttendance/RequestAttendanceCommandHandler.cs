@@ -1,28 +1,21 @@
 using Hopaut.Modules.Attendance.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Attendance.Application.Commands.RequestAttendance;
 
-public sealed class RequestAttendanceCommandHandler : IRequestHandler<RequestAttendanceCommand, bool>
+public sealed class RequestAttendanceCommandHandler(IAttendanceRepository participations, TimeProvider timeProvider)
+    : ICommandHandler<RequestAttendanceCommand, Result>
 {
-    private readonly IAttendanceRepository _repo;
-    private readonly TimeProvider _timeProvider;
-
-    public RequestAttendanceCommandHandler(IAttendanceRepository repo, TimeProvider timeProvider)
+    public async ValueTask<Result> Handle(RequestAttendanceCommand request, CancellationToken cancellationToken)
     {
-        _repo = repo;
-        _timeProvider = timeProvider;
-    }
+        var existing = await participations.GetAsync(request.PostId, request.UserId, cancellationToken);
+        if (existing is not null)
+            return ParticipationErrors.AlreadyRequested(request.PostId, request.UserId);
 
-    public async Task<bool> Handle(RequestAttendanceCommand request, CancellationToken cancellationToken)
-    {
-        var existing = await _repo.GetAsync(request.PostId, request.UserId, cancellationToken);
-        if (existing is not null) return false;
+        var id = await participations.NextIdAsync(cancellationToken);
+        participations.Add(Participation.Create(id, request.PostId, request.UserId, timeProvider.GetUtcNow()));
 
-        await _repo.AddAsync(Participation.Create(request.PostId, request.UserId, _timeProvider.GetUtcNow()), cancellationToken);
-
-        await _repo.SaveChangesAsync(cancellationToken);
-        return true;
+        return Result.Success();
     }
 }

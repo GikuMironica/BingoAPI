@@ -1,6 +1,6 @@
 using Hopaut.BuildingBlocks.Api;
 using Hopaut.Modules.Media.Application.Commands.UploadImages;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -15,9 +15,9 @@ public sealed class MediaModule : IModuleEndpoints
             .WithTags("Media")
             .RequireAuthorization();
 
-        group.MapPost("/upload", async (HttpRequest request, ISender sender) =>
+        group.MapPost("/upload", async (HttpRequest request, ISender sender, CancellationToken cancellationToken) =>
         {
-            var form = await request.ReadFormAsync();
+            var form = await request.ReadFormAsync(cancellationToken);
             var bucketPath = form["bucketPath"].ToString();
             var userId = request.HttpContext.User.FindFirst("id")?.Value ?? "unknown";
 
@@ -26,11 +26,12 @@ public sealed class MediaModule : IModuleEndpoints
                 f.FileName,
                 f.ContentType)).ToList();
 
-            var result = await sender.Send(new UploadImagesCommand(images, bucketPath, userId));
+            var result = await sender.Send(new UploadImagesCommand(images, bucketPath, userId), cancellationToken);
 
-            return result.Success
-                ? Results.Ok(new { result.ImageKeys })
-                : Results.BadRequest(new { result.Error });
+            // Today's response shapes until plan Step 10.9 (D-007).
+            return result.IsSuccess
+                ? Results.Ok(new { ImageKeys = result.Value })
+                : Results.BadRequest(new { Error = result.Error.Description });
         }).DisableAntiforgery();
     }
 }

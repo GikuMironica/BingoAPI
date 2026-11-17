@@ -1,40 +1,24 @@
 using Hopaut.BuildingBlocks.Application;
 using Hopaut.Modules.Ratings.Application.IntegrationEvents;
 using Hopaut.Modules.Ratings.Domain.Events;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Ratings.Infrastructure.DomainEventHandlers;
 
-internal sealed class RatingCreatedDomainEventHandler : INotificationHandler<RatingCreatedDomainEvent>
+// Public: the Mediator source generator in the Host registers them (F-057). They run before the Ratings unit of work saves.
+
+public sealed class RatingCreatedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<RatingCreatedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public RatingCreatedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(RatingCreatedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(RatingCreatedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new RatingCreatedIntegrationEvent(notification.OccurredOnUtc, notification.RatingId, notification.UserId, notification.RaterId, notification.PostId),
-            cancellationToken);
-    }
+            cancellationToken));
 }
 
-internal sealed class RatingDeletedDomainEventHandler : INotificationHandler<RatingDeletedDomainEvent>
+public sealed class RatingDeletedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<RatingDeletedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public RatingDeletedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(RatingDeletedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(RatingDeletedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new RatingDeletedIntegrationEvent(notification.OccurredOnUtc, notification.RatingId, notification.UserId),
-            cancellationToken);
-    }
+            cancellationToken));
 }

@@ -1,3 +1,4 @@
+using Hopaut.BuildingBlocks.Infrastructure.Persistence;
 using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
@@ -11,6 +12,9 @@ public sealed class PostRepository : IPostRepository
     private readonly PostsModuleDbContext _dbContext;
 
     public PostRepository(PostsModuleDbContext dbContext) => _dbContext = dbContext;
+
+    public async Task<PostId> NextIdAsync(CancellationToken ct = default) =>
+        new(await _dbContext.Database.NextSequenceValueAsync(PostsModuleDbContext.SchemaName, PostsModuleDbContext.PostIdSequence, ct));
 
     public async Task<Post?> GetByIdAsync(PostId id, CancellationToken ct = default) =>
         await _dbContext.Posts
@@ -35,15 +39,7 @@ public sealed class PostRepository : IPostRepository
             .ToListAsync(ct);
     }
 
-    public async Task AddAsync(Post post, CancellationToken ct = default) =>
-        await _dbContext.Posts.AddAsync(post, ct);
+    public void Add(Post post) => _dbContext.Posts.Add(post);
 
-    public async Task DeleteAsync(Post post, CancellationToken ct = default)
-    {
-        _dbContext.Posts.Remove(post);
-        await Task.CompletedTask;
-    }
-
-    public async Task SaveChangesAsync(CancellationToken ct = default) =>
-        await _dbContext.SaveChangesAsync(ct);
+    public void Remove(Post post) => _dbContext.Posts.Remove(post);
 }

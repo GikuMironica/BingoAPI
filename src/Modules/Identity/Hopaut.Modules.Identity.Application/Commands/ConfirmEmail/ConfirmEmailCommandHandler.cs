@@ -1,16 +1,17 @@
 using Hopaut.Modules.Identity.Domain;
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 
 namespace Hopaut.Modules.Identity.Application.Commands.ConfirmEmail;
 
-public sealed class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, AuthResult>
+public sealed class ConfirmEmailCommandHandler : ICommandHandler<ConfirmEmailCommand, Result<AuthResult>>
 {
     private readonly UserManager<AppUser> _userManager;
 
     public ConfirmEmailCommandHandler(UserManager<AppUser> userManager) => _userManager = userManager;
 
-    public async Task<AuthResult> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<AuthResult>> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByIdAsync(request.UserId);
         if (user is null)

@@ -1,6 +1,6 @@
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Announcements.Application.Commands.CreateAnnouncement;
 
-public sealed record CreateAnnouncementCommand(PostId PostId, string Message) : IRequest<AnnouncementId>;
+public sealed record CreateAnnouncementCommand(PostId PostId, string Message) : ICommand<Result<AnnouncementId>>, IAnnouncementsCommand;

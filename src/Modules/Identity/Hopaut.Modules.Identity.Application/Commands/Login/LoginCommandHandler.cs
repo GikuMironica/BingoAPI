@@ -1,10 +1,11 @@
 using Hopaut.Modules.Identity.Domain;
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 
 namespace Hopaut.Modules.Identity.Application.Commands.Login;
 
-public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResult>
+public sealed class LoginCommandHandler : ICommandHandler<LoginCommand, Result<AuthResult>>
 {
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
@@ -20,7 +21,7 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResu
         _tokenGenerator = tokenGenerator;
     }
 
-    public async Task<AuthResult> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<AuthResult>> Handle(LoginCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
 

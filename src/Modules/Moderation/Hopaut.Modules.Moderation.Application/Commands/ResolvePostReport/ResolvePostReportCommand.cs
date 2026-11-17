@@ -1,6 +1,6 @@
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Moderation.Application.Commands.ResolvePostReport;
 
-public sealed record ResolvePostReportCommand(PostReportId ReportId) : IRequest<bool>;
+public sealed record ResolvePostReportCommand(PostReportId ReportId) : ICommand<Result>, IModerationCommand;

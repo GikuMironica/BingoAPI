@@ -1,5 +1,5 @@
-using Hopaut.ArchitectureTests.Catalog;
 using System.Text.RegularExpressions;
+using Hopaut.ArchitectureTests.Catalog;
 
 namespace Hopaut.ArchitectureTests;
 
@@ -13,6 +13,8 @@ public sealed partial class SuiteIntegrityTests
         Rules.LayerRules.Application, Rules.LayerRules.Contracts, Rules.LayerRules.Infrastructure, Rules.LayerRules.Api,
         Rules.DomainModelRules.PublicSetter, Rules.DomainModelRules.MutableCollection, Rules.DomainModelRules.AggregateConstructor,
         Rules.DomainModelRules.EventRaiser, Rules.DomainModelRules.NamespaceMatchesAssembly,
+        Rules.MessagingRules.NoMediatR, Rules.MessagingRules.ResultResponse, Rules.MessagingRules.ModuleMarker,
+        Rules.MessagingRules.PublicTypes, Rules.MessagingRules.GeneratorInHostOnly,
     ];
 
     [Fact]

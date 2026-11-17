@@ -25,6 +25,8 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence<int>("post_ids");
+
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -146,10 +148,7 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.Post", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ActiveFlag")
                         .HasColumnType("integer");

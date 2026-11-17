@@ -13,17 +13,21 @@ public sealed class Participation : AggregateRoot<ParticipationId>
 
     private Participation() { } // EF Core
 
-    public static Participation Create(PostId postId, UserId userId, DateTimeOffset now)
+    /// <summary>Creates a request with an ID taken from the participations sequence, so the requested event carries it.</summary>
+    public static Participation Create(ParticipationId id, PostId postId, UserId userId, DateTimeOffset now)
     {
+        ArgumentOutOfRangeException.ThrowIfEqual(id, default);
+
         var participation = new Participation
         {
+            Id = id,
             PostId = postId,
             UserId = userId,
             Status = AttendanceStatus.Pending,
             RequestedAt = now
         };
 
-        participation.Raise(new AttendanceRequestedDomainEvent(now, participation.Id, postId, userId));
+        participation.Raise(new AttendanceRequestedDomainEvent(now, id, postId, userId));
 
         return participation;
     }

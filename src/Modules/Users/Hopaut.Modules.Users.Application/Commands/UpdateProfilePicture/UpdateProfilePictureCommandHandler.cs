@@ -1,20 +1,19 @@
-using MediatR;
+using Hopaut.Modules.Users.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Users.Application.Commands.UpdateProfilePicture;
 
-public sealed class UpdateProfilePictureCommandHandler : IRequestHandler<UpdateProfilePictureCommand, bool>
+// TODO (F-010, plan Step 8.8): the route user id is not compared with the caller.
+public sealed class UpdateProfilePictureCommandHandler(IUserProfileRepository profiles) : ICommandHandler<UpdateProfilePictureCommand, Result>
 {
-    private readonly IUserProfileRepository _repo;
-
-    public UpdateProfilePictureCommandHandler(IUserProfileRepository repo) => _repo = repo;
-
-    public async Task<bool> Handle(UpdateProfilePictureCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result> Handle(UpdateProfilePictureCommand request, CancellationToken cancellationToken)
     {
-        var profile = await _repo.GetByIdentityUserIdAsync(request.IdentityUserId, cancellationToken);
-        if (profile is null) return false;
+        var profile = await profiles.GetByIdentityUserIdAsync(request.IdentityUserId, cancellationToken);
+        if (profile is null)
+            return UserProfileErrors.NotFound(request.IdentityUserId);
 
         profile.UpdateProfilePicture(request.PictureUrl);
-        await _repo.SaveChangesAsync(cancellationToken);
-        return true;
+        return Result.Success();
     }
 }

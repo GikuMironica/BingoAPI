@@ -1,26 +1,44 @@
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Hopaut.BuildingBlocks.Application.Behaviors;
 
-public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
+/// <summary>Outermost pipeline behavior: logs every command and query and the error code of an expected failure.</summary>
+public sealed class LoggingBehavior<TMessage, TResponse>(ILogger<LoggingBehavior<TMessage, TResponse>> logger)
+    : IPipelineBehavior<TMessage, TResponse>
+    where TMessage : IMessage
+    where TResponse : IResultBase
 {
-    private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
-
-    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
+    public async ValueTask<TResponse> Handle(
+        TMessage message, MessageHandlerDelegate<TMessage, TResponse> next, CancellationToken cancellationToken)
     {
-        _logger = logger;
-    }
+        var messageName = typeof(TMessage).Name;
+        PipelineLog.Handling(logger, messageName);
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {
-        var requestName = typeof(TRequest).Name;
-        _logger.LogInformation("Handling {RequestName}", requestName);
+        var response = await next(message, cancellationToken);
 
-        var response = await next();
+        if (response.IsSuccess)
+        {
+            PipelineLog.Handled(logger, messageName);
+        }
+        else
+        {
+            PipelineLog.HandledWithError(logger, messageName, response.Error.Code, response.Error.Type);
+        }
 
-        _logger.LogInformation("Handled {RequestName}", requestName);
         return response;
     }
+}
+
+internal static partial class PipelineLog
+{
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Handling {MessageName}")]
+    public static partial void Handling(ILogger logger, string messageName);
+
+    [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "Handled {MessageName}")]
+    public static partial void Handled(ILogger logger, string messageName);
+
+    [LoggerMessage(EventId = 3, Level = LogLevel.Information, Message = "Handled {MessageName} with error {ErrorCode} ({ErrorType})")]
+    public static partial void HandledWithError(ILogger logger, string messageName, string errorCode, ErrorType errorType);
 }

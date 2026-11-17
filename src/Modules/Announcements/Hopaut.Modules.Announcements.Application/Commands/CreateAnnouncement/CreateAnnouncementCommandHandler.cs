@@ -1,26 +1,18 @@
 using Hopaut.Modules.Announcements.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Announcements.Application.Commands.CreateAnnouncement;
 
-public sealed class CreateAnnouncementCommandHandler : IRequestHandler<CreateAnnouncementCommand, AnnouncementId>
+public sealed class CreateAnnouncementCommandHandler(IAnnouncementRepository announcements, TimeProvider timeProvider)
+    : ICommandHandler<CreateAnnouncementCommand, Result<AnnouncementId>>
 {
-    private readonly IAnnouncementRepository _repo;
-    private readonly TimeProvider _timeProvider;
-
-    public CreateAnnouncementCommandHandler(IAnnouncementRepository repo, TimeProvider timeProvider)
+    public async ValueTask<Result<AnnouncementId>> Handle(CreateAnnouncementCommand request, CancellationToken cancellationToken)
     {
-        _repo = repo;
-        _timeProvider = timeProvider;
-    }
+        var id = await announcements.NextIdAsync(cancellationToken);
+        var announcement = Announcement.Create(id, request.PostId, request.Message, timeProvider.GetUtcNow());
 
-    public async Task<AnnouncementId> Handle(CreateAnnouncementCommand request, CancellationToken cancellationToken)
-    {
-        var announcement = Announcement.Create(request.PostId, request.Message, _timeProvider.GetUtcNow());
-
-        await _repo.AddAsync(announcement, cancellationToken);
-        await _repo.SaveChangesAsync(cancellationToken);
+        announcements.Add(announcement);
         return announcement.Id;
     }
 }

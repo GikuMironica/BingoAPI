@@ -1,11 +1,12 @@
 using Hopaut.BuildingBlocks.Infrastructure;
+using Hopaut.Modules.Users.Application;
 using Hopaut.Modules.Users.Domain;
-using MediatR;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Users.Infrastructure;
 
-public class UsersModuleDbContext : ModuleDbContext
+public class UsersModuleDbContext : ModuleDbContext, IUsersUnitOfWork
 {
     public const string SchemaName = "users";
 

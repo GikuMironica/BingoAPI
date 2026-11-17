@@ -1,15 +1,19 @@
 using Hopaut.BuildingBlocks.Infrastructure;
+using Hopaut.Modules.Posts.Application;
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 
 namespace Hopaut.Modules.Posts.Infrastructure;
 
-public class PostsModuleDbContext : ModuleDbContext
+public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
 {
     public const string SchemaName = "posts";
+
+    /// <summary>Source of post IDs; <see cref="IPostRepository.NextIdAsync"/> reads it before a post is created.</summary>
+    public const string PostIdSequence = "post_ids";
 
     public PostsModuleDbContext(DbContextOptions<PostsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
@@ -28,12 +32,13 @@ public class PostsModuleDbContext : ModuleDbContext
     {
         modelBuilder.HasDefaultSchema(SchemaName);
         modelBuilder.HasPostgresExtension("postgis");
+        modelBuilder.HasSequence<int>(PostIdSequence);
 
         modelBuilder.Entity<Post>(entity =>
         {
             entity.ToTable("posts");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedNever();
             entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.HasOne(e => e.Location).WithOne(l => l.Post).HasForeignKey<EventLocation>(l => l.PostId);
             entity.HasOne(e => e.Event).WithOne(ev => ev.Post).HasForeignKey<Event>(ev => ev.PostId);

@@ -1,3 +1,4 @@
+using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,7 @@ namespace Hopaut.Modules.Identity.Infrastructure;
 /// Identity module's own DbContext with schema "identity".
 /// Owns ASP.NET Identity tables + RefreshTokens.
 /// </summary>
-public class IdentityModuleDbContext : IdentityDbContext<AppUser>
+public class IdentityModuleDbContext : IdentityDbContext<AppUser>, IIdentityUnitOfWork
 {
     public const string SchemaName = "identity";
 

@@ -1,21 +1,22 @@
-using MediatR;
+using Hopaut.Modules.Posts.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Commands.DeletePost;
 
-public sealed class DeletePostCommandHandler : IRequestHandler<DeletePostCommand, bool>
+public sealed class DeletePostCommandHandler(IPostRepository posts) : ICommandHandler<DeletePostCommand, Result>
 {
-    private readonly IPostRepository _repo;
-
-    public DeletePostCommandHandler(IPostRepository repo) => _repo = repo;
-
-    public async Task<bool> Handle(DeletePostCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result> Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {
-        var post = await _repo.GetByIdAsync(request.PostId, cancellationToken);
-        if (post is null || post.UserId != request.UserId)
-            return false;
+        var post = await posts.GetByIdAsync(request.PostId, cancellationToken);
+        if (post is null)
+            return PostErrors.NotFound(request.PostId);
 
-        await _repo.DeleteAsync(post, cancellationToken);
-        await _repo.SaveChangesAsync(cancellationToken);
-        return true;
+        // Resource-based authorization moves to the authorization port in plan Step 6.9.
+        if (post.UserId != request.UserId)
+            return PostErrors.NotHost(request.PostId);
+
+        posts.Remove(post);
+        return Result.Success();
     }
 }

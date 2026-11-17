@@ -11,7 +11,6 @@
 	<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.6.1" />
 	<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
 	<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
@@ -32,8 +31,9 @@
 	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
 
-	<!-- MediatR (Apache-2.0 up to 12.x; replaced by Mediator in plan step 7.6) -->
-	<PackageVersion Include="MediatR" Version="12.4.1" />
+	<!-- Mediator (martinothamar, MIT, source-generated; license checked 2026-11-17, D-018). The generator is referenced only by the Host. -->
+	<PackageVersion Include="Mediator.Abstractions" Version="3.0.2" />
+	<PackageVersion Include="Mediator.SourceGenerator" Version="3.0.2" />
 
 	<!-- Hangfire (LGPL-3.0 with a commercial option; use confirmed by the user 2026-11-17, D-010) -->
 	<PackageVersion Include="Hangfire.AspNetCore" Version="1.8.17" />
@@ -48,8 +48,9 @@
 	<!-- Image processing: Six Labors Split License v1.0 → Apache-2.0 because Hopaut is a non-profit (user, 2026-11-17, D-014). 3.2.0 fixes all seven GHSA advisories against 3.1.7. -->
 	<PackageVersion Include="SixLabors.ImageSharp" Version="3.2.0" />
 
-	<!-- Validation (FluentValidation.AspNetCore is replaced in plan step 7.6) -->
-	<PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
+	<!-- Validation (Apache-2.0; the 11.5.1 line resolved transitively before FluentValidation.AspNetCore was removed in step 7.6, D-009). Validators run only in the Mediator ValidationBehavior. -->
+	<PackageVersion Include="FluentValidation" Version="11.5.1" />
+	<PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.5.1" />
 
 	<!-- Transitive pins (vulnerable versions arrive through Hangfire) -->
 	<PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />

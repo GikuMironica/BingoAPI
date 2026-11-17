@@ -90,4 +90,31 @@ public sealed class ResultTests
             error.Errors.Should().ContainKey("title");
         }
     }
+
+    [Fact]
+    public void GivenAValueResultType_WhenAFailureIsBuiltThroughTheFactoryInterface_ThenItIsAFailedResultOfThatType()
+    {
+        // Act
+        var result = FailureOf<Result<int>>(NotFound);
+
+        // Assert
+        using (new AssertionScope())
+        {
+            result.Should().BeOfType<Result<int>>();
+            result.IsFailure.Should().BeTrue();
+            result.Error.Should().Be(NotFound);
+        }
+    }
+
+    [Fact]
+    public void GivenTheResultType_WhenAFailureIsBuiltThroughTheFactoryInterface_ThenItIsAFailedResult()
+    {
+        // Act
+        IResultBase result = FailureOf<Result>(NotFound);
+
+        // Assert
+        result.Error.Should().Be(NotFound);
+    }
+
+    private static T FailureOf<T>(Error error) where T : IFailureFactory<T> => T.Failure(error);
 }

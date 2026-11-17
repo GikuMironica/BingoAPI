@@ -1,20 +1,19 @@
-using MediatR;
+using Hopaut.Modules.Users.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Users.Application.Commands.UpdateProfile;
 
-public sealed class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, bool>
+// TODO (F-010, plan Step 8.8): the route user id is not compared with the caller.
+public sealed class UpdateProfileCommandHandler(IUserProfileRepository profiles) : ICommandHandler<UpdateProfileCommand, Result>
 {
-    private readonly IUserProfileRepository _repo;
-
-    public UpdateProfileCommandHandler(IUserProfileRepository repo) => _repo = repo;
-
-    public async Task<bool> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
     {
-        var profile = await _repo.GetByIdentityUserIdAsync(request.IdentityUserId, cancellationToken);
-        if (profile is null) return false;
+        var profile = await profiles.GetByIdentityUserIdAsync(request.IdentityUserId, cancellationToken);
+        if (profile is null)
+            return UserProfileErrors.NotFound(request.IdentityUserId);
 
         profile.UpdateProfile(request.FirstName, request.LastName, request.Description);
-        await _repo.SaveChangesAsync(cancellationToken);
-        return true;
+        return Result.Success();
     }
 }

@@ -1,11 +1,13 @@
+using Mediator;
+
 namespace Hopaut.BuildingBlocks.Application.Caching;
 
-/// <summary>
-/// Marker interface for MediatR queries that should be cached.
-/// </summary>
-public interface ICachedQuery
+/// <summary>A query whose successful result <see cref="CachingBehavior{TMessage,TResponse}"/> caches under <see cref="CacheKey"/>.</summary>
+public interface ICachedQuery : IBaseQuery
 {
     string CacheKey { get; }
+
     TimeSpan? Expiry => null;
+
     string[]? Tags => null;
 }

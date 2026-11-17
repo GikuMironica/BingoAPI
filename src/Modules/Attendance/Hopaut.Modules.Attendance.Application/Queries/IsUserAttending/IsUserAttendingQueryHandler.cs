@@ -1,15 +1,10 @@
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Attendance.Application.Queries.IsUserAttending;
 
-public sealed class IsUserAttendingQueryHandler : IRequestHandler<IsUserAttendingQuery, bool>
+public sealed class IsUserAttendingQueryHandler(IAttendanceRepository participations) : IQueryHandler<IsUserAttendingQuery, Result<bool>>
 {
-    private readonly IAttendanceRepository _repo;
-
-    public IsUserAttendingQueryHandler(IAttendanceRepository repo) => _repo = repo;
-
-    public async Task<bool> Handle(IsUserAttendingQuery request, CancellationToken cancellationToken)
-    {
-        return await _repo.IsUserAttendingAsync(request.PostId, request.UserId, cancellationToken);
-    }
+    public async ValueTask<Result<bool>> Handle(IsUserAttendingQuery request, CancellationToken cancellationToken) =>
+        await participations.IsUserAttendingAsync(request.PostId, request.UserId, cancellationToken);
 }

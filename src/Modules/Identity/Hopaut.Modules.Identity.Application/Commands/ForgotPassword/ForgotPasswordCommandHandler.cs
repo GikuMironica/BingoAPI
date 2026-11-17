@@ -1,11 +1,12 @@
 using Hopaut.Modules.Identity.Domain;
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Hopaut.Modules.Identity.Application.Commands.ForgotPassword;
 
-public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, AuthResult>
+public sealed class ForgotPasswordCommandHandler : ICommandHandler<ForgotPasswordCommand, Result<AuthResult>>
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ILogger<ForgotPasswordCommandHandler> _logger;
@@ -16,7 +17,7 @@ public sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswor
         _logger = logger;
     }
 
-    public async Task<AuthResult> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<AuthResult>> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user is null)

@@ -23,13 +23,12 @@ namespace Hopaut.Modules.Attendance.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence<int>("participation_ids");
+
             modelBuilder.Entity("Hopaut.Modules.Attendance.Domain.Participation", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("PostId")
                         .HasColumnType("integer");

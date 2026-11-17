@@ -1,14 +1,18 @@
 using Hopaut.BuildingBlocks.Infrastructure;
+using Hopaut.Modules.Ratings.Application;
 using Hopaut.Modules.Ratings.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Ratings.Infrastructure;
 
-public class RatingsModuleDbContext : ModuleDbContext
+public class RatingsModuleDbContext : ModuleDbContext, IRatingsUnitOfWork
 {
     public const string SchemaName = "ratings";
+
+    /// <summary>Source of rating IDs; <see cref="IRatingRepository.NextIdAsync"/> reads it before a rating is created.</summary>
+    public const string RatingIdSequence = "rating_ids";
 
     public RatingsModuleDbContext(DbContextOptions<RatingsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
@@ -18,12 +22,13 @@ public class RatingsModuleDbContext : ModuleDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(SchemaName);
+        modelBuilder.HasSequence<int>(RatingIdSequence);
 
         modelBuilder.Entity<Rating>(entity =>
         {
             entity.ToTable("ratings");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<RatingId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<RatingId, int>>().ValueGeneratedNever();
             entity.Property(e => e.Rate).HasConversion(
                 v => v.Value,
                 v => RatingValue.From(v));

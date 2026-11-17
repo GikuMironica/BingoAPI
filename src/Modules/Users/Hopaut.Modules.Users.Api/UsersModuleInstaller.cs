@@ -1,13 +1,13 @@
+using FluentValidation;
 using Hopaut.Modules.Users.Application;
-using Hopaut.Modules.Users.Application.Queries.GetUserProfile;
 using Hopaut.Modules.Users.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hopaut.Modules.Users.Api;
 
+/// <summary>Handlers and the unit-of-work behavior are registered by the Host's AddMediator.</summary>
 public static class UsersModuleInstaller
 {
     public static IServiceCollection AddUsersModule(this IServiceCollection services, IConfiguration configuration)
@@ -18,8 +18,7 @@ public static class UsersModuleInstaller
 
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssemblyContaining<GetUserProfileQuery>());
+        services.AddValidatorsFromAssemblyContaining<IUsersCommand>(includeInternalTypes: true);
 
         return services;
     }

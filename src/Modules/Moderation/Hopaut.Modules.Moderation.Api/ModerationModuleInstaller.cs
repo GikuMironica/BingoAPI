@@ -1,13 +1,13 @@
+using FluentValidation;
 using Hopaut.Modules.Moderation.Application;
-using Hopaut.Modules.Moderation.Application.Commands.CreatePostReport;
 using Hopaut.Modules.Moderation.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hopaut.Modules.Moderation.Api;
 
+/// <summary>Handlers and the unit-of-work behavior are registered by the Host's AddMediator.</summary>
 public static class ModerationModuleInstaller
 {
     public static IServiceCollection AddModerationModule(this IServiceCollection services, IConfiguration configuration)
@@ -18,8 +18,7 @@ public static class ModerationModuleInstaller
 
         services.AddScoped<IModerationRepository, ModerationRepository>();
 
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssemblyContaining<CreatePostReportCommand>());
+        services.AddValidatorsFromAssemblyContaining<IModerationCommand>(includeInternalTypes: true);
 
         return services;
     }

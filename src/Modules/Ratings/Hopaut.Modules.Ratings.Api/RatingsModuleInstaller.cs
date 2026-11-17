@@ -1,13 +1,13 @@
+using FluentValidation;
 using Hopaut.Modules.Ratings.Application;
-using Hopaut.Modules.Ratings.Application.Commands.CreateRating;
 using Hopaut.Modules.Ratings.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hopaut.Modules.Ratings.Api;
 
+/// <summary>Handlers, domain-event handlers and the unit-of-work behavior are registered by the Host's AddMediator.</summary>
 public static class RatingsModuleInstaller
 {
     public static IServiceCollection AddRatingsModule(this IServiceCollection services, IConfiguration configuration)
@@ -19,8 +19,7 @@ public static class RatingsModuleInstaller
         services.AddScoped<IRatingRepository, RatingRepository>();
         services.AddScoped<IUserReputationRepository, UserReputationRepository>();
 
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssemblyContaining<CreateRatingCommand>());
+        services.AddValidatorsFromAssemblyContaining<IRatingsCommand>(includeInternalTypes: true);
 
         return services;
     }

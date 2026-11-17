@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 namespace Hopaut.BuildingBlocks.Infrastructure.Outbox;
 
 /// <summary>
-/// Background service that polls the outbox table and publishes unprocessed messages.
-/// In a real system this would dispatch to MediatR or a message broker.
+/// Background service that polls the outbox table. Not registered: it marks messages processed without publishing them
+/// (finding F-005); plan Step 9.2 replaces it with a relay that publishes through IIntegrationEventBus.
 /// </summary>
 public sealed class OutboxPublisher : BackgroundService
 {
@@ -59,7 +59,7 @@ public sealed class OutboxPublisher : BackgroundService
         foreach (var message in messages)
         {
             _logger.LogInformation("Publishing outbox message {MessageId} of type {Type}", message.Id, message.Type);
-            // TODO: Deserialize and dispatch via MediatR or message broker
+            // Plan Step 9.2: deserialize through the event-type registry and publish via IIntegrationEventBus before marking.
             message.ProcessedOn = _timeProvider.GetUtcNow().UtcDateTime;
         }
 

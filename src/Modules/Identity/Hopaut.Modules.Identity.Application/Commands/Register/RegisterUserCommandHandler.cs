@@ -1,11 +1,12 @@
 using Hopaut.Modules.Identity.Domain;
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Hopaut.Modules.Identity.Application.Commands.Register;
 
-public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, AuthResult>
+public sealed class RegisterUserCommandHandler : ICommandHandler<RegisterUserCommand, Result<AuthResult>>
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ILogger<RegisterUserCommandHandler> _logger;
@@ -18,7 +19,7 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
         _timeProvider = timeProvider;
     }
 
-    public async Task<AuthResult> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<AuthResult>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         var existingUser = await _userManager.FindByEmailAsync(request.Email);
         if (existingUser is not null)

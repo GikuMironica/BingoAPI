@@ -1,29 +1,21 @@
 using Hopaut.Modules.Moderation.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Moderation.Application.Commands.CreateUserReport;
 
-public sealed class CreateUserReportCommandHandler : IRequestHandler<CreateUserReportCommand, UserReportId>
+public sealed class CreateUserReportCommandHandler(IModerationRepository reports, TimeProvider timeProvider)
+    : ICommandHandler<CreateUserReportCommand, Result<UserReportId>>
 {
-    private readonly IModerationRepository _repo;
-    private readonly TimeProvider _timeProvider;
-
-    public CreateUserReportCommandHandler(IModerationRepository repo, TimeProvider timeProvider)
+    public async ValueTask<Result<UserReportId>> Handle(CreateUserReportCommand request, CancellationToken cancellationToken)
     {
-        _repo = repo;
-        _timeProvider = timeProvider;
-    }
-
-    public async Task<UserReportId> Handle(CreateUserReportCommand request, CancellationToken cancellationToken)
-    {
+        var id = await reports.NextUserReportIdAsync(cancellationToken);
         var report = UserReport.Create(
-            request.Reason, request.Message,
+            id, request.Reason, request.Message,
             request.ReporterId, request.ReportedUserId,
-            _timeProvider.GetUtcNow());
+            timeProvider.GetUtcNow());
 
-        await _repo.AddUserReportAsync(report, cancellationToken);
-        await _repo.SaveChangesAsync(cancellationToken);
+        reports.AddUserReport(report);
         return report.Id;
     }
 }

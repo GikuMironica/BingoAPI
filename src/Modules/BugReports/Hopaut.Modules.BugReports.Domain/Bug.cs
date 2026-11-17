@@ -11,10 +11,14 @@ public sealed class Bug : AggregateRoot<BugReportId>
 
     private Bug() { } // EF Core
 
-    public static Bug Create(string message, UserId reporterId, List<string>? screenshotUrls, DateTimeOffset now)
+    /// <summary>Creates a bug report with an ID taken from the bugs sequence.</summary>
+    public static Bug Create(BugReportId id, string message, UserId reporterId, List<string>? screenshotUrls, DateTimeOffset now)
     {
+        ArgumentOutOfRangeException.ThrowIfEqual(id, default);
+
         var bug = new Bug
         {
+            Id = id,
             CreatedAt = now,
             Message = message,
             ReporterId = reporterId

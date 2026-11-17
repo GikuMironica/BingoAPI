@@ -1,16 +1,18 @@
 using Hopaut.BuildingBlocks.Api;
+using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.Modules.Moderation.Application.Commands.CreatePostReport;
 using Hopaut.Modules.Moderation.Application.Commands.CreateUserReport;
 using Hopaut.Modules.Moderation.Application.Commands.ResolvePostReport;
 using Hopaut.Modules.Moderation.Application.Queries.GetOpenPostReports;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace Hopaut.Modules.Moderation.Api;
 
+/// <summary>Results map back to today's responses until the Moderation endpoints are synchronised in plan Step 10.8 (D-007).</summary>
 public sealed class ModerationModule : IModuleEndpoints
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -19,28 +21,32 @@ public sealed class ModerationModule : IModuleEndpoints
             .WithTags("Moderation")
             .RequireAuthorization();
 
-        group.MapPost("/reports/post", async (CreatePostReportCommand command, ISender sender) =>
+        group.MapPost("/reports/post", async (CreatePostReportCommand command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var id = await sender.Send(command);
-            return Results.Created($"/api/v1/moderation/reports/post/{id.Value}", new { id = id.Value });
+            var result = await sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/moderation/reports/post/{result.Value.Value}", new { id = result.Value.Value })
+                : result.ToProblem();
         });
 
-        group.MapPost("/reports/user", async (CreateUserReportCommand command, ISender sender) =>
+        group.MapPost("/reports/user", async (CreateUserReportCommand command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var id = await sender.Send(command);
-            return Results.Created($"/api/v1/moderation/reports/user/{id.Value}", new { id = id.Value });
+            var result = await sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/moderation/reports/user/{result.Value.Value}", new { id = result.Value.Value })
+                : result.ToProblem();
         });
 
-        group.MapGet("/reports/post/open", async (ISender sender) =>
+        group.MapGet("/reports/post/open", async (ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(new GetOpenPostReportsQuery());
-            return Results.Ok(result);
+            var result = await sender.Send(new GetOpenPostReportsQuery(), cancellationToken);
+            return result.IsSuccess ? Results.Ok(result.Value) : result.ToProblem();
         });
 
-        group.MapPost("/reports/post/{id:int}/resolve", async (int id, ISender sender) =>
+        group.MapPost("/reports/post/{id:int}/resolve", async (int id, ISender sender, CancellationToken cancellationToken) =>
         {
-            var result = await sender.Send(new ResolvePostReportCommand(PostReportId.From(id)));
-            return result ? Results.Ok() : Results.NotFound();
+            var result = await sender.Send(new ResolvePostReportCommand(PostReportId.From(id)), cancellationToken);
+            return result.IsSuccess ? Results.Ok() : Results.NotFound();
         });
     }
 }

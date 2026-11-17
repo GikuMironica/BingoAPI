@@ -1,30 +1,23 @@
-using MediatR;
+using Hopaut.Modules.Ratings.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Ratings.Application.Commands.DeleteRating;
 
-public sealed class DeleteRatingCommandHandler : IRequestHandler<DeleteRatingCommand, bool>
+public sealed class DeleteRatingCommandHandler(IRatingRepository ratings, IUserReputationRepository reputations)
+    : ICommandHandler<DeleteRatingCommand, Result>
 {
-    private readonly IRatingRepository _ratingRepo;
-    private readonly IUserReputationRepository _reputationRepo;
-
-    public DeleteRatingCommandHandler(IRatingRepository ratingRepo, IUserReputationRepository reputationRepo)
+    public async ValueTask<Result> Handle(DeleteRatingCommand request, CancellationToken cancellationToken)
     {
-        _ratingRepo = ratingRepo;
-        _reputationRepo = reputationRepo;
-    }
+        var rating = await ratings.GetByIdAsync(request.RatingId, cancellationToken);
+        if (rating is null)
+            return RatingErrors.NotFound(request.RatingId);
 
-    public async Task<bool> Handle(DeleteRatingCommand request, CancellationToken cancellationToken)
-    {
-        var rating = await _ratingRepo.GetByIdAsync(request.RatingId, cancellationToken);
-        if (rating is null) return false;
+        ratings.Remove(rating);
 
-        var userId = rating.UserId;
-        await _ratingRepo.DeleteAsync(rating, cancellationToken);
-        await _ratingRepo.SaveChangesAsync(cancellationToken);
+        // Denormalized reputation projection, saved in the same unit of work as the deletion.
+        await reputations.RecalculateAsync(rating.UserId, cancellationToken);
 
-        await _reputationRepo.UpsertAsync(userId, cancellationToken);
-        await _reputationRepo.SaveChangesAsync(cancellationToken);
-
-        return true;
+        return Result.Success();
     }
 }

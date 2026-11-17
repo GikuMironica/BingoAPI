@@ -86,7 +86,7 @@ public sealed class JwtTokenGenerator : IJwtTokenGenerator
             ExpiryDate = now.UtcDateTime.AddMonths(6)
         };
 
-        await _refreshTokenRepo.AddAsync(refreshToken);
+        _refreshTokenRepo.Add(refreshToken);
 
         return AuthResult.Ok(user.Id, tokenHandler.WriteToken(token), refreshToken.Token);
     }

@@ -1,17 +1,16 @@
-using MediatR;
+using Hopaut.Modules.Posts.Domain;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Queries.GetPostById;
 
-public sealed class GetPostByIdQueryHandler : IRequestHandler<GetPostByIdQuery, PostDto?>
+public sealed class GetPostByIdQueryHandler(IPostRepository posts) : IQueryHandler<GetPostByIdQuery, Result<PostDto>>
 {
-    private readonly IPostRepository _repo;
-
-    public GetPostByIdQueryHandler(IPostRepository repo) => _repo = repo;
-
-    public async Task<PostDto?> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Result<PostDto>> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
     {
-        var p = await _repo.GetByIdAsync(request.PostId, cancellationToken);
-        if (p is null) return null;
+        var p = await posts.GetByIdAsync(request.PostId, cancellationToken);
+        if (p is null)
+            return PostErrors.NotFound(request.PostId);
 
         return new PostDto(
             p.Id.Value, p.PostTime, p.EventTime, p.EndTime, p.ActiveFlag, p.UserId.Value,

@@ -1,14 +1,21 @@
 using Hopaut.BuildingBlocks.Infrastructure;
+using Hopaut.Modules.Moderation.Application;
 using Hopaut.Modules.Moderation.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Moderation.Infrastructure;
 
-public class ModerationModuleDbContext : ModuleDbContext
+public class ModerationModuleDbContext : ModuleDbContext, IModerationUnitOfWork
 {
     public const string SchemaName = "moderation";
+
+    /// <summary>Source of post-report IDs; read before a post report is created.</summary>
+    public const string PostReportIdSequence = "post_report_ids";
+
+    /// <summary>Source of user-report IDs; read before a user report is created.</summary>
+    public const string UserReportIdSequence = "user_report_ids";
 
     public ModerationModuleDbContext(DbContextOptions<ModerationModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
 
@@ -18,12 +25,14 @@ public class ModerationModuleDbContext : ModuleDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(SchemaName);
+        modelBuilder.HasSequence<int>(PostReportIdSequence);
+        modelBuilder.HasSequence<int>(UserReportIdSequence);
 
         modelBuilder.Entity<PostReport>(entity =>
         {
             entity.ToTable("post_reports");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostReportId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<PostReportId, int>>().ValueGeneratedNever();
             entity.Property(e => e.ReporterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.ReportedHostId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
@@ -36,7 +45,7 @@ public class ModerationModuleDbContext : ModuleDbContext
         {
             entity.ToTable("user_reports");
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<UserReportId, int>>().ValueGeneratedOnAdd();
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<UserReportId, int>>().ValueGeneratedNever();
             entity.Property(e => e.ReporterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.ReportedUserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
             entity.Property(e => e.Status).HasConversion<int>();

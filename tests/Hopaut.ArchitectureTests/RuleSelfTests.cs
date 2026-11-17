@@ -1,6 +1,8 @@
 using Hopaut.ArchitectureTests.Catalog;
+using Hopaut.ArchitectureTests.Fixtures.BadMessaging;
 using Hopaut.ArchitectureTests.Fixtures.BadModel;
 using Hopaut.ArchitectureTests.Fixtures.GoodDomain;
+using Hopaut.ArchitectureTests.Fixtures.GoodMessaging;
 using Hopaut.ArchitectureTests.Rules;
 
 namespace Hopaut.ArchitectureTests;
@@ -90,5 +92,57 @@ public sealed class RuleSelfTests
 
         Assert.Equal(["SELFTEST: new"], unexpected);
         Assert.Equal(["SELFTEST: fixed  [F-000]"], stale);
+    }
+
+    [Fact]
+    public void Messaging_rules_report_a_command_that_does_not_return_a_result() =>
+        Assert.Contains(
+            MessagingRules.NonResultResponses([typeof(ReturnsBool)]),
+            v => v.Id == $"{MessagingRules.ResultResponse}: {typeof(ReturnsBool).FullName}");
+
+    [Fact]
+    public void Messaging_rules_report_commands_without_exactly_their_module_marker()
+    {
+        var violations = MessagingRules.CommandMarkers("Fixtures", [typeof(WithoutMarker), typeof(WithTwoMarkers)]).ToList();
+
+        Assert.Equal(2, violations.Count);
+    }
+
+    [Fact]
+    public void Messaging_rules_report_a_handler_the_Host_generator_cannot_see() =>
+        Assert.Contains(
+            MessagingRules.NonPublicMessagingTypes([typeof(HiddenHandler)]),
+            v => v.Id.EndsWith(nameof(HiddenHandler), StringComparison.Ordinal));
+
+    [Fact]
+    public void Messaging_rules_accept_a_clean_command_and_handler()
+    {
+        Type[] fixture = [typeof(GoodCommand), typeof(GoodCommandHandler)];
+
+        Assert.Empty(MessagingRules.NonResultResponses(fixture));
+        Assert.Empty(MessagingRules.CommandMarkers("Fixtures", fixture));
+        Assert.Empty(MessagingRules.NonPublicMessagingTypes(fixture));
+    }
+
+    [Fact]
+    public void Generator_rule_reports_every_project_but_the_Host()
+    {
+        var directory = Directory.CreateTempSubdirectory("hopaut-arch-");
+        try
+        {
+            const string generator = """<Project><ItemGroup><PackageReference Include="Mediator.SourceGenerator" /></ItemGroup></Project>""";
+            var host = Path.Combine(directory.FullName, MessagingRules.HostProject + ".csproj");
+            var module = Path.Combine(directory.FullName, "Hopaut.Modules.Posts.Application.csproj");
+            File.WriteAllText(host, generator);
+            File.WriteAllText(module, generator);
+
+            var violations = MessagingRules.GeneratorReferences([host, module]).Select(v => v.Id);
+
+            Assert.Equal([$"{MessagingRules.GeneratorInHostOnly}: Hopaut.Modules.Posts.Application"], violations);
+        }
+        finally
+        {
+            directory.Delete(recursive: true);
+        }
     }
 }

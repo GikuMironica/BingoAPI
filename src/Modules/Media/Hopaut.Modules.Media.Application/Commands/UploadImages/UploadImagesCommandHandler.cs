@@ -1,32 +1,23 @@
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Media.Application.Commands.UploadImages;
 
-public sealed class UploadImagesCommandHandler : IRequestHandler<UploadImagesCommand, UploadImagesResult>
+public sealed class UploadImagesCommandHandler(IImageProcessor imageProcessor, IMediaStorage mediaStorage, TimeProvider timeProvider)
+    : ICommandHandler<UploadImagesCommand, Result<IReadOnlyList<string>>>
 {
-    private readonly IImageProcessor _imageProcessor;
-    private readonly IMediaStorage _mediaStorage;
-    private readonly TimeProvider _timeProvider;
-
-    public UploadImagesCommandHandler(IImageProcessor imageProcessor, IMediaStorage mediaStorage, TimeProvider timeProvider)
-    {
-        _imageProcessor = imageProcessor;
-        _mediaStorage = mediaStorage;
-        _timeProvider = timeProvider;
-    }
-
-    public async Task<UploadImagesResult> Handle(UploadImagesCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<IReadOnlyList<string>>> Handle(UploadImagesCommand request, CancellationToken cancellationToken)
     {
         var keys = new List<string>();
 
         foreach (var image in request.Images)
         {
-            var processResult = await _imageProcessor.ProcessAsync(image.Content, ct: cancellationToken);
+            var processResult = await imageProcessor.ProcessAsync(image.Content, ct: cancellationToken);
             if (!processResult.Success)
-                return new UploadImagesResult(false, [], processResult.Error);
+                return MediaUploadErrors.ProcessingFailed(processResult.Error);
 
-            var fileName = $"{Guid.CreateVersion7(_timeProvider.GetUtcNow())}.webp";
-            var uploadResult = await _mediaStorage.UploadAsync(
+            var fileName = $"{Guid.CreateVersion7(timeProvider.GetUtcNow())}.webp";
+            var uploadResult = await mediaStorage.UploadAsync(
                 processResult.Output!,
                 request.BucketPath,
                 fileName,
@@ -34,7 +25,7 @@ public sealed class UploadImagesCommandHandler : IRequestHandler<UploadImagesCom
                 cancellationToken);
 
             if (!uploadResult.Success)
-                return new UploadImagesResult(false, [], uploadResult.Error);
+                return MediaUploadErrors.StorageFailed(uploadResult.Error);
 
             keys.Add(uploadResult.Key!);
 
@@ -45,6 +36,6 @@ public sealed class UploadImagesCommandHandler : IRequestHandler<UploadImagesCom
                 processResult.Output?.Dispose();
         }
 
-        return new UploadImagesResult(true, keys);
+        return Result.Success<IReadOnlyList<string>>(keys);
     }
 }

@@ -69,3 +69,31 @@ namespace Hopaut.ArchitectureTests.Fixtures.BadModel
         }
     }
 }
+
+namespace Hopaut.ArchitectureTests.Fixtures.GoodMessaging
+{
+    public interface IFixturesCommand : Mediator.IBaseCommand;
+
+    public sealed record GoodCommand : Mediator.ICommand<Result>, IFixturesCommand;
+
+    public sealed class GoodCommandHandler : Mediator.ICommandHandler<GoodCommand, Result>
+    {
+        public ValueTask<Result> Handle(GoodCommand command, CancellationToken cancellationToken) => ValueTask.FromResult(Result.Success());
+    }
+}
+
+namespace Hopaut.ArchitectureTests.Fixtures.BadMessaging
+{
+    public interface IOtherCommand : Mediator.IBaseCommand;
+
+    public sealed record ReturnsBool : Mediator.ICommand<bool>, GoodMessaging.IFixturesCommand;
+
+    public sealed record WithoutMarker : Mediator.ICommand<Result>;
+
+    public sealed record WithTwoMarkers : Mediator.ICommand<Result>, GoodMessaging.IFixturesCommand, IOtherCommand;
+
+    internal sealed class HiddenHandler : Mediator.ICommandHandler<WithoutMarker, Result>
+    {
+        public ValueTask<Result> Handle(WithoutMarker command, CancellationToken cancellationToken) => ValueTask.FromResult(Result.Success());
+    }
+}

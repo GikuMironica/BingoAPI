@@ -1,57 +1,32 @@
 using Hopaut.BuildingBlocks.Application;
 using Hopaut.Modules.Attendance.Application.IntegrationEvents;
 using Hopaut.Modules.Attendance.Domain.Events;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Attendance.Infrastructure.DomainEventHandlers;
 
-internal sealed class AttendanceRequestedDomainEventHandler : INotificationHandler<AttendanceRequestedDomainEvent>
+// Public: the Mediator source generator in the Host registers them (F-057). They run before the Attendance unit of work saves.
+
+public sealed class AttendanceRequestedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<AttendanceRequestedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public AttendanceRequestedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(AttendanceRequestedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(AttendanceRequestedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new AttendanceRequestedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
-            cancellationToken);
-    }
+            cancellationToken));
 }
 
-internal sealed class AttendanceAcceptedDomainEventHandler : INotificationHandler<AttendanceAcceptedDomainEvent>
+public sealed class AttendanceAcceptedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<AttendanceAcceptedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public AttendanceAcceptedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(AttendanceAcceptedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(AttendanceAcceptedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new AttendanceAcceptedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
-            cancellationToken);
-    }
+            cancellationToken));
 }
 
-internal sealed class AttendanceRejectedDomainEventHandler : INotificationHandler<AttendanceRejectedDomainEvent>
+public sealed class AttendanceRejectedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<AttendanceRejectedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public AttendanceRejectedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(AttendanceRejectedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(AttendanceRejectedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new AttendanceRejectedIntegrationEvent(notification.OccurredOnUtc, notification.ParticipationId, notification.PostId, notification.UserId),
-            cancellationToken);
-    }
+            cancellationToken));
 }

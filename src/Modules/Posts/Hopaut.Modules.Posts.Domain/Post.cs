@@ -20,7 +20,9 @@ public sealed class Post : AggregateRoot<PostId>
 
     private Post() { } // EF Core
 
+    /// <summary>Creates a post with an ID taken from the posts sequence, so <see cref="PostCreatedDomainEvent"/> carries it.</summary>
     public static Post Create(
+        PostId id,
         UserId userId,
         DateTimeOffset eventTime,
         DateTimeOffset? endTime,
@@ -29,8 +31,11 @@ public sealed class Post : AggregateRoot<PostId>
         List<Picture>? pictures,
         DateTimeOffset now)
     {
+        ArgumentOutOfRangeException.ThrowIfEqual(id, default);
+
         var post = new Post
         {
+            Id = id,
             PostTime = now,
             EventTime = eventTime,
             EndTime = endTime,
@@ -41,7 +46,7 @@ public sealed class Post : AggregateRoot<PostId>
             Pictures = pictures ?? []
         };
 
-        post.Raise(new PostCreatedDomainEvent(now, post.Id, userId));
+        post.Raise(new PostCreatedDomainEvent(now, id, userId));
 
         return post;
     }

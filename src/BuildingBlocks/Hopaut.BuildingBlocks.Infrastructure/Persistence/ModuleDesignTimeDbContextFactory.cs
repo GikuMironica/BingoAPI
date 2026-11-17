@@ -1,4 +1,4 @@
-using MediatR;
+using Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
@@ -31,9 +31,9 @@ public abstract class ModuleDesignTimeDbContextFactory<TContext>(string schema, 
     {
         public static readonly DesignTimePublisher Instance = new();
 
-        public Task Publish(object notification, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public ValueTask Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
+            where TNotification : INotification => ValueTask.CompletedTask;
 
-        public Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
-            where TNotification : INotification => Task.CompletedTask;
+        public ValueTask Publish(object notification, CancellationToken cancellationToken = default) => ValueTask.CompletedTask;
     }
 }

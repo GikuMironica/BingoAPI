@@ -1,6 +1,6 @@
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Posts.Application.Commands.DeletePost;
 
-public sealed record DeletePostCommand(PostId PostId, UserId UserId) : IRequest<bool>;
+public sealed record DeletePostCommand(PostId PostId, UserId UserId) : ICommand<Result>, IPostsCommand;

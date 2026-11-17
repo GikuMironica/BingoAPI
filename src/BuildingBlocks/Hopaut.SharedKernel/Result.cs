@@ -43,7 +43,23 @@ public sealed record ValidationError(IReadOnlyDictionary<string, string[]> Error
     public const string DefaultDescription = "One or more validation errors occurred.";
 }
 
-public class Result
+/// <summary>Success check shared by <see cref="Result"/> and <see cref="Result{TValue}"/>; lets pipeline behaviors inspect any result type.</summary>
+public interface IResultBase
+{
+    bool IsSuccess { get; }
+
+    bool IsFailure { get; }
+
+    Error Error { get; }
+}
+
+/// <summary>Lets pipeline behaviors build a failed response of the handler's result type without reflection.</summary>
+public interface IFailureFactory<TSelf> where TSelf : IFailureFactory<TSelf>
+{
+    static abstract TSelf Failure(Error error);
+}
+
+public class Result : IResultBase, IFailureFactory<Result>
 {
     protected Result(bool isSuccess, Error error)
     {
@@ -78,7 +94,7 @@ public class Result
     public static implicit operator Result(Error error) => Failure(error);
 }
 
-public sealed class Result<TValue> : Result
+public sealed class Result<TValue> : Result, IFailureFactory<Result<TValue>>
 {
     private readonly TValue? _value;
 

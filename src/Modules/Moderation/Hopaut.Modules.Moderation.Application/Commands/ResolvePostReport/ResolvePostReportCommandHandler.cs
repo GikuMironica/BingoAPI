@@ -1,22 +1,20 @@
 using Hopaut.Modules.Moderation.Domain;
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Moderation.Application.Commands.ResolvePostReport;
 
-public sealed class ResolvePostReportCommandHandler : IRequestHandler<ResolvePostReportCommand, bool>
+// TODO (F-012, plan Step 8.6): any authenticated user can resolve reports; restrict to the Admin policy.
+public sealed class ResolvePostReportCommandHandler(IModerationRepository reports) : ICommandHandler<ResolvePostReportCommand, Result>
 {
-    private readonly IModerationRepository _repo;
-
-    public ResolvePostReportCommandHandler(IModerationRepository repo) => _repo = repo;
-
-    public async Task<bool> Handle(ResolvePostReportCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result> Handle(ResolvePostReportCommand request, CancellationToken cancellationToken)
     {
-        var report = await _repo.GetPostReportByIdAsync(request.ReportId, cancellationToken);
-        if (report is null) return false;
+        var report = await reports.GetPostReportByIdAsync(request.ReportId, cancellationToken);
+        if (report is null)
+            return PostReportErrors.NotFound(request.ReportId);
 
-        if (!report.Resolve()) return false;
-
-        await _repo.SaveChangesAsync(cancellationToken);
-        return true;
+        return report.Resolve()
+            ? Result.Success()
+            : PostReportErrors.NotOpen(request.ReportId);
     }
 }

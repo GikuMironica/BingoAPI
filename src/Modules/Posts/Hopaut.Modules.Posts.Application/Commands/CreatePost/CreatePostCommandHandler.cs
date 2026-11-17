@@ -1,24 +1,18 @@
 using Hopaut.Modules.Posts.Domain;
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 using NetTopologySuite.Geometries;
 
 namespace Hopaut.Modules.Posts.Application.Commands.CreatePost;
 
-public sealed class CreatePostCommandHandler : IRequestHandler<CreatePostCommand, PostId>
+public sealed class CreatePostCommandHandler(IPostRepository posts, TimeProvider timeProvider)
+    : ICommandHandler<CreatePostCommand, Result<PostId>>
 {
-    private readonly IPostRepository _repo;
-    private readonly TimeProvider _timeProvider;
-
-    public CreatePostCommandHandler(IPostRepository repo, TimeProvider timeProvider)
+    public async ValueTask<Result<PostId>> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
-        _repo = repo;
-        _timeProvider = timeProvider;
-    }
-
-    public async Task<PostId> Handle(CreatePostCommand request, CancellationToken cancellationToken)
-    {
+        var id = await posts.NextIdAsync(cancellationToken);
         var post = Post.Create(
+            id,
             request.UserId,
             request.EventTime,
             request.EndTime,
@@ -43,11 +37,10 @@ public sealed class CreatePostCommandHandler : IRequestHandler<CreatePostCommand
                 TypeSpecificData = request.Event.TypeSpecificData
             },
             request.PictureUrls?.Select(url => new Picture { Url = url }).ToList(),
-            _timeProvider.GetUtcNow()
+            timeProvider.GetUtcNow()
         );
 
-        await _repo.AddAsync(post, cancellationToken);
-        await _repo.SaveChangesAsync(cancellationToken);
+        posts.Add(post);
 
         return post.Id;
     }

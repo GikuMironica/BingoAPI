@@ -1,23 +1,15 @@
 using Hopaut.BuildingBlocks.Application;
 using Hopaut.Modules.Announcements.Application.IntegrationEvents;
 using Hopaut.Modules.Announcements.Domain.Events;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Announcements.Infrastructure.DomainEventHandlers;
 
-internal sealed class AnnouncementCreatedDomainEventHandler : INotificationHandler<AnnouncementCreatedDomainEvent>
+// Public: the Mediator source generator in the Host registers it (F-057). It runs before the Announcements unit of work saves.
+public sealed class AnnouncementCreatedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<AnnouncementCreatedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public AnnouncementCreatedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(AnnouncementCreatedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(AnnouncementCreatedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new AnnouncementCreatedIntegrationEvent(notification.OccurredOnUtc, notification.AnnouncementId, notification.PostId),
-            cancellationToken);
-    }
+            cancellationToken));
 }

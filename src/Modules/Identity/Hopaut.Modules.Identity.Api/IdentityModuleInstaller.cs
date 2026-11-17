@@ -1,9 +1,9 @@
+using FluentValidation;
 using Hopaut.Modules.Identity.Application;
 using Hopaut.Modules.Identity.Domain;
 using Hopaut.Modules.Identity.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -39,9 +39,8 @@ public static class IdentityModuleInstaller
         // Token generator
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
-        // MediatR handlers
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssemblyContaining<AuthResult>());
+        // Validators; handlers and the unit-of-work behavior are registered by the Host's AddMediator.
+        services.AddValidatorsFromAssemblyContaining<IIdentityCommand>(includeInternalTypes: true);
 
         return services;
     }

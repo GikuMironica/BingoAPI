@@ -2,6 +2,9 @@
 
   <PropertyGroup>
     <RootNamespace>Hopaut.Api.Host</RootNamespace>
+    <!-- Mediator.SourceGenerator 3.0.2 warnings fail the build (messaging-integration skill §3): MSG0001 multiple handlers,
+         MSG0002/MSG0003 invalid handler type, MSG0004 message with several message interfaces, MSG0005 message without handler. -->
+    <WarningsAsErrors>$(WarningsAsErrors);MSG0001;MSG0002;MSG0003;MSG0004;MSG0005</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,6 +18,12 @@
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.PostgreSql" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <!-- Generates the mediator and its registrations at compile time; referenced only here (messaging-integration skill §3). -->
+    <PackageReference Include="Mediator.SourceGenerator">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Mediator.Abstractions" />
     <!-- Design-time services for `dotnet ef` (startup project); never shipped. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
       <PrivateAssets>all</PrivateAssets>

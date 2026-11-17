@@ -1,16 +1,17 @@
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 
 namespace Hopaut.Modules.Announcements.Application.Queries.GetAnnouncementsByPost;
 
-public sealed class GetAnnouncementsByPostQueryHandler : IRequestHandler<GetAnnouncementsByPostQuery, IReadOnlyList<AnnouncementDto>>
+public sealed class GetAnnouncementsByPostQueryHandler(IAnnouncementRepository announcements)
+    : IQueryHandler<GetAnnouncementsByPostQuery, Result<IReadOnlyList<AnnouncementDto>>>
 {
-    private readonly IAnnouncementRepository _repo;
-
-    public GetAnnouncementsByPostQueryHandler(IAnnouncementRepository repo) => _repo = repo;
-
-    public async Task<IReadOnlyList<AnnouncementDto>> Handle(GetAnnouncementsByPostQuery request, CancellationToken cancellationToken)
+    public async ValueTask<Result<IReadOnlyList<AnnouncementDto>>> Handle(GetAnnouncementsByPostQuery request, CancellationToken cancellationToken)
     {
-        var announcements = await _repo.GetByPostAsync(request.PostId, cancellationToken);
-        return announcements.Select(a => new AnnouncementDto(a.Id.Value, a.PostId.Value, a.Message, a.CreatedAt)).ToList();
+        var found = await announcements.GetByPostAsync(request.PostId, cancellationToken);
+        IReadOnlyList<AnnouncementDto> dtos = found
+            .Select(a => new AnnouncementDto(a.Id.Value, a.PostId.Value, a.Message, a.CreatedAt))
+            .ToList();
+        return Result.Success(dtos);
     }
 }

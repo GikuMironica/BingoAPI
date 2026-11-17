@@ -1,57 +1,32 @@
 using Hopaut.BuildingBlocks.Application;
 using Hopaut.Modules.Posts.Application.IntegrationEvents;
 using Hopaut.Modules.Posts.Domain.Events;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Posts.Infrastructure.DomainEventHandlers;
 
-internal sealed class PostCreatedDomainEventHandler : INotificationHandler<PostCreatedDomainEvent>
+// Public: the Mediator source generator in the Host registers them (F-057). They run before the Posts unit of work saves.
+
+public sealed class PostCreatedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<PostCreatedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public PostCreatedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(PostCreatedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(PostCreatedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new PostCreatedIntegrationEvent(notification.OccurredOnUtc, notification.PostId, notification.UserId),
-            cancellationToken);
-    }
+            cancellationToken));
 }
 
-internal sealed class PostDeletedDomainEventHandler : INotificationHandler<PostDeletedDomainEvent>
+public sealed class PostDeletedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<PostDeletedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public PostDeletedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(PostDeletedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(PostDeletedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new PostDeletedIntegrationEvent(notification.OccurredOnUtc, notification.PostId),
-            cancellationToken);
-    }
+            cancellationToken));
 }
 
-internal sealed class PictureStateChangedDomainEventHandler : INotificationHandler<PictureStateChangedDomainEvent>
+public sealed class PictureStateChangedDomainEventHandler(IIntegrationEventPublisher publisher) : INotificationHandler<PictureStateChangedDomainEvent>
 {
-    private readonly IIntegrationEventPublisher _publisher;
-
-    public PictureStateChangedDomainEventHandler(IIntegrationEventPublisher publisher)
-    {
-        _publisher = publisher;
-    }
-
-    public Task Handle(PictureStateChangedDomainEvent notification, CancellationToken cancellationToken)
-    {
-        return _publisher.PublishAsync(
+    public ValueTask Handle(PictureStateChangedDomainEvent notification, CancellationToken cancellationToken) =>
+        new(publisher.PublishAsync(
             new PictureStateChangedIntegrationEvent(notification.OccurredOnUtc, notification.PictureId, notification.PostId, notification.NewState.ToString()),
-            cancellationToken);
-    }
+            cancellationToken));
 }

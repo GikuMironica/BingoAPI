@@ -1,12 +1,14 @@
 using Hopaut.BuildingBlocks.Api;
+using Hopaut.BuildingBlocks.Api.Http;
 using Hopaut.Modules.BugReports.Application.Commands.CreateBugReport;
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
 namespace Hopaut.Modules.BugReports.Api;
 
+/// <summary>Results map back to today's responses until the bug-report endpoints are synchronised in plan Step 10.8 (D-007).</summary>
 public sealed class BugReportsModule : IModuleEndpoints
 {
     public void MapEndpoints(IEndpointRouteBuilder endpoints)
@@ -15,10 +17,12 @@ public sealed class BugReportsModule : IModuleEndpoints
             .WithTags("BugReports")
             .RequireAuthorization();
 
-        group.MapPost("/", async (CreateBugReportCommand command, ISender sender) =>
+        group.MapPost("/", async (CreateBugReportCommand command, ISender sender, CancellationToken cancellationToken) =>
         {
-            var id = await sender.Send(command);
-            return Results.Created($"/api/v1/bugs/{id.Value}", new { id = id.Value });
+            var result = await sender.Send(command, cancellationToken);
+            return result.IsSuccess
+                ? Results.Created($"/api/v1/bugs/{result.Value.Value}", new { id = result.Value.Value })
+                : result.ToProblem();
         });
     }
 }

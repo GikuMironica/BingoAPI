@@ -553,7 +553,7 @@
 
 > Every Phase 8 module step applies this checklist (clean-architecture-ddd skill), then its module-specific actions:
 > 1. Create `tests/Modules/<X>/Hopaut.Modules.<X>.UnitTests` from `templates/Module` (Domain + Application tests).
-> 2. Aggregates: private setters, private collections exposed read-only, no child → root back-references, enums or value objects instead of flags and primitives, IDs known before any event is raised (int keys: per-aggregate Postgres sequence through the repository's `NextIdAsync` + `ValueGeneratedNever()`; Guid keys: `Guid.CreateVersion7()`).
+> 2. Aggregates: private setters, private collections exposed read-only, no child → root back-references, enums or value objects instead of flags and primitives, IDs known before any event is raised (int keys: per-aggregate Postgres sequence through the repository's `NextIdAsync` + `ValueGeneratedNever()`; Guid keys: `Guid.CreateVersion7()`). Done in Step 7.6 for the root aggregates Post, Participation, Announcement, Rating, PostReport, UserReport and Bug (D-019); child entities still use database keys.
 > 3. Invariants and transitions return `Result` with errors from a per-aggregate catalog (`<module>.<entity>.<reason>` codes).
 > 4. Handlers: load → authorize (6.9 port) → domain method → add; `ICurrentUser`, `TimeProvider`, `CancellationToken`; no `SaveChangesAsync`.
 > 5. Persistence: value objects as complex types, typed ID converters, `xmin` concurrency where several actors edit; one EF migration per model change.
@@ -718,7 +718,7 @@
 
 ### Step 11.1 – Legacy data conversion
 * **Goal:** production data moves from the legacy `public` schema into the module schemas without loss.
-* **Actions:** one idempotent SQL script per module (identity + users, posts including TPH → `event_type` and Unix seconds → `timestamptz`, attendance, announcements, ratings + reputation, moderation, bug reports), derived from the legacy model at tag `pre-net10-baseline` or from a schema-only dump supplied by the user; runbook `docs/db/legacy-data-migration.md` with verification queries (row counts, spot checks).
+* **Actions:** one idempotent SQL script per module (identity + users, posts including TPH → `event_type` and Unix seconds → `timestamptz`, attendance, announcements, ratings + reputation, moderation, bug reports), derived from the legacy model at tag `pre-net10-baseline` or from a schema-only dump supplied by the user; each script ends by moving every aggregate ID sequence past the imported keys (`SELECT setval('<schema>.<sequence>', COALESCE(MAX("Id"), 0) + 1, false)` for `posts.post_ids`, `attendance.participation_ids`, `announcements.announcement_ids`, `ratings.rating_ids`, `moderation.post_report_ids`, `moderation.user_report_ids`, `bug_reports.bug_ids`; decision D-019); runbook `docs/db/legacy-data-migration.md` with verification queries (row counts, spot checks).
 * **Acceptance:** the scripts run twice against a local PostGIS container seeded with a synthetic legacy dataset and produce identical, verified results. Never run against a non-local database.
 * **Closes:** the data parts of 2.2, 2.4, 3.3, 3.4.
 * **Status field:** `11.1`.

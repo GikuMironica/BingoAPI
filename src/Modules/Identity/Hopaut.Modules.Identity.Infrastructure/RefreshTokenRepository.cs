@@ -4,25 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hopaut.Modules.Identity.Infrastructure;
 
-public sealed class RefreshTokenRepository : IRefreshTokenRepository
+public sealed class RefreshTokenRepository(IdentityModuleDbContext dbContext) : IRefreshTokenRepository
 {
-    private readonly IdentityModuleDbContext _dbContext;
+    public Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken ct = default) =>
+        dbContext.RefreshTokens.SingleOrDefaultAsync(x => x.Token == token, ct);
 
-    public RefreshTokenRepository(IdentityModuleDbContext dbContext) => _dbContext = dbContext;
+    public void MarkUsed(RefreshToken refreshToken) => refreshToken.Used = true;
 
-    public async Task<RefreshToken?> GetByTokenAsync(string token, CancellationToken ct = default) =>
-        await _dbContext.RefreshTokens.SingleOrDefaultAsync(x => x.Token == token, ct);
-
-    public async Task MarkUsedAsync(RefreshToken refreshToken, CancellationToken ct = default)
-    {
-        refreshToken.Used = true;
-        _dbContext.RefreshTokens.Update(refreshToken);
-        await _dbContext.SaveChangesAsync(ct);
-    }
-
-    public async Task AddAsync(RefreshToken refreshToken, CancellationToken ct = default)
-    {
-        await _dbContext.RefreshTokens.AddAsync(refreshToken, ct);
-        await _dbContext.SaveChangesAsync(ct);
-    }
+    public void Add(RefreshToken refreshToken) => dbContext.RefreshTokens.Add(refreshToken);
 }

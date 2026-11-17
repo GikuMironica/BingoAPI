@@ -1,13 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Hopaut.Modules.Identity.Domain;
-using MediatR;
+using Hopaut.SharedKernel;
+using Mediator;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Hopaut.Modules.Identity.Application.Commands.RefreshToken;
 
-public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, AuthResult>
+public sealed class RefreshTokenCommandHandler : ICommandHandler<RefreshTokenCommand, Result<AuthResult>>
 {
     private readonly IRefreshTokenRepository _refreshTokenRepo;
     private readonly UserManager<AppUser> _userManager;
@@ -29,7 +30,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         _timeProvider = timeProvider;
     }
 
-    public async Task<AuthResult> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async ValueTask<Result<AuthResult>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
     {
         var principal = GetPrincipalFromToken(request.Token);
         if (principal is null)
@@ -61,7 +62,7 @@ public sealed class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCom
         if (storedRefreshToken.JwtId != jti)
             return AuthResult.Fail(FailReason.InvalidToken, "This refresh token does not match this JWT");
 
-        await _refreshTokenRepo.MarkUsedAsync(storedRefreshToken, cancellationToken);
+        _refreshTokenRepo.MarkUsed(storedRefreshToken);
 
         var user = await _userManager.FindByIdAsync(principal.Claims.Single(c => c.Type == "id").Value);
         if (user is null)

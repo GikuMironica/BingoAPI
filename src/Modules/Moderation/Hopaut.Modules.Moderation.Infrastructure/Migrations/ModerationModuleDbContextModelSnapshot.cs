@@ -23,13 +23,14 @@ namespace Hopaut.Modules.Moderation.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.HasSequence<int>("post_report_ids");
+
+            modelBuilder.HasSequence<int>("user_report_ids");
+
             modelBuilder.Entity("Hopaut.Modules.Moderation.Domain.PostReport", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -68,10 +69,7 @@ namespace Hopaut.Modules.Moderation.Infrastructure.Migrations
             modelBuilder.Entity("Hopaut.Modules.Moderation.Domain.UserReport", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

@@ -1,6 +1,6 @@
 using Hopaut.SharedKernel;
-using MediatR;
+using Mediator;
 
 namespace Hopaut.Modules.Ratings.Application.Commands.DeleteRating;
 
-public sealed record DeleteRatingCommand(RatingId RatingId) : IRequest<bool>;
+public sealed record DeleteRatingCommand(RatingId RatingId) : ICommand<Result>, IRatingsCommand;

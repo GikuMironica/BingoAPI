@@ -21,10 +21,14 @@ public sealed class PostReport : AggregateRoot<PostReportId>
 
     private PostReport() { } // EF Core
 
-    public static PostReport Create(int reason, string? message, UserId reporterId, UserId reportedHostId, PostId postId, DateTimeOffset now)
+    /// <summary>Creates a report with an ID taken from the post-reports sequence.</summary>
+    public static PostReport Create(PostReportId id, int reason, string? message, UserId reporterId, UserId reportedHostId, PostId postId, DateTimeOffset now)
     {
+        ArgumentOutOfRangeException.ThrowIfEqual(id, default);
+
         return new PostReport
         {
+            Id = id,
             CreatedAt = now,
             Reason = reason,
             Message = message,
@@ -53,10 +57,14 @@ public sealed class UserReport : AggregateRoot<UserReportId>
 
     private UserReport() { } // EF Core
 
-    public static UserReport Create(int reason, string? message, UserId reporterId, UserId reportedUserId, DateTimeOffset now)
+    /// <summary>Creates a report with an ID taken from the user-reports sequence.</summary>
+    public static UserReport Create(UserReportId id, int reason, string? message, UserId reporterId, UserId reportedUserId, DateTimeOffset now)
     {
+        ArgumentOutOfRangeException.ThrowIfEqual(id, default);
+
         return new UserReport
         {
+            Id = id,
             CreatedAt = now,
             Reason = reason,
             Message = message,

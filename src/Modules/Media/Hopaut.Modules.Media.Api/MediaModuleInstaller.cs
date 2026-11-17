@@ -1,7 +1,7 @@
 using Amazon;
 using Amazon.S3;
+using FluentValidation;
 using Hopaut.Modules.Media.Application;
-using Hopaut.Modules.Media.Application.Commands.UploadImages;
 using Hopaut.Modules.Media.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -26,9 +26,8 @@ public static class MediaModuleInstaller
         services.AddScoped<IMediaStorage, S3MediaStorage>();
         services.AddSingleton<IImageProcessor, ImageSharpProcessor>();
 
-        // MediatR
-        services.AddMediatR(cfg =>
-            cfg.RegisterServicesFromAssemblyContaining<UploadImagesCommand>());
+        // Validators; the handler is registered by the Host's AddMediator.
+        services.AddValidatorsFromAssemblyContaining<IMediaCommand>(includeInternalTypes: true);
 
         return services;
     }
