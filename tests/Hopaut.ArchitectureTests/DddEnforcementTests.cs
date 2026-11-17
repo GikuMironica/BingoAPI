@@ -73,19 +73,13 @@ public class DddEnforcementTests
     [Fact]
     public void AggregateRoots_Should_Have_Private_Constructors()
     {
-        // Find all concrete types that inherit from AggregateRoot<>
-        var aggregateTypes = Types.InAssembly(SharedKernelAssembly)
-            .That()
-            .Inherit(typeof(Hopaut.SharedKernel.AggregateRoot<>))
-            .And()
-            .AreNotAbstract()
-            .GetTypes();
+        // Audit 2026-11-17 (F-025): this rule used to scan SharedKernel, which contains no aggregate.
+        // It now scans every module Domain assembly through the ratchet baseline.
+        var moduleDomainTypes = Rules.DomainModelRules.TypesOf(Catalog.SolutionAssemblies.OfLayer(Catalog.Layer.Domain)).ToList();
 
-        foreach (var type in aggregateTypes)
-        {
-            var publicCtors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-            publicCtors.Should().BeEmpty(
-                $"Aggregate '{type.Name}' should use private constructors with static factory methods");
-        }
+        Assert.NotEmpty(moduleDomainTypes);
+        Ratchet.Verify(
+            Rules.DomainModelRules.AggregateConstructor,
+            Rules.DomainModelRules.AggregatePublicConstructors(moduleDomainTypes));
     }
 }

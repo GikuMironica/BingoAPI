@@ -2,14 +2,13 @@
 
 > Owned by the HopautArchitect agent. Step status lives only in `hopaut-migration-status.md`; this file holds the working queue, audit findings, contract inventory, decisions and blockers.
 
-**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 6.7
+**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 7.2
 
 ## Now
-- [ ] 6.7 – Architecture test suite as a ratchet (skills: clean-architecture-ddd, messaging-integration, architect-handoff)
+- [ ] 7.2 – Test pyramid scaffolding: xUnit v3, AwesomeAssertions, NSubstitute, Testcontainers via Podman (skills: dotnet-10-migration, architect-handoff)
 
 ## Next
 Order and dependencies: `hopaut-execution-plan.md` Phase 7 header (D-005).
-- [ ] 7.2 – Test pyramid scaffolding: xUnit v3, AwesomeAssertions, NSubstitute, Testcontainers via Podman (dotnet-10-migration)
 - [ ] 7.3 – Baseline EF Core migrations per module (dotnet-10-migration)
 - [ ] 7.4 – `Result`/`Error`, problem details, `ICurrentUser` (clean-architecture-ddd, rest-api-standards)
 - [ ] 7.5 – `TimeProvider`, Guid v7, SharedKernel base types, ID parsing/JSON (clean-architecture-ddd, dotnet-10-migration)
@@ -45,12 +44,12 @@ Types: bug · smell · primitive-obsession · anemic-model · layering · messag
 | F-017 | bug | `Ratings.Infrastructure/UserReputationRepository.cs:25-48` | Reputation recomputed synchronously without a concurrency token (lost updates) | audit report | 8.4, 9.3 | open |
 | F-018 | smell | `src/BuildingBlocks/Hopaut.SharedKernel/ValueObjects.cs:6-43` | `Coordinates` exposes `IsValid` (invalid instances constructible); `RatingValue` throws; `Money` unvalidated; `TimeRange` missing | audit report | 8.1 | open |
 | F-019 | primitive-obsession | `Post.cs:31` (`int ActiveFlag`), `Event.cs:12-13` (`double?` price, `int?` currency), `UserProfile.cs:21` + `AppUser.cs:14` (`long` timestamp), `MediaAsset.cs:13-19`, text fields | Domain concepts as primitives | audit report | 8.2, 8.8, 8.9, 8.10 | open |
-| F-020 | anemic-model | `Posts.Domain` `Event.cs:10-22`, `EventLocation.cs:7-17`, `Picture.cs:7-13`, `Tag.cs:7-10`, `PostTag.cs:7-11`, `RepeatableProperty.cs:7-10`; `Bug.cs:31-35`; `RefreshToken.cs:10-21`; `UserReputation.cs:9-12`; `AppUser.cs:10-14`; `Post.cs:17-18` | Public setters, public mutable collections (`Post.Pictures/Tags`, `Tag.Posts`), child → root back-references | audit report | 8.2, 8.4, 8.7, 8.9 | open |
+| F-020 | anemic-model | `Posts.Domain` `Event.cs:10-22`, `EventLocation.cs:7-17`, `Picture.cs:7-13`, `Tag.cs:7-10`, `PostTag.cs:7-11`, `RepeatableProperty.cs:7-10`; `Bug.cs:31-35`; `RefreshToken.cs:10-21`; `UserReputation.cs:9-12`; `AppUser.cs:10-14`; `Post.cs:17-18` | Public setters, public mutable collections (`Post.Pictures/Tags`, `Tag.Posts`, `Bug.Screenshots`), child → root back-references | audit report; rules `ARCH-DOMAIN-SETTER` (60) and `ARCH-DOMAIN-COLLECTION` (4) baselined in 6.7 | 8.2, 8.4, 8.7, 8.9 | open |
 | F-021 | smell | `DateTimeOffset.UtcNow`: `Announcement.cs:20`, `Participation.cs:23,35,44,53`, `Bug.cs:18`, `Report.cs:28,60`, `Post.cs:33`, `Rating.cs:26`; `DateTime.UtcNow`: `MediaAsset.cs:33`, `RegisterUserCommandHandler.cs:29`, `RefreshTokenCommandHandler.cs:38,48`, `JwtTokenGenerator.cs:67,78-79`; `Guid.NewGuid`: `MediaAsset.cs:5`, `UserProfile.cs:7`, `UploadImagesCommandHandler.cs:26`, `IDomainEvent.cs:12`, `IIntegrationEvent.cs:12` | Clocks and random IDs inside domain, application and events | audit report | 7.5 | open |
 | F-022 | smell | `SharedKernel/Entity.cs:13-25`, `IDomainEvent.cs:3-15`, `Result.cs:3-42`, `StronglyTypedIds.cs:28-143` | Public `AddDomainEvent`; transient entities compare equal; events use `DateTime` + `Guid.NewGuid`; `Result` has no `Error`/`ErrorType` and `Value` does not throw; IDs lack `IParsable` and accept ≤ 0; no ID JSON converter | audit report | 7.4, 7.5 | open |
 | F-023 | layering | `src/Modules/Posts/Hopaut.Modules.Posts.Infrastructure/Hopaut.Modules.Posts.Infrastructure.csproj:16` | Posts.Infrastructure references Ratings.Application | csproj | 6.6 | open |
 | F-024 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Domain/Hopaut.Modules.Identity.Domain.csproj:8` | Identity.Domain references `Microsoft.Extensions.Identity.Stores` (`AppUser : IdentityUser`) | csproj | 8.9 | open |
-| F-025 | test-gap | `tests/Hopaut.ArchitectureTests/DddEnforcementTests.cs:13-17,72-86` | Architecture tests load only SharedKernel + BuildingBlocks.Application; the aggregate-constructor rule scans an assembly without aggregates (vacuous); no module rules | file content | 6.7 | open |
+| F-025 | test-gap | `tests/Hopaut.ArchitectureTests/DddEnforcementTests.cs:13-17,72-86` | Architecture tests load only SharedKernel + BuildingBlocks.Application; the aggregate-constructor rule scans an assembly without aggregates (vacuous); no module rules | file content | 6.7 | fixed 2026-11-17 (6.7: ratchet suite, 33 tests) |
 | F-026 | test-gap | `tests/` | No unit, integration or endpoint tests for any module or building block | `dotnet test Bingo.sln` → 5 tests | 7.2, 8.x, 10.x | open |
 | F-027 | bug | all module `*.Infrastructure` projects | No EF Core migrations for any of the 8 module DbContexts or `OutboxDbContext` | audit: no `Migrations` folder, `Migration` or `ModelSnapshot` class under `src` | 7.3, 11.1 | open |
 | F-028 | rest | `src/Modules/*/Hopaut.Modules.*.Api/*Module.cs` | Inline route literals; no `WithName`/`WithSummary`/`Produces`; untyped `Results.*` and anonymous objects; `AuthResult` serialized directly; verbs in paths (`/nearby`, `/request`, `/accept`, `/reject`, `/cancel`, `/check`, `/resolve`); 200 on create (Payments); plain-string 409; unbounded lists; one global rate-limit policy | audit report | 10.x | open |
@@ -77,6 +76,8 @@ Types: bug · smell · primitive-obsession · anemic-model · layering · messag
 | F-049 | ledger | `hopaut-execution-plan.md` 6.5, 6.13 | Plan says domain events are dispatched "after commit", contradicting messaging-integration §4 | plan text | Phase 1 (D-004) | fixed 2026-11-17 (supersession note) |
 | F-050 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Domain/RefreshToken.cs:7-9` | Data annotations (`[DatabaseGenerated]`) in Domain | audit report | 8.9 | open |
 | F-051 | smell | `tests/load/sample_test.js:20`, `tests/load/stress_test.js:19-25` | Legacy k6 samples: one posts to the production login URL, the other targets dummy routes on `localhost:44375` | file content | 6.11 | open |
+| F-052 | layering | `src/Modules/*/Hopaut.Modules.*.Api/*ModuleInstaller.cs` (all 11 modules) | Module installers (`AddXxxModule`) live in `*.Api` and reference `*.Infrastructure` and EF Core; `Identity.Api` also references `Identity.Domain` (layer-table row "Api") | `tests/Hopaut.ArchitectureTests` rule `ARCH-LAYER-API` (19 baselined violations) | 6.6 | open |
+| F-053 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Application/Commands/**` | Identity command handlers use ASP.NET Core Identity types (`UserManager<AppUser>` etc., namespace `Microsoft.AspNetCore.Identity`) instead of an Application port | rule `ARCH-LAYER-APPLICATION` | 8.9 | open |
 
 ## Contract inventory
 
@@ -157,5 +158,6 @@ Backend endpoints without a mobile consumer (admin, web portal or internal): `GE
 - Foreign uncommitted work in BingoAPI (left untouched): `.github/github-copilot-instructions.md` deleted with identical content added as untracked `.github/copilot-instructions.md`; untracked `.github/agents/` and `.github/skills/`.
 
 ## Done (latest 10)
-- 2026-11-17 7.1: legacy stubs + netcoreapp3.1 project removed, CPM cleaned with transitive pinning, MailKit/MimeKit/Pkcs + OpenTelemetry + Newtonsoft patched, Dockerfile/compose rewritten; validated by `dotnet build Bingo.sln` (0 errors, ImageSharp-only warnings), `dotnet test Bingo.sln` (5/5), vulnerable scan (ImageSharp only), `podman build`; closes 0.6, 6.1, 6.8; commit recorded in the next ledger update.
+- 2026-11-17 6.7: architecture suite rebuilt as a ratchet (layer table, Domain model rules, integrity + self-tests, 86 baselined violations → F-020/F-022/F-023/F-024/F-050/F-052/F-053); validated by `dotnet test tests/Hopaut.ArchitectureTests` (33/33) and a removed-entry run that fails as designed; closes 1.8, 6.4; commit recorded in the next ledger update.
+- 2026-11-17 7.1: legacy stubs + netcoreapp3.1 project removed, CPM cleaned with transitive pinning, MailKit/MimeKit/Pkcs + OpenTelemetry + Newtonsoft patched, Dockerfile/compose rewritten; validated by `dotnet build Bingo.sln` (0 errors, ImageSharp-only warnings), `dotnet test Bingo.sln` (5/5), vulnerable scan (ImageSharp only), `podman build`; closes 0.6, 6.1, 6.8; commit `8614870`.
 - 2026-11-17 Phase 1 audit: baseline recorded, ledger reconciled (D-001), Phases 7–11 appended to the plan, `TODO.md` created; validated by `dotnet build Bingo.sln` and `dotnet test Bingo.sln`; commit `104e78b`.

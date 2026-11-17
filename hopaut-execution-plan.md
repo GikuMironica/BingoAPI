@@ -383,6 +383,7 @@
   * Update cross-module references: other modules reference only `*.Contracts`, never `*.Application` or `*.Domain`.
   * Remove the current `Posts.Infrastructure → Ratings.Application` reference; replace with `Posts.Infrastructure → Ratings.Contracts`.
   * Add NetArchTest rule: `NoModuleReferencesAnotherModuleNonContracts`.
+  * **Added 2026-11-17 (F-052):** move each module's service registration (`AddXxxModule`) from `*.Api` into `*.Infrastructure`; `*.Api` keeps only `MapXxxEndpoints`, so it no longer references its Infrastructure, its Domain or EF Core. Remove the matching `ARCH-LAYER-API` and `ARCH-LAYER-INFRASTRUCTURE` entries from `tests/Hopaut.ArchitectureTests/ArchitectureBaseline.cs` (the cross-module rule already exists since 6.7).
 * **Acceptance:** no module references another module's Domain/Application/Infrastructure directly; only Contracts; NetArchTest enforces this; build green.
 * **Status field:** `6.6`.
 

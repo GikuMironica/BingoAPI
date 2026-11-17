@@ -13,9 +13,10 @@
     <PackageReference Include="NetArchTest.Rules" />
   </ItemGroup>
 
+  <!-- Every module and building-block project is under architecture test; new projects (e.g. *.Contracts) are picked up automatically. -->
   <ItemGroup>
-    <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
-    <ProjectReference Include="..\..\src\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\**\*.csproj" />
+    <ProjectReference Include="..\..\src\Modules\**\*.csproj" />
   </ItemGroup>
 
   <ItemGroup>
