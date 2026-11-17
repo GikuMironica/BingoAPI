@@ -2,14 +2,13 @@
 
 > Owned by the HopautArchitect agent. Step status lives only in `hopaut-migration-status.md`; this file holds the working queue, audit findings, contract inventory, decisions and blockers.
 
-**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 7.1
+**Last updated:** 2026-11-17 · **Agent phase:** 2 (core migration; Phase 1 audit done) · **Plan phase:** 7 · **Current step:** 6.7
 
 ## Now
-- [ ] 7.1 – Repository hygiene + supply-chain fixes; closes 0.6, 6.1, 6.8 (skills: dotnet-10-migration, architect-handoff)
+- [ ] 6.7 – Architecture test suite as a ratchet (skills: clean-architecture-ddd, messaging-integration, architect-handoff)
 
 ## Next
 Order and dependencies: `hopaut-execution-plan.md` Phase 7 header (D-005).
-- [ ] 6.7 – Architecture test suite as a ratchet (clean-architecture-ddd)
 - [ ] 7.2 – Test pyramid scaffolding: xUnit v3, AwesomeAssertions, NSubstitute, Testcontainers via Podman (dotnet-10-migration)
 - [ ] 7.3 – Baseline EF Core migrations per module (dotnet-10-migration)
 - [ ] 7.4 – `Result`/`Error`, problem details, `ICurrentUser` (clean-architecture-ddd, rest-api-standards)
@@ -65,9 +64,9 @@ Types: bug · smell · primitive-obsession · anemic-model · layering · messag
 | F-036 | perf | `Posts.Application/Queries/GetNearbyPosts/GetNearbyPostsQuery.cs:5`; `Posts.Api/PostsModule.cs:16-23` | Nearby query: radius and limit unbounded, no paging, anonymous | audit report | 8.2, 10.4 | open |
 | F-037 | smell | `src/Host/Hopaut.Api.Host/Program.cs` | Regressions after 6.1: no correlation id, no `/health/live`/`/health/ready`, console exporter only, no options validation or `ValidateScopes`, no forwarded headers/CORS, no custom exception handler | audit report | 7.4, 7.7 | open |
 | F-038 | perf | `Infrastructure/Caching/RedisCacheService.cs:30-45` | Tag tracking is a non-atomic read-modify-write; no stampede protection | audit report | 1.6 | open |
-| F-039 | security | `Directory.Packages.props` (+ transitive) | Vulnerable: MailKit/MimeKit 4.10.0 and OpenTelemetry.Api 1.12.0 (moderate); Newtonsoft.Json 11.0.1, System.Security.Cryptography.Pkcs 8.0.1 and SixLabors.ImageSharp 3.1.7 (high) | `dotnet list Bingo.sln package --vulnerable --include-transitive` | 7.1 (+ B-001) | open |
-| F-040 | smell | `Directory.Packages.props` | 21 `PackageVersion` entries unused (AutoMapper, Swashbuckle, Newtonsoft MVC, System.Drawing, SqlClient, Flurl, …); deprecated `FluentValidation.AspNetCore` referenced | `dotnet list Bingo.sln package` vs CPM | 7.1, 7.6 | open |
-| F-041 | smell | `BingoAPI/*`, `Bingo.IntegrationTests/*.csproj`, `Bingo.LoadTests/Bingo.LoadTests.csproj`, `Dockerfile`, `docker-compose.yml` | Tracked zero-byte legacy stubs; netcoreapp3.1 csproj; Dockerfile builds deleted BingoAPI on the .NET Core 3.1 SDK; compose uses Postgres 9.6 without PostGIS | `git ls-files`; file content | 7.1 | open |
+| F-039 | security | `Directory.Packages.props` (+ transitive) | Vulnerable: MailKit/MimeKit 4.10.0 and OpenTelemetry.Api 1.12.0 (moderate); Newtonsoft.Json 11.0.1, System.Security.Cryptography.Pkcs 8.0.1 and SixLabors.ImageSharp 3.1.7 (high) | `dotnet list Bingo.sln package --vulnerable --include-transitive` | 7.1 (+ B-001) | partly fixed 2026-11-17 (7.1): only SixLabors.ImageSharp remains (B-001) |
+| F-040 | smell | `Directory.Packages.props` | 21 `PackageVersion` entries unused (AutoMapper, Swashbuckle, Newtonsoft MVC, System.Drawing, SqlClient, Flurl, …); deprecated `FluentValidation.AspNetCore` referenced | `dotnet list Bingo.sln package` vs CPM | 7.1, 7.6 | partly fixed 2026-11-17 (7.1: 17 removed; JwtBearer, Mvc.Testing, NSubstitute kept for 7.2/7.7); FluentValidation.AspNetCore + MediatR → 7.6 |
+| F-041 | smell | `BingoAPI/*`, `Bingo.IntegrationTests/*.csproj`, `Bingo.LoadTests/Bingo.LoadTests.csproj`, `Dockerfile`, `docker-compose.yml` | Tracked zero-byte legacy stubs; netcoreapp3.1 csproj; Dockerfile builds deleted BingoAPI on the .NET Core 3.1 SDK; compose uses Postgres 9.6 without PostGIS | `git ls-files`; file content | 7.1 | fixed 2026-11-17 (7.1; `podman build` OK) |
 | F-042 | security | `Identity.Application/AuthResult.cs:1-28`; `Identity.Infrastructure/JwtTokenGenerator.cs:33-50,71-82` | Bespoke `AuthResult`/`FailReason`; JWT has no `sub` claim (BingoMobile parses `sub` and `id`); 6-month refresh tokens without rotation or reuse detection; LoginWithFacebook, AddPassword, Grant/RevokePostClaim missing | audit report | 8.9, 10.2 | open |
 | F-043 | bug | `src/Modules/Posts/Hopaut.Modules.Posts.Application/**` | UpdatePost, DisablePost, GetMyActivePosts, GetMyInactivePosts and `PostUpdated` (plan 3.4) missing | audit report | 8.2, 10.4 | open |
 | F-044 | bug | `src/Modules/Media/**`, `src/Modules/Posts/**` | Async picture pipeline (3.5) not implemented beyond `PictureState` + `IMediaProcessor`; `MediaUploadedIntegrationEvent` never published | audit report | 9.5 | open |
@@ -77,6 +76,7 @@ Types: bug · smell · primitive-obsession · anemic-model · layering · messag
 | F-048 | bug | `src/Modules/Media/Hopaut.Modules.Media.Domain/MediaAsset.cs` | `MediaAsset` aggregate exists but Media has no DbContext, so assets are never persisted | audit report | 8.10 | open |
 | F-049 | ledger | `hopaut-execution-plan.md` 6.5, 6.13 | Plan says domain events are dispatched "after commit", contradicting messaging-integration §4 | plan text | Phase 1 (D-004) | fixed 2026-11-17 (supersession note) |
 | F-050 | layering | `src/Modules/Identity/Hopaut.Modules.Identity.Domain/RefreshToken.cs:7-9` | Data annotations (`[DatabaseGenerated]`) in Domain | audit report | 8.9 | open |
+| F-051 | smell | `tests/load/sample_test.js:20`, `tests/load/stress_test.js:19-25` | Legacy k6 samples: one posts to the production login URL, the other targets dummy routes on `localhost:44375` | file content | 6.11 | open |
 
 ## Contract inventory
 
@@ -142,6 +142,8 @@ Backend endpoints without a mobile consumer (admin, web portal or internal): `GE
 | D-006 | 2026-11-17 | Plan order: Phase 7 foundation → 8 domain → 9 messaging → 10 REST + BingoMobile → 11 release | Agent phases 2–5; wire contracts are designed once on the cleaned model; consumers need the final domain events | REST first (would be redone after the domain refactor) |
 | D-007 | 2026-11-17 | Until a module's Phase 10 step its endpoints stay "unsynced": BingoMobile does not call them (inventory), so intermediate changes keep today's HTTP behaviour and get no individual handoff; the Phase 10 handoff documents the full legacy → target diff | D-API-1 (backend and mobile `dev` ship together); avoids handoff churn for shapes that will change again | one handoff per intermediate change |
 | D-008 | 2026-11-17 | Skill defaults adopted without override: D-MSG-1 (Mediator 3.x), D-MSG-2 (`IIntegrationEventBus`, in-process transport), D-MSG-3 (hand-rolled per-module outbox), D-API-1 (breaking `/api/v1` changes allowed when BingoMobile `dev` is updated in the same batch) | Confirmed by the user on 2026-11-17 (skills) | – |
+| D-009 | 2026-11-17 | Stay on the .NET 10 LTS package lines (10.0.x, EF Core 10, Npgsql 10); .NET 11 / 11.0.x packages are not adopted; upgrade a package only to fix a vulnerability or a restore conflict, choosing the smallest patched version line (e.g. MailKit 4.18.2, not 5.0.0) | nuget.org on 2026-11-17 lists 11.0.0 packages and MailKit 5.0.0; advisories' patched versions: MailKit ≥ 4.16.0, MimeKit ≥ 4.15.1, OpenTelemetry.Api ≥ 1.15.3, Pkcs 10.0.13 (GitHub advisory API) | jumping to latest majors (breaking changes, runtime mismatch with the installed 10.0.9 ASP.NET runtime) |
+| D-010 | 2026-11-17 | Hangfire.AspNetCore 1.8.17 / Hangfire.PostgreSql 1.20.10 (file-based license: LGPL-3.0 with a commercial option) stay as introduced in Step 1.5; they are not upgraded without the user's license confirmation (license gate: dual/unclear) | nuspec `<license type="file">LICENSE.md</license>`; no advisory against the current versions | silent upgrade; replacing Hangfire now (not needed) |
 
 ## Blockers
 - **B-001** SixLabors.ImageSharp 3.1.7 has high-severity advisories (GHSA-j3p4-wp97-rph4, GHSA-j9gm-c75j-xc9q, GHSA-jjfr-hcj7-qf5w, GHSA-v76p-62qx-wwq2) and moderate ones (GHSA-rxmq-m78w-7wmc, GHSA-gwg2-r3hj-4w44, GHSA-wmxv-xphr-5c9g). Upgrading means accepting the Six Labors Split License v1.0: Apache-2.0 only for open-source / source-available software, transitive use, for-profit entities under 1 M USD annual gross revenue, or non-profits; otherwise a commercial license is required. → **Unblock:** the user confirms Hopaut qualifies (then upgrade to the latest patched 3.1.x) or approves replacing ImageSharp with SkiaSharp (MIT) in 8.10 / 9.5. Until then, strict-warning builds fail on NU1902/NU1903 for the Media projects (affects the 7.8 gate).
@@ -155,4 +157,5 @@ Backend endpoints without a mobile consumer (admin, web portal or internal): `GE
 - Foreign uncommitted work in BingoAPI (left untouched): `.github/github-copilot-instructions.md` deleted with identical content added as untracked `.github/copilot-instructions.md`; untracked `.github/agents/` and `.github/skills/`.
 
 ## Done (latest 10)
-- 2026-11-17 Phase 1 audit: baseline recorded, ledger reconciled (D-001), Phases 7–11 appended to the plan, `TODO.md` created; validated by `dotnet build Bingo.sln` and `dotnet test Bingo.sln`; commit recorded in the next ledger update.
+- 2026-11-17 7.1: legacy stubs + netcoreapp3.1 project removed, CPM cleaned with transitive pinning, MailKit/MimeKit/Pkcs + OpenTelemetry + Newtonsoft patched, Dockerfile/compose rewritten; validated by `dotnet build Bingo.sln` (0 errors, ImageSharp-only warnings), `dotnet test Bingo.sln` (5/5), vulnerable scan (ImageSharp only), `podman build`; closes 0.6, 6.1, 6.8; commit recorded in the next ledger update.
+- 2026-11-17 Phase 1 audit: baseline recorded, ledger reconciled (D-001), Phases 7–11 appended to the plan, `TODO.md` created; validated by `dotnet build Bingo.sln` and `dotnet test Bingo.sln`; commit `104e78b`.

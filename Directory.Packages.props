@@ -2,91 +2,64 @@
 
   <PropertyGroup>
 	<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+	<!-- Every PackageVersion below also pins the same package when it arrives transitively (used to patch vulnerable transitive dependencies). -->
+	<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
 
   <ItemGroup>
 	<!-- ASP.NET Core / Identity / Auth -->
 	<PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
 	<PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.Extensions.Identity.Stores" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.Extensions.Identity.Core" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.IdentityModel.Tokens" Version="8.6.1" />
 	<PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.6.1" />
-	<PackageVersion Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
 
 	<!-- Entity Framework Core -->
 	<PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.0" />
-	<PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.0" />
 
 	<!-- Npgsql / PostGIS -->
 	<PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
 	<PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="10.0.0" />
-	<PackageVersion Include="NetTopologySuite" Version="2.5.0" />
+	<PackageVersion Include="NetTopologySuite" Version="2.6.0" />
 
 	<!-- Caching -->
 	<PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
 
-	<!-- DI -->
-	<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+	<!-- Hosting / logging abstractions -->
 	<PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
 	<PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
 
-	<!-- Rate limiting (built-in from .NET 7+, no extra package needed) -->
-
-	<!-- MediatR -->
+	<!-- MediatR (Apache-2.0 up to 12.x; replaced by Mediator in plan step 7.6) -->
 	<PackageVersion Include="MediatR" Version="12.4.1" />
 
-	<!-- Hangfire -->
+	<!-- Hangfire (LGPL-3.0 / commercial: do not upgrade without the license confirmation recorded in TODO.md) -->
 	<PackageVersion Include="Hangfire.AspNetCore" Version="1.8.17" />
 	<PackageVersion Include="Hangfire.PostgreSql" Version="1.20.10" />
-
-	<!-- Mapping -->
-	<PackageVersion Include="AutoMapper" Version="13.0.1" />
-	<PackageVersion Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
 
 	<!-- AWS -->
 	<PackageVersion Include="AWSSDK.S3" Version="3.7.405.7" />
 
-	<!-- Email -->
-	<PackageVersion Include="MailKit" Version="4.10.0" />
+	<!-- Email (4.16.0+ / MimeKit 4.15.1+ fix GHSA-9j88-vvj5-vhgr and GHSA-g7hc-96xr-gvvx; brings System.Security.Cryptography.Pkcs 10.0.13) -->
+	<PackageVersion Include="MailKit" Version="4.18.2" />
 
-	<!-- Image Processing -->
+	<!-- Image processing (vulnerable 3.1.7 kept until blocker B-001 in TODO.md is resolved) -->
 	<PackageVersion Include="SixLabors.ImageSharp" Version="3.1.7" />
 
-	<!-- Validation -->
+	<!-- Validation (FluentValidation.AspNetCore is replaced in plan step 7.6) -->
 	<PackageVersion Include="FluentValidation.AspNetCore" Version="11.3.0" />
 
-	<!-- HTTP -->
-	<PackageVersion Include="Flurl.Http" Version="4.0.2" />
+	<!-- Transitive pins (vulnerable versions arrive through Hangfire) -->
+	<PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
 
-	<!-- JSON (legacy – will be replaced by System.Text.Json in step 0.4) -->
-	<PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-
-	<!-- Swagger -->
-	<PackageVersion Include="Swashbuckle.AspNetCore" Version="7.2.0" />
-	<PackageVersion Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
-	<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
-
-	<!-- Graphics (legacy – will be replaced by ImageSharp in step 0.4) -->
-	<PackageVersion Include="System.Drawing.Common" Version="9.0.1" />
-
-	<!-- SQL Client (legacy) -->
-	<PackageVersion Include="System.Data.SqlClient" Version="4.8.6" />
-
-	<!-- Docker tooling -->
-	<PackageVersion Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-
-	<!-- Logging / Observability -->
+	<!-- Logging / Observability (OpenTelemetry 1.15.3+ fixes GHSA-g94r-2vxg-569j) -->
 	<PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
 	<PackageVersion Include="Serilog.Sinks.Console" Version="6.0.0" />
-	<PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
-	<PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
-	<PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
-	<PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
+	<PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.21.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.21.0" />
+	<PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.21.0" />
+	<PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.21.0" />
 	<PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.0" />
 
 	<!-- Testing -->
@@ -94,11 +67,9 @@
 	<PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
 	<PackageVersion Include="xunit" Version="2.9.3" />
 	<PackageVersion Include="xunit.runner.visualstudio" Version="3.0.1" />
-	<PackageVersion Include="Xunit.Priority" Version="1.1.6" />
 	<PackageVersion Include="FluentAssertions" Version="7.1.0" />
 	<PackageVersion Include="coverlet.collector" Version="6.0.2" />
 	<PackageVersion Include="NSubstitute" Version="5.3.0" />
-	<PackageVersion Include="System.Net.Http.Json" Version="9.0.1" />
   </ItemGroup>
 
 </Project>

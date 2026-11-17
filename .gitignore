@@ -4,3 +4,6 @@
 # Build output
 **/bin/
 **/obj/
+
+# Local container secrets (docker-compose)
+.env

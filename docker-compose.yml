@@ -1,57 +1,37 @@
-version: '3.5'
-
-networks:
-  localdev:
-    name: development-environment
-
-volumes:
-  db-data: 
-  pgadmin:
+# Local development stack. Put secrets in a git-ignored .env file next to this file, e.g.
+#   POSTGRES_PASSWORD=<local password>
+#   JwtSettings__Secret=<at least 32 random characters>
+name: hopaut
 
 services:
-  main-api:
+  api:
     build: .
-    restart: always
-    ports:
-      - "443:443"
-      - "80:80"
-    depends_on: 
-      - db-server
-    networks: 
-      - localdev
-  
-  # after spinning up this container u have to connect pgadmin to postgresql -> for ip section, type this in terminal: docker inspect postgres_container
-  # find your ip, gateway. use the gateway ip for the pgadmin. 
-  db-server:
-    image: postgresqlaas/docker-postgresql-9.6
-    container_name: postgresql
+    depends_on:
+      - db
+      - redis
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-    volumes: 
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=hopaut;Username=${POSTGRES_USER:-hopaut};Password=${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      ConnectionStrings__Redis: redis:6379
+      JwtSettings__Secret: ${JwtSettings__Secret:-}
+    ports:
+      - "8080:8080"
+
+  db:
+    image: postgis/postgis:17-3.5
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-hopaut}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: hopaut
+    volumes:
       - db-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    networks: 
-      - localdev
-
-  pgadmin:
-    image: dpage/pgadmin4
-    depends_on:
-      - db-server
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    volumes:
-      - pgadmin:/root/.pgadmin
-    ports:
-      - "5050:80"
 
   redis:
-    image: redis
-    container_name: redis
+    image: redis:7-alpine
     ports:
       - "6379:6379"
-    networks:
-      - localdev
-    
+
+volumes:
+  db-data:
