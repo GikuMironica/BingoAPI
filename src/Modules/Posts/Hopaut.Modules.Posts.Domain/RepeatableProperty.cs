@@ -7,7 +7,5 @@ public sealed class RepeatableProperty
 {
     private RepeatableProperty() { } // EF Core
 
-    public int Id { get; private set; }
-
     public PostId PostId { get; private set; }
 }

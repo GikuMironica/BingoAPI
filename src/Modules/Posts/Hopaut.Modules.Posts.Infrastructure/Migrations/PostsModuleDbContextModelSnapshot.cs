@@ -32,20 +32,14 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
 
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.Event", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("PostId")
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int>("EventType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PostId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Requirements")
@@ -76,23 +70,17 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
                                 .IsFixedLength();
                         });
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId");
 
                     b.HasIndex("EventType");
-
-                    b.HasIndex("PostId")
-                        .IsUnique();
 
                     b.ToTable("events", "posts");
                 });
 
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.EventLocation", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("PostId")
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
                         .HasColumnType("text");
@@ -110,20 +98,14 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("geography (point)");
 
-                    b.Property<int>("PostId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Region")
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("PostId");
 
                     b.HasIndex("Location");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Location"), "gist");
-
-                    b.HasIndex("PostId")
-                        .IsUnique();
 
                     b.ToTable("event_locations", "posts");
                 });
@@ -215,19 +197,10 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
 
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.RepeatableProperty", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
                     b.Property<int>("PostId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId")
-                        .IsUnique();
+                    b.HasKey("PostId");
 
                     b.ToTable("repeatable_properties", "posts");
                 });
@@ -286,13 +259,11 @@ namespace Hopaut.Modules.Posts.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Hopaut.Modules.Posts.Domain.Tag", "Tag")
+                    b.HasOne("Hopaut.Modules.Posts.Domain.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("Hopaut.Modules.Posts.Domain.RepeatableProperty", b =>

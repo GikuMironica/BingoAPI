@@ -11,8 +11,6 @@ public sealed class EventLocation
 
     private EventLocation() { } // EF Core
 
-    public int Id { get; private set; }
-
     public PostId PostId { get; private set; }
 
     public string? EntityName { get; private set; }

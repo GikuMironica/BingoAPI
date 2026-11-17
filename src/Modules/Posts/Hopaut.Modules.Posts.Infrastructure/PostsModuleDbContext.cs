@@ -59,12 +59,12 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
             entity.HasMany(e => e.Tags).WithOne().HasForeignKey(t => t.PostId);
         });
 
+        // One-to-one children share the post's key (no surrogate IDs, plan Step 6.2).
         modelBuilder.Entity<Event>(entity =>
         {
             entity.ToTable("events");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
+            entity.HasKey(e => e.PostId);
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedNever();
             entity.Property(e => e.EventType).HasConversion<int>();
             entity.Property(e => e.Title).HasConversion<ValueObjectConverter<PostTitle, string>>().IsRequired();
             entity.Property(e => e.Description).HasConversion<ValueObjectConverter<PostDescription, string>>().IsRequired();
@@ -77,9 +77,8 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
         modelBuilder.Entity<EventLocation>(entity =>
         {
             entity.ToTable("event_locations");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
+            entity.HasKey(e => e.PostId);
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedNever();
             entity.Property(e => e.Location).HasColumnType("geography (point)");
             entity.HasIndex(e => e.Location).HasMethod("gist");
         });
@@ -119,9 +118,8 @@ public class PostsModuleDbContext : ModuleDbContext, IPostsUnitOfWork
         modelBuilder.Entity<RepeatableProperty>(entity =>
         {
             entity.ToTable("repeatable_properties");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Id).ValueGeneratedOnAdd();
-            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
+            entity.HasKey(e => e.PostId);
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>().ValueGeneratedNever();
         });
     }
 }

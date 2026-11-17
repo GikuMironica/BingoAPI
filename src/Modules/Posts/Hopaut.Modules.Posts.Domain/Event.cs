@@ -10,8 +10,6 @@ public sealed class Event
 {
     private Event() { } // EF Core
 
-    public int Id { get; private set; }
-
     public PostId PostId { get; private set; }
 
     public EventType EventType { get; private set; }
