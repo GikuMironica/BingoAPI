@@ -13,12 +13,16 @@ public sealed class CreateAnnouncementCommandHandler(
 {
     public async ValueTask<Result<AnnouncementId>> Handle(CreateAnnouncementCommand request, CancellationToken cancellationToken)
     {
-        var authorized = await authorizer.AuthorizeAnnouncementOwnerAsync(posts, request.PostId, cancellationToken);
+        var message = AnnouncementMessage.Create(request.Message);
+        if (ValidationError.FromFailures(("message", message)) is { } invalid)
+            return invalid;
+
+        var authorized = await authorizer.AuthorizeAnnouncerAsync(posts, request.PostId, cancellationToken);
         if (authorized.IsFailure)
             return authorized.Error;
 
         var id = await announcements.NextIdAsync(cancellationToken);
-        var announcement = Announcement.Create(id, request.PostId, request.Message, timeProvider.GetUtcNow());
+        var announcement = Announcement.Create(id, request.PostId, message.Value, timeProvider.GetUtcNow());
 
         announcements.Add(announcement);
         return announcement.Id;

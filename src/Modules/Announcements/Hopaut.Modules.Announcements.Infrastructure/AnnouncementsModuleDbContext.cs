@@ -29,7 +29,11 @@ public class AnnouncementsModuleDbContext : ModuleDbContext, IAnnouncementsUnitO
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<AnnouncementId, int>>().ValueGeneratedNever();
             entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
-            entity.Property(e => e.Message).IsRequired();
+            entity.Property(e => e.Message)
+                .HasConversion<ValueObjectConverter<AnnouncementMessage, string>>()
+                .IsRequired()
+                .HasMaxLength(AnnouncementMessage.MaxLength);
+            entity.Property(e => e.Version).IsRowVersion();
             entity.HasIndex(e => e.PostId);
         });
     }

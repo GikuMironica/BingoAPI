@@ -8,7 +8,7 @@ using Mediator;
 namespace Hopaut.Modules.Announcements.Application.Commands.DeleteAnnouncement;
 
 public sealed class DeleteAnnouncementCommandHandler(
-    IAnnouncementRepository announcements, IPostHostQueries posts, IResourceAuthorizer authorizer)
+    IAnnouncementRepository announcements, IPostHostQueries posts, IResourceAuthorizer authorizer, TimeProvider timeProvider)
     : ICommandHandler<DeleteAnnouncementCommand, Result>
 {
     public async ValueTask<Result> Handle(DeleteAnnouncementCommand request, CancellationToken cancellationToken)
@@ -17,10 +17,11 @@ public sealed class DeleteAnnouncementCommandHandler(
         if (announcement is null)
             return AnnouncementErrors.NotFound(request.AnnouncementId);
 
-        var authorized = await authorizer.AuthorizeAnnouncementOwnerAsync(posts, announcement.PostId, cancellationToken);
+        var authorized = await authorizer.AuthorizeAnnouncerAsync(posts, announcement.PostId, cancellationToken);
         if (authorized.IsFailure)
             return authorized;
 
+        announcement.Delete(timeProvider.GetUtcNow());
         announcements.Remove(announcement);
         return Result.Success();
     }
