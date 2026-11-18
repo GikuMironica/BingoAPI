@@ -1,0 +1,22 @@
+<Project>
+
+  <PropertyGroup>
+	<TargetFramework>net10.0</TargetFramework>
+	<LangVersion>latest</LangVersion>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- TreatWarningsAsErrors opt-in: new projects set <HopautStrictWarnings>true</HopautStrictWarnings> -->
+  <PropertyGroup Condition="'$(HopautStrictWarnings)' == 'true'">
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- SixLabors.ImageSharp >= 3.2 validates a Six Labors license in Release builds (blocker B-002 in TODO.md).
+       Supply the free Community key either as the SixLaborsLicenseKey environment variable or as a git-ignored
+       sixlabors.lic file at the repository root (also mounted as a build secret by the Dockerfile). Never commit the key. -->
+  <PropertyGroup Condition="'$(SixLaborsLicenseKey)' == '' and '$(SixLaborsLicenseFile)' == '' and Exists('$(MSBuildThisFileDirectory)sixlabors.lic')">
+	<SixLaborsLicenseFile>$(MSBuildThisFileDirectory)sixlabors.lic</SixLaborsLicenseFile>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.Modules.Ratings.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mediator.Abstractions" />
+    <PackageReference Include="FluentValidation" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hopaut.Modules.Ratings.Domain\Hopaut.Modules.Ratings.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\Posts\Hopaut.Modules.Posts.Contracts\Hopaut.Modules.Posts.Contracts.csproj" />
+    <ProjectReference Include="..\..\Attendance\Hopaut.Modules.Attendance.Contracts\Hopaut.Modules.Attendance.Contracts.csproj" />
+  </ItemGroup>
+
+</Project>

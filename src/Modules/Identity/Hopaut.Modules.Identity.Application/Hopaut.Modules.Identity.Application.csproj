@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.Modules.Identity.Application</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Mediator.Abstractions" />
+    <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+  </ItemGroup>
+
+  <!-- SignInManager<T> and UserManager<T> come from the ASP.NET Core shared framework (formerly it arrived through
+       FluentValidation.AspNetCore). Known layering violation F-053 (baselined ARCH-LAYER-APPLICATION); plan Step 8.9
+       replaces it with an Application port. -->
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hopaut.Modules.Identity.Domain\Hopaut.Modules.Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+
+</Project>

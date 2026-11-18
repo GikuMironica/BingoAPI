@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Hopaut.BuildingBlocks.Infrastructure</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ASP.NET Core authorization for the resource-owner policies the modules register (plan Step 6.9). -->
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hangfire.AspNetCore" />
+    <PackageReference Include="Hangfire.PostgreSql" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hopaut.SharedKernel\Hopaut.SharedKernel.csproj" />
+    <ProjectReference Include="..\Hopaut.IntegrationEvents\Hopaut.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\Hopaut.BuildingBlocks.Application\Hopaut.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+
+</Project>

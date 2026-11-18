@@ -1,0 +1,51 @@
+using Hopaut.BuildingBlocks.Infrastructure;
+using Hopaut.Modules.Ratings.Application;
+using Hopaut.Modules.Ratings.Domain;
+using Hopaut.Modules.Ratings.Infrastructure.Reputation;
+using Hopaut.SharedKernel;
+using Mediator;
+using Microsoft.EntityFrameworkCore;
+
+namespace Hopaut.Modules.Ratings.Infrastructure;
+
+public class RatingsModuleDbContext : ModuleDbContext, IRatingsUnitOfWork
+{
+    public const string SchemaName = "ratings";
+
+    /// <summary>Source of rating IDs; <see cref="IRatingRepository.NextIdAsync"/> reads it before a rating is created.</summary>
+    public const string RatingIdSequence = "rating_ids";
+
+    public RatingsModuleDbContext(DbContextOptions<RatingsModuleDbContext> options, IPublisher publisher) : base(options, publisher) { }
+
+    public DbSet<Rating> Ratings => Set<Rating>();
+    public DbSet<UserReputation> UserReputations => Set<UserReputation>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema(SchemaName);
+        modelBuilder.HasSequence<int>(RatingIdSequence);
+
+        modelBuilder.Entity<Rating>(entity =>
+        {
+            entity.ToTable("ratings");
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id).HasConversion<StronglyTypedIdConverter<RatingId, int>>().ValueGeneratedNever();
+            entity.Property(e => e.Rate).HasConversion<ValueObjectConverter<RatingValue, int>>();
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.RaterId).HasConversion<StronglyTypedIdConverter<UserId, string>>().IsRequired().HasMaxLength(450);
+            entity.Property(e => e.PostId).HasConversion<StronglyTypedIdConverter<PostId, int>>();
+            entity.Property(e => e.Feedback).HasConversion<ValueObjectConverter<RatingFeedback, string>>().HasMaxLength(RatingFeedback.MaxLength);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.PostId);
+            entity.HasIndex(e => new { e.RaterId, e.PostId }).IsUnique();
+        });
+
+        modelBuilder.Entity<UserReputation>(entity =>
+        {
+            entity.ToTable("user_reputations");
+            entity.HasKey(e => e.UserId);
+            entity.Property(e => e.UserId).HasConversion<StronglyTypedIdConverter<UserId, string>>().HasMaxLength(450);
+            entity.Property(e => e.Version).IsRowVersion();
+        });
+    }
+}
